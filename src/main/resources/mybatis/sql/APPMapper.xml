@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.app.AppMapper">
+
+    <select id="findByAppId"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO"
+            parameterType="String">
+        select * from app_table where appid = #{appId}
+    </select>
+
+    <select id="findByAppName"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO"
+            parameterType="String">
+        select * from app_table where appname = #{appName}
+    </select>
+
+    <update id="update"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO">
+        update app_table
+        SET modifytime = (select now()), shortdesc=#{shortDesc}, provider =#{provider}, appname=
+        #{appName}, applicationType=#{applicationType}, appIntroduction=#{appIntroduction},
+        downloadcount=#{downloadCount},AFFINITY=#{affinity},INDUSTRY=#{industry},contact=#{contact},USERID=#{userId}
+        WHERE APPID = #{appId}
+    </update>
+
+    <insert id="insert"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO">
+        insert into
+        app_table
+        (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, appIntroduction,
+        downloadcount, affinity, industry, contact, userid, username, score)
+        VALUES
+        (#{appId}, (select now()), (select now()), #{shortDesc},#{provider}, #{appName},
+        #{applicationType},
+        #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0)
+    </insert>
+
+    <delete id="remove" parameterType="String">
+        delete from
+        app_table
+        where
+        appid=#{appId}
+    </delete>
+
+
+    <select id="countTotal" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) from app_table
+        <where>
+            <if test="appName != null">
+                and appname = #{appName}
+            </if>
+            <if test="provider != null">
+                and provider = #{provider}
+            </if>
+            <if test="applicationType != null">
+                and applicationtype = #{applicationType}
+            </if>
+            <if test="affinity != null">
+                and affinity = #{affinity}
+            </if>
+            <if test="userId != null">
+                and userid = #{userId}
+            </if>
+        </where>
+        limit #{limit} offset #{offset}
+    </select>
+
+
+    <select id="findAllWithAppPagination"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO"
+            parameterType="java.util.Map">
+        select * from app_table
+        <where>
+            <if test="appId != null">
+                and appid = #{appId}
+            </if>
+            <if test="appName != null">
+                and appname = #{appName}
+            </if>
+            <if test="provider != null">
+                and provider = #{provider}
+            </if>
+            <if test="applicationType != null">
+                and applicationtype = #{applicationType}
+            </if>
+            <if test="affinity != null">
+                and affinity = #{affinity}
+            </if>
+            <if test="userId != null">
+                and userid = #{userId}
+            </if>
+        </where>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <insert id="insertRelease"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO">
+        insert into catalog_package_table
+        (versionID, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
+        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid)
+        VALUES
+        (#{versionID}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
+        #{appName}, #{version}, #{applicationType},
+        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId},#{userId})
+    </insert>
+
+    <delete id="removeReleasesByAppId" parameterType="String">
+        delete from
+        catalog_package_table
+        where
+        appid=#{appId}
+    </delete>
+
+    <select id="findAllByAppId" resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO">
+        select
+        *
+        from
+        catalog_package_table
+        where
+        appid=#{appId}
+    </select>
+
+    <select id="findAllWithPagination"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO"
+            parameterType="java.util.Map">
+        select * from catalog_package_table where appid = #{appId} limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countTotalForReleases" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) FROM catalog_package_table where appid = #{appId} limit #{limit} offset
+        #{offset}
+    </select>
+
+    <delete id="removeByVersionId" parameterType="String">
+        delete from
+        catalog_package_table
+        where
+        versionId=#{versionId}
+    </delete>
+</mapper>

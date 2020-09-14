@@ -1,0 +1,53 @@
+servicecomb-config-order: 1
+APPLICATION_ID: edgegallery
+service_description:
+  name: mec-appstore
+  version: 0.9.0
+  environment: development
+servicecomb:
+  service:
+    registry:
+      address: ${SC_ADDRESS}
+  rest:
+    address: ${LISTEN_IP:0.0.0.0}:8099
+    servlet:
+      urlPattern: /cse/*
+  uploads:
+    directory: /home/appstore
+    maxSize: -1
+
+###pgsql config######
+server:
+  port: 8099
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    protocol: TLS
+    enabled-protocols: [TLSv1.2]
+    ciphers: [TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+              TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384]
+    key-store: ${SSL_KEY_STORE_PATH:}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:}
+    key-store-type: ${SSL_KEY_STORE_TYPE:}
+    key-alias: ${SSL_KEY_ALIAS:}
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_IP:appstore-be-postgres-svc}:${POSTGRES_PORT:5432}/${POSTGRES_DB_NAME:appstoredb}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      
+###mybtis####
+mybatis:
+  mapper-locations: classpath:mybatis/sql/*.xml
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key

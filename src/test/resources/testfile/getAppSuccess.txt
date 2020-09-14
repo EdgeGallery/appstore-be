@@ -1,0 +1,1 @@
+{"appId":"30ec10f4a43041e6a6198ba824311af2","iconUrl":null,"name":"car_networking_app","provider":"Company","type":"Video","shortDesc":"Desc","createTime":"2020-03-13 12:05:17.255272","details":"content","downloadCount":1,"affinity":"GPU","industry":"Smart Campus","contact":"xxx@xxx.xxx","score":5.0,"userId":"001","userName":"testuser001"}
