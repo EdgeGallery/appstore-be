@@ -40,41 +40,38 @@ public class GetPackageByIdTest extends AppInterfacesTest {
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
         MvcResult result = resultActions.andReturn();
         MockHttpServletResponse obj = result.getResponse();
-        Assert.assertTrue(obj.getContentAsString().length() > 100);
+        Assert.assertTrue(obj.getStatus() == 200);
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackageWithException() {
+    public void getAppPackageWithException() throws Exception {
         boolean checkResult = false;
         String appId = "30ec10f4a43041e6a6198ba824311af4";
         String packageId = "44a00b12c13b43318d21840793549339";
 
-        try {
-            mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            if (e.getCause() instanceof EntityNotFoundException) {
-                checkResult = true;
-            }
-        }
-        Assert.assertTrue(checkResult);
-    }
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
 
+        MvcResult result = resultActions.andReturn();
+        MockHttpServletResponse obj = result.getResponse();
+        Assert.assertTrue(obj.getStatus() == 404);
+    }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackageFailedByWrongId() {
+    public void getAppPackageFailedByWrongId() throws Exception {
         String appId = "wrongId";
         String packageId = "44a00b12c13b43318d21840793549339";
-        try {
-            mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
+        ResultActions resultActions =
+                mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
+            MvcResult result = resultActions.andReturn();
+            MockHttpServletResponse obj = result.getResponse();
+            System.out.println(obj.getCharacterEncoding());
+            Assert.assertTrue(obj.getStatus() == 400);
     }
 
 }

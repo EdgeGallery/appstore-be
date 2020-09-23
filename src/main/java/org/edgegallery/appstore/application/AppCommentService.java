@@ -18,7 +18,6 @@ package org.edgegallery.appstore.application;
 
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
-import org.edgegallery.appstore.domain.model.comment.CannotCreateCommentExecption;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -50,7 +49,6 @@ public class AppCommentService {
      * @param score score of app.
      * @throws EntityNotFoundException throw EntityNotFoundException.
      */
-    @Transactional(rollbackFor = CannotCreateCommentExecption.class)
     public void comment(User user, String appId, String comments, double score) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         Comment comment = new Comment(user, app.getAppId(), comments, score);

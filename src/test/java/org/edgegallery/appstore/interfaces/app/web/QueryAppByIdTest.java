@@ -28,6 +28,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 public class QueryAppByIdTest extends AppInterfacesTest {
@@ -47,31 +48,31 @@ public class QueryAppByIdTest extends AppInterfacesTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppFailed() {
+    public void getAppFailed() throws Exception {
         boolean checkResult = false;
         String appId = "30ec10f4a43041e6a6198ba824311af9"; //app is not exist.
-        try {
-            mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            if (e.getCause() instanceof EntityNotFoundException) {
-                checkResult = true;
-            }
-        }
-        Assert.assertTrue(checkResult);
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
+        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andReturn();
+        int result = mvcResult.getResponse().getStatus();
+        Assert.assertEquals(result, HttpStatus.NOT_FOUND.value());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppFailedWithAttackId() {
+    public void getAppFailedWithAttackId() throws Exception {
         String appId = "attackId"; //app id is not match the parameter check reg {appId:[0-9a-f]{32}}.
-        try {
-            mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
+        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andReturn();
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
     }
 }

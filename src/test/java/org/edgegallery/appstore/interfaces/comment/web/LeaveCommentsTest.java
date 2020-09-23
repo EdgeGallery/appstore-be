@@ -75,7 +75,7 @@ public class LeaveCommentsTest extends AppInterfacesTest {
 
         MvcResult result = resultActions.andReturn();
         MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals("", obj.getContentAsString());
+        Assert.assertEquals(obj.getStatus(),400);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class LeaveCommentsTest extends AppInterfacesTest {
 
         MvcResult result = resultActions.andReturn();
         MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals("", obj.getContentAsString());
+        Assert.assertEquals( obj.getStatus(), 400);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class LeaveCommentsTest extends AppInterfacesTest {
                     .content(requestJson)
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
+                    .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals("addComments.appId: must match \"[0-9a-f]{32}\"", e.getRootCause().getMessage());
         }
