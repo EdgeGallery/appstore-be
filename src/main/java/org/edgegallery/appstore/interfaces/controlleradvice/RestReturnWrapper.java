@@ -41,6 +41,7 @@ public class RestReturnWrapper implements ResponseBodyAdvice<Object> {
 
     /**
      * Process the body, request, response and other requests before returning.
+     *
      * @return
      */
     @Override
@@ -48,11 +49,10 @@ public class RestReturnWrapper implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType,
         Class<? extends HttpMessageConverter<?>> httpMessageConverter, ServerHttpRequest serverHttpRequest,
         ServerHttpResponse serverHttpResponse) {
-        if ( body instanceof RestReturn ) {
+        if (body instanceof RestReturn) {
             RestReturn results = (RestReturn) body;
             HttpStatus status = HttpStatus.valueOf(results.getCode());
             serverHttpResponse.setStatusCode(status);
-            return body;
         }
         return body;
     }
