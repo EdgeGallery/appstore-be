@@ -45,4 +45,19 @@ public class DeleteAppByIdTest extends AppInterfacesTest {
         int status = mvcResult.getResponse().getStatus();
         Assert.assertEquals(HttpStatus.OK.value(), status);
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_no_userid() throws Exception {
+        String userName = "username";
+        String appId = "30ec10f4a43041e6a6198ba824311af3";
+
+        ResultActions resultActions = mvc.perform(
+            MockMvcRequestBuilders.delete(REST_API_ROOT + appId)
+                .with(csrf())
+                .param("userName", userName));
+        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print()).andReturn();
+        int status = mvcResult.getResponse().getStatus();
+        Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), status);
+    }
 }

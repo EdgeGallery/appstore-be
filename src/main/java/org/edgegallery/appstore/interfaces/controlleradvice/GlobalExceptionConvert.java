@@ -26,6 +26,8 @@ import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsExcept
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingMatrixVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -42,9 +44,18 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public RestReturn defaultException(HttpServletRequest request, Exception e) {
+        if(e instanceof MissingMatrixVariableException || e instanceof HttpMessageNotReadableException) {
+            return badRequestResponse(request, e);
+        }
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).build();
+    }
+
+    private RestReturn badRequestResponse(HttpServletRequest request, Exception e) {
+        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
@@ -56,9 +67,7 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn illegalArgumentException(HttpServletRequest request,
         IllegalArgumentException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
     }
 
     /**
@@ -96,9 +105,19 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn constraintViolationException(HttpServletRequest request,
         ConstraintViolationException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
+    }
+
+    /**
+     * Handle MissingServletRequestParameterException.
+     *
+     * @return
+     */
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    @ResponseBody
+    public RestReturn missingServletRequestParameterException(HttpServletRequest request,
+        MissingServletRequestParameterException e) {
+        return badRequestResponse(request, e);
     }
 
     /**
@@ -108,11 +127,9 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseBody
-    public RestReturn httpMessageNotReadableException(HttpServletRequest request,
+    public RestReturn methodArgumentNotValidException(HttpServletRequest request,
         MethodArgumentNotValidException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
     }
 
     /**
@@ -124,9 +141,7 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn httpMessageNotReadableException(HttpServletRequest request,
         HttpMessageNotReadableException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
     }
 
     /**
@@ -138,9 +153,7 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn missingServletRequestPartException(HttpServletRequest request,
         MissingServletRequestPartException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
     }
 
     /**
@@ -192,8 +205,6 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn redundantCommentsException(HttpServletRequest request,
         RedundantCommentsException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return badRequestResponse(request, e);
     }
 }
