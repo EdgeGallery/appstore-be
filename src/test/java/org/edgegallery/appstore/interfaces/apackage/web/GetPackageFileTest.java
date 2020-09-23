@@ -68,7 +68,7 @@ public class GetPackageFileTest extends AppInterfacesTest {
                             "/files?filePath=" + filePath).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals("ab cd.md :filepath contain blank", e.getRootCause().getMessage());
         }
@@ -86,7 +86,7 @@ public class GetPackageFileTest extends AppInterfacesTest {
                             "/files?filePath=" + filePath).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals(" :filepath is empty", e.getRootCause().getMessage());
         }
@@ -104,7 +104,7 @@ public class GetPackageFileTest extends AppInterfacesTest {
                             "/files?filePath=" + filePath).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals(null, e.getRootCause().getMessage());
         }
@@ -122,7 +122,7 @@ public class GetPackageFileTest extends AppInterfacesTest {
                             "/files?filePath=" + filePath).with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isNotFound());
         } catch (FileNotFoundException e) {
             Assert.assertTrue(!StringUtils.isEmpty(e.getMessage()));
         }

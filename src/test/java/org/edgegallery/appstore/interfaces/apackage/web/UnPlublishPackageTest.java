@@ -80,7 +80,7 @@ public class UnPlublishPackageTest extends AppInterfacesTest {
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isNotFound());
         } catch (NestedServletException e) {
             Assert.assertEquals("No release with versionId 44a00b12c13b43318d21840793549348 exists in the system", e.getRootCause().getMessage());
         }
@@ -100,7 +100,7 @@ public class UnPlublishPackageTest extends AppInterfacesTest {
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals("unPublishPackage.packageId: must match \"[0-9a-f]{32}\"", e.getRootCause().getMessage());
         }
@@ -120,7 +120,7 @@ public class UnPlublishPackageTest extends AppInterfacesTest {
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (NestedServletException e) {
             Assert.assertEquals("unPublishPackage.userId: must match \"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\"", e.getRootCause().getMessage());
         }

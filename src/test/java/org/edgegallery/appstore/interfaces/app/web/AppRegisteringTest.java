@@ -120,8 +120,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'file' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -149,8 +149,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'icon' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -180,8 +180,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'type' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -211,8 +211,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'shortDesc' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -242,8 +242,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'affinity' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -272,8 +272,8 @@ public class AppRegisteringTest extends AppInterfacesTest {
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
-            String result = mvcResult.getResponse().getErrorMessage();
-            Assert.assertEquals("Required request part 'industry' is not present", result);
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
