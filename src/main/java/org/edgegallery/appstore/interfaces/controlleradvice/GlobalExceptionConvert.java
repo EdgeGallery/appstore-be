@@ -121,18 +121,6 @@ public class GlobalExceptionConvert {
     }
 
     /**
-     * Handle MethodArgumentNotValidException.
-     *
-     * @return
-     */
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseBody
-    public RestReturn methodArgumentNotValidException(HttpServletRequest request,
-        MethodArgumentNotValidException e) {
-        return badRequestResponse(request, e);
-    }
-
-    /**
      * Handle HttpMessageNotReadableException.
      *
      * @return
