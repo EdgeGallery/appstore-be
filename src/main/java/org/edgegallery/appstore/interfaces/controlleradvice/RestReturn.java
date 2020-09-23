@@ -16,16 +16,12 @@
 
 package org.edgegallery.appstore.interfaces.controlleradvice;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * Interface Return Contractor
- */
 @Data
 @Builder
 public class RestReturn {
@@ -59,11 +55,9 @@ public class RestReturn {
             return false;
         }
         RestReturn that = (RestReturn) o;
-        return getCode() == that.getCode() &&
-                Objects.equals(getTimestamp(), that.getTimestamp()) &&
-                Objects.equals(getError(), that.getError()) &&
-                Objects.equals(getMessage(), that.getMessage()) &&
-                Objects.equals(getPath(), that.getPath());
+        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp())
+            && Objects.equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage())
+            && Objects.equals(getPath(), that.getPath());
     }
 
     @Override
