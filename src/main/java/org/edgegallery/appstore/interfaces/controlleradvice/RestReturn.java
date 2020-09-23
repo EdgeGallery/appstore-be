@@ -43,4 +43,8 @@ public class RestReturn {
 
     // request path
     private String path;
+
+    public Date getTimestamp() {
+        return new Date(timestamp.getTime());
+    }
 }
