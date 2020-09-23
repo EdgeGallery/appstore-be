@@ -14,17 +14,33 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.comment;
+package org.edgegallery.appstore.interfaces.controlleradvice;
 
-public class CannotCreateCommentExecption extends Exception {
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
+import lombok.Data;
 
-    private static final long serialVersionUID = -5940896119713588178L;
+/**
+ * Interface Return Contractor
+ */
+@Data
+@Builder
+public class RestReturn {
 
-    public CannotCreateCommentExecption() {
-        super();
-    }
+    // timestamp
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    private final Date timestamp = new Date();
 
-    public CannotCreateCommentExecption(Throwable cause) {
-        super(cause);
-    }
+    // Error code.
+    private int code;
+
+    // Description of error.
+    private String error;
+
+    // Detail of error.
+    private String message;
+
+    // request path
+    private String path;
 }
