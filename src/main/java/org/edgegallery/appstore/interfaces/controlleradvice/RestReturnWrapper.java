@@ -31,38 +31,28 @@ public class RestReturnWrapper implements ResponseBodyAdvice<Object> {
 
     /**
      * Determine which request to execute beforeBodyWrite, return true to execute, return false to not execute.
-     * */
+     */
     @Override
-    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
-        //
+    public boolean supports(MethodParameter methodParameter,
+        Class<? extends HttpMessageConverter<?>> converterType) {
         return true;
     }
 
 
     /**
      * Process the body, request, response and other requests before returning.
-     * @param body
-     * @param methodParameter
-     * @param mediaType
-     * @param httpMessageConverter
-     * @param serverHttpRequest
-     * @param serverHttpResponse
-     *
      * @return
-     * */
+     */
     @Override
     @ResponseBody
-    public Object beforeBodyWrite(Object body,
-                                  MethodParameter methodParameter,
-                                  MediaType mediaType,
-                                  Class<? extends HttpMessageConverter<?>> httpMessageConverter,
-                                  ServerHttpRequest serverHttpRequest,
-                                  ServerHttpResponse serverHttpResponse) {
-        if(body instanceof RestReturn) {
-                RestReturn results = (RestReturn) body;
-                HttpStatus status = HttpStatus.valueOf(results.getCode());
-                serverHttpResponse.setStatusCode(status);
-                return body;
+    public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType,
+        Class<? extends HttpMessageConverter<?>> httpMessageConverter, ServerHttpRequest serverHttpRequest,
+        ServerHttpResponse serverHttpResponse) {
+        if ( body instanceof RestReturn ) {
+            RestReturn results = (RestReturn) body;
+            HttpStatus status = HttpStatus.valueOf(results.getCode());
+            serverHttpResponse.setStatusCode(status);
+            return body;
         }
         return body;
     }

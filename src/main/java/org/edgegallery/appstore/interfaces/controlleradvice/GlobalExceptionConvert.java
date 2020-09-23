@@ -35,166 +35,165 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 public class GlobalExceptionConvert {
 
     /**
-     * Handle Exception
-     * @param e
+     * Handle Exception.
+     *
      * @return
      */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public RestReturn defaultException(HttpServletRequest request, Exception e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR
-            .getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage()).
-                path(request.getRequestURI()).build();
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).build();
     }
 
     /**
-     * Handler IllegalArgumentException
-     * @param e
+     * Handler IllegalArgumentException.
+     *
      * @return
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
-    public RestReturn illegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST
-                .getStatusCode()).error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                    path(request.getRequestURI()).build();
+    public RestReturn illegalArgumentException(HttpServletRequest request,
+        IllegalArgumentException e) {
+        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handler AccessDeniedException
-     * @param e
+     * Handler AccessDeniedException.
+     *
      * @return
      */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public RestReturn accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
-        return RestReturn.builder().code(Response.Status.UNAUTHORIZED
-                .getStatusCode()).error(Response.Status.UNAUTHORIZED.getReasonPhrase()).message(e.getMessage()).
-                     path(request.getRequestURI()).build();
+        return RestReturn.builder().code(Response.Status.UNAUTHORIZED.getStatusCode())
+            .error(Response.Status.UNAUTHORIZED.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle RuntimeException
+     * Handle RuntimeException.
      *
-     * @param e
      * @return
      */
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public RestReturn runtimeException(HttpServletRequest request, RuntimeException e) {
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.
-                getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .message(e.getMessage()).path(request.getRequestURI()).build();
     }
 
     /**
-     * Handle ConstraintViolationException
-     * @param e
+     * Handle ConstraintViolationException.
+     *
      * @return
      */
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseBody
-    public RestReturn constraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
+    public RestReturn constraintViolationException(HttpServletRequest request,
+        ConstraintViolationException e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-                .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle MethodArgumentNotValidException
-     * @param e
+     * Handle MethodArgumentNotValidException.
+     *
      * @return
      */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseBody
     public RestReturn httpMessageNotReadableException(HttpServletRequest request,
-                                                      MethodArgumentNotValidException e) {
+        MethodArgumentNotValidException e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-                .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle HttpMessageNotReadableException
-     * @param e
+     * Handle HttpMessageNotReadableException.
+     *
      * @return
      */
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
     public RestReturn httpMessageNotReadableException(HttpServletRequest request,
-                                                         HttpMessageNotReadableException e) {
+        HttpMessageNotReadableException e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-                .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle MissingServletRequestPartException
-     * @param e
+     * Handle MissingServletRequestPartException.
+     *
      * @return
      */
     @ExceptionHandler(value = MissingServletRequestPartException.class)
     @ResponseBody
     public RestReturn missingServletRequestPartException(HttpServletRequest request,
-                                                         MissingServletRequestPartException e) {
+        MissingServletRequestPartException e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-                .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle EntityNotFoundException
+     * Handle EntityNotFoundException.
      *
-     * @param e
      * @return
      */
     @ExceptionHandler(value = EntityNotFoundException.class)
     @ResponseBody
     public RestReturn entityNotFoundException(HttpServletRequest request, EntityNotFoundException e) {
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
-                .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
-
+            .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle FileNotFoundException
+     * Handle FileNotFoundException.
      *
-     * @param e
      * @return
      */
     @ExceptionHandler(value = FileNotFoundException.class)
     @ResponseBody
     public RestReturn fileNotFoundException(HttpServletRequest request, FileNotFoundException e) {
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
-                .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
 
     }
 
     /**
-     * Handle UnknownReleaseExecption
-     * @param e
+     * Handle UnknownReleaseExecption.
+     *
      * @return
      */
     @ExceptionHandler(value = UnknownReleaseExecption.class)
     @ResponseBody
     public RestReturn unknownReleaseExecption(HttpServletRequest request, UnknownReleaseExecption e) {
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
-                .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 
     /**
-     * Handle RedundantCommentsException
-     * @param e
+     * Handle RedundantCommentsException.
+     *
      * @return
      */
     @ExceptionHandler(value = RedundantCommentsException.class)
     @ResponseBody
-    public RestReturn redundantCommentsException(HttpServletRequest request, RedundantCommentsException e) {
+    public RestReturn redundantCommentsException(HttpServletRequest request,
+        RedundantCommentsException e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
-                .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).
-                        path(request.getRequestURI()).build();
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 }
