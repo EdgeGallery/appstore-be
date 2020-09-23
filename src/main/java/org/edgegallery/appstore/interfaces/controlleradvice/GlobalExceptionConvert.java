@@ -82,8 +82,8 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public RestReturn runtimeException(HttpServletRequest request, RuntimeException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.
-            getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR
+            .getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
             .message(e.getMessage()).path(request.getRequestURI()).build();
     }
 
