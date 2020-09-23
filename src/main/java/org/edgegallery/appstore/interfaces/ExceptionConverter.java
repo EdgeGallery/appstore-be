@@ -20,7 +20,6 @@ import javax.validation.ConstraintViolationException;
 import org.apache.servicecomb.swagger.invocation.Response;
 import org.apache.servicecomb.swagger.invocation.SwaggerInvocation;
 import org.apache.servicecomb.swagger.invocation.exception.ExceptionToProducerResponseConverter;
-import org.edgegallery.appstore.domain.model.comment.CannotCreateCommentExecption;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
@@ -41,9 +40,6 @@ public class ExceptionConverter implements ExceptionToProducerResponseConverter<
         }
         if (e instanceof UnknownReleaseExecption) {
             return Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND);
-        }
-        if (e instanceof CannotCreateCommentExecption) {
-            return Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
         }
         if (e instanceof ConstraintViolationException) {
             return Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST);
