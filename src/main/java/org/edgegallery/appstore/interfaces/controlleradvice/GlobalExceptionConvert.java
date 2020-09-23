@@ -27,6 +27,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingMatrixVariableException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,7 +45,8 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public RestReturn defaultException(HttpServletRequest request, Exception e) {
-        if(e instanceof MissingMatrixVariableException || e instanceof HttpMessageNotReadableException) {
+        if (e instanceof MissingMatrixVariableException || e instanceof HttpMessageNotReadableException
+            || e instanceof MethodArgumentNotValidException || e instanceof MissingPathVariableException) {
             return badRequestResponse(request, e);
         }
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
