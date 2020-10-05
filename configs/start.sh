@@ -222,3 +222,45 @@ if [ ! -z "$SSL_KEY_ALIAS" ] ; then
       exit 1
    fi
 fi
+
+# db parameters validation
+if [ ! -z "$POSTGRES_IP" ] ; then
+   validate_host_name "$POSTGRES_IP"
+   valid_db_host_name="$?"
+   if [ ! "$valid_db_host_name" -eq "0" ] ; then
+      echo "invalid db host name"
+      exit 1
+   fi
+fi
+
+if [ ! -z "$POSTGRES_PORT" ] ; then
+   validate_port_num "$POSTGRES_PORT"
+   valid_appstore_db_port="$?"
+   if [ ! "$valid_appstore_db_port" -eq "0" ] ; then
+      echo "invalid appstore db port number"
+      exit 1
+   fi
+fi
+
+if [ ! -z "$POSTGRES_DB_NAME" ] ; then
+   validate_name "$POSTGRES_DB_NAME"
+   valid_name="$?"
+   if [ ! "$valid_name" -eq "0" ] ; then
+      echo "invalid DB name"
+      exit 1
+   fi
+fi
+
+validate_name "$POSTGRES_USERNAME"
+valid_name="$?"
+if [ ! "$valid_name" -eq "0" ] ; then
+  echo "invalid DB user name"
+  exit 1
+fi
+
+validate_password "$POSTGRES_PASSWORD"
+valid_appstoredb_password="$?"
+if [ ! "$valid_appstoredb_password" -eq "0" ] ; then
+   echo "invalid appstoredb password, complexity validation failed"
+   exit 1
+fi
