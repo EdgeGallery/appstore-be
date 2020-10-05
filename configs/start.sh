@@ -264,3 +264,38 @@ if [ ! "$valid_appstoredb_password" -eq "0" ] ; then
    echo "invalid appstoredb password, complexity validation failed"
    exit 1
 fi
+
+# app parameters validation
+if [ ! -z "$SC_ADDRESS" ] ; then
+  validate_url "$SC_ADDRESS"
+  valid_sc_address_host_name="$?"
+  if [ ! "$valid_sc_address_host_name" -eq "0" ] ; then
+    echo "invalid sc server host name"
+     exit 1
+  fi
+fi
+
+if [ ! -z "$AUTH_SERVER_ADDRESS" ] ; then
+  validate_url "$AUTH_SERVER_ADDRESS"
+  valid_auth_server_host_name="$?"
+  if [ ! "$valid_auth_server_host_name" -eq "0" ] ; then
+    echo "invalid auth server host name"
+     exit 1
+  fi
+fi
+
+if [ ! -z "$LOG_DIR" ] ; then
+  validate_dir_exists "$LOG_DIR"
+  valid_log_dir="$?"
+  if [ ! "$valid_log_dir" -eq "0" ] ; then
+    echo "log directory does not exist"
+    exit 1
+  fi
+fi
+
+validate_ip "$LISTEN_IP"
+valid_listen_ip="$?"
+if [ ! "$valid_listen_ip" -eq "0" ]; then
+  echo "invalid ip address for listen ip"
+  exit 1
+fi
