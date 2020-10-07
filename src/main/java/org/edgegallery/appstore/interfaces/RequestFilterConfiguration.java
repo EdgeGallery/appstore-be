@@ -37,4 +37,18 @@ public class RequestFilterConfiguration {
         registration.setName("HttpTraceLogFilter");
         return registration;
     }
+
+    /**
+     * Registers json request size filter.
+     *
+     * @return instance of filter registration bean
+     */
+    @Bean
+    public FilterRegistrationBean<OncePerRequestFilter> jsonRequestSizeFilterRegistrationBean() {
+        FilterRegistrationBean<OncePerRequestFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new JsonRequestSizeLimitFilter());
+        registration.addUrlPatterns("/mec/appstore/v1/*");
+        registration.setName("JsonRequestSizeLimitFilter");
+        return registration;
+    }
 }
