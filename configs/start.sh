@@ -299,3 +299,8 @@ if [ ! "$valid_listen_ip" -eq "0" ]; then
   echo "invalid ip address for listen ip"
   exit 1
 fi
+
+echo "Running APM"
+umask 0027
+cd /usr/app || exit
+java -jar bin/appstore.jar
