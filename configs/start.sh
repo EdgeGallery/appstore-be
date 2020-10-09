@@ -300,7 +300,7 @@ if [ ! "$valid_listen_ip" -eq "0" ]; then
   exit 1
 fi
 
-echo "Running APM"
+echo "Running Appstore"
 umask 0027
 cd /usr/app || exit
 java -jar bin/appstore.jar
