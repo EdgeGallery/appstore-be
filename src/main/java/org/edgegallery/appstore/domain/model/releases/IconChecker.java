@@ -20,10 +20,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.springframework.web.multipart.MultipartFile;
 
 public class IconChecker extends FileChecker {
+
+    /**
+     * Constructor to create IconChecker.
+     *
+     * @param dir package path
+     */
+    public IconChecker(String dir) {
+        super(dir);
+    }
 
     @Override
     protected long getMaxFileSize() {
@@ -45,7 +53,7 @@ public class IconChecker extends FileChecker {
             throw new IllegalArgumentException("Icon File Name is null.");
         }
 
-        String tempFileAddress = new StringBuilder().append(LocalFileService.DIR)
+        String tempFileAddress = new StringBuilder().append(getDir())
                 .append(File.separator)
                 .append("temp")
                 .append(File.separator)

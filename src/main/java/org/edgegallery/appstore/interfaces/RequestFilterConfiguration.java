@@ -35,6 +35,7 @@ public class RequestFilterConfiguration {
         registration.setFilter(new HttpTraceLogFilter());
         registration.addUrlPatterns("/mec/appstore/v1/*");
         registration.setName("HttpTraceLogFilter");
+        registration.setOrder(0);
         return registration;
     }
 
@@ -49,6 +50,7 @@ public class RequestFilterConfiguration {
         registration.setFilter(new JsonRequestSizeLimitFilter());
         registration.addUrlPatterns("/mec/appstore/v1/*");
         registration.setName("JsonRequestSizeLimitFilter");
+        registration.setOrder(1);
         return registration;
     }
 }
