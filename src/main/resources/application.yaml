@@ -9,7 +9,7 @@ servicecomb:
     registry:
       address: ${SC_ADDRESS}
   rest:
-    address: ${LISTEN_IP:0.0.0.0}:8099
+    address: ${LISTEN_IP:}:8099
     servlet:
       urlPattern: /cse/*
   uploads:
