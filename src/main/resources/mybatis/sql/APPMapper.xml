@@ -156,4 +156,9 @@
         where
         versionId=#{versionId}
     </delete>
+
+    <select id="countTotalAppForUser" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+         select count(*) from app_table where userid = #{userId}
+    </select>
 </mapper>
