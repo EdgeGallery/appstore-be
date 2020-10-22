@@ -27,10 +27,18 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.springframework.web.multipart.MultipartFile;
 
 public class PackageChecker extends FileChecker {
+
+    /**
+     * Constructor to create PackageChecker.
+     *
+     * @param dir package path
+     */
+    public PackageChecker(String dir) {
+        super(dir);
+    }
 
     @Override
     protected long getMaxFileSize() {
@@ -52,7 +60,7 @@ public class PackageChecker extends FileChecker {
             throw new IllegalArgumentException("Package File name is null.");
         }
 
-        String tempFileAddress = new StringBuilder().append(LocalFileService.DIR)
+        String tempFileAddress = new StringBuilder().append(getDir())
                 .append(File.separator)
                 .append("temp")
                 .append(File.separator)
@@ -114,7 +122,7 @@ public class PackageChecker extends FileChecker {
                 int count;
                 // Write the files to the disk, but ensure that the entryName is valid,
                 // and that the file is not insanely big
-                String name = sanitzeFileName(entry.getName(), WORK_TEMP_DIR);
+                String name = sanitzeFileName(entry.getName(), getDir() + File.separator + "temp");
                 File f = new File(name);
                 if (isDir(entry, f)) {
                     continue;
@@ -137,7 +145,7 @@ public class PackageChecker extends FileChecker {
                 }
             }
         } catch (IOException e) {
-            FileUtils.cleanDirectory(new File(WORK_TEMP_DIR));
+            FileUtils.cleanDirectory(new File(getDir() + File.separator + "temp"));
             throw new IllegalArgumentException("unzip csar with exception.");
         } finally {
             zis.close();

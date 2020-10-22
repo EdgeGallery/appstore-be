@@ -37,6 +37,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,9 @@ public class AppServiceFacade {
     @Autowired
     private AppRepository appRepository;
 
+    @Value("${appstore-be.package-path}")
+    private String dir;
+
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
@@ -65,8 +69,8 @@ public class AppServiceFacade {
     public void appRegistering(User user, MultipartFile packageFile, AppParam appParam, MultipartFile iconFile)
         throws IOException {
 
-        AFile packageAFile = getFile(packageFile, new PackageChecker());
-        AFile icon = getFile(iconFile, new IconChecker());
+        AFile packageAFile = getFile(packageFile, new PackageChecker(dir));
+        AFile icon = getFile(iconFile, new IconChecker(dir));
 
         Release release = new Release(packageAFile, icon, user, appParam);
 

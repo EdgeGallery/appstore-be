@@ -25,14 +25,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.springframework.web.multipart.MultipartFile;
 
 
 
 public abstract class FileChecker {
-
-    protected static final String WORK_TEMP_DIR = LocalFileService.DIR + File.separator + "temp";
 
     private static final String REG
             = "[^\\s\\\\/:*?\"<>|](\\x20|[^\\s\\\\/:*?\"<>|])*[^\\s\\\\/:*?\"<>|.]$";
@@ -58,9 +55,20 @@ public abstract class FileChecker {
     private static List<String> extensions = Arrays.asList(PACKAGE_XML_FORMAT, PACKAGE_YAML_FORMAT, PACKAGE_CSH_FORMAT,
                 PACKAGE_META_FORMAT, PACKAGE_TXT_FORMAT, MANIFEST, MARKDOWN);
 
+    private String dir;
+
     protected abstract long getMaxFileSize();
 
     protected abstract List<String> getFileExtensions();
+
+    /**
+     * Constructor to create FileChecker.
+     *
+     * @param dir package path
+     */
+    public FileChecker(String dir) {
+        this.dir = dir;
+    }
 
     /**
      * check if file path is valid.
@@ -146,6 +154,15 @@ public abstract class FileChecker {
         if (!tempFile.exists() && !tempFile.isDirectory() && !tempFile.createNewFile() && !result) {
             throw new IllegalArgumentException("create temp file failed");
         }
+    }
+
+    /**
+     * Returns dir.
+     *
+     * @return dir
+     */
+    public String getDir() {
+        return dir;
     }
 }
 
