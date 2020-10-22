@@ -26,11 +26,18 @@ import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.MaxRecordLimitException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class AppRepositoryImpl implements AppRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppRepositoryImpl.class);
+
+    public static final int MAX_ENTRY_PER_USER_PER_MODEL = 1000;
 
     @Autowired
     private AppMapper appMapper;
@@ -55,6 +62,10 @@ public class AppRepositoryImpl implements AppRepository {
         if (existed.isPresent()) {
             appMapper.update(appPO);
         } else {
+            if (appMapper.countTotalAppForUser(app.getUserId()) >= MAX_ENTRY_PER_USER_PER_MODEL) {
+                LOGGER.error("maximum app limit has reached for user " + app.getUserId());
+                throw new MaxRecordLimitException("maximum app limit has reached for user " + app.getUserId());
+            }
             appMapper.insert(appPO);
         }
         updateReleases(app.getAppId(), app.getReleases());
@@ -68,6 +79,10 @@ public class AppRepositoryImpl implements AppRepository {
 
         releases.forEach(it -> {
             if (!releaseList.contains(it)) {
+                if (releaseList.size() >= MAX_ENTRY_PER_USER_PER_MODEL) {
+                    LOGGER.error("maximum release limit has reached for app " + appId);
+                    throw new MaxRecordLimitException("maximum release limit has reached for app " + appId);
+                }
                 appMapper.insertRelease(AppReleasePO.of(it));
             }
         });

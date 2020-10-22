@@ -41,15 +41,15 @@ public class LocalFileService implements FileService {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileService.class);
 
-    public static final String DIR;
+    private String dir;
 
-
-    static {
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            DIR = "C:\\appstore";
-        } else {
-            DIR = "/home/appstore";
-        }
+    /**
+     * Constructor to create LocalFileService.
+     *
+     * @param dir package path
+     */
+    public LocalFileService(String dir) {
+        this.dir = dir;
     }
 
     private String generateFileName() {
@@ -67,7 +67,7 @@ public class LocalFileService implements FileService {
         String originalFileName = file.getName();
         if (originalFileName != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append(DIR).append(File.separator).append(fileName);
+            sb.append(dir).append(File.separator).append(fileName);
             String fileLoaction = sb.toString();
             sb.append(File.separator).append(fileName).append(".").append(Files.getFileExtension(originalFileName));
             fileAddress = sb.toString();
@@ -162,4 +162,21 @@ public class LocalFileService implements FileService {
         }
     }
 
+    /**
+     * Returns dir.
+     *
+     * @return dir
+     */
+    public String getDir() {
+        return dir;
+    }
+
+    /**
+     * Sets dir.
+     *
+     * @param dir package dir
+     */
+    public void setDir(String dir) {
+        this.dir = dir;
+    }
 }

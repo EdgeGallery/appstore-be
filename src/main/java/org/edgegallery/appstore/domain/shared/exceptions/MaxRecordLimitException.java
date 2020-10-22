@@ -14,23 +14,15 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.config;
+package org.edgegallery.appstore.domain.shared.exceptions;
 
-import org.edgegallery.appstore.domain.service.FileService;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.edgegallery.appstore.domain.shared.Entity;
 
-@Configuration
-public class ApplicationContext {
+public class MaxRecordLimitException extends DomainException {
 
-    @Value("${appstore-be.package-path}")
-    private String dir;
+    private static final long serialVersionUID = 4184922855060285901L;
 
-    @Bean
-    public FileService fileService() {
-        return new LocalFileService(dir);
+    public <T extends Entity> MaxRecordLimitException(String message) {
+        super(message);
     }
-
 }

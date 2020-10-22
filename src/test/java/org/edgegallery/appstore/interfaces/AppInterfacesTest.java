@@ -113,7 +113,7 @@ public class AppInterfacesTest {
 
         try {
             File pngFile = Resources.getResourceAsFile(AR_PNG);
-            FileChecker checker = new IconChecker();
+            FileChecker checker = new IconChecker("/home/appstore");
             MultipartFile mockMutipartFile = new MockMultipartFile("file", "AR.png", MediaType.TEXT_PLAIN_VALUE,
                         FileUtils.openInputStream(pngFile));
             checker.check(mockMutipartFile);
@@ -125,7 +125,7 @@ public class AppInterfacesTest {
 
         try {
             File pngFile = Resources.getResourceAsFile(AR_PNG);
-            FileChecker checker = new IconChecker();
+            FileChecker checker = new IconChecker("/home/appstore");
             MultipartFile mockMutipartFile = new MockMultipartFile("file",
                         "a3d13969-f86f-4c58879f--25df83908db4nginx.png", MediaType.TEXT_PLAIN_VALUE,
                         FileUtils.openInputStream(pngFile));
@@ -136,7 +136,7 @@ public class AppInterfacesTest {
         }
         try {
             File txtFile = Resources.getResourceAsFile("testfile" + File.separator + GETAPPS_SUCCESS);
-            FileChecker checker = new PackageChecker();
+            FileChecker checker = new PackageChecker("/home/appstore");
             MultipartFile mockMutipartFile = new MockMultipartFile("file", GETAPPS_SUCCESS, MediaType.TEXT_PLAIN_VALUE,
                         FileUtils.openInputStream(txtFile));
             checker.check(mockMutipartFile);
@@ -154,7 +154,7 @@ public class AppInterfacesTest {
         boolean bn = false;
         try {
             File txtFile = Resources.getResourceAsFile("testfile/getAppsSuccess_with_no_conditions.txt");
-            FileChecker checker = new PackageChecker();
+            FileChecker checker = new PackageChecker("/home/appstore");
             MultipartFile mockMutipartFile = new MockMultipartFile("file", GETAPPS_SUCCESS, MediaType.TEXT_PLAIN_VALUE,
                         FileUtils.openInputStream(txtFile));
             checker.check(mockMutipartFile);
@@ -172,7 +172,7 @@ public class AppInterfacesTest {
         boolean bn = false;
         try {
             File txtFile = Resources.getResourceAsFile(AR_PACKAGE);
-            FileChecker checker = new PackageChecker();
+            FileChecker checker = new PackageChecker("/home/appstore");
             MultipartFile mockMutipartFile = new MockMultipartFile("file",
                         "//.." + File.separator + "" + File.separator + "AR.csar", MediaType.TEXT_PLAIN_VALUE,
                         FileUtils.openInputStream(txtFile));

@@ -9,7 +9,7 @@ servicecomb:
     registry:
       address: ${SC_ADDRESS}
   rest:
-    address: ${LISTEN_IP:0.0.0.0}:8099
+    address: ${LISTEN_IP:}:8099
     servlet:
       urlPattern: /cse/*
   uploads:
@@ -51,3 +51,5 @@ security:
     resource:
       jwt:
         key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key
+appstore-be:
+  package-path: "/usr/app/packages"

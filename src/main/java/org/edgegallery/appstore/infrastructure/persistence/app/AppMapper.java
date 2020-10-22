@@ -52,4 +52,6 @@ public interface AppMapper {
     List<AppReleasePO> findAllWithPagination(PageCriteria pageCriteria);
 
     void removeByVersionId(String versionId);
+
+    Integer countTotalAppForUser(String userId);
 }
