@@ -42,7 +42,6 @@ RUN apk update &&\
 WORKDIR $APP_HOME
 
 COPY target/*.jar $APP_HOME/bin
-COPY configs/*.sh $APP_HOME/bin
 
 RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
@@ -56,6 +55,8 @@ EXPOSE 8099
 
 # Change to the app user.
 USER $USER_NAME
-
+#go to jar home dir
+WORKDIR $APP_HOME/bin
 # Execute script & application
-ENTRYPOINT ["sh", "./bin/start.sh"]
+ENTRYPOINT ["sh", "-c"]
+CMD ["exec java -jar $APP_FILE"]
