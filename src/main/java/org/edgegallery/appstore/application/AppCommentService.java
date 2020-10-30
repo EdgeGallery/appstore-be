@@ -52,11 +52,14 @@ public class AppCommentService {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         Comment comment = new Comment(user, app.getAppId(), comments, score);
         if (commentRepository.store(comment) == 1) {
+            app.setNumOfcomment(commentRepository.getNumofComments(appId));
             app.comment(comment);
             appRepository.store(app);
         } else {
-            LOGGER.info("User {0} has already comments to app {1} yet.", user.getUserId(), appId);
+            LOGGER.info("User {} has already comments to app {} yet.", user.getUserId(), appId);
             throw new RedundantCommentsException(user.getUserId(), appId);
         }
     }
+
+
 }

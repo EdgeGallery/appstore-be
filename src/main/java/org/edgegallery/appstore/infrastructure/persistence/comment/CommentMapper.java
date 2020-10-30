@@ -34,4 +34,6 @@ public interface CommentMapper {
     Integer countTotal(PageCriteria pageCriteria);
 
     List<Comment> findAll(String appId);
+
+    int getNumOfComments(String appId);
 }
