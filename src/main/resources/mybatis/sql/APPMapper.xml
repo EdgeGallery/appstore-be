@@ -36,7 +36,7 @@
         SET modifytime = (select now()), shortdesc=#{shortDesc}, provider =#{provider}, appname=
         #{appName}, applicationType=#{applicationType}, appIntroduction=#{appIntroduction},
         downloadcount=#{downloadCount},AFFINITY=#{affinity},INDUSTRY=#{industry},contact=#{contact},USERID=#{userId}
-        ,SCORE=(SELECT AVG(score) FROM public.csar_package_score WHERE APPID = #{appId})
+        ,SCORE=#{score}
         WHERE APPID = #{appId}
     </update>
 

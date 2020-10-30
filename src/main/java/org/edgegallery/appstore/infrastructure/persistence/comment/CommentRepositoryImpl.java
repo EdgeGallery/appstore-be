@@ -55,4 +55,9 @@ public class CommentRepositoryImpl implements CommentRepository {
                 .map(CommentPO::toDomainModel).collect(Collectors.toList());
         return new Page<>(commentList, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }
+
+    @Override
+    public int getNumofComments(String appId) {
+        return commentMapper.getNumOfComments(appId);
+    }
 }

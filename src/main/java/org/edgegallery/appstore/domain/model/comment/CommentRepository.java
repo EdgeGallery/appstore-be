@@ -29,4 +29,6 @@ public interface CommentRepository {
 
     Page<Comment> findAllWithPagination(PageCriteria pageCriteria);
 
+    int getNumofComments(String appId);
+
 }

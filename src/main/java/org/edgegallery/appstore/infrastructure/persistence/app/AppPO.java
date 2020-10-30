@@ -33,8 +33,7 @@ import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 @Entity
 @Table(name = "app_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppPO
-        implements PersistenceObject<App> {
+public class AppPO implements PersistenceObject<App> {
 
     public static final String APP_NAME = "appName";
 

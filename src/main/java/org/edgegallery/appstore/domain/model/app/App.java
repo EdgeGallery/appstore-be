@@ -169,6 +169,10 @@ public class App implements Entity {
         this.contact = contact;
     }
 
+    public void setNumOfcomment(int numOfcomment) {
+        this.numOfcomment = numOfcomment;
+    }
+
     /**
      * upload function.
      *
@@ -194,9 +198,9 @@ public class App implements Entity {
         downloadCount = downloadCount + 1;
     }
 
+    // default score is 5, numberOfComment should be 1.
     public void comment(Comment comment) {
         score = (numOfcomment * score + comment.getScore()) / (numOfcomment + 1);
-        numOfcomment = numOfcomment + 1;
     }
 
     public Optional<Release> findByVersion(String packageId) {
@@ -234,6 +238,7 @@ public class App implements Entity {
         private String applicationType;
         private String appIntroduction;
         private User user;
+        private int numOfcomment;
 
         private Builder() {
             // private construct
@@ -306,6 +311,11 @@ public class App implements Entity {
 
         public Builder setUser(User user) {
             this.user = user;
+            return this;
+        }
+
+        public Builder setNumOfcomment(int numOfcomment) {
+            this.numOfcomment = numOfcomment;
             return this;
         }
 

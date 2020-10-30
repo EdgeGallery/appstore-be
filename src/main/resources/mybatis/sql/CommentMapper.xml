@@ -48,4 +48,8 @@
             parameterType="java.util.Map">
         SELECT * FROM CSAR_PACKAGE_SCORE WHERE APPID = #{appId}
     </select>
+
+    <select id="getNumOfComments" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from csar_package_score where APPID = #{appId}
+    </select>
 </mapper>
