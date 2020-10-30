@@ -57,4 +57,5 @@ EXPOSE 8099
 USER $USER_NAME
 
 # Execute script & application
-ENTRYPOINT ["java -jar ./bin/$APP_FILE"]
+ENTRYPOINT ["sh", "-c"]
+CMD ["exec java -jar ./bin/appstore.jar"]
