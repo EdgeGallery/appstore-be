@@ -18,10 +18,13 @@ package org.edgegallery.appstore.interfaces.comment.facade;
 
 import java.util.List;
 import org.edgegallery.appstore.application.AppCommentService;
+import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,8 @@ public class CommentServiceFacade {
     @Autowired
     CommentRepository commentRepository;
 
+    @Autowired
+    private AppRepository appRepository;
     /**
      * comment method with parameters.
      */
@@ -49,6 +54,7 @@ public class CommentServiceFacade {
     }
 
     public ResponseEntity<List<Comment>> getComments(String appId, int limit, long offset) {
+        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         return ResponseEntity.ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
             .getResults());
     }
