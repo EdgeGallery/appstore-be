@@ -55,7 +55,7 @@ public class CommentServiceFacade {
     }
 
     /**
-     * get comments by app id and page parameters
+     * get comments by app id and page parameters.
      */
     public ResponseEntity<List<Comment>> getComments(String appId, int limit, long offset) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
