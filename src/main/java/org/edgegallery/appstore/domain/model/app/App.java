@@ -238,7 +238,6 @@ public class App implements Entity {
         private String applicationType;
         private String appIntroduction;
         private User user;
-        private int numOfcomment;
 
         private Builder() {
             // private construct
