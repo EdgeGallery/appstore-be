@@ -44,7 +44,6 @@ public class CommentServiceFacade {
 
     @Autowired
     private AppRepository appRepository;
-
     /**
      * comment method with parameters.
      */

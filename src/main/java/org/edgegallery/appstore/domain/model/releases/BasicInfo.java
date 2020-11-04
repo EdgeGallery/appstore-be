@@ -191,7 +191,7 @@ public class BasicInfo {
                 }
             }
         } catch (IOException e1) {
-            LOGGER.error("judge package type error ! ", e1.getMessage());
+            LOGGER.error("judge package type error {} ", e1.getMessage());
         }
         if (isXmlCsar) {
             fileType = PACKAGE_XML_FORMAT;
