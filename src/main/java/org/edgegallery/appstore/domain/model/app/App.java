@@ -314,11 +314,6 @@ public class App implements Entity {
             return this;
         }
 
-        public Builder setNumOfcomment(int numOfcomment) {
-            this.numOfcomment = numOfcomment;
-            return this;
-        }
-
         public App build() {
             return new App(this);
         }
