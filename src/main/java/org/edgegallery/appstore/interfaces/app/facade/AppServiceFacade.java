@@ -34,6 +34,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
@@ -134,6 +135,8 @@ public class AppServiceFacade {
 
         if (user.getUserId().equals(app.getUserId())) {
             appService.unPublish(app);
+        } else {
+            throw new PermissionNotAllowedException("can not delete app");
         }
     }
 

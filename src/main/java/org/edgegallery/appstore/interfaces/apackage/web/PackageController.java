@@ -67,68 +67,63 @@ public class PackageController {
     @DeleteMapping(value = "/apps/{appId}/packages/{packageId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete a package", response = String.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
-                @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-                })
+        @ApiResponse(code = 403, message = "forbidden", response = String.class),
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> unPublishPackage(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-                @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
-                @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-                @ApiParam(value = "package Id") @PathVariable("packageId")
-                @Pattern(regexp = REG_APP_ID) String packageId) {
+        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId) {
         packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName));
-        return new ResponseEntity<>("delete App success.", HttpStatus.OK);
+        return ResponseEntity.ok("delete App package success.");
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get app package bycsarId", response = PackageDto.class)
+    @ApiOperation(value = "get app package by package id", response = PackageDto.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<PackageDto> getPackageById(
-                @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-                @ApiParam(value = "package Id") @PathVariable("packageId")
-                @Pattern(regexp = REG_APP_ID) String packageId) {
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId) {
         return new ResponseEntity<>(packageServiceFacade.queryPackageById(appId, packageId), HttpStatus.OK);
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
     @ApiOperation(value = "download the package by package id.", response = File.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable" + " MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<InputStreamResource> downloadPackage(
-                @ApiParam(value = "package Id") @PathVariable("packageId")
-                @Pattern(regexp = REG_APP_ID) String packageId,
-                @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-            throws FileNotFoundException {
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        throws FileNotFoundException {
         return packageServiceFacade.downloadPackage(appId, packageId);
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get csar file uri by csarId", response = String.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> getCsarFileByName(
-                @ApiParam(value = "package Id", required = true) @PathVariable("packageId")
-                @Pattern(regexp = REG_APP_ID) String packageId,
-                @Length(max = MAX_PATH_STRING_LENGTH) @FormParam("filePath") String filePath,
-                @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-            throws IOException {
+        @ApiParam(value = "package Id", required = true) @PathVariable("packageId")
+        @Pattern(regexp = REG_APP_ID) String packageId,
+        @Length(max = MAX_PATH_STRING_LENGTH) @FormParam("filePath") String filePath,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        throws IOException {
         String fileContent = packageServiceFacade.getCsarFileByName(appId, packageId, filePath);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);
     }

@@ -22,6 +22,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -196,5 +197,19 @@ public class GlobalExceptionConvert {
     public RestReturn redundantCommentsException(HttpServletRequest request,
         RedundantCommentsException e) {
         return badRequestResponse(request, e);
+    }
+
+    /**
+     * Handle PermissionNotAccessException.
+     *
+     * @return
+     */
+    @ExceptionHandler(value = PermissionNotAllowedException.class)
+    @ResponseBody
+    public RestReturn permissionNotAccessException(HttpServletRequest request,
+        PermissionNotAllowedException e) {
+        return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
+            .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
+            .build();
     }
 }

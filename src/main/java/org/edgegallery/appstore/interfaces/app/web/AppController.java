@@ -39,7 +39,6 @@ import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -80,8 +79,8 @@ public class AppController {
     @ApiOperation(value = "upload app package", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<RegisterRespDto> appRegistering(
@@ -106,8 +105,8 @@ public class AppController {
         responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<AppDto>> queryAppsByCond(
@@ -124,8 +123,8 @@ public class AppController {
     @ApiOperation(value = "download the latest version of package.", response = File.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable" + " MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<InputStreamResource> download(
@@ -138,8 +137,8 @@ public class AppController {
     @ApiOperation(value = "get app icon by csarId and file name.", response = File.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = File.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<InputStreamResource> downloadIcon(
@@ -152,8 +151,8 @@ public class AppController {
     @ApiOperation(value = "get app package list by app id.", response = AppDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<AppDto> queryAppById(
@@ -164,24 +163,25 @@ public class AppController {
     @DeleteMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete app and package list by id.", response = String.class)
     @ApiResponses(value = {
+        @ApiResponse(code = 403, message = "forbidden", response = String.class),
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> deleteAppById(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
         @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         appServiceFacade.unPublishApp(appId, new User(userId, userName));
-        return new ResponseEntity<>("delete App success.", HttpStatus.OK);
+        return ResponseEntity.ok("delete App success.");
     }
 
     @GetMapping(value = "/apps/{appId}/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package list by condition", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "resource not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(

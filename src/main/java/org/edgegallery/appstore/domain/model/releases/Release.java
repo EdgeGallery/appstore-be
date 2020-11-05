@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ValueObject;
+import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 
 @Getter
@@ -98,5 +99,16 @@ public class Release implements ValueObject<Release> {
     @Override
     public boolean sameValueAs(Release other) {
         return this.equals(other);
+    }
+
+    /**
+     * check operator permission.
+     *
+     * @param operatorId operator id
+     */
+    public void checkPermission(String operatorId) {
+        if (!this.getUser().getUserId().equals(operatorId)) {
+            throw new PermissionNotAllowedException("operator do not have permission");
+        }
     }
 }

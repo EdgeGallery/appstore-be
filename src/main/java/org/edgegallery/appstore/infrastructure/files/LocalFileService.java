@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -93,9 +92,9 @@ public class LocalFileService implements FileService {
     @Override
     public void delete(AFile afile) {
         try {
-            java.nio.file.Files.deleteIfExists(Paths.get(afile.getStorageAddress()));
+            FileUtils.deleteDirectory(new File(afile.getStorageAddress()).getParentFile());
         } catch (IOException e) {
-            LOGGER.error("delete file error", e.getMessage());
+            LOGGER.error("delete file error {}", e.getMessage());
         }
     }
 

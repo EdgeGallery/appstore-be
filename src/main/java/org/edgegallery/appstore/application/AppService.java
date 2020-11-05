@@ -84,11 +84,18 @@ public class AppService {
      * @param packageId package id
      * @param user obj of User
      */
+    @Transactional
     public void unPublishPackage(String appId, String packageId, User user) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         Release release = app.findByVersion(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        release.checkPermission(user.getUserId());
+        deleteReleaseFile(release);
         app.unPublish(release);
-        appRepository.store(app);
+        if (app.getReleases().isEmpty()) {
+            unPublish(app);
+        } else {
+            appRepository.store(app);
+        }
     }
 
     /**
@@ -113,11 +120,14 @@ public class AppService {
      */
     @Transactional
     public void unPublish(App app) {
-        app.getReleases().forEach(it -> {
-            fileService.delete(it.getIcon());
-            fileService.delete(it.getPackageFile());
-        });
+        app.getReleases().forEach(this::deleteReleaseFile);
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());
+    }
+
+    // delete release file
+    private void deleteReleaseFile(Release release) {
+        fileService.delete(release.getIcon());
+        fileService.delete(release.getPackageFile());
     }
 }
