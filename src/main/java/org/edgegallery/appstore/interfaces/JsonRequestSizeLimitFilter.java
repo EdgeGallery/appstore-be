@@ -35,8 +35,7 @@ public class JsonRequestSizeLimitFilter extends OncePerRequestFilter {
     private static final long MAX_JSON_POST_SIZE = 2 * 1024 * 1024L; // 2MB
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isApplicationJson(request) && request.getContentLengthLong() > MAX_JSON_POST_SIZE) {
             LOGGER.error("request content size exceeded limit of 2MB");

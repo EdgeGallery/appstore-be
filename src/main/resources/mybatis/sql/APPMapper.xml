@@ -24,10 +24,10 @@
         select * from app_table where appid = #{appId}
     </select>
 
-    <select id="findByAppName"
+    <select id="findByAppNameAndProvider"
             resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPO"
             parameterType="String">
-        select * from app_table where appname = #{appName}
+        select * from app_table where appname = #{param1} and provider = #{param2}
     </select>
 
     <update id="update"

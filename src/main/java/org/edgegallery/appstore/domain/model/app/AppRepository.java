@@ -29,7 +29,7 @@ public interface AppRepository {
 
     String generateAppId();
 
-    Optional<App> findByAppName(String appName);
+    Optional<App> findByAppNameAndProvider(String appName, String provider);
 
     void remove(String appId);
 

@@ -29,7 +29,7 @@ public interface AppMapper {
 
     Optional<AppPO> findByAppId(String appId);
 
-    Optional<AppPO> findByAppName(String appName);
+    Optional<AppPO> findByAppNameAndProvider(String appName, String provider);
 
     void update(AppPO appPO);
 

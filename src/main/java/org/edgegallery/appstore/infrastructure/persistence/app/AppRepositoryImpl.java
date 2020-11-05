@@ -104,8 +104,8 @@ public class AppRepositoryImpl implements AppRepository {
      * @param appName app name.
      * @return
      */
-    public Optional<App> findByAppName(String appName) {
-        Optional<App> app = appMapper.findByAppName(appName).map(AppPO::toDomainModel);
+    public Optional<App> findByAppNameAndProvider(String appName, String provider) {
+        Optional<App> app = appMapper.findByAppNameAndProvider(appName, provider).map(AppPO::toDomainModel);
         if (app.isPresent()) {
             List<Release> releases = appMapper.findAllByAppId(app.get().getAppId())
                 .stream()
