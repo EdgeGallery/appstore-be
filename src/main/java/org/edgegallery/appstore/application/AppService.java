@@ -25,6 +25,7 @@ import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,12 +53,14 @@ public class AppService {
      * @param release use object of release to register.
      */
     @Transactional
-    public void registerApp(Release release) {
+    public RegisterRespDto registerApp(Release release) {
 
-        Optional<App> existedApp = appRepository.findByAppName(release.getAppBasicInfo().getAppName());
+        Optional<App> existedApp = appRepository
+            .findByAppNameAndProvider(release.getAppBasicInfo().getAppName(), release.getAppBasicInfo().getProvider());
         App app = null;
         if (existedApp.isPresent()) {
             app = existedApp.get();
+            app.checkReleases(release);
             app.upload(release);
         } else {
             String appId = appRepository.generateAppId();
@@ -65,10 +68,18 @@ public class AppService {
         }
         release.setAppIdValue(app.getAppId());
         appRepository.store(app);
+        return RegisterRespDto.builder()
+            .appName(release.getAppBasicInfo().getAppName())
+            .appId(app.getAppId())
+            .packageId(release.getVersionId())
+            .provider(app.getProvider())
+            .version(release.getAppBasicInfo().getVersion())
+            .build();
     }
 
     /**
      * delete package by app id and package id.
+     *
      * @param appId app id
      * @param packageId package id
      * @param user obj of User
@@ -82,6 +93,7 @@ public class AppService {
 
     /**
      * download package by app id and package id.
+     *
      * @param appId app id.
      * @param packageId package id.
      * @return

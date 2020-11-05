@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.app;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -83,28 +82,15 @@ public class AppPO implements PersistenceObject<App> {
     @Column(name = "SCORE")
     private double score;
 
-
     @Override
     public App toDomainModel() {
-        return App.builder()
-                .setAppId(appId)
-                .setAppName(appName)
-                .setProvider(provider)
-                .setCreateTime(createTime)
-                .setUpdateTime(modifyTime)
-                .setDownloadCount(downloadCount)
-                .setScore(score)
-                .setShortDesc(shortDesc)
-                .setAffinity(affinity)
-                .setIndustry(industry)
-                .setContact(contact)
-                .setApplicationType(applicationType)
-                .setAppIntroduction(appIntroduction)
-                .setUser(new User(userId, userName))
-                .build();
+        return App.builder().appId(appId).appName(appName).provider(provider).createTime(createTime)
+            .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).affinity(affinity)
+            .industry(industry).contact(contact).applicationType(applicationType).appIntroduction(appIntroduction)
+            .user(new User(userId, userName)).numOfcomment(0).releases(null).build();
     }
 
-    public AppPO(){
+    public AppPO() {
         // empty construct
     }
 

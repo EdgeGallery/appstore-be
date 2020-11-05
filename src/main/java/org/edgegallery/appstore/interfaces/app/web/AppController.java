@@ -35,6 +35,7 @@ import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -78,106 +79,99 @@ public class AppController {
     @PostMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "upload app package", response = String.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
-    public ResponseEntity<String> appRegistering(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-                @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
-                @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
-                @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
-                @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-                            message = "type should not be null.") @RequestPart("type") String type,
-                @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-                            message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
-                @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-                            message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-                @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-                            message = "industry should not be null.") @RequestPart("industry") String industry)
-            throws IOException {
-        appServiceFacade.appRegistering(new User(userId, userName), file,
-                    new AppParam(type, shortDesc, affinity, industry), icon);
-        return ResponseEntity.ok("add app and upload package success.");
+    public ResponseEntity<RegisterRespDto> appRegistering(
+        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
+        @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
+        @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "type should not be null.") @RequestPart("type") String type,
+        @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
+        @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "affinity should not be null.") @RequestPart("affinity") String affinity,
+        @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "industry should not be null.") @RequestPart("industry") String industry) throws IOException {
+        return appServiceFacade
+            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition, return all apps.", response = AppDto.class,
-                responseContainer = "List")
+        responseContainer = "List")
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<AppDto>> queryAppsByCond(
-                @ApiParam(value = "app name") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("name") String name,
-                @ApiParam(value = "app provider") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("provider")
-                            String provider,
-                @ApiParam(value = "app type") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("type") String type,
-                @ApiParam(value = "app affinity") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("affinity")
-                            String affinity, @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
+        @ApiParam(value = "app name") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("name") String name,
+        @ApiParam(value = "app provider") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("provider")
+            String provider,
+        @ApiParam(value = "app type") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("type") String type,
+        @ApiParam(value = "app affinity") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("affinity")
+            String affinity, @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
         return appServiceFacade.queryAppsByCond(name, provider, type, affinity, userId, 100, 0);
     }
 
     @GetMapping(value = "/apps/{appId}/action/download", produces = "application/octet-stream")
     @ApiOperation(value = "download the latest version of package.", response = File.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable" + " MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable" + " MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<InputStreamResource> download(
-                @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-            throws FileNotFoundException {
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        throws FileNotFoundException {
         return appServiceFacade.downloadApp(appId);
     }
 
     @GetMapping(value = "/apps/{appId}/icon", produces = "application/octet-stream")
     @ApiOperation(value = "get app icon by csarId and file name.", response = File.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = File.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = File.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<InputStreamResource> downloadIcon(
-                @ApiParam(value = "app Id", required = true) @PathVariable("appId")
-                @Pattern(regexp = REG_APP_ID) String appId) throws FileNotFoundException {
+        @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        throws FileNotFoundException {
         return appServiceFacade.downloadIcon(appId);
     }
 
     @GetMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package list by app id.", response = AppDto.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<AppDto> queryAppById(
-                @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return ResponseEntity.ok(AppDto.of(appServiceFacade.queryByAppId(appId)));
     }
 
     @DeleteMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete app and package list by id.", response = String.class)
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> deleteAppById(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-                @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
-                @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         appServiceFacade.unPublishApp(appId, new User(userId, userName));
         return new ResponseEntity<>("delete App success.", HttpStatus.OK);
     }
@@ -185,14 +179,13 @@ public class AppController {
     @GetMapping(value = "/apps/{appId}/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package list by condition", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "resource not found", response = String.class),
-                @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ",
-                            response = String.class),
-                @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-                })
+        @ApiResponse(code = 404, message = "resource not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable " + "MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
-                @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return appServiceFacade.findAllPackages(appId, 100, 0);
     }
 }

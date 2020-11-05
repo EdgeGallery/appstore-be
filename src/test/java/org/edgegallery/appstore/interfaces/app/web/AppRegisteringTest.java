@@ -58,11 +58,9 @@ public class AppRegisteringTest extends AppInterfacesTest {
                 .with(csrf())
                 .param("userId", userId)
                 .param("userName", userName));
-            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+            resultActions.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
-            String result = mvcResult.getResponse().getContentAsString();
-            Assert.assertEquals("add app and upload package success.", result);
         } catch (Exception e) {
             Assert.assertNull(e);
         }

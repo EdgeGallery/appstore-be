@@ -36,6 +36,7 @@ import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -66,15 +67,16 @@ public class AppServiceFacade {
     /**
      * appRegistering.
      */
-    public void appRegistering(User user, MultipartFile packageFile, AppParam appParam, MultipartFile iconFile)
-        throws IOException {
+    public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
+        MultipartFile iconFile) throws IOException {
 
         AFile packageAFile = getFile(packageFile, new PackageChecker(dir));
         AFile icon = getFile(iconFile, new IconChecker(dir));
 
         Release release = new Release(packageAFile, icon, user, appParam);
 
-        appService.registerApp(release);
+        RegisterRespDto dto = appService.registerApp(release);
+        return ResponseEntity.ok(dto);
     }
 
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
@@ -97,8 +99,7 @@ public class AppServiceFacade {
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename="
-            + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -114,8 +115,7 @@ public class AppServiceFacade {
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename="
-            + release.getIcon().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -139,6 +139,7 @@ public class AppServiceFacade {
 
     /**
      * Query app list by parameters follows.
+     *
      * @param name app name.
      * @param provider app provider.
      * @param type app type.
@@ -150,23 +151,23 @@ public class AppServiceFacade {
      */
     public ResponseEntity<List<AppDto>> queryAppsByCond(String name, String provider, String type, String affinity,
         String userId, int limit, long offset) {
-        return ResponseEntity.ok(
-            appRepository.query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId))
-                .map(AppDto::of)
-                .getResults());
+        return ResponseEntity
+            .ok(appRepository.query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId))
+                .map(AppDto::of).getResults());
     }
 
     /**
      * Find all package list by parameters follows.
+     *
      * @param appId app id.
      * @param limit limit of single page.
      * @param offset offset of pages.
      * @return
      */
     public ResponseEntity<List<PackageDto>> findAllPackages(String appId, int limit, long offset) {
-        return ResponseEntity.ok(appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
-            .map(PackageDto::of)
-            .getResults());
+        return ResponseEntity
+            .ok(appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).map(PackageDto::of)
+                .getResults());
     }
 
 }
