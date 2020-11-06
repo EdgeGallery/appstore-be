@@ -145,10 +145,10 @@ public class PackageChecker extends FileChecker {
                 }
             }
         } catch (IOException e) {
-            FileUtils.cleanDirectory(new File(getDir() + File.separator + "temp"));
             throw new IllegalArgumentException("unzip csar with exception.");
         } finally {
             zis.close();
+            FileUtils.deleteDirectory(new File(fileName.substring(0, fileName.lastIndexOf("."))));
         }
     }
 

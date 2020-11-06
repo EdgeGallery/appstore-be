@@ -105,7 +105,7 @@
                 and affinity = #{affinity}
             </if>
             <if test="userId != null">
-                and userid = #{userId}
+                and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
             </if>
         </where>
         limit #{limit} offset #{offset}

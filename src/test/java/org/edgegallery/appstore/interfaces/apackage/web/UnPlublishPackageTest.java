@@ -61,9 +61,6 @@ public class UnPlublishPackageTest extends AppInterfacesTest {
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk());
 
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals(obj.getContentAsString(), "delete App success.");
     }
 
     @Test

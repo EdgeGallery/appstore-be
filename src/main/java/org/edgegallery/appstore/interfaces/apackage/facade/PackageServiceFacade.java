@@ -52,10 +52,9 @@ public class PackageServiceFacade {
         return PackageDto.of(release);
     }
 
-
-
     /**
      * Get Csar file content by package id and file path.
+     *
      * @param packageId package id.
      * @param filePath file path.
      */
@@ -67,6 +66,7 @@ public class PackageServiceFacade {
 
     /**
      * delete package.
+     *
      * @param appId app id.
      * @param packageId package id.
      * @param user User object.
@@ -82,14 +82,13 @@ public class PackageServiceFacade {
      * @param packageId package id.
      * @return
      */
-    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId) throws
-                                                                                               FileNotFoundException {
-        Release release = appService.download(appId,packageId);
+    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
+        throws FileNotFoundException {
+        Release release = appService.download(appId, packageId);
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename="
-            + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 }

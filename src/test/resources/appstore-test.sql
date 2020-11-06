@@ -69,7 +69,7 @@ INSERT INTO app_table VALUES ('30ec10f4a43041e6a6198ba824311af2', 'car_networkin
                                      'Company', 'content', '0', 'GPU','Smart Campus','xxx@xxx.xxx', '001', 'testuser001', '2020-03-13 12:05:17.255272',
                                      '2020-03-13 12:05:17.255272', '5.0');
 INSERT INTO app_table VALUES ('30ec10f4a43041e6a6198ba824311af3', 'AR', 'Video', 'Desc',
-                                     'Company', 'content', '0', 'GPU','Smart Campus', 'xxx@xxx.xxx', '001', 'testuser001', '2020-03-13 12:05:17.255272',
+                                     'Company', 'content', '0', 'GPU','Smart Campus', 'xxx@xxx.xxx', '5abdd29d-b281-4f96-8339-b5621a67d217', 'testuser001', '2020-03-13 12:05:17.255272',
                                      '2020-03-13 12:05:17.255272', '5.0');
 
 DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
