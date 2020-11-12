@@ -108,7 +108,7 @@ public class AppController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<AppDto>> queryAppsByCond(
         @ApiParam(value = "app name") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("name") String name,
         @ApiParam(value = "app provider") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("provider")
@@ -140,7 +140,7 @@ public class AppController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<InputStreamResource> downloadIcon(
         @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
         throws FileNotFoundException {
@@ -148,7 +148,7 @@ public class AppController {
     }
 
     @GetMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get app package list by app id.", response = AppDto.class)
+    @ApiOperation(value = "get app detail app id.", response = AppDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
@@ -177,13 +177,13 @@ public class AppController {
     }
 
     @GetMapping(value = "/apps/{appId}/packages", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get app package list by condition", response = PackageDto.class, responseContainer = "List")
+    @ApiOperation(value = "get app package list by appId", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "resource not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
         @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return appServiceFacade.findAllPackages(appId, 100, 0);
