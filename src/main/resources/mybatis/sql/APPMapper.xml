@@ -115,11 +115,11 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO">
         insert into catalog_package_table
         (versionID, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
-        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid)
+        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username)
         VALUES
         (#{versionID}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
         #{appName}, #{version}, #{applicationType},
-        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId},#{userId})
+        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName})
     </insert>
 
     <delete id="removeReleasesByAppId" parameterType="String">

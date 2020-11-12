@@ -56,6 +56,10 @@ public class PackageDto {
 
     private String appId;
 
+    private String userId;
+
+    private String userName;
+
     public PackageDto() {
         // empty construct function
     }
@@ -81,6 +85,8 @@ public class PackageDto {
         dto.industry = release.getIndustry();
         dto.contact = release.getAppBasicInfo().getContact();
         dto.appId = release.getAppId();
+        dto.userId = release.getUser().getUserId();
+        dto.userName = release.getUser().getUserName();
         return dto;
     }
 }
