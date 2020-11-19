@@ -18,7 +18,6 @@ package org.edgegallery.appstore.interfaces.app.facade;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.edgegallery.appstore.application.AppService;
@@ -69,7 +68,7 @@ public class AppServiceFacade {
      * appRegistering.
      */
     public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
-        MultipartFile iconFile) throws IOException {
+        MultipartFile iconFile) {
 
         AFile packageAFile = getFile(packageFile, new PackageChecker(dir));
         AFile icon = getFile(iconFile, new IconChecker(dir));
@@ -80,7 +79,7 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
+    private AFile getFile(MultipartFile file, FileChecker fileChecker) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile);
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);

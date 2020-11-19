@@ -22,6 +22,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -68,8 +69,7 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
-    public RestReturn illegalArgumentException(HttpServletRequest request,
-        IllegalArgumentException e) {
+    public RestReturn illegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         return badRequestResponse(request, e);
     }
 
@@ -94,9 +94,9 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public RestReturn runtimeException(HttpServletRequest request, RuntimeException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR
-            .getStatusCode()).error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
-            .message(e.getMessage()).path(request.getRequestURI()).build();
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).build();
     }
 
     /**
@@ -106,8 +106,7 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseBody
-    public RestReturn constraintViolationException(HttpServletRequest request,
-        ConstraintViolationException e) {
+    public RestReturn constraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
         return badRequestResponse(request, e);
     }
 
@@ -130,8 +129,7 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
-    public RestReturn httpMessageNotReadableException(HttpServletRequest request,
-        HttpMessageNotReadableException e) {
+    public RestReturn httpMessageNotReadableException(HttpServletRequest request, HttpMessageNotReadableException e) {
         return badRequestResponse(request, e);
     }
 
@@ -194,8 +192,7 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = RedundantCommentsException.class)
     @ResponseBody
-    public RestReturn redundantCommentsException(HttpServletRequest request,
-        RedundantCommentsException e) {
+    public RestReturn redundantCommentsException(HttpServletRequest request, RedundantCommentsException e) {
         return badRequestResponse(request, e);
     }
 
@@ -206,10 +203,20 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = PermissionNotAllowedException.class)
     @ResponseBody
-    public RestReturn permissionNotAccessException(HttpServletRequest request,
-        PermissionNotAllowedException e) {
+    public RestReturn permissionNotAccessException(HttpServletRequest request, PermissionNotAllowedException e) {
         return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .build();
+    }
+
+    /**
+     * Handle FileOperateException.
+     *
+     * @return
+     */
+    @ExceptionHandler(value = FileOperateException.class)
+    @ResponseBody
+    public RestReturn fileOperateException(HttpServletRequest request, FileOperateException e) {
+        return badRequestResponse(request, e);
     }
 }

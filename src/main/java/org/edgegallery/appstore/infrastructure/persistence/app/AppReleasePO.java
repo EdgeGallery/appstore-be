@@ -129,7 +129,13 @@ public class AppReleasePO {
      * @return
      */
     public Release toDomainModel() {
-        BasicInfo basicInfo = new BasicInfo().load(packageAddress);
+        BasicInfo basicInfo = new BasicInfo();
+        basicInfo.setAppName(appName);
+        basicInfo.setProvider(provider);
+        basicInfo.setVersion(version);
+        basicInfo.setContact(contact);
+        basicInfo.setFileStructure(fileStructure);
+        basicInfo.setMarkDownContent(markDownContent);
         return Release.builder()
                 .packageFile(new AFile(packageAddress, packageAddress))
                 .appId(appId)

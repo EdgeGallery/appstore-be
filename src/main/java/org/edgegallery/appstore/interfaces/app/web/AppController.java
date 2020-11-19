@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -95,7 +94,7 @@ public class AppController {
         @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-            message = "industry should not be null.") @RequestPart("industry") String industry) throws IOException {
+            message = "industry should not be null.") @RequestPart("industry") String industry) {
         return appServiceFacade
             .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon);
     }

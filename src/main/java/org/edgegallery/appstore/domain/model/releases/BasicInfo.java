@@ -35,11 +35,15 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Getter
+@Setter
 public class BasicInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicInfo.class);
@@ -60,11 +64,11 @@ public class BasicInfo {
 
     public static final String MARKDOWN = ".md";
 
-    public static final String MF_VERSION_META = "app_archive_version";
+    public static final String MF_VERSION_META = "app_package_version";
 
-    public static final String MF_PRODUCT_NAME = "app_name";
+    public static final String MF_PRODUCT_NAME = "app_product_name";
 
-    public static final String MF_PROVIDER_META = "app_provider";
+    public static final String MF_PROVIDER_META = "app_provider_id";
 
     public static final String MF_APP_CONTACT = "app_contact";
 
@@ -85,19 +89,6 @@ public class BasicInfo {
     private String fileStructure;
 
     private String markDownContent;
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public String getMarkDownContent() {
-        return markDownContent;
-    }
-
-    public static String getUnzipDir(String dirName) {
-        File tmpDir = new File(File.separator + dirName);
-        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "");
-    }
 
     /**
      * create dir.
@@ -133,8 +124,8 @@ public class BasicInfo {
                     createDirectory(file.getParentFile().getAbsolutePath());
                 }
                 try (InputStream input = zipFile.getInputStream(entry);
-                    FileOutputStream out = FileUtils.openOutputStream(file);
-                    BufferedOutputStream bos = new BufferedOutputStream(out)) {
+                     FileOutputStream out = FileUtils.openOutputStream(file);
+                     BufferedOutputStream bos = new BufferedOutputStream(out)) {
                     int length = 0;
                     while ((length = input.read(buffer)) != -1) {
                         bos.write(buffer, 0, length);
@@ -193,6 +184,11 @@ public class BasicInfo {
         } catch (IOException e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
+        if (appName.length() < 1 || provider.length() < 1 || version.length() < 1) {
+            throw new IllegalArgumentException(
+                MF_PRODUCT_NAME + ", " + MF_PROVIDER_META + " or " + MF_VERSION_META + " is empty.");
+        }
+
         if (isXmlCsar) {
             fileType = PACKAGE_XML_FORMAT;
         } else {
@@ -202,11 +198,16 @@ public class BasicInfo {
         return this;
     }
 
+    private static String getUnzipDir(String dirName) {
+        File tmpDir = new File(File.separator + dirName);
+        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "");
+    }
+
     private void readMarkDown(File file) {
         try (InputStream in = FileUtils.openInputStream(file);
-            BoundedInputStream boundedInput = new BoundedInputStream(in, BOUNDED_INPUTSTREAM_SIZE);
-            InputStreamReader reader = new InputStreamReader(boundedInput, StandardCharsets.UTF_8);
-            BufferedReader br = new BufferedReader(reader)) {
+             BoundedInputStream boundedInput = new BoundedInputStream(in, BOUNDED_INPUTSTREAM_SIZE);
+             InputStreamReader reader = new InputStreamReader(boundedInput, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(reader)) {
             String temp = readLine(br);
             StringBuilder sb = new StringBuilder();
             while (temp != null) {
@@ -271,26 +272,26 @@ public class BasicInfo {
                 contact = tempString.substring(count).trim();
             }
         } catch (StringIndexOutOfBoundsException e) {
-            LOGGER.error("Nonstandard format,",e.getMessage());
+            LOGGER.error("Nonstandard format: {}", e.getMessage());
         }
 
     }
 
     private void readManifest(File file) {
         // Fix the package type to CSAR, temporary
-        try (BoundedInputStream boundedInput =
-                    new BoundedInputStream(FileUtils.openInputStream(file), BOUNDED_INPUTSTREAM_SIZE);
-            InputStreamReader isr = new InputStreamReader(boundedInput, StandardCharsets.UTF_8);
-            BufferedReader  reader = new BufferedReader(isr, BUFFER_READER_SIZE);) {
+        try (BoundedInputStream boundedInput = new BoundedInputStream(FileUtils.openInputStream(file),
+            BOUNDED_INPUTSTREAM_SIZE);
+             InputStreamReader isr = new InputStreamReader(boundedInput, StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(isr, BUFFER_READER_SIZE);) {
             for (String tempString; (tempString = readLine(reader)) != null; ) {
                 // If line is empty, ignore
-                if ("".equals(tempString)) {
+                if ("".equals(tempString) || !tempString.contains(":")) {
                     continue;
                 }
                 checkLines(tempString);
             }
         } catch (IOException e) {
-            LOGGER.error("Exception while parsing manifest file,",e.getMessage());
+            LOGGER.error("Exception while parsing manifest file: {}", e.getMessage());
         }
     }
 
@@ -323,26 +324,6 @@ public class BasicInfo {
             }
             return current;
         }
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getFileStructure() {
-        return fileStructure;
-    }
-
-    public String getContact() {
-        return contact;
     }
 
     public BasicInfo() {
