@@ -24,7 +24,7 @@ import org.edgegallery.appstore.domain.model.releases.AFile;
 
 public interface FileService {
 
-    String saveTo(File file) throws IOException;
+    String saveTo(File file);
 
     InputStream get(AFile afile) throws FileNotFoundException;
 

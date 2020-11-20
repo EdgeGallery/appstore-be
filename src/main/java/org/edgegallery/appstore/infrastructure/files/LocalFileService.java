@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.service.FileService;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class LocalFileService implements FileService {
     }
 
     @Override
-    public String saveTo(File file) throws IOException {
+    public String saveTo(File file) {
         if (file == null || file.getName() == null) {
             throw new IllegalArgumentException("file is null");
         }
@@ -76,7 +77,12 @@ public class LocalFileService implements FileService {
                 return "";
             }
         }
-        FileUtils.moveFile(file, new File(fileAddress));
+        try {
+            FileUtils.moveFile(file, new File(fileAddress));
+        } catch (IOException e) {
+            LOGGER.error("move file exception : {}", e.getMessage());
+            throw new FileOperateException("move file exception.");
+        }
         return fileAddress;
     }
 
