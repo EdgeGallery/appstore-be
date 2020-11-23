@@ -24,4 +24,4 @@ security:
       jwt:
         key-value: test
 appstore-be:
-  package-path: "/home/appstore"
+  package-path: "home/appstore"
