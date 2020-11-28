@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.domain.model.app;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -25,10 +27,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Getter
 @Setter
@@ -36,6 +41,8 @@ import org.edgegallery.appstore.domain.shared.Entity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class App implements Entity {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     private String appId;
 
@@ -115,6 +122,11 @@ public class App implements Entity {
     public void checkReleases(Release release) {
         for (Release curRelease: releases) {
             if (release.getAppBasicInfo().getVersion().equals(curRelease.getAppBasicInfo().getVersion())) {
+                try {
+                    FileUtils.deleteDirectory(new File(release.getPackageFile().getStorageAddress()).getParentFile());
+                } catch (IOException e) {
+                    LOGGER.error("Delete the package directory exception: {}", e.getMessage());
+                }
                 throw new IllegalArgumentException("The same app has existed.");
             }
         }

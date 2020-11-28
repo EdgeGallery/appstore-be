@@ -39,7 +39,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_success() {
+    public void should_success() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -54,7 +54,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_same_app() {
+    public void should_fail_with_same_app() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -68,7 +68,7 @@ public class AppRegisterTest extends AppTest {
     }
 
     @Test
-    public void should_app_register_fail_with_no_permission() {
+    public void should_fail_with_no_permission() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -82,7 +82,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_no_csarFile() {
+    public void should_fail_with_no_csarFile() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -111,7 +111,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_no_iconFile() {
+    public void should_fail_with_no_iconFile() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -140,7 +140,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_no_typeField() {
+    public void should_fail_with_no_typeField() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -171,7 +171,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_no_shortDescField() {
+    public void should_fail_with_no_shortDescField() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 
@@ -202,7 +202,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_app_register_fail_with_no_affinityField() {
+    public void should_with_no_affinityField() {
         String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
         String userName = "username";
 

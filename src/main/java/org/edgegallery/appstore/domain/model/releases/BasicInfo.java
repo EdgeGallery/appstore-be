@@ -184,7 +184,7 @@ public class BasicInfo {
         } catch (IOException e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
-        if ((appName == null || provider == null || version == null)
+        if (appName == null || provider == null || version == null
             || appName.length() < 1 || provider.length() < 1 || version.length() < 1) {
             throw new IllegalArgumentException(
                 MF_PRODUCT_NAME + ", " + MF_PROVIDER_META + " or " + MF_VERSION_META + " is empty.");

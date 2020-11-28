@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.app;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.File;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -137,10 +138,10 @@ public class AppReleasePO {
         basicInfo.setFileStructure(fileStructure);
         basicInfo.setMarkDownContent(markDownContent);
         return Release.builder()
-                .packageFile(new AFile(packageAddress, packageAddress))
+                .packageFile(new AFile(new File(packageAddress).getName(), packageAddress))
                 .appId(appId)
                 .versionId(versionID)
-                .icon(new AFile(iconAddress, iconAddress))
+                .icon(new AFile(new File(iconAddress).getName(), iconAddress))
                 .createTime(createTime)
                 .shortDesc(shortDesc)
                 .affinity(affinity)
