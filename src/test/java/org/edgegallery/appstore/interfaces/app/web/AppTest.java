@@ -23,9 +23,12 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -41,6 +44,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 @SpringBootTest(classes = AppstoreApplicationTest.class)
 @AutoConfigureMockMvc
 public class AppTest {
+
+    @Value("${appstore-be.package-path}")
+    private String testDir;
 
     @Autowired
     protected MockMvc mvc;
@@ -62,9 +68,9 @@ public class AppTest {
         File iconFile = Resources.getResourceAsFile(iconAddr);
         File csarFile = Resources.getResourceAsFile(csarAddr);
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
-            .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.MULTIPART_FORM_DATA_VALUE,
+            .file(new MockMultipartFile("file", csarFile.getName(), MediaType.MULTIPART_FORM_DATA_VALUE,
                 FileUtils.openInputStream(csarFile)))
-            .file(new MockMultipartFile("icon", "logo.png", MediaType.MULTIPART_FORM_DATA_VALUE,
+            .file(new MockMultipartFile("icon", iconFile.getName(), MediaType.MULTIPART_FORM_DATA_VALUE,
                 FileUtils.openInputStream(iconFile)))
             .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, type.getBytes()))
             .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, shortDesc.getBytes()))
@@ -78,6 +84,15 @@ public class AppTest {
     @Test
     public void test() {
         // empty test
+    }
+
+    @After
+    public void clear() {
+        try {
+            FileUtils.cleanDirectory(new File(testDir));
+        } catch (IOException e) {
+            Assert.assertNull(e);
+        }
     }
 
 }

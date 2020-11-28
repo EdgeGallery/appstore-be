@@ -27,9 +27,13 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 public class PackageChecker extends FileChecker {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageChecker.class);
 
     /**
      * Constructor to create PackageChecker.
@@ -72,8 +76,10 @@ public class PackageChecker extends FileChecker {
             file.transferTo(result);
             unzip(tempFileAddress);
         } catch (IOException e) {
+            LOGGER.error("create temp file failed: {}", e.getMessage());
             throw new IllegalArgumentException("create temp file with IOException");
         } catch (IllegalStateException e) {
+            LOGGER.error("IllegalStateException: {}", e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
         return result;

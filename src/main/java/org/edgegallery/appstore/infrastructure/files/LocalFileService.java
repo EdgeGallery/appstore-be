@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.infrastructure.files;
 
-import com.google.common.io.Files;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +25,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
@@ -52,30 +50,20 @@ public class LocalFileService implements FileService {
         this.dir = dir;
     }
 
-    private String generateFileName() {
-        String random = UUID.randomUUID().toString();
-        return random.replace("-", "");
-    }
-
     @Override
-    public String saveTo(File file) {
+    public String saveTo(File file, String fileParent) {
         if (file == null || file.getName() == null) {
             throw new IllegalArgumentException("file is null");
         }
-        String fileName = generateFileName();
         String fileAddress = "";
         String originalFileName = file.getName();
-        if (originalFileName != null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(dir).append(File.separator).append(fileName);
-            String fileLoaction = sb.toString();
-            sb.append(File.separator).append(fileName).append(".").append(Files.getFileExtension(originalFileName));
-            fileAddress = sb.toString();
-            File f = new File(fileLoaction);
-            boolean isSuccess = f.mkdirs();
-            if (!isSuccess) {
-                return "";
-            }
+        StringBuilder sb = new StringBuilder();
+        sb.append(fileParent).append(File.separator).append(originalFileName);
+        fileAddress = sb.toString();
+        File f = new File(fileParent);
+        boolean success = f.mkdirs();
+        if (!success) {
+            LOGGER.info("parent directory existed.");
         }
         try {
             FileUtils.moveFile(file, new File(fileAddress));

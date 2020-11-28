@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.appstore.application.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
@@ -70,8 +71,9 @@ public class AppServiceFacade {
     public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
         MultipartFile iconFile) {
 
-        AFile packageAFile = getFile(packageFile, new PackageChecker(dir));
-        AFile icon = getFile(iconFile, new IconChecker(dir));
+        String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
+        AFile packageAFile = getFile(packageFile, new PackageChecker(dir), fileParent);
+        AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
 
         Release release = new Release(packageAFile, icon, user, appParam);
 
@@ -79,9 +81,9 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getFile(MultipartFile file, FileChecker fileChecker) {
+    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
-        String fileStoreageAddress = fileService.saveTo(tempfile);
+        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);
     }
 
