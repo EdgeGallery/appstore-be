@@ -19,13 +19,13 @@
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper">
 
     <select id="findReleaseById"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
             parameterType="java.lang.String">
         select * from catalog_package_table where packageid = #{packageId}
     </select>
 
     <update id="updateRelease"
-            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO">
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         update catalog_package_table
         SET packageid = #{packageId}, packageAddress = #{packageAddress}, iconAddress = #{iconAddress}, size = #{size},
         fileStructure = #{fileStructure}, createTime = #{createTime}, shortDesc = #{shortDesc}, appName = #{appName},
@@ -34,5 +34,53 @@
         TEST_TASKID = #{testTaskId}, status = #{status}
         WHERE packageid = #{packageId}
     </update>
+
+    <insert id="insertRelease"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        insert into catalog_package_table
+        (packageid, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
+        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username,
+        TEST_TASKID, STATUS, provider)
+        VALUES
+        (#{packageId}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
+        #{appName}, #{version}, #{applicationType},
+        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName}, #{testTaskId},
+        #{status}, #{provider})
+    </insert>
+
+    <delete id="removeByPackageId" parameterType="String">
+        delete from
+        catalog_package_table
+        where
+        packageid=#{packageId}
+    </delete>
+
+    <delete id="removeReleasesByAppId" parameterType="String">
+        delete from
+        catalog_package_table
+        where
+        appid=#{appId}
+    </delete>
+
+    <select id="findAllByAppId" resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        select
+        *
+        from
+        catalog_package_table
+        where
+        appid=#{appId}
+    </select>
+
+    <select id="findAllWithPagination"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            parameterType="java.util.Map">
+        select * from catalog_package_table where appid = #{appId} limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countTotalForReleases" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) FROM catalog_package_table where appid = #{appId} limit #{limit} offset
+        #{offset}
+    </select>
 
 </mapper>

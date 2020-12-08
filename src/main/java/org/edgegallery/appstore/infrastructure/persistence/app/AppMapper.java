@@ -20,39 +20,25 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
-import org.edgegallery.appstore.domain.shared.PageCriteria;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO;
 import org.springframework.stereotype.Component;
 
 @Component
 @Mapper
 public interface AppMapper {
 
-    Optional<AppPO> findByAppId(String appId);
+    Optional<AppPo> findByAppId(String appId);
 
-    Optional<AppPO> findByAppNameAndProvider(String appName, String provider);
+    Optional<AppPo> findByAppNameAndProvider(String appName, String provider);
 
-    void update(AppPO appPO);
+    void update(AppPo appPO);
 
-    void insert(AppPO appPO);
+    void insert(AppPo appPO);
 
     void remove(String appId);
 
     Integer countTotal(AppPageCriteria appPageCriteria);
 
-    List<AppPO> findAllWithAppPagination(AppPageCriteria appPageCriteria);
-
-    void insertRelease(AppReleasePO packagePo);
-
-    void removeReleasesByAppId(String appId);
-
-    List<AppReleasePO> findAllByAppId(String appId);
-
-    Integer countTotalForReleases(PageCriteria pageCriteria);
-
-    List<AppReleasePO> findAllWithPagination(PageCriteria pageCriteria);
-
-    void removeByPackageId(String packageId);
+    List<AppPo> findAllWithAppPagination(AppPageCriteria appPageCriteria);
 
     Integer countTotalAppForUser(String userId);
 }

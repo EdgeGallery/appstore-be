@@ -27,7 +27,8 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.MaxRecordLimitException;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +44,16 @@ public class AppRepositoryImpl implements AppRepository {
     @Autowired
     private AppMapper appMapper;
 
+    @Autowired
+    private PackageMapper packageMapper;
+
     @Override
     public Optional<App> find(String appId) {
-        Optional<App> app = appMapper.findByAppId(appId).map(AppPO::toDomainModel);
+        Optional<App> app = appMapper.findByAppId(appId).map(AppPo::toDomainModel);
         if (app.isPresent()) {
-            List<Release> releases = appMapper.findAllByAppId(appId)
+            List<Release> releases = packageMapper.findAllByAppId(appId)
                 .stream()
-                .map(AppReleasePO::toDomainModel)
+                .map(AppReleasePo::toDomainModel)
                 .collect(Collectors.toList());
             app.get().setReleases(releases);
         }
@@ -58,8 +62,8 @@ public class AppRepositoryImpl implements AppRepository {
 
     @Override
     public void store(App app) {
-        AppPO appPO = AppPO.of(app);
-        Optional<AppPO> existed = appMapper.findByAppId(app.getAppId());
+        AppPo appPO = AppPo.of(app);
+        Optional<AppPo> existed = appMapper.findByAppId(app.getAppId());
         if (existed.isPresent()) {
             appMapper.update(appPO);
         } else {
@@ -69,29 +73,6 @@ public class AppRepositoryImpl implements AppRepository {
             }
             appMapper.insert(appPO);
         }
-        updateReleases(app.getAppId(), app.getReleases());
-    }
-
-    private void updateReleases(String appId, List<Release> releases) {
-        List<Release> releaseList = appMapper.findAllByAppId(appId)
-            .stream()
-            .map(AppReleasePO::toDomainModel)
-            .collect(Collectors.toList());
-
-        releases.forEach(it -> {
-            if (!releaseList.contains(it)) {
-                if (releaseList.size() >= MAX_ENTRY_PER_USER_PER_MODEL) {
-                    LOGGER.error("maximum release limit has reached for app " + appId);
-                    throw new MaxRecordLimitException("maximum release limit has reached for app " + appId);
-                }
-                appMapper.insertRelease(AppReleasePO.of(it));
-            }
-        });
-        releaseList.forEach(it -> {
-            if (!releases.contains(it)) {
-                appMapper.removeByPackageId(it.getPackageId());
-            }
-        });
     }
 
     @Override
@@ -106,11 +87,11 @@ public class AppRepositoryImpl implements AppRepository {
      * @return
      */
     public Optional<App> findByAppNameAndProvider(String appName, String provider) {
-        Optional<App> app = appMapper.findByAppNameAndProvider(appName, provider).map(AppPO::toDomainModel);
+        Optional<App> app = appMapper.findByAppNameAndProvider(appName, provider).map(AppPo::toDomainModel);
         if (app.isPresent()) {
-            List<Release> releases = appMapper.findAllByAppId(app.get().getAppId())
+            List<Release> releases = packageMapper.findAllByAppId(app.get().getAppId())
                 .stream()
-                .map(AppReleasePO::toDomainModel)
+                .map(AppReleasePo::toDomainModel)
                 .collect(Collectors.toList());
             app.get().setReleases(releases);
         }
@@ -120,7 +101,7 @@ public class AppRepositoryImpl implements AppRepository {
     @Override
     public void remove(String appId) {
         appMapper.remove(appId);
-        appMapper.removeReleasesByAppId(appId);
+        packageMapper.removeReleasesByAppId(appId);
     }
 
     @Override
@@ -128,17 +109,17 @@ public class AppRepositoryImpl implements AppRepository {
         long total = appMapper.countTotal(appPageCriteria).longValue();
         List<App> releases = appMapper.findAllWithAppPagination(appPageCriteria)
             .stream()
-            .map(AppPO::toDomainModel)
+            .map(AppPo::toDomainModel)
             .collect(Collectors.toList());
         return new Page<>(releases, appPageCriteria.getLimit(), appPageCriteria.getOffset(), total);
     }
 
     @Override
     public Page<Release> findAllWithPagination(PageCriteria pageCriteria) {
-        long total = appMapper.countTotalForReleases(pageCriteria).longValue();
-        List<Release> releases = appMapper.findAllWithPagination(pageCriteria)
+        long total = packageMapper.countTotalForReleases(pageCriteria).longValue();
+        List<Release> releases = packageMapper.findAllWithPagination(pageCriteria)
             .stream()
-            .map(AppReleasePO::toDomainModel)
+            .map(AppReleasePo::toDomainModel)
             .collect(Collectors.toList());
         return new Page<>(releases, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }

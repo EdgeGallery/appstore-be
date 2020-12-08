@@ -69,6 +69,7 @@ public class PackageService {
             app.setStatus(EnumAppStatus.Published);
             appRepository.store(app);
         }
-        packageRepository.updateStatus(release.getPackageId(), EnumPackageStatus.Published);
+        release.setStatus(EnumPackageStatus.Published);
+        packageRepository.updateRelease(release);
     }
 }

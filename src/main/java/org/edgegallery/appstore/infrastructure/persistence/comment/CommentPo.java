@@ -33,7 +33,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 @Entity
 @Table(name = "csar_pakage_score")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CommentPO {
+public class CommentPo {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
@@ -59,7 +59,7 @@ public class CommentPO {
     @Column(name = "COMMENTTIME")
     private Date commentTime;
 
-    public CommentPO() {
+    public CommentPo() {
     }
 
     public Date getCommentTime() {
@@ -73,7 +73,7 @@ public class CommentPO {
     /**
      * Constructor of CommentPO.
      */
-    public CommentPO(int commentId, String userId, String userName, String appId, String comments, double score,
+    public CommentPo(int commentId, String userId, String userName, String appId, String comments, double score,
         Date commentTime) {
         this.commentId = commentId;
         this.userId = userId;
@@ -91,7 +91,7 @@ public class CommentPO {
     /**
      * Constructor of CommentPO.
      */
-    public CommentPO(int commentId, String userId, String userName, String appId, String comments, double score) {
+    public CommentPo(int commentId, String userId, String userName, String appId, String comments, double score) {
         this.commentId = commentId;
         this.userId = userId;
         this.userName = userName;
@@ -103,8 +103,8 @@ public class CommentPO {
     /**
      * Transfer Comment to CommentPO.
      */
-    public static CommentPO of(Comment comment) {
-        return new CommentPO(comment.getCommentId(), comment.getUser().getUserId(), comment.getUser().getUserName(),
+    public static CommentPo of(Comment comment) {
+        return new CommentPo(comment.getCommentId(), comment.getUser().getUserId(), comment.getUser().getUserName(),
             comment.getAppId(), comment.getBody(), comment.getScore());
     }
 

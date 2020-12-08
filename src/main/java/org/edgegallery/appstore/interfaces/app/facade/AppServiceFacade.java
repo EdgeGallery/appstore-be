@@ -84,7 +84,7 @@ public class AppServiceFacade {
 
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
-            appService.loadTestTask(dto.getPackageId(), atpMetadata);
+            appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
         }
         return ResponseEntity.ok(dto);
     }

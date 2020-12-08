@@ -36,7 +36,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 @Entity
 @Table(name = "catalog_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppReleasePO {
+public class AppReleasePo {
     @Id
     @Column(name = "packageid")
     private String packageId;
@@ -98,7 +98,7 @@ public class AppReleasePO {
     @Column(name = "STATUS")
     private String status;
 
-    public AppReleasePO() {
+    public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
 
@@ -108,8 +108,8 @@ public class AppReleasePO {
      * @param pack object of Release.
      * @return
      */
-    public static AppReleasePO of(Release pack) {
-        AppReleasePO po = new AppReleasePO();
+    public static AppReleasePo of(Release pack) {
+        AppReleasePo po = new AppReleasePo();
         po.packageId = pack.getPackageId();
         po.packageAddress = pack.getPackageFile().getStorageAddress();
         po.iconAddress = pack.getIcon().getStorageAddress();
@@ -172,7 +172,7 @@ public class AppReleasePO {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AppReleasePO that = (AppReleasePO) o;
+        AppReleasePo that = (AppReleasePo) o;
         return Objects.equals(packageId, that.packageId) && Objects.equals(packageAddress, that.packageAddress)
             && Objects.equals(iconAddress, that.iconAddress) && Objects.equals(size, that.size) && Objects.equals(
             fileStructure, that.fileStructure) && Objects.equals(createTime, that.createTime) && Objects.equals(

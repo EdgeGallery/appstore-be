@@ -145,7 +145,7 @@ public class App implements Entity {
         score = (numOfcomment * score + comment.getScore()) / (numOfcomment + 1);
     }
 
-    public Optional<Release> findByVersion(String packageId) {
+    public Optional<Release> findByPackageId(String packageId) {
         return releases.stream().filter(it -> it.getPackageId().equals(packageId)).findAny();
     }
 
@@ -156,6 +156,10 @@ public class App implements Entity {
     public Optional<Release> findLastRelease() {
         return releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published)
             .max(Comparator.comparing(Release::getCreateTime));
+    }
+
+    public boolean hasPublishedRelease() {
+        return releases.stream().anyMatch(r -> r.getStatus() == EnumPackageStatus.Published);
     }
 
 }

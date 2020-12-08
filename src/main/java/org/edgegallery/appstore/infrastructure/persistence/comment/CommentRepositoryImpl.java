@@ -45,14 +45,14 @@ public class CommentRepositoryImpl implements CommentRepository {
 
     @Override
     public int store(Comment comment) {
-        return commentMapper.insert(CommentPO.of(comment));
+        return commentMapper.insert(CommentPo.of(comment));
     }
 
     @Override
     public Page<Comment> findAllWithPagination(PageCriteria pageCriteria) {
         long total = Long.parseLong(String.valueOf(commentMapper.countTotal(pageCriteria)));
         List<Comment> commentList = commentMapper.findAllWithPagination(pageCriteria).stream()
-                .map(CommentPO::toDomainModel).collect(Collectors.toList());
+                .map(CommentPo::toDomainModel).collect(Collectors.toList());
         return new Page<>(commentList, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }
 
