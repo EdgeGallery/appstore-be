@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces.app.facade.dto;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 
 @Getter
 @Setter
@@ -53,6 +54,8 @@ public class AppDto {
 
     private String userName;
 
+    private EnumAppStatus status;
+
 
     public AppDto() {
         // empty construct
@@ -79,6 +82,7 @@ public class AppDto {
         dto.score = app.getScore();
         dto.userId = app.getUser().getUserId();
         dto.userName = app.getUser().getUserName();
+        dto.status = app.getStatus();
         return dto;
     }
 

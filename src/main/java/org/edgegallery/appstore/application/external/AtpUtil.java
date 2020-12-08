@@ -17,7 +17,6 @@ package org.edgegallery.appstore.application.external;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.File;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.slf4j.Logger;
@@ -38,10 +37,6 @@ public class AtpUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
-    private static final String WAITING = "waiting";
-
-    private static final String RUNNING = "running";
-
     private static final String CREATE_TASK_FROM_ATP = "https://atp-svc:8073/edgegallery/atp/v1/tasks";
 
     private static final RestTemplate restTemplate = new RestTemplate();
@@ -53,7 +48,7 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public static ResponseEntity<String> sendCreatTask2ATP(String filePath, String token) {
+    public static ResponseEntity<String> sendCreatTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -81,13 +76,13 @@ public class AtpUtil {
     }
 
     /**
-     * get task status by taskId from atp
+     * get task status by taskId from atp.
      *
      * @param taskId taskId
      * @param token token
      * @return task status
      */
-    public static String getTaskStatusFromATP(String taskId, String token) {
+    public static String getTaskStatusFromAtp(String taskId, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);

@@ -40,23 +40,35 @@ public class PackageService {
     @Autowired
     private AppRepository appRepository;
 
+    /**
+     * publish a package.
+     *
+     * @param appId app id
+     * @param packageId package id
+     */
     public void publishPackage(String appId, String packageId) {
-        Release aPackage = packageRepository.findReleaseById(appId, packageId);
-        if (aPackage.getStatus() != EnumPackageStatus.Test_success) {
-            LOGGER.error("Test status is {}, publish failed", aPackage.getStatus());
+        Release release = packageRepository.findReleaseById(appId, packageId);
+        if (release.getStatus() != EnumPackageStatus.Test_success) {
+            LOGGER.error("Test status is {}, publish failed", release.getStatus());
             throw new OperateAvailableException("Test status is not success, publish failed");
         }
-        aPackage.setStatus(EnumPackageStatus.Published);
-        publishAppAndPackage(appId, aPackage);
+        release.setStatus(EnumPackageStatus.Published);
+        publishAppAndPackage(appId, release);
     }
 
+    /**
+     * update app and package to published status.
+     *
+     * @param appId app id
+     * @param release a package
+     */
     @Transactional
-    private void publishAppAndPackage(String appId, Release aPackage) {
+    public void publishAppAndPackage(String appId, Release release) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         if (app.getStatus() != EnumAppStatus.Published) {
             app.setStatus(EnumAppStatus.Published);
             appRepository.store(app);
         }
-        packageRepository.updateStatus(aPackage.getPackageId(), EnumPackageStatus.Published);
+        packageRepository.updateStatus(release.getPackageId(), EnumPackageStatus.Published);
     }
 }

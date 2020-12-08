@@ -105,8 +105,8 @@ public class AppController {
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get app list by condition, return all apps.", response = AppDto.class,
-        responseContainer = "List")
+    @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
+        + "else will return all apps.", response = AppDto.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
@@ -146,7 +146,7 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<InputStreamResource> downloadIcon(
-        @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
         throws FileNotFoundException {
         return appServiceFacade.downloadIcon(appId);
     }
@@ -189,7 +189,8 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
-        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
-        return appServiceFacade.findAllPackages(appId, 100, 0);
+        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
+        return appServiceFacade.findAllPackages(appId, userId, 100, 0);
     }
 }

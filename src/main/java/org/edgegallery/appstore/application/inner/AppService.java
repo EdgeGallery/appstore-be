@@ -137,6 +137,12 @@ public class AppService {
         fileService.delete(release.getPackageFile());
     }
 
+    /**
+     * load test task status from atp.
+     *
+     * @param packageId package id
+     * @param atpMetadata atp data
+     */
     public void loadTestTask(String packageId, AtpMetadata atpMetadata) {
         String status = atpService.getAtpTaskResult(atpMetadata.getToken(), atpMetadata.getTestTaskId());
         if (status != null) {

@@ -29,6 +29,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.domain.model.comment.Comment;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Entity;
@@ -123,7 +124,7 @@ public class App implements Entity {
      * @param release app release.
      */
     public void checkReleases(Release release) {
-        for (Release curRelease: releases) {
+        for (Release curRelease : releases) {
             if (release.getAppBasicInfo().getVersion().equals(curRelease.getAppBasicInfo().getVersion())) {
                 try {
                     FileUtils.deleteDirectory(new File(release.getPackageFile().getStorageAddress()).getParentFile());
@@ -153,7 +154,8 @@ public class App implements Entity {
     }
 
     public Optional<Release> findLastRelease() {
-        return releases.stream().max(Comparator.comparing(Release::getCreateTime));
+        return releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published)
+            .max(Comparator.comparing(Release::getCreateTime));
     }
 
 }

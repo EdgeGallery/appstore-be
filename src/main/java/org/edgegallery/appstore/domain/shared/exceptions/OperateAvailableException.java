@@ -17,6 +17,8 @@ package org.edgegallery.appstore.domain.shared.exceptions;
 
 public class OperateAvailableException extends DomainException {
 
+    private static final long serialVersionUID = 1223444285623052477L;
+
     public OperateAvailableException(String message) {
         super(message);
     }

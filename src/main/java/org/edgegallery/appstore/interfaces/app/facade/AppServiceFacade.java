@@ -21,12 +21,16 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.edgegallery.appstore.application.external.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageChecker;
@@ -159,9 +163,13 @@ public class AppServiceFacade {
      */
     public ResponseEntity<List<AppDto>> queryAppsByCond(String name, String provider, String type, String affinity,
         String userId, int limit, long offset) {
-        return ResponseEntity
-            .ok(appRepository.query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId))
-                .map(AppDto::of).getResults());
+        Stream<AppDto> appStream = appRepository
+            .query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId)).map(AppDto::of)
+            .getResults().stream();
+        if (userId == null) {
+            appStream = appStream.filter(a -> a.getStatus() == EnumAppStatus.Published);
+        }
+        return ResponseEntity.ok(appStream.collect(Collectors.toList()));
     }
 
     /**
@@ -172,10 +180,13 @@ public class AppServiceFacade {
      * @param offset offset of pages.
      * @return
      */
-    public ResponseEntity<List<PackageDto>> findAllPackages(String appId, int limit, long offset) {
-        return ResponseEntity
-            .ok(appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).map(PackageDto::of)
-                .getResults());
+    public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset) {
+        Stream<PackageDto> packageStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
+            .map(PackageDto::of).getResults().stream();
+        if (userId == null) {
+            packageStream = packageStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
+        }
+        return ResponseEntity.ok(packageStream.collect(Collectors.toList()));
     }
 
 }
