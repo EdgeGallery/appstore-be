@@ -23,7 +23,7 @@ public enum EnumPackageStatus {
      * transform string to enum.
      *
      * @param text input string
-     * @return
+     * @return status
      */
     public static EnumPackageStatus fromString(String text) {
         for (EnumPackageStatus b : EnumPackageStatus.values()) {
@@ -32,5 +32,15 @@ public enum EnumPackageStatus {
             }
         }
         return null;
+    }
+
+    /**
+     * check the status if can be create the test task.
+     *
+     * @param status status
+     * @return true or false
+     */
+    public static boolean testAllowed(EnumPackageStatus status) {
+        return status == Upload || status == Test_failed || status == Test_create_failed || status == Test_success;
     }
 }

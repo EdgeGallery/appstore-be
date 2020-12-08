@@ -15,6 +15,8 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import org.edgegallery.appstore.application.external.AtpService;
+import org.edgegallery.appstore.application.external.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
@@ -39,6 +41,9 @@ public class PackageService {
 
     @Autowired
     private AppRepository appRepository;
+
+    @Autowired
+    private AtpService atpService;
 
     /**
      * publish a package.
@@ -71,5 +76,22 @@ public class PackageService {
         }
         release.setStatus(EnumPackageStatus.Published);
         packageRepository.updateRelease(release);
+    }
+
+    /**
+     * test a package from atp.
+     *
+     * @param release a package
+     * @param token token
+     * @return dto
+     */
+    public AtpTestDto testPackage(Release release, String token) {
+        AtpTestDto dto = atpService.createTestTask(release, token);
+        if (dto != null) {
+            release.setStatus(EnumPackageStatus.fromString(dto.getStatus()));
+            release.setTestTaskId(dto.getAtpTaskId());
+            packageRepository.updateRelease(release);
+        }
+        return dto;
     }
 }
