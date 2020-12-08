@@ -19,13 +19,18 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import org.edgegallery.appstore.application.external.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.service.FileService;
+import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +39,8 @@ import org.springframework.stereotype.Service;
 
 @Service("PackageServiceFacade")
 public class PackageServiceFacade {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageServiceFacade.class);
 
     @Autowired
     private AppService appService;
@@ -99,5 +106,22 @@ public class PackageServiceFacade {
     public ResponseEntity<String> publishPackage(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
         return ResponseEntity.ok("Publish Success");
+    }
+
+    /**
+     * test a package from atp.
+     *
+     * @param appId app id
+     * @param packageId package id
+     * @param token token
+     * @return dto
+     */
+    public ResponseEntity<AtpTestDto> testPackage(String appId, String packageId, String token) {
+        Release release = appService.getRelease(appId, packageId);
+        if (!EnumPackageStatus.testAllowed(release.getStatus())) {
+            LOGGER.error("The package status {} is not allowed to test again.", release.getStatus());
+            throw new OperateAvailableException("The package status is not allowed to test again.");
+        }
+        return ResponseEntity.ok(packageService.testPackage(release, token));
     }
 }

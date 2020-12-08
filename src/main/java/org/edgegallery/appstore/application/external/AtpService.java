@@ -15,6 +15,8 @@
 
 package org.edgegallery.appstore.application.external;
 
+import org.edgegallery.appstore.application.external.model.AtpTestDto;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.springframework.stereotype.Service;
 
 @Service("AtpService")
@@ -23,6 +25,11 @@ public class AtpService implements AtpServiceInterface {
     @Override
     public String getAtpTaskResult(String token, String taskId) {
         return AtpUtil.getTaskStatusFromAtp(taskId, token);
+    }
+
+    @Override
+    public AtpTestDto createTestTask(Release release, String token) {
+        return AtpUtil.sendCreatTask2Atp(release.getPackageFile().getStorageAddress(), token);
     }
 
 }

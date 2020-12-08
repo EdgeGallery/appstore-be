@@ -24,10 +24,12 @@ import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.application.external.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -140,5 +142,20 @@ public class PackageController {
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return packageServiceFacade.publishPackage(appId, packageId);
+    }
+
+    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/test", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "test the package by atp.", response = AtpTestDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<AtpTestDto> testPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        HttpServletRequest request) {
+        return packageServiceFacade.testPackage(appId, packageId, (String) request.getAttribute("access_token"));
     }
 }

@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
+import org.edgegallery.appstore.application.external.model.AtpTestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -48,7 +49,7 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public static ResponseEntity<String> sendCreatTask2Atp(String filePath, String token) {
+    public static AtpTestDto sendCreatTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -65,7 +66,10 @@ public class AtpUtil {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(response.getStatusCode())) {
-                return response;
+                JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+                String id = jsonObject.get("id").getAsString();
+                String status = jsonObject.get("status").getAsString();
+                return new AtpTestDto(id, status);
             }
             LOGGER.error("Create instance from atp failed,  status is {}", response.getStatusCode());
         } catch (RestClientException e) {
