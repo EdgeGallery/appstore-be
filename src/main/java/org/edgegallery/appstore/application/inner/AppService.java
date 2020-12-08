@@ -14,12 +14,16 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application;
+package org.edgegallery.appstore.application.inner;
 
 import java.util.Optional;
+import org.edgegallery.appstore.application.external.AtpService;
+import org.edgegallery.appstore.application.external.model.AtpMetadata;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
+import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -40,7 +44,13 @@ public class AppService {
     private CommentRepository commentRepository;
 
     @Autowired
+    private PackageRepository packageRepository;
+
+    @Autowired
     private FileService fileService;
+
+    @Autowired
+    private AtpService atpService;
 
     public Release getRelease(String appId, String packageId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
@@ -68,13 +78,9 @@ public class AppService {
         }
         release.setAppIdValue(app.getAppId());
         appRepository.store(app);
-        return RegisterRespDto.builder()
-            .appName(release.getAppBasicInfo().getAppName())
-            .appId(app.getAppId())
-            .packageId(release.getVersionId())
-            .provider(app.getProvider())
-            .version(release.getAppBasicInfo().getVersion())
-            .build();
+        return RegisterRespDto.builder().appName(release.getAppBasicInfo().getAppName()).appId(app.getAppId())
+            .packageId(release.getPackageId()).provider(app.getProvider())
+            .version(release.getAppBasicInfo().getVersion()).build();
     }
 
     /**
@@ -129,5 +135,13 @@ public class AppService {
     private void deleteReleaseFile(Release release) {
         fileService.delete(release.getIcon());
         fileService.delete(release.getPackageFile());
+    }
+
+    public void loadTestTask(String packageId, AtpMetadata atpMetadata) {
+        String status = atpService.getAtpTaskResult(atpMetadata.getToken(), atpMetadata.getTestTaskId());
+        if (status != null) {
+            EnumPackageStatus packageStatus = EnumPackageStatus.fromString(status);
+            packageRepository.updateStatus(packageId, packageStatus);
+        }
     }
 }

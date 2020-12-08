@@ -24,11 +24,13 @@ import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.application.external.model.AtpMetadata;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
@@ -94,9 +96,12 @@ public class AppController {
         @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-            message = "industry should not be null.") @RequestPart("industry") String industry) {
+            message = "industry should not be null.") @RequestPart("industry") String industry,
+        @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
+        HttpServletRequest request) {
         return appServiceFacade
-            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon);
+            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
+                new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
@@ -133,9 +138,9 @@ public class AppController {
     }
 
     @GetMapping(value = "/apps/{appId}/icon", produces = "application/octet-stream")
-    @ApiOperation(value = "get app icon by csarId and file name.", response = File.class)
+    @ApiOperation(value = "get app icon by appId.", response = File.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = File.class),
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })

@@ -24,6 +24,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 
@@ -82,6 +83,9 @@ public class AppPO implements PersistenceObject<App> {
     @Column(name = "SCORE")
     private double score;
 
+    @Column(name= "STATUS")
+    private EnumAppStatus status;
+
     @Override
     public App toDomainModel() {
         return App.builder().appId(appId).appName(appName).provider(provider).createTime(createTime)
@@ -111,6 +115,7 @@ public class AppPO implements PersistenceObject<App> {
         po.industry = app.getIndustry();
         po.contact = app.getContact();
         po.score = app.getScore();
+        po.status = app.getStatus();
         return po;
     }
 }

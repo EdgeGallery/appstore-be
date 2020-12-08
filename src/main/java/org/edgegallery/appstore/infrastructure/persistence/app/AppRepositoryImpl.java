@@ -27,6 +27,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.MaxRecordLimitException;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class AppRepositoryImpl implements AppRepository {
         });
         releaseList.forEach(it -> {
             if (!releases.contains(it)) {
-                appMapper.removeByVersionId(it.getVersionId());
+                appMapper.removeByPackageId(it.getPackageId());
             }
         });
     }
@@ -142,11 +143,5 @@ public class AppRepositoryImpl implements AppRepository {
         return new Page<>(releases, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }
 
-    enum Parameters {
-        NAME,
-        PROVIDER,
-        TYPE,
-        USERID,
-        AFFINITY
-    }
+
 }

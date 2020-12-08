@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.infrastructure.persistence.app;
+package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 
@@ -37,8 +38,8 @@ import org.edgegallery.appstore.domain.model.user.User;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppReleasePO {
     @Id
-    @Column(name = "versionID")
-    private String versionID;
+    @Column(name = "packageid")
+    private String packageId;
 
     @Column(name = "packageAddress")
     private String packageAddress; //packageAddress
@@ -91,6 +92,12 @@ public class AppReleasePO {
     @Column(name = "USERNAME")
     private String userName;
 
+    @Column(name = "TEST_TASKID")
+    private String testTaskId;
+
+    @Column(name = "STATUS")
+    private String status;
+
     public AppReleasePO() {
         // empty constructor of AppReleasePO
     }
@@ -103,7 +110,7 @@ public class AppReleasePO {
      */
     public static AppReleasePO of(Release pack) {
         AppReleasePO po = new AppReleasePO();
-        po.versionID = pack.getVersionId();
+        po.packageId = pack.getPackageId();
         po.packageAddress = pack.getPackageFile().getStorageAddress();
         po.iconAddress = pack.getIcon().getStorageAddress();
         po.size = pack.getPackageFile().getSize();
@@ -120,6 +127,9 @@ public class AppReleasePO {
         po.appId = pack.getAppId();
         po.userId = pack.getUser().getUserId();
         po.userName = pack.getUser().getUserName();
+        po.provider = pack.getAppBasicInfo().getProvider();
+        po.testTaskId = pack.getTestTaskId();
+        po.status = pack.getStatus().toString();
         po.provider = pack.getAppBasicInfo().getProvider();
         return po;
     }
@@ -140,7 +150,7 @@ public class AppReleasePO {
         return Release.builder()
                 .packageFile(new AFile(new File(packageAddress).getName(), packageAddress))
                 .appId(appId)
-                .versionId(versionID)
+                .packageId(packageId)
                 .icon(new AFile(new File(iconAddress).getName(), iconAddress))
                 .createTime(createTime)
                 .shortDesc(shortDesc)
@@ -149,6 +159,8 @@ public class AppReleasePO {
                 .industry(industry)
                 .user(new User(userId, userName))
                 .appBasicInfo(basicInfo)
+                .status(EnumPackageStatus.valueOf(status))
+                .testTaskId(testTaskId)
                 .build();
     }
 
@@ -161,7 +173,7 @@ public class AppReleasePO {
             return false;
         }
         AppReleasePO that = (AppReleasePO) o;
-        return Objects.equals(versionID, that.versionID) && Objects.equals(packageAddress, that.packageAddress)
+        return Objects.equals(packageId, that.packageId) && Objects.equals(packageAddress, that.packageAddress)
             && Objects.equals(iconAddress, that.iconAddress) && Objects.equals(size, that.size) && Objects.equals(
             fileStructure, that.fileStructure) && Objects.equals(createTime, that.createTime) && Objects.equals(
             shortDesc, that.shortDesc) && Objects.equals(appName, that.appName) && Objects.equals(version, that.version)
@@ -172,7 +184,7 @@ public class AppReleasePO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(versionID, packageAddress, iconAddress, size, fileStructure, createTime, shortDesc, appName,
+        return Objects.hash(packageId, packageAddress, iconAddress, size, fileStructure, createTime, shortDesc, appName,
             version, applicationType, markDownContent, affinity, appId, userId, userName);
     }
 }

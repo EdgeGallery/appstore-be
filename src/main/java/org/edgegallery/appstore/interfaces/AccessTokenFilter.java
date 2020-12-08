@@ -93,6 +93,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token");
                 return;
             }
+            request.setAttribute("access_token", accessTokenStr);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);

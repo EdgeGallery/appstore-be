@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,7 +52,7 @@ public interface AppMapper {
 
     List<AppReleasePO> findAllWithPagination(PageCriteria pageCriteria);
 
-    void removeByVersionId(String versionId);
+    void removeByPackageId(String packageId);
 
     Integer countTotalAppForUser(String userId);
 }

@@ -111,7 +111,7 @@ public class PackageController {
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get csar file uri by csarId", response = String.class)
+    @ApiOperation(value = "get csar file uri by appId and packageId", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
@@ -126,5 +126,19 @@ public class PackageController {
         throws IOException {
         String fileContent = packageServiceFacade.getCsarFileByName(appId, packageId, filePath);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/publish", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "publish the package.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<String> publishPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        return packageServiceFacade.publishPackage(appId, packageId);
     }
 }

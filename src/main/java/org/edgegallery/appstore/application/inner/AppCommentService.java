@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application;
+package org.edgegallery.appstore.application.inner;
 
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;

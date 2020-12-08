@@ -36,7 +36,7 @@
         SET modifytime = (select now()), shortdesc=#{shortDesc}, provider =#{provider}, appname=
         #{appName}, applicationType=#{applicationType}, appIntroduction=#{appIntroduction},
         downloadcount=#{downloadCount},AFFINITY=#{affinity},INDUSTRY=#{industry},contact=#{contact},USERID=#{userId}
-        ,SCORE=#{score}
+        ,SCORE=#{score}, STATUS=#{status}
         WHERE APPID = #{appId}
     </update>
 
@@ -45,11 +45,11 @@
         insert into
         app_table
         (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, appIntroduction,
-        downloadcount, affinity, industry, contact, userid, username, score)
+        downloadcount, affinity, industry, contact, userid, username, score, status)
         VALUES
         (#{appId}, (select now()), (select now()), #{shortDesc},#{provider}, #{appName},
         #{applicationType},
-        #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0)
+        #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0, #{status})
     </insert>
 
     <delete id="remove" parameterType="String">
@@ -112,14 +112,16 @@
     </select>
 
     <insert id="insertRelease"
-            parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO">
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO">
         insert into catalog_package_table
-        (versionID, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
-        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username)
+        (packageid, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
+        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username,
+        TEST_TASKID, STATUS, provider)
         VALUES
-        (#{versionID}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
+        (#{packageId}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
         #{appName}, #{version}, #{applicationType},
-        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName})
+        #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName}, #{testTaskId},
+        #{status}, #{provider})
     </insert>
 
     <delete id="removeReleasesByAppId" parameterType="String">
@@ -129,7 +131,7 @@
         appid=#{appId}
     </delete>
 
-    <select id="findAllByAppId" resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO">
+    <select id="findAllByAppId" resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO">
         select
         *
         from
@@ -139,7 +141,7 @@
     </select>
 
     <select id="findAllWithPagination"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppReleasePO"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePO"
             parameterType="java.util.Map">
         select * from catalog_package_table where appid = #{appId} limit #{limit} offset #{offset}
     </select>
@@ -150,15 +152,15 @@
         #{offset}
     </select>
 
-    <delete id="removeByVersionId" parameterType="String">
+    <delete id="removeByPackageId" parameterType="String">
         delete from
         catalog_package_table
         where
-        versionId=#{versionId}
+        packageid=#{packageId}
     </delete>
 
     <select id="countTotalAppForUser" resultType="java.lang.Integer"
             parameterType="java.util.Map">
-         select count(*) from app_table where userid = #{userId}
+        select count(*) from app_table where userid = #{userId}
     </select>
 </mapper>

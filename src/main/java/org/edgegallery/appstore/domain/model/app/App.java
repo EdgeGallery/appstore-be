@@ -74,6 +74,8 @@ public class App implements Entity {
 
     private int numOfcomment;
 
+    private EnumAppStatus status;
+
     private List<Release> releases;
 
     /**
@@ -93,6 +95,7 @@ public class App implements Entity {
         this.appIntroduction = release.getAppBasicInfo().getMarkDownContent();
         this.industry = release.getIndustry();
         this.contact = release.getAppBasicInfo().getContact();
+        this.status = EnumAppStatus.UnPublish;
         this.releases = Collections.singletonList(release);
     }
 
@@ -142,7 +145,7 @@ public class App implements Entity {
     }
 
     public Optional<Release> findByVersion(String packageId) {
-        return releases.stream().filter(it -> it.getVersionId().equals(packageId)).findAny();
+        return releases.stream().filter(it -> it.getPackageId().equals(packageId)).findAny();
     }
 
     public void unPublish(Release release) {

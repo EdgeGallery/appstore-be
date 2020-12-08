@@ -22,8 +22,8 @@ public class UnknownReleaseExecption extends DomainException {
 
     private static final long serialVersionUID = 8438080003774246931L;
 
-    public UnknownReleaseExecption(String versionId) {
-        super("No release with versionId " + versionId + " exists in the system");
+    public UnknownReleaseExecption(String packageId) {
+        super("No release with packageId " + packageId + " exists in the system");
     }
 
 }

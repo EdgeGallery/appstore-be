@@ -19,7 +19,8 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import org.edgegallery.appstore.application.AppService;
+import org.edgegallery.appstore.application.inner.AppService;
+import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -39,6 +40,9 @@ public class PackageServiceFacade {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private PackageService packageService;
 
     /**
      * Query package by package id.
@@ -90,5 +94,10 @@ public class PackageServiceFacade {
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    public ResponseEntity<String> publishPackage(String appId, String packageId) {
+        packageService.publishPackage(appId, packageId);
+        return ResponseEntity.ok("Publish Success");
     }
 }
