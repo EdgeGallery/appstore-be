@@ -14,16 +14,11 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.releases;
+package org.edgegallery.appstore.interfaces;
 
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.apache.commons.io.FileUtils;
+public class ZipTest {
+    public static void main(String[] args) {
 
-public class UnknownReleaseExecption extends DomainException {
-
-    private static final long serialVersionUID = 8438080003774246931L;
-
-    public UnknownReleaseExecption(String packageId) {
-        super("No release with packageId " + packageId + " exists in the system");
     }
-
 }

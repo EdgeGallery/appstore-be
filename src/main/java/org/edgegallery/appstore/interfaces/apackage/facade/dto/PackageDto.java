@@ -28,7 +28,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PackageDto {
 
-    private String csarId;
+    private String packageId;
 
     private String downloadUrl;
 
@@ -71,7 +71,7 @@ public class PackageDto {
      */
     public static PackageDto of(Release release) {
         PackageDto dto = new PackageDto();
-        dto.csarId = release.getVersionId();
+        dto.packageId = release.getPackageId();
         dto.downloadUrl = release.getPackageFile().getStorageAddress();
         dto.iconUrl = release.getIcon().getStorageAddress();
         dto.size = release.getPackageFile().getSize();

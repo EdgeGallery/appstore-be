@@ -24,18 +24,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ValueObject;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Release implements ValueObject<Release> {
 
-    private String versionId;
+    private String packageId;
 
     private String appId;
 
@@ -53,6 +55,10 @@ public class Release implements ValueObject<Release> {
 
     private String applicationType;
 
+    private EnumPackageStatus status;
+
+    private String testTaskId;
+
     private User user;
 
     private BasicInfo appBasicInfo;
@@ -66,7 +72,7 @@ public class Release implements ValueObject<Release> {
      */
     public Release(AFile packageFile, AFile icon, User user, AppParam appParam) {
         String random = UUID.randomUUID().toString();
-        this.versionId = random.replace("-", "");
+        this.packageId = random.replace("-", "");
         this.packageFile = packageFile;
         this.icon = icon;
         this.user = user;
@@ -76,6 +82,7 @@ public class Release implements ValueObject<Release> {
         this.applicationType = appParam.getApplicationType();
         this.industry = appParam.getIndustry();
         this.affinity = appParam.getAffinity();
+        this.status = EnumPackageStatus.Upload;
         appBasicInfo = new BasicInfo().load(packageFile.getStorageAddress());
     }
 
@@ -88,12 +95,12 @@ public class Release implements ValueObject<Release> {
             return false;
         }
         Release release = (Release) o;
-        return Objects.equals(versionId, release.versionId);
+        return Objects.equals(packageId, release.packageId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(versionId);
+        return Objects.hash(packageId);
     }
 
     @Override

@@ -17,7 +17,7 @@
 package org.edgegallery.appstore.interfaces.comment.facade;
 
 import java.util.List;
-import org.edgegallery.appstore.application.AppCommentService;
+import org.edgegallery.appstore.application.inner.AppCommentService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.Comment;

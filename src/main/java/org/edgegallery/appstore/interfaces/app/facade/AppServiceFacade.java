@@ -21,7 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.appstore.application.AppService;
+import org.edgegallery.appstore.application.external.model.AtpMetadata;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
@@ -69,7 +70,7 @@ public class AppServiceFacade {
      * appRegistering.
      */
     public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
-        MultipartFile iconFile) {
+        MultipartFile iconFile, AtpMetadata atpMetadata) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         AFile packageAFile = getFile(packageFile, new PackageChecker(dir), fileParent);
@@ -78,6 +79,9 @@ public class AppServiceFacade {
         Release release = new Release(packageAFile, icon, user, appParam);
 
         RegisterRespDto dto = appService.registerApp(release);
+        if (atpMetadata.getTestTaskId() != null) {
+            appService.loadTestTask(dto.getPackageId(), atpMetadata);
+        }
         return ResponseEntity.ok(dto);
     }
 
