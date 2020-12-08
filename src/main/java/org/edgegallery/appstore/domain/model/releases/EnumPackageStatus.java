@@ -19,6 +19,12 @@ public enum EnumPackageStatus {
     EnumPackageStatus() {
     }
 
+    /**
+     * transform string to enum.
+     *
+     * @param text input string
+     * @return
+     */
     public static EnumPackageStatus fromString(String text) {
         for (EnumPackageStatus b : EnumPackageStatus.values()) {
             if (b.text.equalsIgnoreCase(text)) {

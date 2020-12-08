@@ -22,7 +22,7 @@ public class AtpService implements AtpServiceInterface {
 
     @Override
     public String getAtpTaskResult(String token, String taskId) {
-        return AtpUtil.getTaskStatusFromATP(taskId, token);
+        return AtpUtil.getTaskStatusFromAtp(taskId, token);
     }
 
 }

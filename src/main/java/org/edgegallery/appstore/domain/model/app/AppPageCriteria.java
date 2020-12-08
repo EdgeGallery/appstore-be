@@ -16,8 +16,10 @@
 
 package org.edgegallery.appstore.domain.model.app;
 
+import lombok.Getter;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 
+@Getter
 public class AppPageCriteria extends PageCriteria {
 
     private  String appName;
@@ -43,23 +45,4 @@ public class AppPageCriteria extends PageCriteria {
         this.userId = userId;
     }
 
-    public String getAppName() {
-        return appName;
-    }
-
-    public String getApplicationType() {
-        return applicationType;
-    }
-
-    public String getAffinity() {
-        return affinity;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
 }

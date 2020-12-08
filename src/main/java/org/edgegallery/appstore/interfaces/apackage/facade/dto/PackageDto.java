@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 
 @Getter
@@ -60,6 +61,12 @@ public class PackageDto {
 
     private String userName;
 
+    private EnumPackageStatus status;
+
+    private String shortDesc;
+
+    private String testTaskId;
+
     public PackageDto() {
         // empty construct function
     }
@@ -87,6 +94,9 @@ public class PackageDto {
         dto.appId = release.getAppId();
         dto.userId = release.getUser().getUserId();
         dto.userName = release.getUser().getUserName();
+        dto.status = release.getStatus();
+        dto.shortDesc = release.getShortDesc();
+        dto.testTaskId = release.getTestTaskId();
         return dto;
     }
 }
