@@ -32,7 +32,7 @@
     </insert>
 
     <select id="findAllWithPagination"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPO"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPo"
             parameterType="java.util.Map">
         select * from csar_package_score where appid = #{appId} limit #{limit} offset #{offset}
     </select>
@@ -44,7 +44,7 @@
     </select>
 
     <select id="findAll"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPO"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPo"
             parameterType="java.util.Map">
         SELECT * FROM CSAR_PACKAGE_SCORE WHERE APPID = #{appId}
     </select>

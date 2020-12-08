@@ -27,9 +27,9 @@ import org.springframework.stereotype.Component;
 public interface CommentMapper {
     void removeAll(String appId);
 
-    int insert(CommentPO of);
+    int insert(CommentPo of);
 
-    List<CommentPO> findAllWithPagination(PageCriteria pageCriteria);
+    List<CommentPo> findAllWithPagination(PageCriteria pageCriteria);
 
     Integer countTotal(PageCriteria pageCriteria);
 

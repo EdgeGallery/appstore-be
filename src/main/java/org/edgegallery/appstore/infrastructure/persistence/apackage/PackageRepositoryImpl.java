@@ -15,10 +15,10 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
-import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +33,43 @@ public class PackageRepositoryImpl implements PackageRepository {
     private PackageMapper packageMapper;
 
     @Override
-    public void updateStatus(String packageId, EnumPackageStatus status) {
+    public void updateRelease(Release release) {
 
-        AppReleasePO releasePO = packageMapper.findReleaseById(packageId);
+        AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
         if (releasePO == null) {
-            LOGGER.error("update status error: can not find package by {}", packageId);
+            LOGGER.error("update status error: can not find package by {}", release.getPackageId());
             throw new EntityNotFoundException("update status error: can not find package");
         }
-        releasePO.setStatus(status.toString());
-        packageMapper.updateRelease(releasePO);
+        packageMapper.updateRelease(AppReleasePo.of(release));
     }
 
     @Override
     public Release findReleaseById(String appId, String packageId) {
-        AppReleasePO releasePO = packageMapper.findReleaseById(packageId);
+        AppReleasePo releasePO = packageMapper.findReleaseById(packageId);
         if (releasePO == null || !releasePO.getAppId().equals(appId)) {
             LOGGER.error("find release error: can not find package by {}", packageId);
             throw new EntityNotFoundException("find release error: can not find package");
         }
         return releasePO.toDomainModel();
+    }
+
+    @Override
+    public void storeRelease(Release release) {
+        AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
+        if (releasePO != null) {
+            LOGGER.error("release {} has existed.", release.getPackageId());
+            throw new OperateAvailableException("release has existed.");
+        }
+        packageMapper.insertRelease(AppReleasePo.of(release));
+    }
+
+    @Override
+    public void removeRelease(Release release) {
+        AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
+        if (releasePO == null) {
+            LOGGER.error("find release error: can not find package by {}", release.getPackageId());
+            throw new EntityNotFoundException("find release error: can not find package");
+        }
+        packageMapper.removeByPackageId(release.getPackageId());
     }
 }

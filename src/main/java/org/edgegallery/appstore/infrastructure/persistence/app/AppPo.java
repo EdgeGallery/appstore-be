@@ -33,7 +33,7 @@ import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 @Entity
 @Table(name = "app_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppPO implements PersistenceObject<App> {
+public class AppPo implements PersistenceObject<App> {
 
     public static final String APP_NAME = "appName";
 
@@ -94,12 +94,12 @@ public class AppPO implements PersistenceObject<App> {
             .user(new User(userId, userName)).numOfcomment(0).releases(null).status(status).build();
     }
 
-    public AppPO() {
+    public AppPo() {
         // empty construct
     }
 
-    static AppPO of(App app) {
-        AppPO po = new AppPO();
+    static AppPo of(App app) {
+        AppPo po = new AppPo();
         po.appId = app.getAppId();
         po.appName = app.getAppName();
         po.applicationType = app.getApplicationType();

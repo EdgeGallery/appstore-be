@@ -21,6 +21,7 @@ import org.edgegallery.appstore.application.external.AtpService;
 import org.edgegallery.appstore.application.external.model.AtpMetadata;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
@@ -54,7 +55,7 @@ public class AppService {
 
     public Release getRelease(String appId, String packageId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        return app.findByVersion(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        return app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
     }
 
     /**
@@ -67,7 +68,7 @@ public class AppService {
 
         Optional<App> existedApp = appRepository
             .findByAppNameAndProvider(release.getAppBasicInfo().getAppName(), release.getAppBasicInfo().getProvider());
-        App app = null;
+        App app;
         if (existedApp.isPresent()) {
             app = existedApp.get();
             app.checkReleases(release);
@@ -78,6 +79,7 @@ public class AppService {
         }
         release.setAppIdValue(app.getAppId());
         appRepository.store(app);
+        packageRepository.storeRelease(release);
         return RegisterRespDto.builder().appName(release.getAppBasicInfo().getAppName()).appId(app.getAppId())
             .packageId(release.getPackageId()).provider(app.getProvider())
             .version(release.getAppBasicInfo().getVersion()).build();
@@ -93,15 +95,19 @@ public class AppService {
     @Transactional
     public void unPublishPackage(String appId, String packageId, User user) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        Release release = app.findByVersion(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        Release release = app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
         release.checkPermission(user.getUserId());
-        deleteReleaseFile(release);
+
         app.unPublish(release);
         if (app.getReleases().isEmpty()) {
             unPublish(app);
-        } else {
+        } else if (!app.hasPublishedRelease()) {
+            app.setStatus(EnumAppStatus.UnPublish);
             appRepository.store(app);
         }
+
+        deleteReleaseFile(release);
+        packageRepository.removeRelease(release);
     }
 
     /**
@@ -113,7 +119,7 @@ public class AppService {
      */
     public Release download(String appId, String packageId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        Release release = app.findByVersion(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        Release release = app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
         app.downLoad();
         appRepository.store(app);
         return release;
@@ -143,11 +149,13 @@ public class AppService {
      * @param packageId package id
      * @param atpMetadata atp data
      */
-    public void loadTestTask(String packageId, AtpMetadata atpMetadata) {
+    public void loadTestTask(String appId, String packageId, AtpMetadata atpMetadata) {
         String status = atpService.getAtpTaskResult(atpMetadata.getToken(), atpMetadata.getTestTaskId());
         if (status != null) {
-            EnumPackageStatus packageStatus = EnumPackageStatus.fromString(status);
-            packageRepository.updateStatus(packageId, packageStatus);
+            Release release = packageRepository.findReleaseById(appId, packageId);
+            release.setStatus(EnumPackageStatus.fromString(status));
+            release.setTestTaskId(atpMetadata.getTestTaskId());
+            packageRepository.updateRelease(release);
         }
     }
 }
