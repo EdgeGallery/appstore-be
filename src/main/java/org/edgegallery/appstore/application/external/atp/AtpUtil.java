@@ -22,6 +22,7 @@ import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,16 +30,24 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+@Component
 public class AtpUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
     private static final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${atp.urls.create-task}")
+    private String createTaskUrl;
+
+    @Value("${atp.urls.query-task}")
+    private String queryTaskUrl;
 
     /**
      * send request to atp to create test task.
@@ -47,7 +56,7 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public static AtpTestDto sendCreatTask2Atp(String filePath, String token) {
+    public AtpTestDto sendCreatTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -58,7 +67,7 @@ public class AtpUtil {
         headers.set("access_token", token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = AtpConfig.createTaskUrl;
+        String url = createTaskUrl;
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -85,12 +94,12 @@ public class AtpUtil {
      * @param token token
      * @return task status
      */
-    public static String getTaskStatusFromAtp(String taskId, String token) {
+    public String getTaskStatusFromAtp(String taskId, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        String url = String.format(AtpConfig.queryTaskUrl, taskId);
+        String url = String.format(queryTaskUrl, taskId);
         LOGGER.info("get task status frm atp, url: {}", url);
         String status = null;
         try {
