@@ -92,7 +92,7 @@ public class AppReleasePo {
     @Column(name = "USERNAME")
     private String userName;
 
-    @Column(name = "TEST_TASKID")
+    @Column(name = "TESTTASKID")
     private String testTaskId;
 
     @Column(name = "STATUS")

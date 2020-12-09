@@ -190,7 +190,7 @@ public class AppController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
         @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
-        return appServiceFacade.findAllPackages(appId, userId, 100, 0);
+        @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
+        return appServiceFacade.findAllPackages(appId, userId, 100, 0, (String) request.getAttribute("access_token"));
     }
 }
