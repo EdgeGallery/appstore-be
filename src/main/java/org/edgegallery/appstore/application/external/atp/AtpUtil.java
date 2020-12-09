@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.edgegallery.appstore.application.external;
+package org.edgegallery.appstore.application.external.atp;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.appstore.application.external.model.AtpTestDto;
+import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -37,8 +37,6 @@ import org.springframework.web.client.RestTemplate;
 public class AtpUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
-
-    private static final String CREATE_TASK_FROM_ATP = "https://atp-svc:8073/edgegallery/atp/v1/tasks";
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
@@ -60,7 +58,7 @@ public class AtpUtil {
         headers.set("access_token", token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = CREATE_TASK_FROM_ATP;
+        String url = AtpConfig.createTaskUrl;
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -69,6 +67,7 @@ public class AtpUtil {
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
                 String id = jsonObject.get("id").getAsString();
                 String status = jsonObject.get("status").getAsString();
+                LOGGER.info("Create test task {} success, status is {}", id, status);
                 return new AtpTestDto(id, status);
             }
             LOGGER.error("Create instance from atp failed,  status is {}", response.getStatusCode());
@@ -91,7 +90,7 @@ public class AtpUtil {
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        String url = String.format("https://atp-svc:8073/edgegallery/atp/v1/tasks/%s", taskId);
+        String url = String.format(AtpConfig.queryTaskUrl, taskId);
         LOGGER.info("get task status frm atp, url: {}", url);
         String status = null;
         try {
@@ -106,7 +105,7 @@ public class AtpUtil {
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
             status = jsonObject.get("status").getAsString();
 
-            LOGGER.info("status: {}", status);
+            LOGGER.info("Get task status: {}", status);
 
         } catch (RestClientException e) {
             LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());

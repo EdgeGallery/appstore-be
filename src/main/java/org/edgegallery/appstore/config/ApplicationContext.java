@@ -25,12 +25,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ApplicationContext {
 
-    @Value("${appstore-be.package-path}")
-    private String dir;
-
     @Bean
     public FileService fileService() {
-        return new LocalFileService(dir);
+        return new LocalFileService();
     }
 
 }

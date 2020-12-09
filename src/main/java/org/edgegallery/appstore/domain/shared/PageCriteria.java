@@ -16,6 +16,9 @@
 
 package org.edgegallery.appstore.domain.shared;
 
+import lombok.Getter;
+
+@Getter
 public class PageCriteria {
 
     private int limit;
@@ -39,15 +42,4 @@ public class PageCriteria {
         this.appId = appId;
     }
 
-    public int getLimit() {
-        return limit;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
 }

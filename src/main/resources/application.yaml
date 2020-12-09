@@ -1,3 +1,4 @@
+### servicecomb config ###
 servicecomb-config-order: 1
 APPLICATION_ID: edgegallery
 service_description:
@@ -16,7 +17,7 @@ servicecomb:
     directory: /home/appstore
     maxSize: -1
 
-###pgsql config######
+### spring config ###
 server:
   port: 8099
   ssl:
@@ -43,15 +44,22 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
-      
-###mybtis####
-mybatis:
-  mapper-locations: classpath:mybatis/sql/*.xml
-
 security:
   oauth2:
     resource:
       jwt:
         key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key
+## mybatis config ##
+mybatis:
+  mapper-locations: classpath:mybatis/sql/*.xml
+
+### appstore-be config ###
 appstore-be:
   package-path: "/usr/app/packages"
+
+### atp config ###
+atp:
+  urls:
+    create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
+    query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
+

@@ -16,6 +16,11 @@
 
 package org.edgegallery.appstore.domain.model.user;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Permissions {
 
     private String platform;
@@ -24,27 +29,4 @@ public class Permissions {
 
     private String[] pageIds;
 
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
-
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
 }

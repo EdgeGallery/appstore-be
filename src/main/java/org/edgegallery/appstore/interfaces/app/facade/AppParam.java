@@ -16,6 +16,15 @@
 
 package org.edgegallery.appstore.interfaces.app.facade;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AppParam {
 
     private String applicationType;
@@ -26,45 +35,4 @@ public class AppParam {
 
     private String industry;
 
-    /**
-     * Constructor of AppParam.
-     */
-    public AppParam(String type, String shortDesc, String affinity, String industry) {
-        this.applicationType = type;
-        this.shortDesc = shortDesc;
-        this.affinity = affinity;
-        this.industry = industry;
-    }
-
-    public String getApplicationType() {
-        return applicationType;
-    }
-
-    public void setApplicationType(String applicationType) {
-        this.applicationType = applicationType;
-    }
-
-    public String getShortDesc() {
-        return shortDesc;
-    }
-
-    public void setShortDesc(String shortDesc) {
-        this.shortDesc = shortDesc;
-    }
-
-    public String getAffinity() {
-        return affinity;
-    }
-
-    public void setAffinity(String affinity) {
-        this.affinity = affinity;
-    }
-
-    public String getIndustry() {
-        return industry;
-    }
-
-    public void setIndustry(String industry) {
-        this.industry = industry;
-    }
 }

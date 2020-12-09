@@ -17,8 +17,8 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.util.Optional;
-import org.edgegallery.appstore.application.external.AtpService;
-import org.edgegallery.appstore.application.external.model.AtpMetadata;
+import org.edgegallery.appstore.application.external.atp.AtpService;
+import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
