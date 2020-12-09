@@ -16,7 +16,7 @@
     	APPID                    VARCHAR(100)       NULL,
     	USERID                   VARCHAR(100)       NULL,
     	USERNAME                 VARCHAR(100)       NULL,
-    	TEST_TASKID              VARCHAR(100)       NULL,
+    	TESTTASKID               VARCHAR(100)       NULL,
     	STATUS                   VARCHAR(100)       NULL,
     	PROVIDER                 VARCHAR(100)       NULL,
     	CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)

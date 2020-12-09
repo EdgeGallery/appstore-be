@@ -31,7 +31,7 @@
         fileStructure = #{fileStructure}, createTime = #{createTime}, shortDesc = #{shortDesc}, appName = #{appName},
         version = #{version}, provider = #{provider}, applicationType = #{applicationType}, markDownContent = #{markDownContent},
         affinity = #{affinity}, industry = #{industry}, contact = #{contact}, appId = #{appId}, userId = #{userId}, userName = #{userName},
-        TEST_TASKID = #{testTaskId}, status = #{status}
+        TESTTASKID = #{testTaskId}, status = #{status}
         WHERE packageid = #{packageId}
     </update>
 
@@ -40,7 +40,7 @@
         insert into catalog_package_table
         (packageid, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
         appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username,
-        TEST_TASKID, STATUS, provider)
+        TESTTASKID, STATUS, provider)
         VALUES
         (#{packageId}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
         #{appName}, #{version}, #{applicationType},

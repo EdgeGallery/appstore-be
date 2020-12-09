@@ -180,13 +180,27 @@ public class AppServiceFacade {
      * @param offset offset of pages.
      * @return
      */
-    public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset) {
-        Stream<PackageDto> packageStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
-            .map(PackageDto::of).getResults().stream();
+    public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset,
+        String token) {
+        Stream<Release> releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
+            .getResults().stream();
         if (userId == null) {
-            packageStream = packageStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
+            releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
+        } else {
+            List<Release> releases = releaseStream.collect(Collectors.toList());
+            refreshStatus(releases, token);
+            releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
+                .stream();
         }
-        return ResponseEntity.ok(packageStream.collect(Collectors.toList()));
+        List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
+        return ResponseEntity.ok(packageDtos);
+    }
+
+    private void refreshStatus(List<Release> releases, String token) {
+        releases.stream().filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
+            .collect(Collectors.toList())
+            .forEach(s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
+                new AtpMetadata(s.getTestTaskId(), token)));
     }
 
 }

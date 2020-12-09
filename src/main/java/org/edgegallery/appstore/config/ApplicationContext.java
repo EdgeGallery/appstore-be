@@ -18,7 +18,6 @@ package org.edgegallery.appstore.config;
 
 import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -43,4 +43,8 @@ public enum EnumPackageStatus {
     public static boolean testAllowed(EnumPackageStatus status) {
         return status == Upload || status == Test_failed || status == Test_create_failed || status == Test_success;
     }
+
+    public static boolean needRefresh(EnumPackageStatus status) {
+        return status == Test_created || status == Test_running || status == Test_waiting;
+    }
 }
