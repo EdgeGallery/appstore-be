@@ -29,7 +29,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.appstore.application.external.model.AtpTestDto;
+import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;

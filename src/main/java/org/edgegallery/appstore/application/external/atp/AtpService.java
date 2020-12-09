@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package org.edgegallery.appstore.application.external;
+package org.edgegallery.appstore.application.external.atp;
 
-import org.edgegallery.appstore.application.external.model.AtpTestDto;
+import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.springframework.stereotype.Service;
 

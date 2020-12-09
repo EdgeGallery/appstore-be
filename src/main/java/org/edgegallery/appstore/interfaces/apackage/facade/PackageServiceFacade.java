@@ -19,7 +19,7 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import org.edgegallery.appstore.application.external.model.AtpTestDto;
+import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;

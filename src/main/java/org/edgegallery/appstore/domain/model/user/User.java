@@ -17,8 +17,12 @@
 package org.edgegallery.appstore.domain.model.user;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.commons.lang.Validate;
 
+@Getter
+@AllArgsConstructor
 public class User {
 
     public static final String USER_INDEX = "userIndex";
@@ -45,43 +49,6 @@ public class User {
         Validate.notNull(userId, "UserName is required");
         this.userId = userId;
         this.userName = userName;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    /**
-     * Constructor of User with full parameters..
-     */
-    public User(String userId, String userName, List<Permissions> permissions, String company, String gender, String
-        telephone) {
-        this.userId = userId;
-        this.userName = userName;
-        this.permissions = permissions;
-        this.company = company;
-        this.gender = gender;
-        this.telephone = telephone;
-    }
-
-    public List<Permissions> getPermissions() {
-        return permissions;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public String getTelephone() {
-        return telephone;
     }
 
     public boolean check() {

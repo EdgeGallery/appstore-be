@@ -30,7 +30,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.appstore.application.external.model.AtpMetadata;
+import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;

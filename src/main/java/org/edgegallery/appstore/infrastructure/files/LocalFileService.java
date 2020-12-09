@@ -39,17 +39,6 @@ public class LocalFileService implements FileService {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileService.class);
 
-    private String dir;
-
-    /**
-     * Constructor to create LocalFileService.
-     *
-     * @param dir package path
-     */
-    public LocalFileService(String dir) {
-        this.dir = dir;
-    }
-
     @Override
     public String saveTo(File file, String fileParent) {
         if (file == null || file.getName() == null) {
@@ -153,23 +142,5 @@ public class LocalFileService implements FileService {
         } catch (IOException var2) {
             LOGGER.info("Close stream with Exception");
         }
-    }
-
-    /**
-     * Returns dir.
-     *
-     * @return dir
-     */
-    public String getDir() {
-        return dir;
-    }
-
-    /**
-     * Sets dir.
-     *
-     * @param dir package dir
-     */
-    public void setDir(String dir) {
-        this.dir = dir;
     }
 }

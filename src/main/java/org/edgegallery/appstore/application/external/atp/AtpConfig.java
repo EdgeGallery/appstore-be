@@ -13,20 +13,17 @@
  * limitations under the License.
  */
 
-package org.edgegallery.appstore.application.external.model;
+package org.edgegallery.appstore.application.external.atp;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class AtpTestDto {
+@Configuration
+public class AtpConfig {
 
-    private String atpTaskId;
+    @Value("${atp.urls.create-task}")
+    public static String createTaskUrl;
 
-    private String status;
+    @Value("${atp.urls.query-task}")
+    public static String queryTaskUrl;
 }
