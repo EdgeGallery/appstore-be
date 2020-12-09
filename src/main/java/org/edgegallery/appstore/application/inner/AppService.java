@@ -101,13 +101,15 @@ public class AppService {
         app.unPublish(release);
         if (app.getReleases().isEmpty()) {
             unPublish(app);
-        } else if (!app.hasPublishedRelease()) {
-            app.setStatus(EnumAppStatus.UnPublish);
-            appRepository.store(app);
+        } else {
+            packageRepository.removeRelease(release);
+            if (!app.hasPublishedRelease()) {
+                app.setStatus(EnumAppStatus.UnPublish);
+                appRepository.store(app);
+            }
         }
 
         deleteReleaseFile(release);
-        packageRepository.removeRelease(release);
     }
 
     /**
