@@ -29,4 +29,12 @@ public class Permissions {
 
     private String[] pageIds;
 
+    public String[] getPageIds() {
+        return pageIds.clone();
+    }
+
+    public void setPageIds(String[] pageIds) {
+        this.pageIds = pageIds.clone();
+    }
+
 }
