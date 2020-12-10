@@ -25,6 +25,7 @@ import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -40,8 +41,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
 
         try {
             MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_UNIQUE_CSAR, userId, userName);
@@ -54,12 +53,23 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_fail_with_same_app() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
+    public void should_success_with_testTaskId() {
+        String testTaskId = "test task id";
 
         try {
-            registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
+            Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.any())).thenReturn("success");
+            MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_UNIQUE_CSAR, userId, userName, testTaskId);
+            Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+            new Gson().fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_fail_with_same_app() {
+        try {
             MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
             Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
         } catch (Exception e) {
@@ -68,26 +78,10 @@ public class AppRegisterTest extends AppTest {
     }
 
     @Test
-    public void should_fail_with_no_permission() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
-        try {
-            MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
-            Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), mvcResult.getResponse().getStatus());
-        } catch (Exception e) {
-            Assert.assertNull(e);
-        }
-    }
-
-    @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_csarFile() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
-            File iconFile = Resources.getResourceAsFile(AR_PNG);
+            File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
@@ -112,9 +106,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_iconFile() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
@@ -141,9 +132,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_typeField() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
@@ -172,9 +160,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_shortDescField() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
@@ -203,9 +188,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_with_no_affinityField() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
@@ -234,9 +216,6 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_app_register_fail_with_no_industryField() {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);

@@ -198,7 +198,6 @@ public class AppServiceFacade {
 
     private void refreshStatus(List<Release> releases, String token) {
         releases.stream().filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
-            .collect(Collectors.toList())
             .forEach(s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
                 new AtpMetadata(s.getTestTaskId(), token)));
     }

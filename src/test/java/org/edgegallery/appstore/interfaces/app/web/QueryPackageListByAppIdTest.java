@@ -15,29 +15,59 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
-import java.io.File;
-import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class QueryPackageListByAppIdTest extends AppInterfacesTest {
+public class QueryPackageListByAppIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackagesSuccess() throws Exception {
-        File resultFile = Resources.getResourceAsFile("testfile/getAppPackagesSuccess.txt");
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + REAL_APP_ID + "/packages")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+    public void should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages", appId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
 
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertTrue(obj.getContentAsString().length() > 100);
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        Type type = new TypeToken<ArrayList<PackageDto>>() { }.getType();
+        List<PackageDto> packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertEquals(1, packageDtos.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_with_user() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages", appId))
+                .param("userId", userId).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        Type type = new TypeToken<ArrayList<PackageDto>>() { }.getType();
+        List<PackageDto> packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertEquals(2, packageDtos.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_wrong_appId() throws Exception {
+        String appId = "30ec10f4a43041e6a6198ba824311af3";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages", appId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 }

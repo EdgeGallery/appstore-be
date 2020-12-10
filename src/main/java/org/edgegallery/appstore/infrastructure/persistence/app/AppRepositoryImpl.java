@@ -26,6 +26,7 @@ import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.MaxRecordLimitException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
@@ -51,9 +52,7 @@ public class AppRepositoryImpl implements AppRepository {
     public Optional<App> find(String appId) {
         Optional<App> app = appMapper.findByAppId(appId).map(AppPo::toDomainModel);
         if (app.isPresent()) {
-            List<Release> releases = packageMapper.findAllByAppId(appId)
-                .stream()
-                .map(AppReleasePo::toDomainModel)
+            List<Release> releases = packageMapper.findAllByAppId(appId).stream().map(AppReleasePo::toDomainModel)
                 .collect(Collectors.toList());
             app.get().setReleases(releases);
         }
@@ -83,16 +82,15 @@ public class AppRepositoryImpl implements AppRepository {
 
     /**
      * Find App by app name.
+     *
      * @param appName app name.
      * @return
      */
     public Optional<App> findByAppNameAndProvider(String appName, String provider) {
         Optional<App> app = appMapper.findByAppNameAndProvider(appName, provider).map(AppPo::toDomainModel);
         if (app.isPresent()) {
-            List<Release> releases = packageMapper.findAllByAppId(app.get().getAppId())
-                .stream()
-                .map(AppReleasePo::toDomainModel)
-                .collect(Collectors.toList());
+            List<Release> releases = packageMapper.findAllByAppId(app.get().getAppId()).stream()
+                .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
             app.get().setReleases(releases);
         }
         return app;
@@ -107,22 +105,19 @@ public class AppRepositoryImpl implements AppRepository {
     @Override
     public Page<App> query(AppPageCriteria appPageCriteria) {
         long total = appMapper.countTotal(appPageCriteria).longValue();
-        List<App> releases = appMapper.findAllWithAppPagination(appPageCriteria)
-            .stream()
-            .map(AppPo::toDomainModel)
+        List<App> releases = appMapper.findAllWithAppPagination(appPageCriteria).stream().map(AppPo::toDomainModel)
             .collect(Collectors.toList());
         return new Page<>(releases, appPageCriteria.getLimit(), appPageCriteria.getOffset(), total);
     }
 
     @Override
     public Page<Release> findAllWithPagination(PageCriteria pageCriteria) {
+        appMapper.findByAppId(pageCriteria.getAppId())
+            .orElseThrow(() -> new EntityNotFoundException(App.class, pageCriteria.getAppId()));
         long total = packageMapper.countTotalForReleases(pageCriteria).longValue();
-        List<Release> releases = packageMapper.findAllWithPagination(pageCriteria)
-            .stream()
-            .map(AppReleasePo::toDomainModel)
-            .collect(Collectors.toList());
+        List<Release> releases = packageMapper.findAllWithPagination(pageCriteria).stream()
+            .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
         return new Page<>(releases, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }
-
 
 }

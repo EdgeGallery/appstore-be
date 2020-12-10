@@ -15,64 +15,36 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
-import java.io.File;
-import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-public class QueryAppByIdTest extends AppInterfacesTest {
+public class QueryAppByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppSuccess() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af2";
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON));
-
-        MvcResult result = resultActions.andReturn();
+    public void should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-    }
-
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppFailed() throws Exception {
-        boolean checkResult = false;
-        String appId = "30ec10f4a43041e6a6198ba824311af9"; //app is not exist.
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
-        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andReturn();
-        int result = mvcResult.getResponse().getStatus();
-        Assert.assertEquals(result, HttpStatus.NOT_FOUND.value());
+        gson.fromJson(result.getResponse().getContentAsString(), RegisterRespDto.class);
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppFailedWithAttackId() throws Exception {
-        String appId = "attackId"; //app id is not match the parameter check reg {appId:[0-9a-f]{32}}.
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                    .andReturn();
-            int result = mvcResult.getResponse().getStatus();
-            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
+    public void should_failed_with_no_entity() throws Exception {
+        String appId = "78ec10f4a43041e6a6198ba824311af9"; //app is not exist.
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
+
 }
