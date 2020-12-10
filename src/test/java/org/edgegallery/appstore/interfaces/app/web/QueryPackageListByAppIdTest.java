@@ -19,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.junit.Assert;
 import org.junit.Test;

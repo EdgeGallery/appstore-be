@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.edgegallery.appstore.interfaces.app.web;
+package org.edgegallery.appstore.interfaces;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -65,32 +65,36 @@ public class AppTest {
     protected MockMvc mvc;
 
     @Autowired
-    AppMapper appMapper;
+    protected AppMapper appMapper;
 
     @Autowired
-    PackageMapper packageMapper;
+    protected PackageMapper packageMapper;
 
     @Autowired
-    CommentMapper commentMapper;
+    protected CommentMapper commentMapper;
 
     @MockBean
-    AtpService atpService;
+    protected AtpService atpService;
 
-    String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
+    protected String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
 
-    String userName = "username";
+    protected String userName = "username";
 
-    String appId;
+    protected String appId;
 
-    Gson gson = new Gson();
+    protected String packageId;
 
-    static final String POSITIONING_EG_1_CSAR = "testfile/positioning_eg_1.0.csar";
+    protected String unPublishedPackageId;
 
-    static final String POSITIONING_EG_2_CSAR = "testfile/positioning_eg_2.0.csar";
+    protected Gson gson = new Gson();
 
-    static final String POSITIONING_EG_UNIQUE_CSAR = "testfile/positioning_eg_unique.csar";
+    protected static final String POSITIONING_EG_1_CSAR = "testfile/positioning_eg_1.0.csar";
 
-    static final String LOGO_PNG = "testfile/logo.png";
+    protected static final String POSITIONING_EG_2_CSAR = "testfile/positioning_eg_2.0.csar";
+
+    protected static final String POSITIONING_EG_UNIQUE_CSAR = "testfile/positioning_eg_unique.csar";
+
+    protected static final String LOGO_PNG = "testfile/logo.png";
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
@@ -159,9 +163,11 @@ public class AppTest {
             packageMapper.updateRelease(r);
         });
         appId = dto.getAppId();
+        packageId = dto.getPackageId();
         mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_2_CSAR, userId, userName);
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        gson.fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
+        dto = gson.fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
+        unPublishedPackageId = dto.getPackageId();
     }
 
 }

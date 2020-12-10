@@ -19,6 +19,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import java.util.UUID;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;

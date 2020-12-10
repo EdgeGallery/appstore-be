@@ -15,63 +15,48 @@
 
 package org.edgegallery.appstore.interfaces.apackage.web;
 
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class GetPackageByIdTest extends AppInterfacesTest {
+public class GetPackageByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackageSuccess() throws Exception {
-        String appId = REAL_APP_ID;
-        String packageId = "44a00b12c13b43318d21840793549337";
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertTrue(obj.getStatus() == 200);
+    public void should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s", appId, packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackageWithException() throws Exception {
-        boolean checkResult = false;
-        String appId = "30ec10f4a43041e6a6198ba824311af4";
-        String packageId = "44a00b12c13b43318d21840793549339";
-
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertTrue(obj.getStatus() == 404);
+    public void should_failed_with_wrong_appId() throws Exception {
+        String appId = "30ec10f4a43041e6a6198ba824311af3";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s", appId, packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppPackageFailedByWrongId() throws Exception {
-        String appId = "wrongId";
-        String packageId = "44a00b12c13b43318d21840793549339";
-        ResultActions resultActions =
-                mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + REST_API_PACKAGES + packageId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-            MvcResult result = resultActions.andReturn();
-            MockHttpServletResponse obj = result.getResponse();
-            System.out.println(obj.getCharacterEncoding());
-            Assert.assertTrue(obj.getStatus() == 400);
+    public void should_failed_with_wrong_packageId() throws Exception {
+        String packageId = "30ec10f4a43041e6a6198ba824311af3";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s", appId, packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 
 }

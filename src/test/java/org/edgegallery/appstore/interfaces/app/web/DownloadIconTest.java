@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.app.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;

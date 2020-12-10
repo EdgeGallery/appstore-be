@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;

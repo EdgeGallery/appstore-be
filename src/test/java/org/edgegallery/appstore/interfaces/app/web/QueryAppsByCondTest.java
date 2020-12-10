@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.junit.Assert;
 import org.junit.Test;
