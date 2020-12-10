@@ -18,51 +18,36 @@ package org.edgegallery.appstore.interfaces.app.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
-import com.google.common.io.Files;
-import java.io.File;
-import java.io.IOException;
-import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.util.NestedServletException;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class DownloadTest extends AppInterfacesTest {
+public class DownloadTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void downloadAppSuccess() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-        try {
-            File csarFile = Resources.getResourceAsFile(AR_PACKAGE);
-            File storeFile = new File(
-                File.separator + "home" + File.separator + APPSTORE_ROOT + File.separator + REAL_APP_ID + File.separator
-                    + REAL_APP_ID + CSAR_EXTENSION);
-            createFile(storeFile.getCanonicalPath());
-            Files.copy(csarFile, storeFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void should_success() throws Exception {
 
-        mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + ACTION_DOWNLOAD).with(csrf())
-            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_OCTET_STREAM))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/action/download", appId)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_OCTET_STREAM))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void downloadAppWithWrongId() throws Exception {
-        String appId = "testId"; //testId is not match the [0-9a-f]{32}
-
-        try {
-            mvc.perform(MockMvcRequestBuilders.get(REST_API_ROOT + appId + ACTION_DOWNLOAD).with(csrf())
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_OCTET_STREAM));
-        } catch (NestedServletException e) {
-            Assert.assertEquals("download.appId: must match \"[0-9a-f]{32}\"", e.getRootCause().getMessage());
-        }
+    public void should_failed_with_wrong_appId() throws Exception {
+        String appId = "78ec10f4a43041e6a6198ba824311af9";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/action/download", appId)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 }

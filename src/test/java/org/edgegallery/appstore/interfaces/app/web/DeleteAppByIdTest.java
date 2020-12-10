@@ -17,47 +17,46 @@ package org.edgegallery.appstore.interfaces.app.web;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class DeleteAppByIdTest extends AppInterfacesTest {
+public class DeleteAppByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
-        String userId = "5abdd29d-b281-4f96-8339-b5621a67d217";
-        String userName = "username";
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.delete(REST_API_ROOT + appId)
-                .with(csrf())
-                .param("userId", userId)
-                .param("userName", userName));
-        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print()).andReturn();
-        int status = mvcResult.getResponse().getStatus();
-        Assert.assertEquals(HttpStatus.OK.value(), status);
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.delete("/mec/appstore/v1/apps/" + appId).with(csrf()).param("userId", userId)
+                .param("userName", userName)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_failed_with_no_userid() throws Exception {
-        String userName = "username";
+    public void should_failed_with_other_user() throws Exception {
+        String userId = UUID.randomUUID().toString();
+
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.delete("/mec/appstore/v1/apps/" + appId).with(csrf()).param("userId", userId)
+                .param("userName", userName)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.FORBIDDEN.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_no_entity() throws Exception {
         String appId = "30ec10f4a43041e6a6198ba824311af3";
 
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.delete(REST_API_ROOT + appId)
-                .with(csrf())
-                .param("userName", userName));
-        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print()).andReturn();
-        int status = mvcResult.getResponse().getStatus();
-        Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), status);
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.delete("/mec/appstore/v1/apps/" + appId).with(csrf()).param("userId", userId)
+                .param("userName", userName)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
 }

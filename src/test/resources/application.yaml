@@ -7,9 +7,6 @@ spring:
     username:
     password:
     driver-class-name: org.h2.Driver
-    #    username: sa
-    #    password:
-    #    driver-class-name: org.hsqldb.jdbc.JDBCDriver
     schema: classpath:appstore-test.sql
   main:
     allow-bean-definition-overriding: true
@@ -23,5 +20,12 @@ security:
     resource:
       jwt:
         key-value: test
+
 appstore-be:
-  package-path: "home/appstore"
+  package-path: "usr/apptest/packages"
+
+### atp config ###
+atp:
+  urls:
+    create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
+    query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s

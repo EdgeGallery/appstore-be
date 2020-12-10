@@ -15,54 +15,44 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
-import java.io.File;
-import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-public class QueryAppsByCondTest extends AppInterfacesTest {
+public class QueryAppsByCondTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_query_apps_success_with_no_conditions() throws Exception {
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/apps")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        MvcResult result = resultActions.andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/apps").contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Type type = new TypeToken<ArrayList<AppDto>>() { }.getType();
+        List<AppDto> appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        appDtos.forEach(o -> Assert.assertEquals(EnumAppStatus.Published, o.getStatus()));
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_query_apps_success_with_appName() throws Exception {
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/apps?name=AR")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        MvcResult result = resultActions.andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    public void should_query_apps_success_with_userId() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/apps").param("userId", userId)
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        Type type = new TypeToken<ArrayList<AppDto>>() { }.getType();
+        List<AppDto> appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertNotSame(0, appDtos.size());
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_query_apps_success_with_other_name() throws Exception {
-        String resultCompare = "[]";
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/apps?name=Nothing")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals(obj.getContentAsString(), resultCompare);
-    }
 }
