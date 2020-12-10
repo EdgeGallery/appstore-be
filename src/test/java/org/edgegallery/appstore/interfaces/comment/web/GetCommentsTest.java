@@ -16,30 +16,25 @@
 
 package org.edgegallery.appstore.interfaces.comment.web;
 
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class GetCommentsTest extends AppInterfacesTest {
+public class GetCommentsTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void getAppCommentsSuccess() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId + "/comments")
+    public void should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/comments", appId))
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals("[]", obj.getContentAsString());
+                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 }

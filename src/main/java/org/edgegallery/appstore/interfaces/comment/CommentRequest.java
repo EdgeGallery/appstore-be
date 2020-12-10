@@ -17,17 +17,25 @@
 package org.edgegallery.appstore.interfaces.comment;
 
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CommentRequest {
 
     @Length(min = 1, max = 1024)
     @NotNull
-    public String body;
+    private String body;
 
     @Range(min = 0, max = 5)
     @NotNull
-    public double score;
+    private double score;
 
 }

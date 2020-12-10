@@ -20,146 +20,57 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
-import org.edgegallery.appstore.interfaces.AppInterfacesTest;
+import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.comment.CommentRequest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.util.NestedServletException;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class LeaveCommentsTest extends AppInterfacesTest {
+public class LeaveCommentsTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_comment_leave_success() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-        String userID = "63c79ce8-5511-4360-9ebf-615f4ada48cb";
-        String userName = "testuser001";
-        CommentBody body = new CommentBody("good app", 4.5);
-        Gson gson = new Gson();
-        String requestJson = gson.toJson(body);
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/v1/apps/" + appId + "/comments"
-            +"?userId=" + userID +"&userName=" + userName)
-                    .content(requestJson)
-                    .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals("comments success.", obj.getContentAsString());
+    public void should_success() throws Exception {
+        CommentRequest body = new CommentRequest("good", 5);
+        String requestJson = new Gson().toJson(body);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/comments", appId))
+                .param("userId", userId).param("userName", userName).content(requestJson).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_comment_leave_failed_with_wrong_body() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-        String userID = "63c79ce8-5511-4360-9ebf-615f4ada48cb";
-        String userName = "testuser001";
-        TestBody body = new TestBody("good app", 4.5);
-        Gson gson = new Gson();
-        String requestJson = gson.toJson(body);
-        ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders.post("/mec/appstore/v1/apps/" + appId + "/comments"
-                        +"?userId=" + userID +"&userName=" + userName)
-                        .content(requestJson)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals(obj.getStatus(),400);
+    public void should_failed_with_empty_body() throws Exception {
+        CommentRequest body = new CommentRequest("", 5);
+        String requestJson = new Gson().toJson(body);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/comments", appId))
+                .param("userId", userId).param("userName", userName).content(requestJson)
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_comment_leave_failed_with_empty_body() throws Exception {
-        String appId = "30ec10f4a43041e6a6198ba824311af3";
-        String userID = "63c79ce8-5511-4360-9ebf-615f4ada48cb";
-        String userName = "testuser001";
-        ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders.post("/mec/appstore/v1/apps/" + appId + "/comments"
-                        +"?userId=" + userID +"&userName=" + userName)
-                        .content("")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-        MvcResult result = resultActions.andReturn();
-        MockHttpServletResponse obj = result.getResponse();
-        Assert.assertEquals( obj.getStatus(), 400);
+    public void should_failed_with_wrong_appid() throws Exception {
+        String appId = "78ec10f4a43041e6a6198ba824311af9";
+        CommentRequest body = new CommentRequest("good", 5);
+        String requestJson = new Gson().toJson(body);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/comments", appId))
+                .param("userId", userId).param("userName", userName).content(requestJson)
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_comment_leave_failed_with_wrong_appid() throws Exception {
-        String appId = "appid_test_wrong";
-        String userID = "63c79ce8-5511-4360-9ebf-615f4ada48cb";
-        String userName = "testuser001";
-
-        CommentBody body = new CommentBody("good app", 4.5);
-        Gson gson = new Gson();
-        String requestJson = gson.toJson(body);
-        try{
-            ResultActions resultActions = mvc.perform(
-                MockMvcRequestBuilders.post("/mec/appstore/v1/apps/" + appId + "/comments"
-                    +"?userId=" + userID +"&userName=" + userName)
-                    .content(requestJson)
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-        } catch (NestedServletException e) {
-            Assert.assertEquals("addComments.appId: must match \"[0-9a-f]{32}\"", e.getRootCause().getMessage());
-        }
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_comment_leave_failed_with_not_exist_appid() throws Exception {
-        String appId = "63c79ce8551143609ebf615f4ada48cb";
-        String userID = "63c79ce8-5511-4360-9ebf-615f4ada48cb";
-        String userName = "testuser001";
-        CommentBody body = new CommentBody("good app", 4.5);
-        Gson gson = new Gson();
-        String requestJson = gson.toJson(body);
-        try{
-            ResultActions resultActions = mvc.perform(
-                    MockMvcRequestBuilders.post("/mec/appstore/v1/apps/" + appId + "/comments"
-                            +"?userId=" + userID +"&userName=" + userName)
-                            .content(requestJson)
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
-        } catch (NestedServletException e) {
-            Assert.assertEquals("cannot find the app with id 63c79ce8551143609ebf615f4ada48cb", e.getRootCause().getMessage());
-        }
-    }
-
-
-    public class CommentBody{
-        private String body;
-        private double score;
-
-        public CommentBody(String body, double score) {
-            this.body = body;
-            this.score = score;
-        }
-    }
-
-    public class TestBody{
-        private String content;
-        private double number;
-
-        public TestBody(String content, double number) {
-            this.content = content;
-            this.number = number;
-        }
-    }
 }

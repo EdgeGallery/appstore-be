@@ -18,6 +18,8 @@ package org.edgegallery.appstore.interfaces.apackage.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import java.util.Optional;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,35 +30,42 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class DownloadPackageTest extends AppTest {
+public class PublishPackageTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Test_success.toString());
+            packageMapper.updateRelease(r);
+        });
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download", appId, packageId))
-                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_wrong_status() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed_with_wrong_appId() throws Exception {
         String appId = "30ec10f4a43041e6a6198ba824311af3";
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download", appId, packageId))
-                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
         Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_failed_with_wrong_packageId() throws Exception {
-        String packageId = "30ec10f4a43041e6a6198ba824311af3";
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download", appId, packageId))
-                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-    }
+
 }

@@ -63,7 +63,7 @@ public class CommentController {
                 @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
                 @ApiParam(value = "appId", required = true) @Pattern(regexp = REG_APP_ID) @PathVariable("appId")
                             String appId, @Validated @RequestBody CommentRequest entity) {
-        appCommentService.comment(new User(userId, userName), appId, entity.body, entity.score);
+        appCommentService.comment(new User(userId, userName), appId, entity.getBody(), entity.getScore());
         return ResponseEntity.ok("comments success.");
     }
 

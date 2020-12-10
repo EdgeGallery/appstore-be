@@ -13,12 +13,19 @@
  * limitations under the License.
  */
 
-package org.edgegallery.appstore.interfaces.app.web;
+package org.edgegallery.appstore.interfaces.apackage.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import org.edgegallery.appstore.application.external.atp.AtpService;
+import org.edgegallery.appstore.application.external.atp.AtpUtil;
+import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.interfaces.AppTest;
-import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,26 +33,19 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class QueryAppByIdTest extends AppTest {
+public class TestPackageTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        gson.fromJson(result.getResponse().getContentAsString(), RegisterRespDto.class);
-    }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_failed_with_no_entity() throws Exception {
-        String appId = "78ec10f4a43041e6a6198ba824311af9"; //app is not exist.
-        MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
+        AtpTestDto atpTestDto = new AtpTestDto("taskId", "success");
+        Mockito.when(atpService.createTestTask(Mockito.any(), Mockito.nullable(String.class))).thenReturn(atpTestDto);
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/test", appId, unPublishedPackageId)).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
 }
