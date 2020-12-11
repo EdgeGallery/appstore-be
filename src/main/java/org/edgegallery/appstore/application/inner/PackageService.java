@@ -57,6 +57,8 @@ public class PackageService {
             LOGGER.error("Test status is {}, publish failed", release.getStatus());
             throw new OperateAvailableException("Test status is not success, publish failed");
         }
+        appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId))
+            .checkReleases(release);
         release.setStatus(EnumPackageStatus.Published);
         publishAppAndPackage(appId, release);
     }

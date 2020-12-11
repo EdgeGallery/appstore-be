@@ -124,8 +124,8 @@ public class App implements Entity {
      * @param release app release.
      */
     public void checkReleases(Release release) {
-        for (Release curRelease : releases) {
-            if (release.getAppBasicInfo().getVersion().equals(curRelease.getAppBasicInfo().getVersion())) {
+        releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published).forEach(r1 -> {
+            if (release.getAppBasicInfo().getVersion().equals(r1.getAppBasicInfo().getVersion())) {
                 try {
                     FileUtils.deleteDirectory(new File(release.getPackageFile().getStorageAddress()).getParentFile());
                 } catch (IOException e) {
@@ -133,7 +133,7 @@ public class App implements Entity {
                 }
                 throw new IllegalArgumentException("The same app has existed.");
             }
-        }
+        });
     }
 
     public void downLoad() {
