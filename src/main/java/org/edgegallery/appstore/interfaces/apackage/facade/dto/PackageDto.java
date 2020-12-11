@@ -65,6 +65,8 @@ public class PackageDto {
 
     private String testTaskId;
 
+    private String provider;
+
     public PackageDto() {
         // empty construct function
     }
@@ -94,6 +96,7 @@ public class PackageDto {
         dto.status = release.getStatus();
         dto.shortDesc = release.getShortDesc();
         dto.testTaskId = release.getTestTaskId();
+        dto.provider = release.getAppBasicInfo().getProvider();
         return dto;
     }
 }
