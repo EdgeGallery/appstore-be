@@ -20,12 +20,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.shared.Entity;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PushablePackageDto {
+public class PushablePackageDto implements Entity {
 
     private String packageId;
     private String name;

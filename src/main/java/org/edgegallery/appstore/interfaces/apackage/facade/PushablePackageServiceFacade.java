@@ -15,8 +15,12 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,24 @@ public class PushablePackageServiceFacade {
     private PushablePackageService pushablePackageService;
 
     public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return pushablePackageService.queryAllPushablePackages();
+        List<PushablePackageDto> list = pushablePackageService.queryAllPushablePackages();
+        if (list == null) {
+            return ResponseEntity.ok(new ArrayList<>());
+        } else {
+            return ResponseEntity.ok(list);
+        }
+    }
+
+    public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
+        PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
+        if (dto == null) {
+            new UnknownReleaseExecption(packageId);
+        }
+        return ResponseEntity.ok(dto);
+    }
+
+    public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
+        // find the package
+        pushablePackageService.pushPackage(packageId, targetAppStore);
     }
 }

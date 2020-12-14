@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import java.util.List;
+import java.util.Optional;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,11 @@ public class PushablePackageRepository {
     @Autowired
     private PushablePackageMapper pushablePackageMapper;
 
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return null;
+    public List<PushablePackageDto> queryAllPushablePackages() {
+        return pushablePackageMapper.getAllPushablePackages(0, 1000);
+    }
+
+    public Optional<PushablePackageDto> getPushablePackages(String packageId) {
+        return pushablePackageMapper.getPushablePackages(packageId);
     }
 }
