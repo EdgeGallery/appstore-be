@@ -28,6 +28,7 @@ import org.edgegallery.appstore.domain.shared.Entity;
 @NoArgsConstructor
 public class PushablePackageDto implements Entity {
 
+    private String appId;
     private String packageId;
     private String name;
     private String provider;
