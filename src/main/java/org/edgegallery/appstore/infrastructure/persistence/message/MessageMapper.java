@@ -15,7 +15,19 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface MessageMapper { }
+public interface MessageMapper {
+
+    void insert(MessagePo messagePo);
+
+    void deleteOneMessage(String messageId);
+
+    void update(MessagePo messagePo);
+
+    MessagePo getOneMessage(String messageId);
+
+    List<MessagePo> getAllMessages();
+}

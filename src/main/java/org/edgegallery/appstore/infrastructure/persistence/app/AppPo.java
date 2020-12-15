@@ -35,8 +35,6 @@ import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppPo implements PersistenceObject<App> {
 
-    public static final String APP_NAME = "appName";
-
     @Id
     @Column(name = "APPID")
     private String appId;

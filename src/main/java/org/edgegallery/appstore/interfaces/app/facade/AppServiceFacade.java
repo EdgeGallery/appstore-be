@@ -40,6 +40,7 @@ import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
@@ -58,7 +59,7 @@ public class AppServiceFacade {
     private AppService appService;
 
     @Autowired
-    private FileService fileService;
+    private LocalFileService fileService;
 
     @Autowired
     private AppRepository appRepository;

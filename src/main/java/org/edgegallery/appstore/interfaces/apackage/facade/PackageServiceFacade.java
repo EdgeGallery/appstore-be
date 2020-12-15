@@ -28,6 +28,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class PackageServiceFacade {
     private AppService appService;
 
     @Autowired
-    private FileService fileService;
+    private LocalFileService fileService;
 
     @Autowired
     private PackageService packageService;

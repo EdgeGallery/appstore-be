@@ -15,32 +15,90 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
+import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
+import org.edgegallery.appstore.interfaces.app.facade.AppParam;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
-import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service("MessageService")
 public class MessageService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageService.class);
+
+    @Value("${appstore-be.package-path}")
+    private String dir;
+
     @Autowired
     private MessageRepository messageRepository;
 
+    @Autowired
+    private LocalFileService fileService;
+
+    @Autowired
+    private AppService appService;
+
+    @Autowired
+    private PackageService packageService;
+
     public String addMessage(MessageReqDto dto) {
-        //TODO: 完善添加message逻辑
-        return null;
+        messageRepository.addMessage(dto.toMessage());
+        LOGGER.info("add a message success");
+        return "add a message success";
     }
 
     public List<Message> getAllMessages() {
-        //TODO: 完善查询所有message逻辑
-        return null;
+        return messageRepository.getAllMessages();
     }
 
-    public MessageRespDto getMessageById(String messageId) {
-        //TODO: 完善查询单个message逻辑
-        return null;
+    public Message getMessageById(String messageId) {
+        return messageRepository.getOneMessage(messageId);
+    }
+
+    public void deleteMessageById(String messageId) {
+        messageRepository.deleteOneMessage(messageId);
+    }
+
+    public void downloadFromMessage(String messageId, User user) {
+        Message message = messageRepository.getOneMessage(messageId);
+        String packageDownloadUrl = message.getPackageDownloadUrl();
+        String iconDownloadUrl = message.getIconDownloadUrl();
+        if (packageDownloadUrl == null || iconDownloadUrl == null) {
+            LOGGER.error("download url null: package download url is {}, icon download url is {}", packageDownloadUrl,
+                    iconDownloadUrl);
+            throw new DomainException("download url is null");
+        }
+        try {
+            String parentPath = dir + File.separator + UUID.randomUUID().toString();
+            File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath);
+            File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath);
+            AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
+            AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
+            AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),
+                message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
+            Release release = new Release(apackage, icon, user, appParam);
+            release.setStatus(EnumPackageStatus.Test_success);
+            RegisterRespDto dto = appService.registerApp(release);appService.registerApp(release);
+
+            packageService.publishPackage(dto.getAppId(), dto.getPackageId());
+        } catch (IOException e) {
+            LOGGER.error("IOException: {}", e.getMessage());
+            throw new DomainException("file download exception");
+        }
     }
 }

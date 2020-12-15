@@ -17,24 +17,40 @@
 package org.edgegallery.appstore.infrastructure.files;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.service.FileService;
+import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+@Service("LocalFileService")
 public class LocalFileService implements FileService {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileService.class);
@@ -116,8 +132,6 @@ public class LocalFileService implements FileService {
         }
     }
 
-
-
     /**
      * check target is or not exist.
      *
@@ -142,5 +156,46 @@ public class LocalFileService implements FileService {
         } catch (IOException var2) {
             LOGGER.info("Close stream with Exception");
         }
+    }
+
+    public File downloadFile(String url, String parentPath) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        List<MediaType> list = new ArrayList<>();
+        list.add(MediaType.ALL);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(list);
+
+        ResponseEntity<byte[]> response = restTemplate
+            .exchange(url, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("download file error, response is {}", response.getBody());
+            throw new DomainException("download file exception");
+        }
+
+        byte[] result = response.getBody();
+        if (result == null) {
+            throw new DomainException("download response is null");
+        }
+        String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
+            .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
+            .replace("attachment; filename=", "");
+        File file = new File(parentPath + File.separator + fileName);
+        if (!file.exists() && !file.createNewFile()) {
+            LOGGER.error("create temp download file error");
+            throw new DomainException("create temp download file error");
+        }
+
+        try (InputStream inputStream = new ByteArrayInputStream(result);
+             OutputStream outputStream = new FileOutputStream(file)) {
+            int len = 0;
+            byte[] buf = new byte[1024];
+            while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.flush();
+        }
+
+        return file;
     }
 }
