@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.inner.MessageService;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,16 @@ public class MessageServiceFacade {
     }
 
     public ResponseEntity<MessageRespDto> getMessage(String messageId) {
-        return ResponseEntity.ok(messageService.getMessageById(messageId));
+        return ResponseEntity.ok(MessageRespDto.of(messageService.getMessageById(messageId)));
+    }
+
+    public ResponseEntity<String> deleteMessage(String messageId) {
+        messageService.deleteMessageById(messageId);
+        return ResponseEntity.ok("delete success");
+    }
+
+    public ResponseEntity<String> downloadFromMessage(String messageId, User user) {
+        messageService.downloadFromMessage(messageId, user);
+        return ResponseEntity.ok("success");
     }
 }
