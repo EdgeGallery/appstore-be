@@ -15,10 +15,20 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
+import org.edgegallery.appstore.domain.service.FileService;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +36,43 @@ import org.springframework.stereotype.Service;
 public class PushablePackageServiceFacade {
 
     @Autowired
+    private AppService appService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
     private PushablePackageService pushablePackageService;
 
     public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return pushablePackageService.queryAllPushablePackages();
+        List<PushablePackageDto> list = pushablePackageService.queryAllPushablePackages();
+        if (list == null) {
+            return ResponseEntity.ok(new ArrayList<>());
+        } else {
+            return ResponseEntity.ok(list);
+        }
+    }
+
+    public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
+        PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
+        if (dto == null) {
+            new UnknownReleaseExecption(packageId);
+        }
+        return ResponseEntity.ok(dto);
+    }
+
+    public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
+        // find the package
+        pushablePackageService.pushPackage(packageId, targetAppStore);
+    }
+
+    public ResponseEntity<InputStreamResource> downloadPackage(String packageId) throws FileNotFoundException {
+        PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
+        Release release = appService.download(packageDto.getAppId(), packageId);
+        InputStream ins = fileService.get(release.getPackageFile());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 }

@@ -56,3 +56,7 @@ DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
         COMMENTTIME              TIMESTAMP          NULL,
         CONSTRAINT csar_package_score_pkey PRIMARY KEY (COMMENTID)
     );
+
+INSERT INTO catalog_package_table(
+	packageid, packageaddress, iconaddress, appname, version, applicationtype, appid, userid, username)
+	VALUES ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', 'face game', 'v1.0', 'game', 'appid-0001', 'userid-0001', 'test-user01');

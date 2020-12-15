@@ -16,19 +16,46 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.util.List;
+import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
+import org.edgegallery.appstore.infrastructure.persistence.appstore.ExAppStorePo;
+import org.edgegallery.appstore.infrastructure.persistence.appstore.ExAppStoreRepository;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service("PushablePackageService")
 public class PushablePackageService {
 
+    private final static String NOTICE_API = "";
+
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
 
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
+    @Autowired
+    private ExAppStoreRepository exAppStoreRepository;
+
+    public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();
+    }
+
+    public PushablePackageDto getPushablePackage(String packageId) {
+        return pushablePackageRepository.getPushablePackages(packageId)
+            .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+    }
+
+    public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
+        final PushablePackageDto packageDto = pushablePackageRepository.getPushablePackages(packageId)
+            .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+        targetAppStore.getTargetPlatform().forEach(platformId -> {
+            // TODO:  platform by Id
+            ExAppStorePo appStorePo = exAppStoreRepository.findAppStoreById(platformId);
+            String url = appStorePo.getUrl() + NOTICE_API;
+
+
+        });
+
     }
 }
