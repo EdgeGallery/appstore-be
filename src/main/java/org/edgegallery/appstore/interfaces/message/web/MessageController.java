@@ -109,6 +109,7 @@ public class MessageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> download(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
-        return messageServiceFacade.downloadFromMessage(messageId, new User((String) request.getParameter("userId"), (String) request.getParameter("userName")));
+        return messageServiceFacade.downloadFromMessage(messageId, new User(request.getParameter("userId"),
+            request.getParameter("userName")));
     }
 }
