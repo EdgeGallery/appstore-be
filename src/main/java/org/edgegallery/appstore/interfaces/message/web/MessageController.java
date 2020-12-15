@@ -21,10 +21,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
+import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
@@ -33,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,8 +58,6 @@ public class MessageController {
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "add a message", response = String.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     public ResponseEntity<String> addMessage(@RequestBody MessageReqDto dto) {
@@ -66,8 +67,6 @@ public class MessageController {
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the messages", response = MessageRespDto.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
@@ -80,12 +79,37 @@ public class MessageController {
     @ApiOperation(value = "get a message", response = MessageRespDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<MessageRespDto> getMessage(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
         return messageServiceFacade.getMessage(messageId);
+    }
+
+    @DeleteMapping(value = "/{messageId}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "delete a message by id.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 403, message = "forbidden", response = String.class),
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<String> deleteMessage(
+        @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
+        return messageServiceFacade.deleteMessage(messageId);
+    }
+
+    @GetMapping(value = "/{messageId}/action/download", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "download the package in the message.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<String> download(
+        @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
+        return messageServiceFacade.downloadFromMessage(messageId, new User(request.getParameter("userId"),
+            request.getParameter("userName")));
     }
 }

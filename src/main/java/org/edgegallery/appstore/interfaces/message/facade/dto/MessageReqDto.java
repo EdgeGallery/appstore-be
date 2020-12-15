@@ -15,10 +15,18 @@
 
 package org.edgegallery.appstore.interfaces.message.facade.dto;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
+import org.edgegallery.appstore.domain.model.message.EnumMessageType;
+import org.edgegallery.appstore.domain.model.message.Message;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 @Setter
@@ -39,5 +47,29 @@ public class MessageReqDto {
 
     private String iconDownloadUrl;
 
+    @Autowired
+    private ApplicationContext context;
+
+    public Message toMessage() {
+        Message message = new Message();
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setReaded(false);
+        message.setBasicInfo(basicInfo);
+        message.setMessageType(EnumMessageType.NOTICE);
+        message.setSourceAppStore(sourceAppStore);
+        message.setTargetAppStore(context.platformName);
+        message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        message.setDescription(generateDescription());
+        message.setAtpTestStatus(atpTestStatus);
+        message.setAtpTestTaskId(atpTestTaskId);
+        message.setAtpTestReportUrl(atpTestReportUrl);
+        message.setPackageDownloadUrl(packageDownloadUrl);
+        message.setIconDownloadUrl(iconDownloadUrl);
+        return message;
+    }
+
+    private String generateDescription() {
+        return String.format("%s申请推广此应用到当前平台", sourceAppStore);
+    }
 }
 

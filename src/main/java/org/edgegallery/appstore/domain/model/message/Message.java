@@ -24,6 +24,10 @@ public class Message {
 
     private String messageId;
 
+    private String result;
+
+    private boolean readed;
+
     private BasicMessageInfo basicInfo;
 
     private EnumMessageType messageType;

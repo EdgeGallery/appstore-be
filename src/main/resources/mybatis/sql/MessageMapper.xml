@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+
+    <select id="getOneMessage"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo"
+            parameterType="java.lang.String">
+        select * from message_table where messageid = #{messageId}
+    </select>
+
+    <select id="getAllMessages"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+        select * from message_table
+    </select>
+
+    <insert id="insert"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+        insert into message_table
+        (MESSAGEID, NAME, PROVIDER, VERSION, AFFINITY, SHORTDESC, INDUSTRY, TYPE, RESULT, READED, MESSAGETYPE,
+        SOURCEAPPSTORE, TARGETAPPSTORE, TIME, DESCRIPTION, ATPTESTSTATUS, ATPTESTTASKID, ATPTESTREPORTURL,
+        PACKAGEDOWNLOADURL, ICONDOWNLOADURL)
+        VALUES
+        (#{messageId}, #{name}, #{provider}, #{version}, #{affinity},#{shortDesc},#{industry}, #{type}, #{result},
+        #{readed}, #{messageType},#{sourceAppStore}, #{targetAppStore}, #{time}, #{description},
+        #{atpTestStatus}, #{atpTestTaskId}, #{atpTestReportUrl}, #{packageDownloadUrl}, #{iconDownloadUrl})
+    </insert>
+
+    <delete id="deleteOneMessage" parameterType="String">
+        delete from
+        message_table
+        where
+        messageid = #{messageId}
+    </delete>
+
+    <update id="update" parameterType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+        update message_table set
+        NAME = #{name}, PROVIDER = #{provider}, VERSION= #{version}, AFFINITY= #{affinity}, SHORTDESC= #{shortDesc},
+        INDUSTRY= #{industry}, TYPE= #{type}, RESULT= #{result}, READED= #{readed}, MESSAGETYPE= #{messageType},
+        SOURCEAPPSTORE= #{sourceAppStore}, TARGETAPPSTORE= #{targetAppStore}, TIME= #{time},
+        DESCRIPTION= #{description}, ATPTESTSTATUS= #{atpTestStatus}, ATPTESTTASKID= #{atpTestTaskId},
+        ATPTESTREPORTURL= #{atpTestReportUrl}, PACKAGEDOWNLOADURL= #{packageDownloadUrl}, ICONDOWNLOADURL= #{iconDownloadUrl}
+        where MESSAGEID = #{messageId}
+    </update>
+
+
+</mapper>

@@ -24,6 +24,7 @@ import org.edgegallery.appstore.application.inner.PushablePackageService;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.service.FileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class PushablePackageServiceFacade {
     private AppService appService;
 
     @Autowired
-    private FileService fileService;
+    private LocalFileService fileService;
 
     @Autowired
     private PushablePackageService pushablePackageService;

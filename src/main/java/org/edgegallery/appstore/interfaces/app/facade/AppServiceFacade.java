@@ -40,6 +40,7 @@ import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
@@ -58,7 +59,7 @@ public class AppServiceFacade {
     private AppService appService;
 
     @Autowired
-    private FileService fileService;
+    private LocalFileService fileService;
 
     @Autowired
     private AppRepository appRepository;
@@ -187,7 +188,8 @@ public class AppServiceFacade {
         if (userId == null) {
             releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
         } else {
-            List<Release> releases = releaseStream.collect(Collectors.toList());
+            List<Release> releases = releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
+                .collect(Collectors.toList());
             refreshStatus(releases, token);
             releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
                 .stream();
@@ -198,8 +200,8 @@ public class AppServiceFacade {
 
     private void refreshStatus(List<Release> releases, String token) {
         releases.stream().filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
-            .forEach(s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                new AtpMetadata(s.getTestTaskId(), token)));
+            .forEach(s -> appService
+                .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
     }
 
 }

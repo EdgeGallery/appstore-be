@@ -15,13 +15,52 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MessageRepository {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageRepository.class);
+
     @Autowired
     private MessageMapper messageMapper;
 
+    public void addMessage(Message message) {
+        MessagePo messagePo = messageMapper.getOneMessage(message.getMessageId());
+        if (messagePo != null) {
+            LOGGER.error("message {} has existed", message.getMessageId());
+            throw new DomainException(String.format("message %s has existed", message.getMessageId()));
+        }
+        messageMapper.insert(MessagePo.of(message));
+    }
+
+    public List<Message> getAllMessages() {
+        return messageMapper.getAllMessages().stream().map(MessagePo::toDomainModel).collect(Collectors.toList());
+    }
+
+    public Message getOneMessage(String messageId) {
+        MessagePo messagePo = messageMapper.getOneMessage(messageId);
+        if (messagePo == null) {
+            LOGGER.error("message {} do not existed", messageId);
+            throw new DomainException(String.format("message %s do not existed", messageId));
+        }
+        return messagePo.toDomainModel();
+    }
+
+    public void deleteOneMessage(String messageId) {
+        MessagePo messagePo = messageMapper.getOneMessage(messageId);
+        if (messagePo == null) {
+            LOGGER.error("message {} do not existed", messageId);
+            throw new EntityNotFoundException(String.format("message %s do not existed", messageId));
+        }
+        messageMapper.deleteOneMessage(messageId);
+    }
 }
