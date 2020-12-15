@@ -31,8 +31,6 @@ public class PackageDto {
 
     private String packageId;
 
-    private String iconUrl;
-
     private String size;
 
     private String format;
@@ -79,7 +77,6 @@ public class PackageDto {
     public static PackageDto of(Release release) {
         PackageDto dto = new PackageDto();
         dto.packageId = release.getPackageId();
-        dto.iconUrl = release.getIcon().getStorageAddress();
         dto.size = release.getPackageFile().getSize();
         dto.format = release.getAppBasicInfo().getFileStructure();
         dto.createTime = release.getCreateTime();
