@@ -23,7 +23,6 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
-import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -57,7 +56,7 @@ public class PushablePackageServiceFacade {
     public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
         PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
         if (dto == null) {
-            new UnknownReleaseExecption(packageId);
+            throw new UnknownReleaseExecption(packageId);
         }
         return ResponseEntity.ok(dto);
     }
@@ -75,5 +74,9 @@ public class PushablePackageServiceFacade {
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    public ResponseEntity<InputStreamResource> downloadIcon(String packageId) {
+        return null;
     }
 }
