@@ -37,6 +37,12 @@ public class MessageServiceFacade {
         return ResponseEntity.ok(messageService.addMessage(dto));
     }
 
+    /**
+     * get all messages by type.
+     *
+     * @param messageType type
+     * @return list
+     */
     public ResponseEntity<List<MessageRespDto>> getAllMessages(EnumMessageType messageType) {
         List<Message> messages = messageService.getAllMessages();
         return ResponseEntity

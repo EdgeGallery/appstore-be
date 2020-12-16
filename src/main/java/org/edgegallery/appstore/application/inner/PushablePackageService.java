@@ -32,7 +32,7 @@ public class PushablePackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageService.class);
 
-    private final static String NOTICE_API = "";
+    private static final String NOTICE_API = "";
 
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
@@ -49,6 +49,12 @@ public class PushablePackageService {
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
     }
 
+    /**
+     * push package to target appstore.
+     *
+     * @param packageId package id
+     * @param targetAppStore target appstore
+     */
     public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         final PushablePackageDto packageDto = pushablePackageRepository.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));

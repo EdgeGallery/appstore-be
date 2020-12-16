@@ -56,6 +56,12 @@ public class MessageService {
     @Autowired
     private PackageService packageService;
 
+    /**
+     * add a message.
+     *
+     * @param dto dto
+     * @return result
+     */
     public String addMessage(MessageReqDto dto) {
         messageRepository.addMessage(dto.toMessage());
         LOGGER.info("add a message success");
@@ -74,6 +80,12 @@ public class MessageService {
         messageRepository.deleteOneMessage(messageId);
     }
 
+    /**
+     * download package and icon by the url in message.
+     *
+     * @param messageId message id
+     * @param user user info
+     */
     public void downloadFromMessage(String messageId, User user) {
         Message message = messageRepository.getOneMessage(messageId);
         String packageDownloadUrl = message.getPackageDownloadUrl();
@@ -93,7 +105,7 @@ public class MessageService {
                 message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
             Release release = new Release(apackage, icon, user, appParam);
             release.setStatus(EnumPackageStatus.Test_success);
-            RegisterRespDto dto = appService.registerApp(release);appService.registerApp(release);
+            RegisterRespDto dto = appService.registerApp(release);
 
             packageService.publishPackage(dto.getAppId(), dto.getPackageId());
         } catch (IOException e) {
