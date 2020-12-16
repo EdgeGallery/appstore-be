@@ -16,18 +16,21 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.util.List;
-import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.ExAppStorePo;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.ExAppStoreRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("PushablePackageService")
 public class PushablePackageService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageService.class);
 
     private final static String NOTICE_API = "";
 
@@ -49,13 +52,12 @@ public class PushablePackageService {
     public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         final PushablePackageDto packageDto = pushablePackageRepository.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+        LOGGER.info("push package {}", packageDto.getPackageId());
         targetAppStore.getTargetPlatform().forEach(platformId -> {
             // TODO:  platform by Id
             ExAppStorePo appStorePo = exAppStoreRepository.findAppStoreById(platformId);
             String url = appStorePo.getUrl() + NOTICE_API;
-
-
+            LOGGER.info(url);
         });
-
     }
 }

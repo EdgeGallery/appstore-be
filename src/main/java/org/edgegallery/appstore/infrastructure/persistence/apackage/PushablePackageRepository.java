@@ -17,10 +17,8 @@ package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import java.util.List;
 import java.util.Optional;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository

@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -49,9 +48,6 @@ public class PushablePackageController {
 
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
-
-    @Autowired
-    private PackageServiceFacade packageServiceFacade;
 
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
@@ -88,8 +84,6 @@ public class PushablePackageController {
         return ResponseEntity.ok("");
     }
 
-
-
     @GetMapping(value = "/packages/{packageId}/action/download-package", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "download packages by id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
@@ -107,7 +101,6 @@ public class PushablePackageController {
     })
     public ResponseEntity<InputStreamResource> downloadIcon(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) {
-
-        return ResponseEntity.ok(null);
+        return pushablePackageServiceFacade.downloadIcon(packageId);
     }
 }

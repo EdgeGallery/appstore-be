@@ -26,7 +26,6 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
-import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
