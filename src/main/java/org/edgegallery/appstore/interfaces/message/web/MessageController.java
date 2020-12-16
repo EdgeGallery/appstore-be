@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -111,5 +112,17 @@ public class MessageController {
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
         return messageServiceFacade.downloadFromMessage(messageId, new User((String) request.getAttribute("userId"),
             (String) request.getAttribute("userName")));
+    }
+
+    @PutMapping(value = "/{messageId}/action/readed", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "update the message to readed.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<String> updateReaded(
+        @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
+        return messageServiceFacade.updateMessageReaded(messageId);
     }
 }

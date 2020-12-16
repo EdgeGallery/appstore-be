@@ -131,11 +131,11 @@ public class AppTest {
         });
     }
 
-    // @Test
-    // @WithMockUser(roles = "APPSTORE_TENANT")
-    // public void test() {
-    //     // empty test
-    // }
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test() {
+        // empty test
+    }
 
     @After
     public void clear() {

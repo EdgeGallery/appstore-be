@@ -90,4 +90,19 @@ public class MessageRepository {
         }
         messageMapper.deleteOneMessage(messageId);
     }
+
+    /**
+     * update message to readed.
+     *
+     * @param messageId id
+     */
+    public void updateMessageReaded(String messageId) {
+        MessagePo messagePo = messageMapper.getOneMessage(messageId);
+        if (messagePo == null) {
+            LOGGER.error("message {} do not existed", messageId);
+            throw new EntityNotFoundException(String.format("message %s do not existed", messageId));
+        }
+        messagePo.setReaded(true);
+        messageMapper.update(messagePo);
+    }
 }
