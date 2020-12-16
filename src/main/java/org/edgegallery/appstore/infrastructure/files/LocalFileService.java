@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.files;
 
+import com.google.common.io.Files;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
@@ -60,11 +62,8 @@ public class LocalFileService implements FileService {
         if (file == null || file.getName() == null) {
             throw new IllegalArgumentException("file is null");
         }
-        String fileAddress = "";
-        String originalFileName = file.getName();
-        StringBuilder sb = new StringBuilder();
-        sb.append(fileParent).append(File.separator).append(originalFileName);
-        fileAddress = sb.toString();
+        String newFileName = UUID.randomUUID().toString().replaceAll("-", "");
+        String fileAddress = fileParent + File.separator + newFileName + "." + Files.getFileExtension(file.getName());
         File f = new File(fileParent);
         boolean success = f.mkdirs();
         if (!success) {
