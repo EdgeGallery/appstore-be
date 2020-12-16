@@ -132,4 +132,8 @@ public class MessageService {
         message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
         messageRepository.addMessage(message);
     }
+
+    public void updateMessageReaded(String messageId) {
+        messageRepository.updateMessageReaded(messageId);
+    }
 }

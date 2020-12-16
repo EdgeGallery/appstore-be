@@ -69,4 +69,9 @@ public class MessageServiceFacade {
         messageService.downloadFromMessage(messageId, user);
         return ResponseEntity.ok("success");
     }
+
+    public ResponseEntity<String> updateMessageReaded(String messageId) {
+        messageService.updateMessageReaded(messageId);
+        return ResponseEntity.ok("success");
+    }
 }
