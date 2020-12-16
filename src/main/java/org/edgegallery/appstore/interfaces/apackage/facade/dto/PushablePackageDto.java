@@ -59,6 +59,11 @@ public class PushablePackageDto implements Entity {
 
     private String type;
 
+    /**
+     * init this object by AppReleasePo.
+     *
+     * @param appReleasePo
+     */
     public PushablePackageDto(AppReleasePo appReleasePo) {
         this.appId = appReleasePo.getAppId();
         this.affinity = appReleasePo.getAffinity();

@@ -41,6 +41,11 @@ public class BasicMessageInfo {
 
     }
 
+    /**
+     * init this object by packageDto.
+     *
+     * @param packageDto
+     */
     public BasicMessageInfo(PushablePackageDto packageDto) {
         this.name = packageDto.getName();
         this.affinity = packageDto.getAffinity();

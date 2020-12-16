@@ -45,6 +45,11 @@ public class MessageReqDto {
 
     private String iconDownloadUrl;
 
+    /**
+     * init this object by PushablePackageDto.
+     *
+     * @param packageDto
+     */
     public MessageReqDto(PushablePackageDto packageDto) {
         basicInfo = new BasicMessageInfo(packageDto);
         this.atpTestStatus = packageDto.getAtpTestStatus();
