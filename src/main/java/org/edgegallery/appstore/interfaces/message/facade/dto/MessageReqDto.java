@@ -49,6 +49,11 @@ public class MessageReqDto {
     @Autowired
     private ApplicationContext context;
 
+    /**
+     * transform the dto to message obj.
+     *
+     * @return message obj
+     */
     public Message toMessage() {
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());

@@ -51,6 +51,12 @@ public class MessageRespDto {
 
     private String atpTestReportUrl;
 
+    /**
+     * transform message obj to response obj.
+     *
+     * @param message obj
+     * @return dto obj
+     */
     public static MessageRespDto of(Message message) {
         MessageRespDto dto = new MessageRespDto();
         dto.messageId = message.getMessageId();

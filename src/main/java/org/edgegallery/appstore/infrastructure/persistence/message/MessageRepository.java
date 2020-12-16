@@ -33,6 +33,11 @@ public class MessageRepository {
     @Autowired
     private MessageMapper messageMapper;
 
+    /**
+     * add a message to db.
+     *
+     * @param message message obj
+     */
     public void addMessage(Message message) {
         MessagePo messagePo = messageMapper.getOneMessage(message.getMessageId());
         if (messagePo != null) {
@@ -42,10 +47,21 @@ public class MessageRepository {
         messageMapper.insert(MessagePo.of(message));
     }
 
+    /**
+     * get all messages in db.
+     *
+     * @return list
+     */
     public List<Message> getAllMessages() {
         return messageMapper.getAllMessages().stream().map(MessagePo::toDomainModel).collect(Collectors.toList());
     }
 
+    /**
+     * get one message by id.
+     *
+     * @param messageId id
+     * @return message obj
+     */
     public Message getOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
@@ -55,6 +71,11 @@ public class MessageRepository {
         return messagePo.toDomainModel();
     }
 
+    /**
+     * delete one message by id.
+     *
+     * @param messageId id
+     */
     public void deleteOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {

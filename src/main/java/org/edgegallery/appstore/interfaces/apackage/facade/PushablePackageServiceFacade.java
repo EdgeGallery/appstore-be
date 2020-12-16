@@ -44,6 +44,11 @@ public class PushablePackageServiceFacade {
     @Autowired
     private PushablePackageService pushablePackageService;
 
+    /**
+     * query all pushable packages.
+     *
+     * @return list
+     */
     public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
         List<PushablePackageDto> list = pushablePackageService.queryAllPushablePackages();
         if (list == null) {
@@ -53,6 +58,12 @@ public class PushablePackageServiceFacade {
         }
     }
 
+    /**
+     * get one pushable package by id.
+     *
+     * @param packageId id
+     * @return dto
+     */
     public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
         PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
         if (dto == null) {
@@ -61,11 +72,24 @@ public class PushablePackageServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
+    /**
+     * push a package to target appstore.
+     *
+     * @param packageId id
+     * @param targetAppStore target appstore
+     */
     public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         // find the package
         pushablePackageService.pushPackage(packageId, targetAppStore);
     }
 
+    /**
+     * download a package by id.
+     *
+     * @param packageId id
+     * @return file stream
+     * @throws FileNotFoundException e
+     */
     public ResponseEntity<InputStreamResource> downloadPackage(String packageId) throws FileNotFoundException {
         PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
         Release release = appService.download(packageDto.getAppId(), packageId);
@@ -76,6 +100,12 @@ public class PushablePackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
+    /**
+     * download a icon by id.
+     *
+     * @param packageId id
+     * @return icon stream
+     */
     public ResponseEntity<InputStreamResource> downloadIcon(String packageId) {
         return null;
     }

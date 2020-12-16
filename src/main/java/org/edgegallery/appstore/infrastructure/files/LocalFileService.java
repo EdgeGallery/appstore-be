@@ -158,6 +158,14 @@ public class LocalFileService implements FileService {
         }
     }
 
+    /**
+     * download file to parent path directory.
+     *
+     * @param url url
+     * @param parentPath parent path
+     * @return download file
+     * @throws IOException e
+     */
     public File downloadFile(String url, String parentPath) throws IOException {
         RestTemplate restTemplate = new RestTemplate();
 
