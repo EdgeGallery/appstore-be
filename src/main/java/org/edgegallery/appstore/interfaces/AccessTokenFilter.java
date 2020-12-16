@@ -49,7 +49,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        if (request.getRequestURI() == null || !request.getRequestURI().equals("/health")) {
+        if (shouldFilter(request)) {
             String accessTokenStr = request.getHeader("access_token");
             if (StringUtils.isEmpty(accessTokenStr)) {
                 LOGGER.error("Access token is empty");
@@ -94,8 +94,23 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 return;
             }
             request.setAttribute("access_token", accessTokenStr);
+            request.setAttribute("userId", userIdFromToken);
+            request.setAttribute("userName", userNameFromToken);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean shouldFilter(HttpServletRequest request) {
+        if (request.getRequestURI() == null) {
+            return true;
+        }
+        if (request.getRequestURI().equals("/health")) {
+            return false;
+        }
+        if (request.getRequestURI().equals("/mec/appstore/poke/messages") && request.getMethod().equals("POST")) {
+            return false;
+        }
+        return true;
     }
 }

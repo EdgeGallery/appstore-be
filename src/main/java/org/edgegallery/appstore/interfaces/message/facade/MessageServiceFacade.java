@@ -33,6 +33,12 @@ public class MessageServiceFacade {
     @Autowired
     private MessageService messageService;
 
+    /**
+     * add a message.
+     *
+     * @param dto dto
+     * @return ok
+     */
     public ResponseEntity<String> addMessage(MessageReqDto dto) {
         return ResponseEntity.ok(messageService.addMessage(dto));
     }

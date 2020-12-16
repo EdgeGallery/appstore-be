@@ -57,7 +57,7 @@
         MESSAGEID                VARCHAR(100)       NOT NULL,
         RESULT                   VARCHAR(100)       NULL,
         READED                   boolean            default false,
-        APPNAME                  VARCHAR(100)       NULL,
+        NAME                     VARCHAR(100)       NULL,
         PROVIDER                 VARCHAR(100)       NULL,
         VERSION                  VARCHAR(100)       NULL,
         MESSAGETYPE              VARCHAR(20)        NULL,

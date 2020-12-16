@@ -31,7 +31,6 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.persistence.app.AppMapper;
 import org.edgegallery.appstore.infrastructure.persistence.comment.CommentMapper;
-import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.After;
 import org.junit.Assert;
@@ -132,11 +131,11 @@ public class AppTest {
         });
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void test() {
-        // empty test
-    }
+    // @Test
+    // @WithMockUser(roles = "APPSTORE_TENANT")
+    // public void test() {
+    //     // empty test
+    // }
 
     @After
     public void clear() {
