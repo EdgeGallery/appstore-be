@@ -15,8 +15,9 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -28,10 +29,15 @@ public class PushablePackageRepository {
     private PushablePackageMapper pushablePackageMapper;
 
     public List<PushablePackageDto> queryAllPushablePackages() {
-        return pushablePackageMapper.getAllPushablePackages(0, 1000);
+        List<AppReleasePo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
+        List<PushablePackageDto> packages = new ArrayList<>();
+        apps.forEach(app -> packages.add(new PushablePackageDto(app)));
+        return packages;
     }
 
-    public Optional<PushablePackageDto> getPushablePackages(String packageId) {
-        return pushablePackageMapper.getPushablePackages(packageId);
+    public PushablePackageDto getPushablePackages(String packageId) {
+        AppReleasePo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
+            .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+        return new PushablePackageDto(appReleasePo);
     }
 }

@@ -76,3 +76,18 @@
         TYPE                     VARCHAR(50)        NULL,
         CONSTRAINT message_table_pkey PRIMARY KEY (MESSAGEID)
     );
+
+    create TABLE if not exists app_store_table (
+        APPSTOREID              VARCHAR(64)         NOT NULL,
+        NAME                    VARCHAR(128)        NOT NULL,
+        VERSION                 VARCHAR(64)         NOT NULL,
+        COMPANY                 VARCHAR(128)        NULL,
+        URL                     VARCHAR(256)        NOT NULL,
+        SCHEMA                  VARCHAR(15)         NULL,
+        APPPUSHINTF             VARCHAR(256)        NULL,
+        APPTRANSID              VARCHAR(64)         NULL,
+        ADDEDTIME               TIMESTAMP           NULL,
+        MODIFIEDTIME            TIMESTAMP           NULL,
+        DESCRIPTION             VARCHAR(256)        NULL,
+        CONSTRAINT app_store_table_pkey PRIMARY KEY (APPSTOREID)
+    )

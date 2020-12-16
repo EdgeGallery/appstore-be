@@ -46,16 +46,6 @@ import org.slf4j.LoggerFactory;
 @Setter
 public class BasicInfo {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicInfo.class);
-
-    private static final int BUFFER_SIZE = 2 * 1024 * 1024;
-
-    private static final int BUFFER_READER_SIZE = 2 * 1024;
-
-    private static final int BOUNDED_INPUTSTREAM_SIZE = 8 * 1024;
-
-    private static final int READ_MAX_LONG = 10;
-
     public static final String PACKAGE_XML_FORMAT = ".xml";
 
     public static final String PACKAGE_YAML_FORMAT = ".yaml";
@@ -74,6 +64,16 @@ public class BasicInfo {
 
     public static final String CSAR_EXTENSION = ".csar";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicInfo.class);
+
+    private static final int BUFFER_SIZE = 2 * 1024 * 1024;
+
+    private static final int BUFFER_READER_SIZE = 2 * 1024;
+
+    private static final int BOUNDED_INPUTSTREAM_SIZE = 8 * 1024;
+
+    private static final int READ_MAX_LONG = 10;
+
     private static final int LINE_MAX_LEN = 4096;
 
     private String appName;
@@ -89,6 +89,10 @@ public class BasicInfo {
     private String fileStructure;
 
     private String markDownContent;
+
+    public BasicInfo() {
+        // empty construct function
+    }
 
     /**
      * create dir.
@@ -147,6 +151,28 @@ public class BasicInfo {
         return !file.isDirectory() && file.getName().indexOf("PACKAGE_YAML_FORMAT") != -1;
     }
 
+    private static String getUnzipDir(String dirName) {
+        File tmpDir = new File(File.separator + dirName);
+        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "");
+    }
+
+    private static FileRelationResponse buildFileStructure(String root, String base) {
+        File rootfile = new File(root);
+        if (!rootfile.isDirectory()) {
+            return new FileRelationResponse(rootfile.getName());
+        } else {
+            FileRelationResponse current = new FileRelationResponse(rootfile.getName());
+            File[] list = rootfile.listFiles();
+            if (list != null && list.length > 0) {
+                for (File subFile : list) {
+                    current.addChild(
+                        buildFileStructure(subFile.getAbsolutePath(), base + File.separator + rootfile.getName()));
+                }
+            }
+            return current;
+        }
+    }
+
     /**
      * load file and analyse file list.
      *
@@ -184,8 +210,8 @@ public class BasicInfo {
         } catch (IOException e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
-        if (appName == null || provider == null || version == null
-            || appName.length() < 1 || provider.length() < 1 || version.length() < 1) {
+        if (appName == null || provider == null || version == null || appName.length() < 1 || provider.length() < 1
+            || version.length() < 1) {
             throw new IllegalArgumentException(
                 MF_PRODUCT_NAME + ", " + MF_PROVIDER_META + " or " + MF_VERSION_META + " is empty.");
         }
@@ -197,11 +223,6 @@ public class BasicInfo {
         }
 
         return this;
-    }
-
-    private static String getUnzipDir(String dirName) {
-        File tmpDir = new File(File.separator + dirName);
-        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "");
     }
 
     private void readMarkDown(File file) {
@@ -308,26 +329,5 @@ public class BasicInfo {
             LOGGER.error("Not a reqgular file with Exception.");
             return false;
         }
-    }
-
-    private static FileRelationResponse buildFileStructure(String root, String base) {
-        File rootfile = new File(root);
-        if (!rootfile.isDirectory()) {
-            return new FileRelationResponse(rootfile.getName());
-        } else {
-            FileRelationResponse current = new FileRelationResponse(rootfile.getName());
-            File[] list = rootfile.listFiles();
-            if (list != null && list.length > 0) {
-                for (File subFile : list) {
-                    current.addChild(
-                        buildFileStructure(subFile.getAbsolutePath(), base + File.separator + rootfile.getName()));
-                }
-            }
-            return current;
-        }
-    }
-
-    public BasicInfo() {
-        // empty construct function
     }
 }

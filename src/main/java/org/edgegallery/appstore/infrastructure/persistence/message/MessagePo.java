@@ -93,6 +93,31 @@ public class MessagePo implements PersistenceObject<Message> {
     @Column(name = "ICONDOWNLOADURL")
     private String iconDownloadUrl;
 
+    static MessagePo of(Message message) {
+        MessagePo po = new MessagePo();
+        po.messageId = message.getMessageId();
+        po.name = message.getBasicInfo().getName();
+        po.provider = message.getBasicInfo().getProvider();
+        po.version = message.getBasicInfo().getVersion();
+        po.affinity = message.getBasicInfo().getAffinity();
+        po.industry = message.getBasicInfo().getIndustry();
+        po.shortDesc = message.getBasicInfo().getShortDesc();
+        po.type = message.getBasicInfo().getType();
+        po.atpTestStatus = message.getAtpTestStatus();
+        po.atpTestTaskId = message.getAtpTestTaskId();
+        po.atpTestReportUrl = message.getAtpTestReportUrl();
+        po.result = message.getResult();
+        po.readed = message.isReaded();
+        po.messageType = message.getMessageType();
+        po.time = message.getTime();
+        po.sourceAppStore = message.getSourceAppStore();
+        po.targetAppStore = message.getTargetAppStore();
+        po.packageDownloadUrl = message.getPackageDownloadUrl();
+        po.iconDownloadUrl = message.getIconDownloadUrl();
+        po.description = message.getDescription();
+        return po;
+    }
+
     @Override
     public Message toDomainModel() {
         Message message = new Message();
@@ -119,30 +144,5 @@ public class MessagePo implements PersistenceObject<Message> {
         basicInfo.setShortDesc(shortDesc);
         message.setBasicInfo(basicInfo);
         return message;
-    }
-
-    static MessagePo of(Message message) {
-        MessagePo po = new MessagePo();
-        po.messageId = message.getMessageId();
-        po.name = message.getBasicInfo().getName();
-        po.provider = message.getBasicInfo().getProvider();
-        po.version = message.getBasicInfo().getVersion();
-        po.affinity = message.getBasicInfo().getAffinity();
-        po.industry = message.getBasicInfo().getIndustry();
-        po.shortDesc = message.getBasicInfo().getShortDesc();
-        po.type = message.getBasicInfo().getType();
-        po.atpTestStatus = message.getAtpTestStatus();
-        po.atpTestTaskId = message.getAtpTestTaskId();
-        po.atpTestReportUrl = message.getAtpTestReportUrl();
-        po.result = message.getResult();
-        po.readed = message.isReaded();
-        po.messageType = message.getMessageType();
-        po.time = message.getTime();
-        po.sourceAppStore = message.getSourceAppStore();
-        po.targetAppStore = message.getTargetAppStore();
-        po.packageDownloadUrl = message.getPackageDownloadUrl();
-        po.iconDownloadUrl = message.getIconDownloadUrl();
-        po.description = message.getDescription();
-        return po;
     }
 }

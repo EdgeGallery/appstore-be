@@ -17,6 +17,7 @@ package org.edgegallery.appstore.domain.model.message;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 
 @Getter
 @Setter
@@ -35,4 +36,18 @@ public class BasicMessageInfo {
     private String industry;
 
     private String type;
+
+    public BasicMessageInfo() {
+
+    }
+
+    public BasicMessageInfo(PushablePackageDto packageDto) {
+        this.name = packageDto.getName();
+        this.affinity = packageDto.getAffinity();
+        this.industry = packageDto.getIndustry();
+        this.provider = packageDto.getProvider();
+        this.shortDesc = packageDto.getShortDesc();
+        this.type = packageDto.getType();
+        this.version = packageDto.getVersion();
+    }
 }

@@ -49,8 +49,8 @@ public class CommentServiceFacade {
      * comment method with parameters.
      */
     public void comment(User user, String appId, String comments, double score) {
-        LOGGER.info("User {} comments length{} to app {}, score{}", user.getUserName(), comments.length(), appId,
-                score);
+        LOGGER
+            .info("User {} comments length{} to app {}, score{}", user.getUserName(), comments.length(), appId, score);
         appCommentService.comment(user, appId, comments, score);
     }
 
@@ -60,7 +60,6 @@ public class CommentServiceFacade {
     public ResponseEntity<List<Comment>> getComments(String appId, int limit, long offset) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         return ResponseEntity
-            .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId()))
-                .getResults());
+            .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId())).getResults());
     }
 }

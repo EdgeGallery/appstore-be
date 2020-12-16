@@ -33,11 +33,9 @@ public class RestReturnWrapper implements ResponseBodyAdvice<Object> {
      * Determine which request to execute beforeBodyWrite, return true to execute, return false to not execute.
      */
     @Override
-    public boolean supports(MethodParameter methodParameter,
-        Class<? extends HttpMessageConverter<?>> converterType) {
+    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> converterType) {
         return true;
     }
-
 
     /**
      * Process the body, request, response and other requests before returning.

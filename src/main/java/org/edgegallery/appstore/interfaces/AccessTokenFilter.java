@@ -43,6 +43,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AccessTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
 
+    private static final String[] NoNeedTokenUrls = {
+        "GET /health", "POST /mec/appstore/poke/messages", "POST /mec/appstore/poke/pushable/packages/[^/]*/action/push"
+    };
+
     @Autowired
     TokenStore jwtTokenStore;
 
@@ -105,11 +109,11 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         if (request.getRequestURI() == null) {
             return true;
         }
-        if (request.getRequestURI().equals("/health")) {
-            return false;
-        }
-        if (request.getRequestURI().equals("/mec/appstore/poke/messages") && request.getMethod().equals("POST")) {
-            return false;
+        String accessUrl = String.format("%s %s", request.getMethod(), request.getRequestURI());
+        for (String filter : NoNeedTokenUrls) {
+            if (accessUrl.matches(filter)) {
+                return false;
+            }
         }
         return true;
     }

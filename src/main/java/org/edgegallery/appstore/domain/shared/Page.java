@@ -22,8 +22,11 @@ import java.util.stream.Collectors;
 
 public class Page<T> {
     private List<T> results;
+
     private int limit;
+
     private long offset;
+
     private long total;
 
     /**

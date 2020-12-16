@@ -33,6 +33,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class PackageChecker extends FileChecker {
 
+    static final int BUFFER = 512;
+
+    static final int TOOBIG = 0x6400000; // max size of unzipped data, 100MB
+
+    static final int TOOMANY = 1024; // max number of files
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageChecker.class);
 
     /**
@@ -64,12 +70,8 @@ public class PackageChecker extends FileChecker {
             throw new IllegalArgumentException("Package File name is null.");
         }
 
-        String tempFileAddress = new StringBuilder().append(getDir())
-                .append(File.separator)
-                .append("temp")
-                .append(File.separator)
-                .append(file.getOriginalFilename())
-                .toString();
+        String tempFileAddress = new StringBuilder().append(getDir()).append(File.separator).append("temp")
+            .append(File.separator).append(file.getOriginalFilename()).toString();
         try {
             createFile(tempFileAddress);
             result = new File(tempFileAddress);
@@ -84,13 +86,6 @@ public class PackageChecker extends FileChecker {
         }
         return result;
     }
-
-
-    static final int BUFFER = 512;
-
-    static final int TOOBIG = 0x6400000; // max size of unzipped data, 100MB
-
-    static final int TOOMANY = 1024; // max number of files
 
     // ...
 
@@ -160,6 +155,7 @@ public class PackageChecker extends FileChecker {
 
     /**
      * check if entry is directory, if then create dir.
+     *
      * @param entry entry of next element.
      * @param f File
      * @return

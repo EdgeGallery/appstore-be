@@ -53,12 +53,8 @@ public class IconChecker extends FileChecker {
             throw new IllegalArgumentException("Icon File Name is null.");
         }
 
-        String tempFileAddress = new StringBuilder().append(getDir())
-                .append(File.separator)
-                .append("temp")
-                .append(File.separator)
-                .append(file.getOriginalFilename())
-                .toString();
+        String tempFileAddress = new StringBuilder().append(getDir()).append(File.separator).append("temp")
+            .append(File.separator).append(file.getOriginalFilename()).toString();
         try {
             createFile(tempFileAddress);
             result = new File(tempFileAddress);

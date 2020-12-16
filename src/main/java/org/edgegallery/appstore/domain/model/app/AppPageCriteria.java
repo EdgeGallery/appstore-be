@@ -22,11 +22,11 @@ import org.edgegallery.appstore.domain.shared.PageCriteria;
 @Getter
 public class AppPageCriteria extends PageCriteria {
 
-    private  String appName;
+    private String appName;
 
-    private  String provider;
+    private String provider;
 
-    private  String applicationType;
+    private String applicationType;
 
     private String affinity;
 
@@ -35,8 +35,8 @@ public class AppPageCriteria extends PageCriteria {
     /**
      * Constructor of AppPageCriteria.
      */
-    public AppPageCriteria(int limit, long offset, String appName, String provider, String applicationType, String
-        affinity, String userId) {
+    public AppPageCriteria(int limit, long offset, String appName, String provider, String applicationType,
+        String affinity, String userId) {
         super(limit, offset, null);
         this.appName = appName;
         this.provider = provider;

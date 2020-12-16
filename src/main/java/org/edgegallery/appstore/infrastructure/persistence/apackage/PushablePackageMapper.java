@@ -19,16 +19,15 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.AppStoreDto;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.stereotype.Component;
 
 @Component
 @Mapper
 public interface PushablePackageMapper {
 
-    List<PushablePackageDto> getAllPushablePackages(int start, int end);
+    List<AppReleasePo> getAllPushablePackages(int start, int end);
 
-    Optional<PushablePackageDto> getPushablePackages(String packageId);
+    Optional<AppReleasePo> getPushablePackages(String packageId);
 
     Optional<AppStoreDto> findAppStoreById(String appStoreId);
 }

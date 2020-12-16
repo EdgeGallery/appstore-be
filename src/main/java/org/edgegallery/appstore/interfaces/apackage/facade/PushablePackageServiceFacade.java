@@ -17,7 +17,6 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
@@ -50,12 +49,7 @@ public class PushablePackageServiceFacade {
      * @return list
      */
     public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        List<PushablePackageDto> list = pushablePackageService.queryAllPushablePackages();
-        if (list == null) {
-            return ResponseEntity.ok(new ArrayList<>());
-        } else {
-            return ResponseEntity.ok(list);
-        }
+        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages());
     }
 
     /**
@@ -78,9 +72,9 @@ public class PushablePackageServiceFacade {
      * @param packageId id
      * @param targetAppStore target appstore
      */
-    public void pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
+    public List<Boolean> pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         // find the package
-        pushablePackageService.pushPackage(packageId, targetAppStore);
+        return pushablePackageService.pushPackage(packageId, targetAppStore);
     }
 
     /**

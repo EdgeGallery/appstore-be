@@ -8,8 +8,10 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,14 +64,34 @@ public class PushPackageTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     @Test
     public void should_success_when_get_pushablepackages() throws Exception {
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/poke/pushable/packages/packageid-0002")
-            .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE))
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/poke/pushable/packages/packageid-0002")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         int result = mvcResult.getResponse().getStatus();
         assertEquals(200, result);
         String content = mvcResult.getResponse().getContentAsString();
         PushablePackageDto packageDto = gson.fromJson(content, PushablePackageDto.class);
         assertEquals("packageid-0002", packageDto.getPackageId());
+    }
+
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    @Test
+    public void should_success_when_push_package_notice() throws Exception {
+        PushTargetAppStoreDto dto = new PushTargetAppStoreDto();
+        List<String> targetPlatform = new ArrayList<>();
+        targetPlatform.add("appstore-test-0001");
+        targetPlatform.add("appstore-test-0002");
+        dto.setTargetPlatform(targetPlatform);
+
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/poke/pushable/packages/packageid-0002/action/push")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).content(gson.toJson(dto))
+                .accept(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        int result = mvcResult.getResponse().getStatus();
+        assertEquals(200, result);
+        String content = mvcResult.getResponse().getContentAsString();
+        assertEquals("ok", content);
     }
 
 }

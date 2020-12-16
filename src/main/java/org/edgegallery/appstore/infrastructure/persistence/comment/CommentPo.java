@@ -62,14 +62,6 @@ public class CommentPo {
     public CommentPo() {
     }
 
-    public Date getCommentTime() {
-        return (Date) commentTime.clone();
-    }
-
-    public void setCommentTime(Date commentTime) {
-        this.commentTime = (Date) commentTime.clone();
-    }
-
     /**
      * Constructor of CommentPO.
      */
@@ -106,6 +98,14 @@ public class CommentPo {
     public static CommentPo of(Comment comment) {
         return new CommentPo(comment.getCommentId(), comment.getUser().getUserId(), comment.getUser().getUserName(),
             comment.getAppId(), comment.getBody(), comment.getScore());
+    }
+
+    public Date getCommentTime() {
+        return (Date) commentTime.clone();
+    }
+
+    public void setCommentTime(Date commentTime) {
+        this.commentTime = (Date) commentTime.clone();
     }
 
     public Comment toDomainModel() {

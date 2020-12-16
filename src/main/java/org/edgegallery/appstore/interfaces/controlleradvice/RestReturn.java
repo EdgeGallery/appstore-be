@@ -47,6 +47,11 @@ public class RestReturn {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -55,13 +60,8 @@ public class RestReturn {
             return false;
         }
         RestReturn that = (RestReturn) o;
-        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp())
-            && Objects.equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage())
-            && Objects.equals(getPath(), that.getPath());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath());
+        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp()) && Objects
+            .equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage()) && Objects
+            .equals(getPath(), that.getPath());
     }
 }
