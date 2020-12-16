@@ -25,7 +25,6 @@ import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 @Setter
@@ -46,15 +45,12 @@ public class MessageReqDto {
 
     private String iconDownloadUrl;
 
-    @Autowired
-    private ApplicationContext context;
-
     /**
      * transform the dto to message obj.
      *
      * @return message obj
      */
-    public Message toMessage() {
+    public Message toMessage(ApplicationContext context) {
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setReaded(false);

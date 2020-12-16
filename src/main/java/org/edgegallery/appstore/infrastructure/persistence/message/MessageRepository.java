@@ -39,12 +39,18 @@ public class MessageRepository {
      * @param message message obj
      */
     public void addMessage(Message message) {
-        MessagePo messagePo = messageMapper.getOneMessage(message.getMessageId());
-        if (messagePo != null) {
-            LOGGER.error("message {} has existed", message.getMessageId());
-            throw new DomainException(String.format("message %s has existed", message.getMessageId()));
+        try {
+            MessagePo messagePo = messageMapper.getOneMessage(message.getMessageId());
+            if (messagePo != null) {
+                LOGGER.error("message {} has existed", message.getMessageId());
+                throw new DomainException(String.format("message %s has existed", message.getMessageId()));
+            }
+            messageMapper.insert(MessagePo.of(message));
+        } catch (Exception e) {
+            LOGGER.error("add message to db error: {}", e.getMessage());
+            throw new DomainException("db operate error");
         }
-        messageMapper.insert(MessagePo.of(message));
+
     }
 
     /**

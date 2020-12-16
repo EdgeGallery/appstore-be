@@ -3,7 +3,7 @@ servicecomb-config-order: 1
 APPLICATION_ID: edgegallery
 service_description:
   name: mec-appstore
-  version: 0.9.0
+  version: 1.0.0
   environment: development
 servicecomb:
   service:

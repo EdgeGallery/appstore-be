@@ -17,8 +17,12 @@ package org.edgegallery.appstore.application.inner;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.edgegallery.appstore.config.ApplicationContext;
+import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
@@ -56,6 +60,9 @@ public class MessageService {
     @Autowired
     private PackageService packageService;
 
+    @Autowired
+    private ApplicationContext context;
+
     /**
      * add a message.
      *
@@ -63,7 +70,8 @@ public class MessageService {
      * @return result
      */
     public String addMessage(MessageReqDto dto) {
-        messageRepository.addMessage(dto.toMessage());
+        LOGGER.info("receive notice message from {}", dto.getSourceAppStore());
+        messageRepository.addMessage(dto.toMessage(context));
         LOGGER.info("add a message success");
         return "add a message success";
     }
@@ -108,9 +116,20 @@ public class MessageService {
             RegisterRespDto dto = appService.registerApp(release);
 
             packageService.publishPackage(dto.getAppId(), dto.getPackageId());
+            addDownloadMessage(message);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());
             throw new DomainException("file download exception");
         }
+    }
+
+    private void addDownloadMessage(Message message) {
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setMessageType(EnumMessageType.PULL);
+        String currentAppStore = message.getTargetAppStore();
+        message.setTargetAppStore(message.getSourceAppStore());
+        message.setSourceAppStore(currentAppStore);
+        message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        messageRepository.addMessage(message);
     }
 }
