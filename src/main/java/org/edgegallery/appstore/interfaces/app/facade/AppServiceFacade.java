@@ -36,7 +36,6 @@ import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
-import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;

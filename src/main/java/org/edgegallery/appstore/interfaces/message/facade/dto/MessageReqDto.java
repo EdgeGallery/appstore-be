@@ -17,7 +17,6 @@ package org.edgegallery.appstore.interfaces.message.facade.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Timer;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
