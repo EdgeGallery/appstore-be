@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS catalog_package_table;
 DROP TABLE IF EXISTS APP_TABLE;
 DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
 
-    CREATE TABLE if not exists catalog_package_table (
+    create TABLE if not exists catalog_package_table (
     	PACKAGEID                VARCHAR(200)       NOT NULL,
     	PACKAGEADDRESS           VARCHAR(200)       NULL,
     	ICONADDRESS              VARCHAR(200)       NULL,
@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
     	CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
-    CREATE TABLE if not exists app_table (
+    create TABLE if not exists app_table (
     	APPID                    VARCHAR(200)       NOT NULL,
     	APPNAME                  VARCHAR(100)       NULL,
     	APPLICATIONTYPE          VARCHAR(300)       NULL,
@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
     	CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
-    CREATE TABLE if not exists csar_package_score (
+    create TABLE if not exists csar_package_score (
         COMMENTID                serial,
         USERID                   VARCHAR(100)       NULL,
         USERNAME                 VARCHAR(100)       NULL,
@@ -57,7 +57,31 @@ DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
         CONSTRAINT csar_package_score_pkey PRIMARY KEY (COMMENTID)
     );
 
-    CREATE TABLE if not exists app_store_table (
+    create TABLE if not exists message_table (
+        MESSAGEID                VARCHAR(100)       NOT NULL,
+        RESULT                   VARCHAR(100)       NULL,
+        READED                   boolean            default false,
+        NAME                     VARCHAR(100)       NULL,
+        PROVIDER                 VARCHAR(100)       NULL,
+        VERSION                  VARCHAR(100)       NULL,
+        MESSAGETYPE              VARCHAR(20)        NULL,
+        SOURCEAPPSTORE           VARCHAR(100)       NULL,
+        TARGETAPPSTORE           VARCHAR(100)       NULL,
+        TIME                     VARCHAR(100)       NULL,
+        DESCRIPTION              VARCHAR(255)       NULL,
+        ATPTESTSTATUS            VARCHAR(50)        NULL,
+        ATPTESTTASKID            VARCHAR(100)       NULL,
+        ATPTESTREPORTURL         VARCHAR(255)       NULL,
+        PACKAGEDOWNLOADURL       VARCHAR(255)       NULL,
+        ICONDOWNLOADURL          VARCHAR(255)       NULL,
+        AFFINITY                 VARCHAR(100)       NULL,
+        SHORTDESC                TEXT               NULL,
+        INDUSTRY                 VARCHAR(100)       NULL,
+        TYPE                     VARCHAR(50)        NULL,
+        CONSTRAINT message_table_pkey PRIMARY KEY (MESSAGEID)
+    );
+
+    create TABLE if not exists app_store_table (
         APPSTOREID              VARCHAR(64)         NOT NULL,
         NAME                    VARCHAR(128)        NOT NULL,
         VERSION                 VARCHAR(64)         NOT NULL,
@@ -78,7 +102,7 @@ INSERT INTO catalog_package_table(
 
 INSERT INTO app_store_table(
 	appstoreid, name, version, company, url, schema, apppushintf, apptransid, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8080', 'http', '', '', null, null, 'description-5555');
+	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', null, null, 'description-5555');
 INSERT INTO app_store_table(
 	appstoreid, name, version, company, url, schema, apppushintf, apptransid, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8080', 'http', '', '', null, null, 'description-5555');
+	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', null, null, 'description-5555');

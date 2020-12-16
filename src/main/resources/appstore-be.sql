@@ -90,4 +90,4 @@
         MODIFIEDTIME            TIMESTAMP           NULL,
         DESCRIPTION             VARCHAR(256)        NULL,
         CONSTRAINT app_store_table_pkey PRIMARY KEY (APPSTOREID)
-    )
+    );
