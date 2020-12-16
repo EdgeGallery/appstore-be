@@ -21,10 +21,10 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 
 @Getter
 @Setter
@@ -46,18 +46,29 @@ public class MessageReqDto {
     private String iconDownloadUrl;
 
     /**
+     * init this object by PushablePackageDto.
+     *
+     */
+    public MessageReqDto(PushablePackageDto packageDto) {
+        basicInfo = new BasicMessageInfo(packageDto);
+        this.atpTestStatus = packageDto.getAtpTestStatus();
+        this.atpTestReportUrl = packageDto.getAtpTestReportUrl();
+        this.atpTestTaskId = packageDto.getAtpTestTaskId();
+    }
+
+    /**
      * transform the dto to message obj.
      *
      * @return message obj
      */
-    public Message toMessage(ApplicationContext context) {
+    public Message toMessage(String targetAppStore, EnumMessageType type) {
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setReaded(false);
         message.setBasicInfo(basicInfo);
-        message.setMessageType(EnumMessageType.NOTICE);
+        message.setMessageType(type);
         message.setSourceAppStore(sourceAppStore);
-        message.setTargetAppStore(context.platformName);
+        message.setTargetAppStore(targetAppStore);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
         message.setDescription(generateDescription());
         message.setAtpTestStatus(atpTestStatus);

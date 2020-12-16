@@ -16,18 +16,10 @@
   -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreMapper">
 
-    <select id="getAllPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table order by CREATETIME
+    <select id="findExAppStoreById"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.appstore.ExAppStorePo">
+        select * from app_store_table where appstoreid = #{id}
     </select>
-
-
-    <select id="getPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table where packageid = #{packageId}
-    </select>
-
-
 </mapper>

@@ -63,10 +63,6 @@ public class Release implements ValueObject<Release> {
 
     private BasicInfo appBasicInfo;
 
-    public void setAppIdValue(String appId) {
-        this.appId = appId;
-    }
-
     /**
      * Constructor of Release.
      */
@@ -86,6 +82,15 @@ public class Release implements ValueObject<Release> {
         appBasicInfo = new BasicInfo().load(packageFile.getStorageAddress());
     }
 
+    public void setAppIdValue(String appId) {
+        this.appId = appId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(packageId);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -96,11 +101,6 @@ public class Release implements ValueObject<Release> {
         }
         Release release = (Release) o;
         return Objects.equals(packageId, release.packageId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(packageId);
     }
 
     @Override

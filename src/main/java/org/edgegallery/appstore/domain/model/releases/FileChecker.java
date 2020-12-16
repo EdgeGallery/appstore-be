@@ -27,14 +27,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-
-
 public abstract class FileChecker {
-
-    private static final String REG
-            = "[^\\s\\\\/:*?\"<>|](\\x20|[^\\s\\\\/:*?\"<>|])*[^\\s\\\\/:*?\"<>|.]$";
-
-    private static final int MAX_LENGTH_FILE_NAME = 255;
 
     public static final String BLANK_REG = "\\s";
 
@@ -52,14 +45,15 @@ public abstract class FileChecker {
 
     public static final String MARKDOWN = ".md";
 
-    private static List<String> extensions = Arrays.asList(PACKAGE_XML_FORMAT, PACKAGE_YAML_FORMAT, PACKAGE_CSH_FORMAT,
-                PACKAGE_META_FORMAT, PACKAGE_TXT_FORMAT, MANIFEST, MARKDOWN);
+    private static final String REG = "[^\\s\\\\/:*?\"<>|](\\x20|[^\\s\\\\/:*?\"<>|])*[^\\s\\\\/:*?\"<>|.]$";
+
+    private static final int MAX_LENGTH_FILE_NAME = 255;
+
+    private static List<String> extensions = Arrays
+        .asList(PACKAGE_XML_FORMAT, PACKAGE_YAML_FORMAT, PACKAGE_CSH_FORMAT, PACKAGE_META_FORMAT, PACKAGE_TXT_FORMAT,
+            MANIFEST, MARKDOWN);
 
     private String dir;
-
-    protected abstract long getMaxFileSize();
-
-    protected abstract List<String> getFileExtensions();
 
     /**
      * Constructor to create FileChecker.
@@ -72,6 +66,7 @@ public abstract class FileChecker {
 
     /**
      * check if file path is valid.
+     *
      * @param filePath file path.
      * @return
      */
@@ -103,7 +98,27 @@ public abstract class FileChecker {
     }
 
     /**
+     * check if file name if it's invalid.
+     *
+     * @param fileName file name
+     * @return
+     */
+    static boolean isValid(String fileName) {
+        if (StringUtils.isEmpty(fileName) || fileName.length() > MAX_LENGTH_FILE_NAME) {
+            return false;
+        }
+        fileName = Normalizer.normalize(fileName, Normalizer.Form.NFKC);
+        Matcher matcher = Pattern.compile(REG).matcher(fileName);
+        return matcher.matches();
+    }
+
+    protected abstract long getMaxFileSize();
+
+    protected abstract List<String> getFileExtensions();
+
+    /**
      * check file if is invalid.
+     *
      * @param file object.
      */
     public File check(MultipartFile file) {
@@ -125,24 +140,9 @@ public abstract class FileChecker {
     }
 
     private boolean isAllowedFileName(String originalFilename) {
-        return isValid(originalFilename)
-                && getFileExtensions().contains(Files.getFileExtension(originalFilename.toLowerCase()));
+        return isValid(originalFilename) && getFileExtensions()
+            .contains(Files.getFileExtension(originalFilename.toLowerCase()));
     }
-
-    /**
-     * check if file name if it's invalid.
-     * @param fileName file name
-     * @return
-     */
-    static boolean isValid(String fileName) {
-        if (StringUtils.isEmpty(fileName) || fileName.length() > MAX_LENGTH_FILE_NAME) {
-            return false;
-        }
-        fileName = Normalizer.normalize(fileName, Normalizer.Form.NFKC);
-        Matcher matcher = Pattern.compile(REG).matcher(fileName);
-        return matcher.matches();
-    }
-
 
     protected void createFile(String filePath) throws IOException {
         File tempFile = new File(filePath);

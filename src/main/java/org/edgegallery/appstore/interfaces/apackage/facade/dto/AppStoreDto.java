@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class AppStoreDto {
     private String name;
+
     private String id;
 
     private String url;

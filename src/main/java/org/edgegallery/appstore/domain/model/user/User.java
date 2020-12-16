@@ -41,6 +41,7 @@ public class User {
 
     /**
      * Constructor of User.
+     *
      * @param userId user id.
      * @param userName user name.
      */

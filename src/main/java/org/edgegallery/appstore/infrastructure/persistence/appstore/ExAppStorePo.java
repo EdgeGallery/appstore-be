@@ -20,4 +20,20 @@ public class ExAppStorePo {
     private String name;
 
     private String url;
+
+    private String version;
+
+    private String company;
+
+    private String schema;
+
+    private String appPushintf;
+
+    private String appTransId;
+
+    private String addedTime;
+
+    private String modifiedTime;
+
+    private String description;
 }

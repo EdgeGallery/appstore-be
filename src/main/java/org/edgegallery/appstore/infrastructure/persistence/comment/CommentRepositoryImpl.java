@@ -33,6 +33,11 @@ public class CommentRepositoryImpl implements CommentRepository {
     private CommentMapper commentMapper;
 
     @Override
+    public int store(Comment comment) {
+        return commentMapper.insert(CommentPo.of(comment));
+    }
+
+    @Override
     public CommentHistory lookupCommentHistoryOfApp(String appId) {
         return new CommentHistory(commentMapper.findAll(appId));
     }
@@ -42,17 +47,11 @@ public class CommentRepositoryImpl implements CommentRepository {
         commentMapper.removeAll(appId);
     }
 
-
-    @Override
-    public int store(Comment comment) {
-        return commentMapper.insert(CommentPo.of(comment));
-    }
-
     @Override
     public Page<Comment> findAllWithPagination(PageCriteria pageCriteria) {
         long total = Long.parseLong(String.valueOf(commentMapper.countTotal(pageCriteria)));
         List<Comment> commentList = commentMapper.findAllWithPagination(pageCriteria).stream()
-                .map(CommentPo::toDomainModel).collect(Collectors.toList());
+            .map(CommentPo::toDomainModel).collect(Collectors.toList());
         return new Page<>(commentList, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
     }
 

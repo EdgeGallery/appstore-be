@@ -38,26 +38,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AppRepositoryImpl implements AppRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppRepositoryImpl.class);
-
     public static final int MAX_ENTRY_PER_USER_PER_MODEL = 1000;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppRepositoryImpl.class);
 
     @Autowired
     private AppMapper appMapper;
 
     @Autowired
     private PackageMapper packageMapper;
-
-    @Override
-    public Optional<App> find(String appId) {
-        Optional<App> app = appMapper.findByAppId(appId).map(AppPo::toDomainModel);
-        if (app.isPresent()) {
-            List<Release> releases = packageMapper.findAllByAppId(appId).stream().map(AppReleasePo::toDomainModel)
-                .collect(Collectors.toList());
-            app.get().setReleases(releases);
-        }
-        return app;
-    }
 
     @Override
     public void store(App app) {
@@ -72,6 +61,17 @@ public class AppRepositoryImpl implements AppRepository {
             }
             appMapper.insert(appPO);
         }
+    }
+
+    @Override
+    public Optional<App> find(String appId) {
+        Optional<App> app = appMapper.findByAppId(appId).map(AppPo::toDomainModel);
+        if (app.isPresent()) {
+            List<Release> releases = packageMapper.findAllByAppId(appId).stream().map(AppReleasePo::toDomainModel)
+                .collect(Collectors.toList());
+            app.get().setReleases(releases);
+        }
+        return app;
     }
 
     @Override

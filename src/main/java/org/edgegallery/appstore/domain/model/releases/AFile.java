@@ -19,7 +19,9 @@ package org.edgegallery.appstore.domain.model.releases;
 public class AFile {
 
     private String originalFileName;
+
     private String storageAddress;
+
     private long fileSize;
 
     public AFile(String originalFileName, String storageAddress) {

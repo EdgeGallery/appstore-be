@@ -71,6 +71,7 @@ public class PackageDto {
 
     /**
      * Transfer Release object to PackageDto object.
+     *
      * @param release Release object.
      * @return
      */

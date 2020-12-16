@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.interfaces;
 
-
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +26,7 @@ public class RequestFilterConfiguration {
 
     /**
      * Register log filter.
+     *
      * @return
      */
     @Bean

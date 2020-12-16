@@ -76,12 +76,12 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
-    public ResponseEntity<String> pushPackage(
+    // @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<List<Boolean>> pushPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "3rd AppStore") @RequestBody() PushTargetAppStoreDto dto) {
-        pushablePackageServiceFacade.pushPackage(packageId, dto);
-        return ResponseEntity.ok("");
+        List<Boolean> pushResult = pushablePackageServiceFacade.pushPackage(packageId, dto);
+        return ResponseEntity.ok(pushResult);
     }
 
     @GetMapping(value = "/packages/{packageId}/action/download-package", produces = MediaType.APPLICATION_JSON)

@@ -24,18 +24,31 @@ import lombok.Setter;
 public class PushablePackage {
 
     private String packageId;
+
     private String name;
+
     private String provider;
+
     private String version;
+
     private String atpTestStatus;
+
     private String atpTestTaskId;
+
     private String atpTestReportUrl;
+
     private String latestPushTime;
+
     private Integer pushTimes;
+
     private List<String> targetPlatform;
+
     private String affinity;
+
     private String shortDesc;
+
     private String industry;
+
     private String type;
 
 }

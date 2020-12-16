@@ -56,13 +56,13 @@ public class AppDto {
 
     private EnumAppStatus status;
 
-
     public AppDto() {
         // empty construct
     }
 
     /**
      * transfer App to AppDto object..
+     *
      * @param app is an App object.
      * @return
      */

@@ -147,21 +147,18 @@ public class AppReleasePo {
         basicInfo.setContact(contact);
         basicInfo.setFileStructure(fileStructure);
         basicInfo.setMarkDownContent(markDownContent);
-        return Release.builder()
-                .packageFile(new AFile(new File(packageAddress).getName(), packageAddress))
-                .appId(appId)
-                .packageId(packageId)
-                .icon(new AFile(new File(iconAddress).getName(), iconAddress))
-                .createTime(createTime)
-                .shortDesc(shortDesc)
-                .affinity(affinity)
-                .applicationType(applicationType)
-                .industry(industry)
-                .user(new User(userId, userName))
-                .appBasicInfo(basicInfo)
-                .status(EnumPackageStatus.valueOf(status))
-                .testTaskId(testTaskId)
-                .build();
+        return Release.builder().packageFile(new AFile(new File(packageAddress).getName(), packageAddress)).appId(appId)
+            .packageId(packageId).icon(new AFile(new File(iconAddress).getName(), iconAddress)).createTime(createTime)
+            .shortDesc(shortDesc).affinity(affinity).applicationType(applicationType).industry(industry)
+            .user(new User(userId, userName)).appBasicInfo(basicInfo).status(EnumPackageStatus.valueOf(status))
+            .testTaskId(testTaskId).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(packageId, packageAddress, iconAddress, size, fileStructure, createTime, shortDesc, appName, version,
+                applicationType, markDownContent, affinity, appId, userId, userName);
     }
 
     @Override
@@ -174,18 +171,13 @@ public class AppReleasePo {
         }
         AppReleasePo that = (AppReleasePo) o;
         return Objects.equals(packageId, that.packageId) && Objects.equals(packageAddress, that.packageAddress)
-            && Objects.equals(iconAddress, that.iconAddress) && Objects.equals(size, that.size) && Objects.equals(
-            fileStructure, that.fileStructure) && Objects.equals(createTime, that.createTime) && Objects.equals(
-            shortDesc, that.shortDesc) && Objects.equals(appName, that.appName) && Objects.equals(version, that.version)
-            && Objects.equals(applicationType, that.applicationType) && Objects.equals(markDownContent,
-            that.markDownContent) && Objects.equals(affinity, that.affinity) && Objects.equals(appId, that.appId)
-            && Objects.equals(userId, that.userId) && Objects.equals(userName, that.userName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(packageId, packageAddress, iconAddress, size, fileStructure, createTime, shortDesc, appName,
-            version, applicationType, markDownContent, affinity, appId, userId, userName);
+            && Objects.equals(iconAddress, that.iconAddress) && Objects.equals(size, that.size) && Objects
+            .equals(fileStructure, that.fileStructure) && Objects.equals(createTime, that.createTime) && Objects
+            .equals(shortDesc, that.shortDesc) && Objects.equals(appName, that.appName) && Objects
+            .equals(version, that.version) && Objects.equals(applicationType, that.applicationType) && Objects
+            .equals(markDownContent, that.markDownContent) && Objects.equals(affinity, that.affinity) && Objects
+            .equals(appId, that.appId) && Objects.equals(userId, that.userId) && Objects
+            .equals(userName, that.userName);
     }
 }
 
