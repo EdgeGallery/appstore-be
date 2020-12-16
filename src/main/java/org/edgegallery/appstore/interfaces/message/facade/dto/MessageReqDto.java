@@ -48,7 +48,6 @@ public class MessageReqDto {
     /**
      * init this object by PushablePackageDto.
      *
-     * @param packageDto
      */
     public MessageReqDto(PushablePackageDto packageDto) {
         basicInfo = new BasicMessageInfo(packageDto);

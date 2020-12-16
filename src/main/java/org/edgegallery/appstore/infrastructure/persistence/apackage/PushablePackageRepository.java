@@ -42,8 +42,7 @@ public class PushablePackageRepository {
 
     /**
      * find one package by id.
-     * 
-     * @param packageId
+     *
      * @return
      */
     public PushablePackageDto getPushablePackages(String packageId) {
