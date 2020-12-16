@@ -1,3 +1,7 @@
+servicecomb:
+  boot:
+    waitUp.timeoutInMilliseconds: 200
+
 ###spring config######
 server:
   port: 8099
