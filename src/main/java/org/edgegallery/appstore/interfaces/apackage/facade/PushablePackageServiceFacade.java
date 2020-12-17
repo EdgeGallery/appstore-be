@@ -20,8 +20,10 @@ import java.io.InputStream;
 import java.util.List;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -100,7 +102,13 @@ public class PushablePackageServiceFacade {
      * @param packageId id
      * @return icon stream
      */
-    public ResponseEntity<InputStreamResource> downloadIcon(String packageId) {
-        return null;
+    public ResponseEntity<InputStreamResource> downloadIcon(String packageId) throws FileNotFoundException {
+        PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
+        Release release = appService.download(packageDto.getAppId(), packageId);
+        InputStream ins = fileService.get(release.getIcon());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 }

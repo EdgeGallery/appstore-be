@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS catalog_package_table;
 DROP TABLE IF EXISTS APP_TABLE;
 DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
+DROP TABLE IF EXISTS app_store_table;
 
     create TABLE if not exists catalog_package_table (
     	PACKAGEID                VARCHAR(200)       NOT NULL,
