@@ -18,12 +18,12 @@ package org.edgegallery.appstore.application.inner;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.config.ApplicationContext;
+import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
-import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -79,12 +79,12 @@ public class PushablePackageService {
         final List<Boolean> results = new ArrayList<>();
         LOGGER.info("push package {}", packagePo.getPackageId());
         targetAppStore.getTargetPlatform().forEach(platformId -> {
-            AppStorePo appStorePo = appStoreRepository.queryAppStoreById(platformId);
-            if (appStorePo == null) {
+            AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
+            if (appStore == null) {
                 results.add(false);
                 return;
             }
-            String url = appStorePo.getUrl() + NOTICE_API;
+            String url = appStore.getUrl() + NOTICE_API;
             LOGGER.info(url);
 
             MessageReqDto messageReqDto = pushNotice(url, packagePo);
@@ -92,7 +92,7 @@ public class PushablePackageService {
                 results.add(false);
                 return;
             }
-            Message message = messageReqDto.toMessage(appStorePo.getAppStoreName(), EnumMessageType.PUSH);
+            Message message = messageReqDto.toMessage(appStore.getAppStoreName(), EnumMessageType.PUSH);
 
             // store message to the db
             messageRepository.addMessage(message);

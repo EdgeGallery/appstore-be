@@ -65,22 +65,22 @@
             parameterType="java.util.Map">
         select count(*) from app_table
         <where>
-            <if test="appName != null">
-                and appname = #{appName}
-            </if>
-            <if test="provider != null">
-                and provider = #{provider}
-            </if>
-            <if test="applicationType != null">
-                and applicationtype = #{applicationType}
-            </if>
-            <if test="affinity != null">
-                and affinity = #{affinity}
-            </if>
-            <if test="userId != null">
-                and userid = #{userId}
-            </if>
-        </where>
+        <if test="appName != null">
+            and appname = #{appName}
+        </if>
+        <if test="provider != null">
+            and provider = #{provider}
+        </if>
+        <if test="applicationType != null">
+            and applicationtype = #{applicationType}
+        </if>
+        <if test="affinity != null">
+            and affinity = #{affinity}
+        </if>
+        <if test="userId != null">
+            and userid = #{userId}
+        </if>
+    </where>
         limit #{limit} offset #{offset}
     </select>
 
