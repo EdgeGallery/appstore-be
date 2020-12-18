@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 
 @Controller
 @RestSchema(schemaId = "appStore")
-@RequestMapping("/mec-appstore/mec/appstore/v1")
+@RequestMapping("/mec/appstore/v1")
 @Api(tags = {"APP Store Controller"})
 @Validated
 public class AppStoreController {
@@ -50,16 +50,17 @@ public class AppStoreController {
             @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     public ResponseEntity<AppStoreDto> addAppStore(
-            @RequestParam(value = "appStoreName") String appStoreName,
-            @RequestParam("appStoreVersion") String appStoreVersion,
-            @RequestParam("company")  String company,
-            @RequestParam("url") String url,
-            @ApiParam(value = "app store schema", required = false) @RequestParam("schema") String schema,
-            @RequestParam("appPushIntf") String appPushIntf,
-            @RequestParam("appdTransId") String appdTransId,
-            @RequestParam(value = "description", required = false) String description) {
+            @RequestPart("appStoreName") String appStoreName,
+            @RequestPart("appStoreVersion") String appStoreVersion,
+            @RequestPart("company")  String company,
+            @RequestPart("url") String url,
+            @ApiParam(value = "app store schema", required = false) @RequestPart("schema") String schema,
+            @RequestPart("appPushIntf") String appPushIntf,
+            @RequestPart("appdTransId") String appdTransId,
+            @RequestPart(value = "description", required = false) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
                 appPushIntf, appdTransId, description, null, null);
+        System.out.println("addAppStore : " + appStoreDto);
         return appStoreServiceFacade.addAppStore(appStoreDto);
     }
 
@@ -91,15 +92,15 @@ public class AppStoreController {
     })
     public ResponseEntity<AppStoreDto> editAppStore(
             @PathVariable("appStoreId") @Pattern(regexp = REG_STORE_ID) String appStoreId,
-            @RequestParam(value = "appStoreName", required = false)
+            @RequestPart(value = "appStoreName", required = false)
             @Pattern(regexp = REG_STORE_NAME) String appStoreName,
-            @RequestParam(value = "appStoreVersion", required = false) String appStoreVersion,
-            @RequestParam(value = "company", required = false) String company,
-            @RequestParam(value = "url", required = false) String url,
-            @RequestParam(value = "schema", required = false) String schema,
-            @RequestParam(value = "appPushIntf", required = false) String appPushIntf,
-            @RequestParam(value = "appdTransId", required = false) String appdTransId,
-            @RequestParam(value = "description", required = false)
+            @RequestPart(value = "appStoreVersion", required = false) String appStoreVersion,
+            @RequestPart(value = "company", required = false) String company,
+            @RequestPart(value = "url", required = false) String url,
+            @RequestPart(value = "schema", required = false) String schema,
+            @RequestPart(value = "appPushIntf", required = false) String appPushIntf,
+            @RequestPart(value = "appdTransId", required = false) String appdTransId,
+            @RequestPart(value = "description", required = false)
             @Pattern(regexp = REG_STORE_NAME) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(appStoreId, appStoreName, appStoreVersion,
                 company, url, schema, appPushIntf, appPushIntf, description,

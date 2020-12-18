@@ -4,13 +4,13 @@ import java.util.List;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo;
 
 public interface AppStoreRepository {
-    int addAppStore(AppStorePo appStorePo);
+    String addAppStore(AppStore appStore);
 
     int deleteAppStoreById(String appStoreId);
 
-    int updateAppStoreById(AppStorePo appStorePo);
+    int updateAppStoreById(AppStore appStore);
 
-    AppStorePo queryAppStoreById(String appStoreId);
+    AppStore queryAppStoreById(String appStoreId);
 
-    List<AppStorePo> queryAppStores(AppStorePo appStorePo);
+    List<AppStore> queryAppStores(AppStore appStore);
 }
