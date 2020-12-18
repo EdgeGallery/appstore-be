@@ -7,6 +7,7 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class AppStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStore.class);
 
