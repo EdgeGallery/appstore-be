@@ -57,7 +57,7 @@ public class AppStore {
 
         AppStore appStore = new AppStore(appStoreDto.getAppStoreName(), appStoreDto.getCompany());
         appStore.setAppStoreId(appStoreDto.getAppStoreId());
-        appStore.setAppStoreVersion(appStore.getAppStoreVersion());
+        appStore.setAppStoreVersion(appStoreDto.getAppStoreVersion());
         appStore.setUrl(appStoreDto.getUrl());
         appStore.setSchema(appStoreDto.getSchema());
         appStore.setAppPushIntf(appStoreDto.getAppPushIntf());
