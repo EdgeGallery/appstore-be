@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 
 @Getter
@@ -17,6 +18,7 @@ import org.edgegallery.appstore.domain.model.appstore.AppStore;
 @Table(name = "app_store_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
+@ToString
 public class AppStorePo {
     @Id
     @Column(name = "APPSTOREID")
