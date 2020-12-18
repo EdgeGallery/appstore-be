@@ -34,9 +34,33 @@
     <update id="updateAppStoreById"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo">
         update app_store_table
-        SET appstorename = #{appStoreName}, appstoreversion = #{appStoreVersion}, company = #{company},
-        url = #{url}, schema = #{schema}, apppushintf = #{appPushIntf},
-        appdtransid = #{appdTransId}, modifiedtime = (select now()), description = #{description}
+        <set>
+            modifiedtime = (select now()),
+            <if test="appStoreName != null and appStoreName !=''">
+                appstorename = #{appStoreName},
+            </if>
+            <if test="appStoreVersion != null and appStoreVersion !=''">
+                appstoreversion = #{appStoreVersion},
+            </if>
+            <if test="company != null and company !=''">
+                company = #{company},
+            </if>
+            <if test="url != null and url !=''">
+                url = #{url},
+            </if>
+            <if test="schema != null and schema !=''">
+                schema = #{schema},
+            </if>
+            <if test="appPushIntf != null and appPushIntf !=''">
+                apppushintf = #{appPushIntf},
+            </if>
+            <if test="appdTransId != null and appdTransId !=''">
+                appdtransid = #{appdTransId},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
         WHERE appstoreid = #{appStoreId}
     </update>
 
@@ -53,10 +77,10 @@
         select appstoreid, APPSTORENAME, appstoreversion, company, url, schema, apppushintf,
         appdtransid, addedtime, modifiedtime, description from app_store_table
         <where>
-            <if test="appStoreName != null">
+            <if test="appStoreName != null and appStoreName != ''">
                 and appstorename like #{appStoreName}
             </if>
-            <if test="company != null">
+            <if test="company != null and company != ''">
                 and company like #{company}
             </if>
         </where>
