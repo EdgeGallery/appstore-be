@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS catalog_package_table;
 DROP TABLE IF EXISTS APP_TABLE;
 DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
 DROP TABLE IF EXISTS app_store_table;
+DROP TABLE IF EXISTS PUSHABLE_PACKAGE_TABLE;
+
 
     create TABLE if not exists catalog_package_table (
     	PACKAGEID                VARCHAR(200)       NOT NULL,
@@ -83,27 +85,36 @@ DROP TABLE IF EXISTS app_store_table;
     );
 
     create TABLE if not exists app_store_table (
-        APPSTOREID              VARCHAR(64)         NOT NULL,
-        NAME                    VARCHAR(128)        NOT NULL,
-        VERSION                 VARCHAR(64)         NOT NULL,
-        COMPANY                 VARCHAR(128)        NULL,
-        URL                     VARCHAR(256)        NOT NULL,
-        SCHEMA                  VARCHAR(15)         NULL,
-        APPPUSHINTF             VARCHAR(256)        NULL,
-        APPTRANSID              VARCHAR(64)         NULL,
-        ADDEDTIME               TIMESTAMP           NULL,
-        MODIFIEDTIME            TIMESTAMP           NULL,
-        DESCRIPTION             VARCHAR(256)        NULL,
+        APPSTOREID               VARCHAR(64)        NOT NULL,
+        APPSTORENAME             VARCHAR(128)       NULL,
+        APPSTOREVERSION          VARCHAR(64)        NOT NULL,
+        COMPANY                  VARCHAR(128)       NULL,
+        URL                      VARCHAR(256)       NOT NULL,
+        SCHEMA                   VARCHAR(16)        NULL,
+        APPPUSHINTF              VARCHAR(256)       NULL,
+        APPDTRANSID               VARCHAR(64)        NULL,
+        DESCRIPTION              VARCHAR(256)       NULL,
+        ADDEDTIME                TIMESTAMP          NOT NULL,
+        MODIFIEDTIME             TIMESTAMP          NULL,
         CONSTRAINT app_store_table_pkey PRIMARY KEY (APPSTOREID)
     );
 
+    CREATE TABLE IF NOT EXISTS PUSHABLE_PACKAGE_TABLE (
+        PACKAGEID  VARCHAR(64) NOT NULL,
+        ATPTESTREPORTURL VARCHAR(100) NOT NULL,
+        LATESTPUSHTIME TIMESTAMP NOT NULL,
+        PUSHTIMES INTEGER NOT NULL DEFAULT 0,
+        SOURCEPLATFORM VARCHAR(100) NOT NULL,
+        CONSTRAINT PUSHABLE_PACKAGE_TABLE_PKEY PRIMARY KEY (PACKAGEID)
+    );
+
 INSERT INTO catalog_package_table(
-	packageid, packageaddress, iconaddress, appname, version, applicationtype, appid, userid, username, PROVIDER, SHORTDESC)
-	VALUES ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', 'face game', 'v1.0', 'game', 'appid-0001', 'userid-0001', 'test-user01', 'xxxx', 'game');
+	packageid, packageaddress, iconaddress, appname, version, applicationtype, appid, userid, username, PROVIDER, SHORTDESC, status)
+	VALUES ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', 'face game', 'v1.0', 'game', 'appid-0001', 'userid-0001', 'test-user01', 'xxxx', 'game', 'Published');
 
 INSERT INTO app_store_table(
-	appstoreid, name, version, company, url, schema, apppushintf, apptransid, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', null, null, 'description-5555');
+	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
+	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
 INSERT INTO app_store_table(
-	appstoreid, name, version, company, url, schema, apppushintf, apptransid, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', null, null, 'description-5555');
+	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
+	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');

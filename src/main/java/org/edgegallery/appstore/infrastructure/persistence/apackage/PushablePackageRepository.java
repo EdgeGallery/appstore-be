@@ -34,7 +34,7 @@ public class PushablePackageRepository {
      * @return
      */
     public List<PushablePackageDto> queryAllPushablePackages() {
-        List<AppReleasePo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
+        List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
         List<PushablePackageDto> packages = new ArrayList<>();
         apps.forEach(app -> packages.add(new PushablePackageDto(app)));
         return packages;
@@ -46,7 +46,7 @@ public class PushablePackageRepository {
      * @return
      */
     public PushablePackageDto getPushablePackages(String packageId) {
-        AppReleasePo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
+        PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
         return new PushablePackageDto(appReleasePo);
     }

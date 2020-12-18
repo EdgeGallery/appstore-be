@@ -19,14 +19,15 @@
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper">
 
     <select id="getAllPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table order by CREATETIME
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        where a.STATUS = 'Published' order by CREATETIME
     </select>
 
-
     <select id="getPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table where packageid = #{packageId}
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        where a.packageid = #{packageId}
     </select>
 
 

@@ -48,7 +48,6 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
             LOGGER.warn("nothing was queried by id : " + appStoreId);
             return null;
         }
-
         return appStorePo.toAppStore();
     }
 

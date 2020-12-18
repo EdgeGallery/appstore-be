@@ -25,9 +25,9 @@ import org.springframework.stereotype.Component;
 @Mapper
 public interface PushablePackageMapper {
 
-    List<AppReleasePo> getAllPushablePackages(int start, int end);
+    List<PushablePackageAndAppVo> getAllPushablePackages(int start, int end);
 
-    Optional<AppReleasePo> getPushablePackages(String packageId);
+    Optional<PushablePackageAndAppVo> getPushablePackages(String packageId);
 
     Optional<AppStoreDto> findAppStoreById(String appStoreId);
 }
