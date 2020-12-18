@@ -15,7 +15,7 @@ public interface AppStoreMapper {
 
     int updateAppStoreById(AppStorePo appStorePo);
 
-    Optional<AppStorePo> queryAppStoreById(String appStoreId);
+    AppStorePo queryAppStoreById(String appStoreId);
 
     List<AppStorePo> queryAppStores(AppStorePo appStorePo);
 

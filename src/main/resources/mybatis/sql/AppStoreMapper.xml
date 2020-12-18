@@ -16,14 +16,14 @@
   -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.store.AppStoreMapper">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreMapper">
     <insert id="addAppStore"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo">
         insert into app_store_table
         (appstoreid, appstorename, appstoreversion, company, url, schema, apppushintf,
-        appdtransid, addedtime, modifiedtime, description)
+        appdtransid, addedtime, description)
         values (#{appStoreId}, #{appStoreName}, #{appStoreVersion}, #{company}, #{url}, #{schema},
-        #{appPushIntf}, #{appdTransId}, (select now()), (select now()), #{description})
+        #{appPushIntf}, #{appdTransId}, (select now()), #{description})
     </insert>
 
     <delete id="deleteAppStoreById"
@@ -43,15 +43,15 @@
     <select id="queryAppStoreById"
             resultType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo"
             parameterType="java.lang.String">
-        select appstoreid, appstorename, appstoreversion, company, url, schema, apppushintf,
-        apptransid, addedtime, modifiedtime, description from app_store_table where appstoreid = #{appStoreId}
+        select appstoreid, APPSTORENAME, appstoreversion, company, url, schema, apppushintf,
+        appdtransid, addedtime, modifiedtime, description from app_store_table where appstoreid = #{appStoreId}
     </select>
 
     <select id="queryAppStores"
             resultType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo">
-        select appstoreid, appstorename, appstoreversion, company, url, schema, apppushintf,
-        apptransid, addedtime, modifiedtime, description from app_store_table
+        select appstoreid, APPSTORENAME, appstoreversion, company, url, schema, apppushintf,
+        appdtransid, addedtime, modifiedtime, description from app_store_table
         <where>
             <if test="appStoreName != null">
                 and appstorename like #{appStoreName}
