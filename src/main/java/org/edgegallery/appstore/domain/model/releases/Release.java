@@ -45,7 +45,7 @@ public class Release implements ValueObject<Release> {
 
     private AFile icon;
 
-    private String createTime;
+    private Date createTime;
 
     private String shortDesc;
 
@@ -72,8 +72,8 @@ public class Release implements ValueObject<Release> {
         this.packageFile = packageFile;
         this.icon = icon;
         this.user = user;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        this.createTime = simpleDateFormat.format(new Date());
+        // SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        this.createTime = new Date();
         this.shortDesc = appParam.getShortDesc();
         this.applicationType = appParam.getApplicationType();
         this.industry = appParam.getIndustry();

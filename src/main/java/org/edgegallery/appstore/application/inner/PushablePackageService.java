@@ -24,6 +24,7 @@ import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
+import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -52,7 +53,7 @@ public class PushablePackageService {
     private PushablePackageRepository pushablePackageRepository;
 
     @Autowired
-    private AppStoreRepository appStoreRepository;
+    private AppStoreRepositoryImpl appStoreRepository;
 
     @Autowired
     private MessageRepository messageRepository;

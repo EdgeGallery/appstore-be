@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
+import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,7 +55,7 @@ public class AppReleasePo {
     private String fileStructure; //Tree
 
     @Column(name = "CREATETIME")
-    private String createTime;
+    private Date createTime;
 
     @Column(name = "SHORTDESC")
     private String shortDesc;

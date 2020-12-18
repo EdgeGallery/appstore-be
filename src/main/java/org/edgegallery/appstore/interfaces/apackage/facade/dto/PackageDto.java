@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.interfaces.apackage.facade.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
 import javax.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class PackageDto {
 
     private String format;
 
-    private String createTime;
+    private Date createTime;
 
     private String name;
 
