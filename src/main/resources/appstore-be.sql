@@ -4,7 +4,7 @@
     	ICONADDRESS              VARCHAR(200)       NULL,
     	SIZE                     VARCHAR(100)       NULL,
     	FILESTRUCTURE            TEXT               NULL,
-    	CREATETIME               VARCHAR(100)       NULL,
+    	CREATETIME               TIMESTAMP          NULL,
     	SHORTDESC	             TEXT		        NULL,
     	APPNAME                  VARCHAR(100)       NULL,
     	VERSION                  VARCHAR(20)        NULL,

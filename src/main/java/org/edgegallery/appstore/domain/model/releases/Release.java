@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;

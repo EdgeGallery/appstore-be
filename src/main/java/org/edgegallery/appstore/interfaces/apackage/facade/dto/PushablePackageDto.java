@@ -50,6 +50,8 @@ public class PushablePackageDto implements Entity {
 
     private Integer pushTimes;
 
+    private String sourcePlatform;
+
     private List<String> targetPlatform;
 
     private String affinity;
@@ -67,7 +69,6 @@ public class PushablePackageDto implements Entity {
     public PushablePackageDto(PushablePackageAndAppVo appReleasePo) {
         this.appId = appReleasePo.getAppId();
         this.affinity = appReleasePo.getAffinity();
-        this.atpTestTaskId = appReleasePo.getTestTaskId();
         this.shortDesc = appReleasePo.getShortDesc();
         this.industry = appReleasePo.getIndustry();
         this.name = appReleasePo.getAppName();
@@ -76,8 +77,10 @@ public class PushablePackageDto implements Entity {
         this.type = appReleasePo.getApplicationType();
         this.version = appReleasePo.getVersion();
         this.pushTimes = appReleasePo.getPushTimes();
-        this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
         this.latestPushTime = appReleasePo.getLatestPushTime();
+        this.atpTestTaskId = appReleasePo.getTestTaskId();
+        this.atpTestStatus = appReleasePo.getStatus();
+        this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
     }
 
 }

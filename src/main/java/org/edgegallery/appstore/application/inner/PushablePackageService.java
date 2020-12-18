@@ -17,12 +17,13 @@ package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
-import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
@@ -61,6 +62,9 @@ public class PushablePackageService {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private AtpUtil atpUtil;
+
     public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();
     }
@@ -77,6 +81,17 @@ public class PushablePackageService {
      */
     public List<Boolean> pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
+        packagePo.setSourcePlatform(context.platformName);
+
+        // to check the atp report
+        if (!toCheckAndUpdateAtpReport(packagePo)) {
+            LOGGER.warn("atp test failed, can not be publish to other app store. package id: {}, atp task id: {}",
+                packagePo.getPackageId(), packagePo.getAtpTestTaskId());
+            final List<Boolean> results = new ArrayList<>();
+            targetAppStore.getTargetPlatform().forEach(platformId -> results.add(false));
+            return results;
+        }
+
         final List<Boolean> results = new ArrayList<>();
         LOGGER.info("push package {}", packagePo.getPackageId());
         targetAppStore.getTargetPlatform().forEach(platformId -> {
@@ -97,9 +112,21 @@ public class PushablePackageService {
 
             // store message to the db
             messageRepository.addMessage(message);
+
             results.add(true);
         });
+        // update the push log
+        pushablePackageRepository.updateOrSavePushLog(packagePo);
         return results;
+    }
+
+    private boolean toCheckAndUpdateAtpReport(PushablePackageDto packagePo) {
+        if (packagePo.getAtpTestStatus().equals(EnumPackageStatus.Published.toString())) {
+            packagePo.setAtpTestReportUrl(context.atpReportUrl);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private MessageReqDto pushNotice(String url, PushablePackageDto packageDto) {
