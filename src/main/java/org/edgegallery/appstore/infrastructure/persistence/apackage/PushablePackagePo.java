@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @Builder
 @Table(name = "pushable_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class PushablePackagePo {
 
     @Column(name = "packageId")

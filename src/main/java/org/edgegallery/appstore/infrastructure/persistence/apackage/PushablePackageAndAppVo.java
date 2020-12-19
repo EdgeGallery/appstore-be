@@ -1,13 +1,11 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class PushablePackageAndAppVo extends AppReleasePo {
 
     @Column(name = "atpTestReportUrl")

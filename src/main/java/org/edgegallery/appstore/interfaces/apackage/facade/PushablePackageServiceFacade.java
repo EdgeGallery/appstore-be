@@ -20,10 +20,8 @@ import java.io.InputStream;
 import java.util.List;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
-import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -76,12 +74,7 @@ public class PushablePackageServiceFacade {
      */
     public List<Boolean> pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         // find the package
-        try {
-            return pushablePackageService.pushPackage(packageId, targetAppStore);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return pushablePackageService.pushPackage(packageId, targetAppStore);
     }
 
     /**
