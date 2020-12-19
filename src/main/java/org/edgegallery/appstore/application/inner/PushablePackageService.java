@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
-import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
@@ -48,6 +47,11 @@ public class PushablePackageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageService.class);
 
     private static final String NOTICE_API = "/mec/appstore/poke/messages";
+
+    private static final String DOWNLOAD_PACKAGE_API
+        = "/mec/appstore/poke/pushable/packages/%s/action/download-package";
+
+    private static final String DOWNLOAD_ICON_API = "/mec/appstore/poke/pushable/packages/%s/action/download-icon";
 
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
@@ -128,10 +132,12 @@ public class PushablePackageService {
     private MessageReqDto pushNotice(String url, PushablePackageDto packageDto) {
 
         try {
-            MessageReqDto requestDto = new MessageReqDto();
-            BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
-            requestDto.setBasicInfo(basicMessageInfo);
+            MessageReqDto requestDto = new MessageReqDto(packageDto);
             requestDto.setSourceAppStore(context.platformName);
+            requestDto.setPackageDownloadUrl(
+                String.format(context.hostUrl + DOWNLOAD_PACKAGE_API, packageDto.getPackageId()));
+            requestDto
+                .setIconDownloadUrl(String.format(context.hostUrl + DOWNLOAD_ICON_API, packageDto.getPackageId()));
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -140,7 +146,7 @@ public class PushablePackageService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("failed to send app {} to the app store {}", packageDto.getAppId(),
+                LOGGER.error("failed to send app {} to the app store {}, response code {}", packageDto.getAppId(),
                     packageDto.getTargetPlatform(), response.getStatusCode());
                 return null;
             }
