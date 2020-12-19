@@ -76,7 +76,12 @@ public class PushablePackageServiceFacade {
      */
     public List<Boolean> pushPackage(String packageId, PushTargetAppStoreDto targetAppStore) {
         // find the package
-        return pushablePackageService.pushPackage(packageId, targetAppStore);
+        try {
+            return pushablePackageService.pushPackage(packageId, targetAppStore);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

@@ -4,14 +4,13 @@ DROP TABLE IF EXISTS CSAR_PACKAGE_SCORE;
 DROP TABLE IF EXISTS app_store_table;
 DROP TABLE IF EXISTS PUSHABLE_PACKAGE_TABLE;
 
-
     create TABLE if not exists catalog_package_table (
     	PACKAGEID                VARCHAR(200)       NOT NULL,
     	PACKAGEADDRESS           VARCHAR(200)       NULL,
     	ICONADDRESS              VARCHAR(200)       NULL,
     	SIZE                     VARCHAR(100)       NULL,
     	FILESTRUCTURE            TEXT               NULL,
-    	CREATETIME               VARCHAR(100)       NULL,
+    	CREATETIME               TIMESTAMP          NULL,
     	SHORTDESC	             TEXT		        NULL,
     	APPNAME                  VARCHAR(100)       NULL,
     	VERSION                  VARCHAR(20)        NULL,
@@ -108,13 +107,24 @@ DROP TABLE IF EXISTS PUSHABLE_PACKAGE_TABLE;
         CONSTRAINT PUSHABLE_PACKAGE_TABLE_PKEY PRIMARY KEY (PACKAGEID)
     );
 
+INSERT INTO app_table(
+	appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS)
+	VALUES ('appid-test-0001', 'app-001', 'game', 'shortdesc', 'provider', 'appintroduction', 5, 'affinity', 'industry', 'contactcontact', 'test-userid-0001', 'test-username-0001', now(), now(), 3.2, 'Published');
+
 INSERT INTO catalog_package_table(
-	packageid, packageaddress, iconaddress, appname, version, applicationtype, appid, userid, username, PROVIDER, SHORTDESC, status)
-	VALUES ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', 'face game', 'v1.0', 'game', 'appid-0001', 'userid-0001', 'test-user01', 'xxxx', 'game', 'Published');
+	packageid, packageaddress, iconaddress, size, filestructure, createtime, shortdesc, appname, version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+	VALUES ('packageid-0003', '/package/test/face.csar', '/user/test/icon.png', 10004, 'file-trees', now(), 'shortdesc',
+	'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001', 'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER');
+
+INSERT INTO catalog_package_table(
+	packageid, packageaddress, iconaddress, size, filestructure, createtime, shortdesc, appname, version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+	VALUES ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', 10002, 'file-trees', now(), 'shortdesc',
+	'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001', 'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
 INSERT INTO app_store_table(
 	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
 	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
+
 INSERT INTO app_store_table(
 	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
 	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');

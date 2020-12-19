@@ -30,4 +30,11 @@ public interface PushablePackageMapper {
     Optional<PushablePackageAndAppVo> getPushablePackages(String packageId);
 
     Optional<AppStoreDto> findAppStoreById(String appStoreId);
+
+    void savePushTable(PushablePackagePo pushablePackagePo);
+
+    void updatePushTable(PushablePackagePo pushablePackagePo);
+
+    PushablePackagePo findPushTableByPackageId(String packageId);
+
 }

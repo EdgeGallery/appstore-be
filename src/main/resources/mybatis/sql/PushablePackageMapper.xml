@@ -30,5 +30,22 @@
         where a.packageid = #{packageId}
     </select>
 
+    <insert id="savePushTable"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        INSERT INTO pushable_package_table(
+        packageid, atptestreporturl, latestpushtime, pushtimes, sourceplatform)
+        VALUES (#{packageId}, #{atpTestReportUrl}, #{latestPushTime}, #{pushTimes}, #{sourcePlatform});
+    </insert>
+    <update id="updatePushTable"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        UPDATE pushable_package_table
+        SET atptestreporturl=#{atpTestReportUrl}, latestpushtime= #{latestPushTime}, pushtimes=#{pushTimes},
+        sourceplatform=#{sourcePlatform}
+        WHERE packageId = #{packageId};
+    </update>
+    <select id="findPushTableByPackageId" parameterType="String"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        select * from pushable_package_table where packageId = #{packageId}
+    </select>
 
 </mapper>
