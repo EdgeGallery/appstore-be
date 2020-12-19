@@ -1,7 +1,6 @@
 package org.edgegallery.appstore.domain.model.appstore;
 
 import java.util.List;
-import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo;
 
 public interface AppStoreRepository {
     String addAppStore(AppStore appStore);

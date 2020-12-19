@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,6 +35,7 @@ import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class Release implements ValueObject<Release> {
 
     private String packageId;

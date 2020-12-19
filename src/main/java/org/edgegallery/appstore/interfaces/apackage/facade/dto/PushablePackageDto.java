@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.shared.Entity;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo;
 
 @Getter
@@ -64,7 +63,6 @@ public class PushablePackageDto implements Entity {
 
     /**
      * init this object by AppReleasePo.
-     *
      */
     public PushablePackageDto(PushablePackageAndAppVo appReleasePo) {
         this.appId = appReleasePo.getAppId();

@@ -53,6 +53,9 @@ public class PushablePackageRepository {
         return new PushablePackageDto(appReleasePo);
     }
 
+    /**
+     * to save or update push log.
+     */
     @Transactional
     public void updateOrSavePushLog(PushablePackageDto packagePo) {
         PushablePackagePo po = pushablePackageMapper.findPushTableByPackageId(packagePo.getPackageId());
