@@ -17,7 +17,6 @@ package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
@@ -61,9 +60,6 @@ public class PushablePackageService {
 
     @Autowired
     private ApplicationContext context;
-
-    @Autowired
-    private AtpUtil atpUtil;
 
     public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();
