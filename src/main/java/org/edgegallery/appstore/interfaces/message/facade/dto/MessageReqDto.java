@@ -35,6 +35,8 @@ public class MessageReqDto {
 
     private String sourceAppStore;
 
+    private String targetAppStore;
+
     private String atpTestStatus;
 
     private String atpTestTaskId;
@@ -47,7 +49,6 @@ public class MessageReqDto {
 
     /**
      * init this object by PushablePackageDto.
-     *
      */
     public MessageReqDto(PushablePackageDto packageDto) {
         basicInfo = new BasicMessageInfo(packageDto);
@@ -61,7 +62,7 @@ public class MessageReqDto {
      *
      * @return message obj
      */
-    public Message toMessage(String targetAppStore, EnumMessageType type) {
+    public Message toMessage(EnumMessageType type) {
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setReaded(false);
@@ -70,7 +71,7 @@ public class MessageReqDto {
         message.setSourceAppStore(sourceAppStore);
         message.setTargetAppStore(targetAppStore);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
-        message.setDescription(generateDescription());
+        message.setDescription(generateDescription(type));
         message.setAtpTestStatus(atpTestStatus);
         message.setAtpTestTaskId(atpTestTaskId);
         message.setAtpTestReportUrl(atpTestReportUrl);
@@ -79,8 +80,15 @@ public class MessageReqDto {
         return message;
     }
 
-    private String generateDescription() {
-        return String.format("%s申请推广此应用到当前平台", sourceAppStore);
+    private String generateDescription(EnumMessageType type) {
+        switch (type) {
+            case PUSH:
+                return String.format("from %s to %s push this app.", sourceAppStore, targetAppStore);
+            case NOTICE:
+                return String.format("%s申请推广此应用到当前平台", sourceAppStore);
+            default:
+                return "";
+        }
     }
 }
 
