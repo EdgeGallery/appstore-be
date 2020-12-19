@@ -46,8 +46,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private static final String[] NoNeedTokenUrls = {
         "GET /health",
         "POST /mec/appstore/poke/messages",
-        "POST /mec/appstore/poke/pushable/packages/[^/]*/action/push",
-        "POST /mec/appstore/v1/appstores"
+        "GET /mec/appstore/poke/pushable/packages/[\\w]{0,32}/action/download-package",
+        "GET /mec/appstore/poke/pushable/packages/[\\w]{0,32}/action/download-icon"
     };
 
     @Autowired

@@ -130,6 +130,7 @@ public class MessageService {
         message.setTargetAppStore(message.getSourceAppStore());
         message.setSourceAppStore(currentAppStore);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        message.setDescription(String.format("%s 从 %s 下载应用", message.getSourceAppStore(), message.getTargetAppStore()));
         messageRepository.addMessage(message);
     }
 
