@@ -103,12 +103,14 @@ public class PushablePackageService {
             String url = appStore.getUrl() + NOTICE_API;
             LOGGER.info(url);
 
-            MessageReqDto messageReqDto = pushNotice(url, packagePo);
+            MessageReqDto requestDto = generatorMessageRequest(appStore.getAppStoreName(), packagePo);
+
+            MessageReqDto messageReqDto = pushNotice(url, requestDto);
             if (messageReqDto == null) {
                 results.add(false);
                 return;
             }
-            Message message = messageReqDto.toMessage(appStore.getAppStoreName(), EnumMessageType.PUSH);
+            Message message = messageReqDto.toMessage(EnumMessageType.PUSH);
 
             // store message to the db
             messageRepository.addMessage(message);
@@ -120,6 +122,17 @@ public class PushablePackageService {
         return results;
     }
 
+    private MessageReqDto generatorMessageRequest(String appStoreName, PushablePackageDto packageDto) {
+        MessageReqDto requestDto = new MessageReqDto(packageDto);
+        requestDto.setSourceAppStore(context.platformName);
+        requestDto.setTargetAppStore(appStoreName);
+        requestDto
+            .setPackageDownloadUrl(String.format(context.hostUrl + DOWNLOAD_PACKAGE_API, packageDto.getPackageId()));
+        requestDto.setIconDownloadUrl(String.format(context.hostUrl + DOWNLOAD_ICON_API, packageDto.getPackageId()));
+        return requestDto;
+
+    }
+
     private boolean toCheckAndUpdateAtpReport(PushablePackageDto packagePo) {
         if (packagePo.getAtpTestStatus().equals(EnumPackageStatus.Published.toString())) {
             packagePo.setAtpTestReportUrl(context.atpReportUrl);
@@ -129,16 +142,8 @@ public class PushablePackageService {
         }
     }
 
-    private MessageReqDto pushNotice(String url, PushablePackageDto packageDto) {
-
+    private MessageReqDto pushNotice(String url, MessageReqDto requestDto) {
         try {
-            MessageReqDto requestDto = new MessageReqDto(packageDto);
-            requestDto.setSourceAppStore(context.platformName);
-            requestDto.setPackageDownloadUrl(
-                String.format(context.hostUrl + DOWNLOAD_PACKAGE_API, packageDto.getPackageId()));
-            requestDto
-                .setIconDownloadUrl(String.format(context.hostUrl + DOWNLOAD_ICON_API, packageDto.getPackageId()));
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<MessageReqDto> requestEntity = new HttpEntity<>(requestDto, headers);
@@ -146,8 +151,8 @@ public class PushablePackageService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("failed to send app {} to the app store {}, response code {}", packageDto.getAppId(),
-                    packageDto.getTargetPlatform(), response.getStatusCode());
+                LOGGER.error("failed to send app {} to the app store {}, response code {}",
+                    requestDto.getBasicInfo().getName(), requestDto.getTargetAppStore(), response.getStatusCode());
                 return null;
             }
             return requestDto;

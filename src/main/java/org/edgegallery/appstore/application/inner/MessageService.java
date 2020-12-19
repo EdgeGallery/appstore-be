@@ -71,7 +71,7 @@ public class MessageService {
      */
     public String addMessage(MessageReqDto dto) {
         LOGGER.info("receive notice message from {}", dto.getSourceAppStore());
-        messageRepository.addMessage(dto.toMessage(context.platformName, EnumMessageType.NOTICE));
+        messageRepository.addMessage(dto.toMessage(EnumMessageType.NOTICE));
         LOGGER.info("add a message success");
         return "add a message success";
     }
