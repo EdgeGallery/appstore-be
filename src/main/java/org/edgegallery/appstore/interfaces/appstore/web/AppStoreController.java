@@ -78,8 +78,7 @@ public class AppStoreController {
             @ApiParam(value = "app store push interface") @RequestPart("appPushIntf")
             @Length(max = MAX_URL_LEN) String appPushIntf,
             @ApiParam(value = "appd translate id") @RequestPart("appdTransId")
-            @NotNull(message = "appdTransId should not be null.")
-            @Pattern(regexp = REG_UUID) String appdTransId,
+            @NotNull(message = "appdTransId should not be null.") String appdTransId,
             @ApiParam(value = "app store description", required = false)
             @RequestPart(value = "description", required = false)
             @Length(max = MAX_DESC_LEN) String description) {
@@ -129,8 +128,8 @@ public class AppStoreController {
             @Pattern(regexp = REG_SCHEMA) String schema,
             @ApiParam(value = "app push interface") @RequestPart(value = "appPushIntf", required = false)
             @Length(max = MAX_URL_LEN, min = 1) String appPushIntf,
-            @ApiParam(value = "appd translate id") @RequestPart(value = "appdTransId", required = false)
-            @Pattern(regexp = REG_UUID) String appdTransId,
+            @ApiParam(value = "appd translate id")
+            @RequestPart(value = "appdTransId", required = false) String appdTransId,
             @ApiParam(value = "app store description") @RequestPart(value = "description", required = false)
             @Length(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(appStoreId, appStoreName, appStoreVersion,
