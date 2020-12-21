@@ -16,17 +16,22 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "pushable_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class PushablePackagePo {
 
     @Column(name = "packageId")
@@ -36,13 +41,10 @@ public class PushablePackagePo {
     private String atpTestReportUrl;
 
     @Column(name = "latestPushTime")
-    private String latestPushTime;
+    private Date latestPushTime;
 
     @Column(name = "pushTimes")
     private Integer pushTimes;
-
-    @Column(name = "targetPlatform")
-    private String targetPlatform;
 
     @Column(name = "sourcePlatform")
     private String sourcePlatform;

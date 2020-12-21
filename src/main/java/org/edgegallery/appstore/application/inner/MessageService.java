@@ -71,7 +71,7 @@ public class MessageService {
      */
     public String addMessage(MessageReqDto dto) {
         LOGGER.info("receive notice message from {}", dto.getSourceAppStore());
-        messageRepository.addMessage(dto.toMessage(context.platformName, EnumMessageType.NOTICE));
+        messageRepository.addMessage(dto.toMessage(EnumMessageType.NOTICE));
         LOGGER.info("add a message success");
         return "add a message success";
     }
@@ -130,6 +130,7 @@ public class MessageService {
         message.setTargetAppStore(message.getSourceAppStore());
         message.setSourceAppStore(currentAppStore);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        message.setDescription(String.format("%s 从 %s 下载应用", message.getSourceAppStore(), message.getTargetAppStore()));
         messageRepository.addMessage(message);
     }
 

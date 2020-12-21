@@ -16,7 +16,7 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
-import java.text.SimpleDateFormat;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -35,6 +35,7 @@ import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class Release implements ValueObject<Release> {
 
     private String packageId;
@@ -45,7 +46,7 @@ public class Release implements ValueObject<Release> {
 
     private AFile icon;
 
-    private String createTime;
+    private Date createTime;
 
     private String shortDesc;
 
@@ -72,8 +73,8 @@ public class Release implements ValueObject<Release> {
         this.packageFile = packageFile;
         this.icon = icon;
         this.user = user;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        this.createTime = simpleDateFormat.format(new Date());
+        // SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        this.createTime = new Date();
         this.shortDesc = appParam.getShortDesc();
         this.applicationType = appParam.getApplicationType();
         this.industry = appParam.getIndustry();

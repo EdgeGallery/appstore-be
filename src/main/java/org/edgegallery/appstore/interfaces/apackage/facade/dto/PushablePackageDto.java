@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.shared.Entity;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo;
 
 @Getter
 @Setter
@@ -49,6 +49,8 @@ public class PushablePackageDto implements Entity {
 
     private Integer pushTimes;
 
+    private String sourcePlatform;
+
     private List<String> targetPlatform;
 
     private String affinity;
@@ -61,12 +63,10 @@ public class PushablePackageDto implements Entity {
 
     /**
      * init this object by AppReleasePo.
-     *
      */
-    public PushablePackageDto(AppReleasePo appReleasePo) {
+    public PushablePackageDto(PushablePackageAndAppVo appReleasePo) {
         this.appId = appReleasePo.getAppId();
         this.affinity = appReleasePo.getAffinity();
-        this.atpTestTaskId = appReleasePo.getTestTaskId();
         this.shortDesc = appReleasePo.getShortDesc();
         this.industry = appReleasePo.getIndustry();
         this.name = appReleasePo.getAppName();
@@ -74,6 +74,11 @@ public class PushablePackageDto implements Entity {
         this.provider = appReleasePo.getProvider();
         this.type = appReleasePo.getApplicationType();
         this.version = appReleasePo.getVersion();
+        this.pushTimes = appReleasePo.getPushTimes();
+        this.latestPushTime = appReleasePo.getLatestPushTime();
+        this.atpTestTaskId = appReleasePo.getTestTaskId();
+        this.atpTestStatus = appReleasePo.getStatus();
+        this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
     }
 
 }

@@ -19,15 +19,33 @@
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper">
 
     <select id="getAllPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table order by CREATETIME
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        where a.STATUS = 'Published' order by CREATETIME
     </select>
-
 
     <select id="getPushablePackages"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
-        select * from catalog_package_table where packageid = #{packageId}
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        where a.packageid = #{packageId}
     </select>
 
+    <insert id="savePushTable"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        INSERT INTO pushable_package_table(
+        packageid, atptestreporturl, latestpushtime, pushtimes, sourceplatform)
+        VALUES (#{packageId}, #{atpTestReportUrl}, #{latestPushTime}, #{pushTimes}, #{sourcePlatform});
+    </insert>
+    <update id="updatePushTable"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        UPDATE pushable_package_table
+        SET atptestreporturl=#{atpTestReportUrl}, latestpushtime= #{latestPushTime}, pushtimes=#{pushTimes},
+        sourceplatform=#{sourcePlatform}
+        WHERE packageId = #{packageId};
+    </update>
+    <select id="findPushTableByPackageId" parameterType="String"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+        select * from pushable_package_table where packageId = #{packageId}
+    </select>
 
 </mapper>

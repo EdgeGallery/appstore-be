@@ -76,7 +76,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    // @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<Boolean>> pushPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "3rd AppStore") @RequestBody() PushTargetAppStoreDto dto) {
@@ -100,7 +100,7 @@ public class PushablePackageController {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
     public ResponseEntity<InputStreamResource> downloadIcon(
-        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) {
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) throws FileNotFoundException {
         return pushablePackageServiceFacade.downloadIcon(packageId);
     }
 }

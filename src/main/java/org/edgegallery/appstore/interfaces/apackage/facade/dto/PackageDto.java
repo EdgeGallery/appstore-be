@@ -17,6 +17,8 @@
 package org.edgegallery.appstore.interfaces.apackage.facade.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Date;
 import javax.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 @Setter
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class PackageDto {
 
     private String packageId;
@@ -35,7 +38,7 @@ public class PackageDto {
 
     private String format;
 
-    private String createTime;
+    private Date createTime;
 
     private String name;
 

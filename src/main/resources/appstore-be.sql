@@ -4,7 +4,7 @@
     	ICONADDRESS              VARCHAR(200)       NULL,
     	SIZE                     VARCHAR(100)       NULL,
     	FILESTRUCTURE            TEXT               NULL,
-    	CREATETIME               VARCHAR(100)       NULL,
+    	CREATETIME               TIMESTAMP          NULL,
     	SHORTDESC	             TEXT		        NULL,
     	APPNAME                  VARCHAR(100)       NULL,
     	VERSION                  VARCHAR(20)        NULL,
@@ -90,4 +90,13 @@
         ADDEDTIME                TIMESTAMP          NOT NULL,
         MODIFIEDTIME             TIMESTAMP          NULL,
         CONSTRAINT app_store_table_pkey PRIMARY KEY (APPSTOREID)
+    );
+
+    CREATE TABLE IF NOT EXISTS PUSHABLE_PACKAGE_TABLE (
+        PACKAGEID  VARCHAR(64) NOT NULL,
+        ATPTESTREPORTURL VARCHAR(100) NOT NULL,
+        LATESTPUSHTIME TIMESTAMP NOT NULL,
+        PUSHTIMES INTEGER NOT NULL DEFAULT 0,
+        SOURCEPLATFORM VARCHAR(100) NOT NULL,
+        CONSTRAINT PUSHABLE_PACKAGE_TABLE_PKEY PRIMARY KEY (PACKAGEID)
     );

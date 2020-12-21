@@ -17,8 +17,9 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
-import java.util.Objects;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -36,6 +37,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 @Entity
 @Table(name = "catalog_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class AppReleasePo {
     @Id
     @Column(name = "packageid")
@@ -54,7 +56,7 @@ public class AppReleasePo {
     private String fileStructure; //Tree
 
     @Column(name = "CREATETIME")
-    private String createTime;
+    private Date createTime;
 
     @Column(name = "SHORTDESC")
     private String shortDesc;
@@ -152,32 +154,6 @@ public class AppReleasePo {
             .shortDesc(shortDesc).affinity(affinity).applicationType(applicationType).industry(industry)
             .user(new User(userId, userName)).appBasicInfo(basicInfo).status(EnumPackageStatus.valueOf(status))
             .testTaskId(testTaskId).build();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects
-            .hash(packageId, packageAddress, iconAddress, size, fileStructure, createTime, shortDesc, appName, version,
-                applicationType, markDownContent, affinity, appId, userId, userName);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AppReleasePo that = (AppReleasePo) o;
-        return Objects.equals(packageId, that.packageId) && Objects.equals(packageAddress, that.packageAddress)
-            && Objects.equals(iconAddress, that.iconAddress) && Objects.equals(size, that.size) && Objects
-            .equals(fileStructure, that.fileStructure) && Objects.equals(createTime, that.createTime) && Objects
-            .equals(shortDesc, that.shortDesc) && Objects.equals(appName, that.appName) && Objects
-            .equals(version, that.version) && Objects.equals(applicationType, that.applicationType) && Objects
-            .equals(markDownContent, that.markDownContent) && Objects.equals(affinity, that.affinity) && Objects
-            .equals(appId, that.appId) && Objects.equals(userId, that.userId) && Objects
-            .equals(userName, that.userName);
     }
 }
 

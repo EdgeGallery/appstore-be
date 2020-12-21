@@ -100,7 +100,13 @@ public class PushablePackageServiceFacade {
      * @param packageId id
      * @return icon stream
      */
-    public ResponseEntity<InputStreamResource> downloadIcon(String packageId) {
-        return null;
+    public ResponseEntity<InputStreamResource> downloadIcon(String packageId) throws FileNotFoundException {
+        PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
+        Release release = appService.download(packageDto.getAppId(), packageId);
+        InputStream ins = fileService.get(release.getIcon());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 }

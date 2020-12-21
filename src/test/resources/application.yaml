@@ -37,3 +37,5 @@ atp:
 ### poke feature config ###
 poke:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}
+  atp-report-url: http://127.0.0.1:8899/atp/report
+  host-url: ${PLATFORM_URL:http://127.0.0.1:8099}

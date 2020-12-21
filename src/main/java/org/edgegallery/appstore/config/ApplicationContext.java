@@ -25,4 +25,10 @@ public class ApplicationContext {
     @Value("${poke.platformName}")
     public String platformName;
 
+    @Value("${poke.atp-report-url}")
+    public String atpReportUrl;
+
+    @Value("${poke.host-url}")
+    public String hostUrl;
+
 }

@@ -16,11 +16,13 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class PushablePackageRepository {
@@ -34,7 +36,7 @@ public class PushablePackageRepository {
      * @return
      */
     public List<PushablePackageDto> queryAllPushablePackages() {
-        List<AppReleasePo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
+        List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
         List<PushablePackageDto> packages = new ArrayList<>();
         apps.forEach(app -> packages.add(new PushablePackageDto(app)));
         return packages;
@@ -46,8 +48,28 @@ public class PushablePackageRepository {
      * @return
      */
     public PushablePackageDto getPushablePackages(String packageId) {
-        AppReleasePo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
+        PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
         return new PushablePackageDto(appReleasePo);
+    }
+
+    /**
+     * to save or update push log.
+     */
+    @Transactional
+    public void updateOrSavePushLog(PushablePackageDto packagePo) {
+        PushablePackagePo po = pushablePackageMapper.findPushTableByPackageId(packagePo.getPackageId());
+        if (po == null) {
+            po = PushablePackagePo.builder()
+                .pushTimes(packagePo.getPushTimes() == null ? 1 : packagePo.getPushTimes() + 1)
+                .atpTestReportUrl(packagePo.getAtpTestReportUrl()).packageId(packagePo.getPackageId())
+                .latestPushTime(new Date()).sourcePlatform(packagePo.getSourcePlatform()).build();
+            pushablePackageMapper.savePushTable(po);
+        } else {
+            po.setPushTimes(po.getPushTimes() + 1);
+            po.setLatestPushTime(new Date());
+            po.setSourcePlatform(packagePo.getSourcePlatform());
+            pushablePackageMapper.updatePushTable(po);
+        }
     }
 }

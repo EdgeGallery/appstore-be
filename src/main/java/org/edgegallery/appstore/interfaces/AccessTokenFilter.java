@@ -44,7 +44,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
 
     private static final String[] NoNeedTokenUrls = {
-        "GET /health", "POST /mec/appstore/poke/messages", "POST /mec/appstore/poke/pushable/packages/[^/]*/action/push"
+        "GET /health",
+        "POST /mec/appstore/poke/messages",
+        "GET /mec/appstore/poke/pushable/packages/[\\w]{0,32}/action/download-package",
+        "GET /mec/appstore/poke/pushable/packages/[\\w]{0,32}/action/download-icon"
     };
 
     @Autowired

@@ -1,7 +1,6 @@
 package org.edgegallery.appstore.infrastructure.persistence.appstore;
 
 import java.util.List;
-import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
