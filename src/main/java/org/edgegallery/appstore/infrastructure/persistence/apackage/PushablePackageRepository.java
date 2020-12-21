@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.persistence.apackage;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class PushablePackageRepository {
     @Autowired
     private PushablePackageMapper pushablePackageMapper;
 
+    @Autowired
+    private ApplicationContext context;
+
     /**
      * query all of the pushable packages.
      *
@@ -38,7 +42,7 @@ public class PushablePackageRepository {
     public List<PushablePackageDto> queryAllPushablePackages() {
         List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
         List<PushablePackageDto> packages = new ArrayList<>();
-        apps.forEach(app -> packages.add(new PushablePackageDto(app)));
+        apps.forEach(app -> packages.add(new PushablePackageDto(app, context.atpReportUrl)));
         return packages;
     }
 
@@ -50,7 +54,7 @@ public class PushablePackageRepository {
     public PushablePackageDto getPushablePackages(String packageId) {
         PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
-        return new PushablePackageDto(appReleasePo);
+        return new PushablePackageDto(appReleasePo, context.atpReportUrl);
     }
 
     /**
