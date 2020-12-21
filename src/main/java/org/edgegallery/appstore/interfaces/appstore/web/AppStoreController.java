@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 
@@ -60,8 +59,7 @@ public class AppStoreController {
             @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
             @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    public ResponseEntity<AppStoreDto> addAppStore(@RequestBody AppStoreDto appStoreDto
-            /*
+    public ResponseEntity<AppStoreDto> addAppStore(
             @ApiParam(value = "app store name") @RequestPart("appStoreName")
             @NotNull(message = "appStoreName should not be null.")
             @Pattern(regexp = REG_STORE_NAME) String appStoreName,
@@ -83,9 +81,9 @@ public class AppStoreController {
             @Pattern(regexp = REG_UUID) String appdTransId,
             @ApiParam(value = "app store description", required = false)
             @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description*/) {
-        /*AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
-                appPushIntf, appdTransId, description, null, null);*/
+            @Length(max = MAX_DESC_LEN) String description) {
+        AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
+                appPushIntf, appdTransId, description, null, null);
         return appStoreServiceFacade.addAppStore(appStoreDto);
     }
 
@@ -115,10 +113,9 @@ public class AppStoreController {
             @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
             @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    public ResponseEntity<AppStoreDto> editAppStore(@RequestBody AppStoreDto appStoreDto,
+    public ResponseEntity<AppStoreDto> editAppStore(
             @PathVariable("appStoreId") @Pattern(regexp = REG_UUID)
-            @NotNull(message = "appStoreId should not be null.") String appStoreId
-            /*
+            @NotNull(message = "appStoreId should not be null.") String appStoreId,
             @ApiParam(value = "app store name") @RequestPart(value = "appStoreName", required = false)
             @Pattern(regexp = REG_STORE_NAME) String appStoreName,
             @ApiParam(value = "app store version") @RequestPart(value = "appStoreVersion", required = false)
@@ -134,12 +131,11 @@ public class AppStoreController {
             @ApiParam(value = "appd translate id") @RequestPart(value = "appdTransId", required = false)
             @Pattern(regexp = REG_UUID) String appdTransId,
             @ApiParam(value = "app store description") @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description*/) {
-        /*
+            @Length(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(appStoreId, appStoreName, appStoreVersion,
                 company, url, schema, appPushIntf, appdTransId, description,
-                null, null);*/
-        appStoreDto.setAppStoreId(appStoreId);
+                null, null);
+        System.out.println(appStoreDto);
         return appStoreServiceFacade.editAppStore(appStoreDto);
     }
 
