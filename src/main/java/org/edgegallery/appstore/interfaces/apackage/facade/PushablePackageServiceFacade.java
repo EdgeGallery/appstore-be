@@ -17,6 +17,8 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -111,6 +113,7 @@ public class PushablePackageServiceFacade {
         message.setMessageType(EnumMessageType.BE_DOWNLOADED);
         BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
         message.setBasicInfo(basicMessageInfo);
+        message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
 
         // store message to the db
         messageRepository.addMessage(message);
