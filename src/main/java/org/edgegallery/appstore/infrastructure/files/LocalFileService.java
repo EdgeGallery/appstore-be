@@ -163,9 +163,12 @@ public class LocalFileService implements FileService {
      * @param url url
      * @param parentPath parent path
      * @return download file
-     * @throws IOException e
      */
-    public File downloadFile(String url, String parentPath) throws IOException {
+    public File downloadFile(String url, String parentPath) {
+        if (!createParent(parentPath)) {
+            LOGGER.error("create file parent fail");
+            throw new DomainException("create file parent fail");
+        }
         RestTemplate restTemplate = new RestTemplate();
 
         List<MediaType> list = new ArrayList<>();
@@ -173,36 +176,49 @@ public class LocalFileService implements FileService {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(list);
 
-        ResponseEntity<byte[]> response = restTemplate
-            .exchange(url, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("download file error, response is {}", response.getBody());
-            throw new DomainException("download file exception");
-        }
-
-        byte[] result = response.getBody();
-        if (result == null) {
-            throw new DomainException("download response is null");
-        }
-        String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
-            .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
-            .replace("attachment; filename=", "");
-        File file = new File(parentPath + File.separator + fileName);
-        if (!file.exists() && !file.createNewFile()) {
-            LOGGER.error("create temp download file error");
-            throw new DomainException("create temp download file error");
-        }
-
-        try (InputStream inputStream = new ByteArrayInputStream(result);
-             OutputStream outputStream = new FileOutputStream(file)) {
-            int len = 0;
-            byte[] buf = new byte[1024];
-            while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                outputStream.write(buf, 0, len);
+        try {
+            ResponseEntity<byte[]> response = restTemplate
+                .exchange(url, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                LOGGER.error("download file error, response is {}", response.getBody());
+                throw new DomainException("download file exception");
             }
-            outputStream.flush();
-        }
 
-        return file;
+            byte[] result = response.getBody();
+            if (result == null) {
+                throw new DomainException("download response is null");
+            }
+            String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
+                .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
+                .replace("attachment; filename=", "");
+            File file = new File(parentPath + File.separator + fileName);
+            if (!file.exists() && !file.createNewFile()) {
+                LOGGER.error("create download file error");
+                throw new DomainException("create download file error");
+            }
+
+            try (InputStream inputStream = new ByteArrayInputStream(result);
+                 OutputStream outputStream = new FileOutputStream(file)) {
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                    outputStream.write(buf, 0, len);
+                }
+                outputStream.flush();
+            }
+
+            return file;
+        } catch (RuntimeException | IOException e1) {
+            LOGGER.error("download file error: {}", e1.getMessage());
+            throw new DomainException("download file error");
+        }
+    }
+
+    private boolean createParent(String parentPath) {
+        File parent = new File(parentPath);
+        if (!parent.exists() || !parent.isDirectory()) {
+            return parent.mkdirs();
+        }
+        return true;
     }
 }
