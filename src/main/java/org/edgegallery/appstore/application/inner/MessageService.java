@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.AFile;
@@ -60,9 +59,6 @@ public class MessageService {
     @Autowired
     private PackageService packageService;
 
-    @Autowired
-    private ApplicationContext context;
-
     /**
      * add a message.
      *
@@ -100,7 +96,7 @@ public class MessageService {
         String iconDownloadUrl = message.getIconDownloadUrl();
         if (packageDownloadUrl == null || iconDownloadUrl == null) {
             LOGGER.error("download url null: package download url is {}, icon download url is {}", packageDownloadUrl,
-                    iconDownloadUrl);
+                iconDownloadUrl);
             throw new DomainException("download url is null");
         }
         try {
