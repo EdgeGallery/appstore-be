@@ -85,7 +85,7 @@ public class MessageReqDto {
             case PUSH:
                 return String.format("from %s to %s push this app.", sourceAppStore, targetAppStore);
             case NOTICE:
-                return String.format("%s申请推广此应用到当前平台", sourceAppStore);
+                return String.format("%s apply to push the app.", sourceAppStore);
             default:
                 return "";
         }

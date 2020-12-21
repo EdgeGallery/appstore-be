@@ -51,6 +51,8 @@ public class MessageRespDto {
 
     private String atpTestReportUrl;
 
+    private boolean readed;
+
     /**
      * transform message obj to response obj.
      *
@@ -69,6 +71,7 @@ public class MessageRespDto {
         dto.atpTestTaskId = message.getAtpTestTaskId();
         dto.atpTestReportUrl = message.getAtpTestReportUrl();
         dto.basicInfo = message.getBasicInfo();
+        dto.readed = message.isReaded();
         return dto;
     }
 
