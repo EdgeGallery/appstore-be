@@ -18,11 +18,16 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
+import org.edgegallery.appstore.domain.model.message.EnumMessageType;
+import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +47,9 @@ public class PushablePackageServiceFacade {
 
     @Autowired
     private PushablePackageService pushablePackageService;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     /**
      * query all pushable packages.
@@ -91,6 +99,17 @@ public class PushablePackageServiceFacade {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+
+        // add message log for this action
+        Message message = new Message();
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setMessageType(EnumMessageType.BE_DOWNLOADED);
+        BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
+        message.setBasicInfo(basicMessageInfo);
+
+        // store message to the db
+        messageRepository.addMessage(message);
+
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
