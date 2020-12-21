@@ -15,7 +15,7 @@ public class PushablePackageAndAppVo extends AppReleasePo {
     private String latestPushTime;
 
     @Column(name = "pushTimes")
-    private Integer pushTimes;
+    private int pushTimes;
 
     @Column(name = "targetPlatform")
     private String targetPlatform;

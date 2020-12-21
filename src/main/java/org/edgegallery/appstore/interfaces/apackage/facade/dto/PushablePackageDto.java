@@ -47,7 +47,7 @@ public class PushablePackageDto implements Entity {
 
     private String latestPushTime;
 
-    private Integer pushTimes;
+    private int pushTimes;
 
     private String sourcePlatform;
 
