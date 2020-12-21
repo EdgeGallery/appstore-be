@@ -64,7 +64,7 @@ public class PushablePackageDto implements Entity {
     /**
      * init this object by AppReleasePo.
      */
-    public PushablePackageDto(PushablePackageAndAppVo appReleasePo) {
+    public PushablePackageDto(PushablePackageAndAppVo appReleasePo, String reportUrl) {
         this.appId = appReleasePo.getAppId();
         this.affinity = appReleasePo.getAffinity();
         this.shortDesc = appReleasePo.getShortDesc();
@@ -74,11 +74,18 @@ public class PushablePackageDto implements Entity {
         this.provider = appReleasePo.getProvider();
         this.type = appReleasePo.getApplicationType();
         this.version = appReleasePo.getVersion();
-        this.pushTimes = appReleasePo.getPushTimes();
-        this.latestPushTime = appReleasePo.getLatestPushTime();
         this.atpTestTaskId = appReleasePo.getTestTaskId();
         this.atpTestStatus = appReleasePo.getStatus();
-        this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
+
+        this.pushTimes = appReleasePo.getPushTimes();
+        this.latestPushTime = appReleasePo.getLatestPushTime();
+
+        if (appReleasePo.getAtpTestReportUrl() == null) {
+            String testId = appReleasePo.getTestTaskId();
+            atpTestReportUrl = String.format(reportUrl, testId);
+        } else {
+            this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
+        }
     }
 
 }

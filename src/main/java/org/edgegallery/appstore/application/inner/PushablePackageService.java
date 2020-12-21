@@ -135,7 +135,7 @@ public class PushablePackageService {
 
     private boolean toCheckAndUpdateAtpReport(PushablePackageDto packagePo) {
         if (packagePo.getAtpTestStatus().equals(EnumPackageStatus.Published.toString())) {
-            packagePo.setAtpTestReportUrl(context.atpReportUrl);
+            packagePo.setAtpTestReportUrl(String.format(context.atpReportUrl, packagePo.getAtpTestTaskId()));
             return true;
         } else {
             return false;
