@@ -73,9 +73,9 @@ public class AppStoreController {
             @ApiParam(value = "app store url") @RequestPart("url")
             @NotNull(message = "url should not be null.")
             @Length(max = MAX_URL_LEN) String url,
-            @ApiParam(value = "app store schema", required = false) @RequestPart("schema")
+            @ApiParam(value = "app store schema", required = false) @RequestPart(name = "schema", required = false)
             @Pattern(regexp = REG_SCHEMA) String schema,
-            @ApiParam(value = "app store push interface") @RequestPart("appPushIntf")
+            @ApiParam(value = "app store push interface") @RequestPart(name = "appPushIntf", required = false)
             @Length(max = MAX_URL_LEN) String appPushIntf,
             @ApiParam(value = "appd translate id") @RequestPart("appdTransId")
             @NotNull(message = "appdTransId should not be null.") String appdTransId,
