@@ -101,6 +101,13 @@ public class PushablePackageServiceFacade {
         headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
 
         // add message log for this action
+        recordLog(packageDto);
+
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    private void recordLog(PushablePackageDto packageDto) {
+        // add message log for this action
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageType(EnumMessageType.BE_DOWNLOADED);
@@ -109,8 +116,6 @@ public class PushablePackageServiceFacade {
 
         // store message to the db
         messageRepository.addMessage(message);
-
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
     /**
