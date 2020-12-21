@@ -34,10 +34,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 public class AppStoreController {
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-
-    private static final String REG_STORE_NAME = "^[a-zA-Z][a-zA-Z0-9_]{5,128}$";
-
     private static final String REG_SCHEMA = "(http)|(https)";
+
+    private static final int MAX_NAME_LEN = 64;
 
     private static final int MAX_VERSION_LEN = 64;
 
@@ -45,7 +44,7 @@ public class AppStoreController {
 
     private static final int MAX_URL_LEN = 256;
 
-    private static final int MAX_DESC_LEN = 256;
+    private static final int MAX_DESC_LEN = 1024;
 
     @Autowired
     private AppStoreServiceFacade appStoreServiceFacade;
@@ -63,7 +62,7 @@ public class AppStoreController {
     public ResponseEntity<AppStoreDto> addAppStore(
             @ApiParam(value = "app store name") @RequestPart("appStoreName")
             @NotNull(message = "appStoreName should not be null.")
-            @Pattern(regexp = REG_STORE_NAME) String appStoreName,
+            @Length(max = MAX_NAME_LEN, min = 1) String appStoreName,
             @ApiParam(value = "app store version") @RequestPart("appStoreVersion")
             @NotNull(message = "appStoreVersion should not be null.")
             @Length(max = MAX_VERSION_LEN) String appStoreVersion,
@@ -117,7 +116,7 @@ public class AppStoreController {
             @PathVariable("appStoreId") @Pattern(regexp = REG_UUID)
             @NotNull(message = "appStoreId should not be null.") String appStoreId,
             @ApiParam(value = "app store name") @RequestPart(value = "appStoreName", required = false)
-            @Pattern(regexp = REG_STORE_NAME) String appStoreName,
+            @Length(max = MAX_NAME_LEN, min = 1) String appStoreName,
             @ApiParam(value = "app store version") @RequestPart(value = "appStoreVersion", required = false)
             @Length(max = MAX_VERSION_LEN, min = 1) String appStoreVersion,
             @ApiParam(value = "app store company") @RequestPart(value = "company", required = false)
