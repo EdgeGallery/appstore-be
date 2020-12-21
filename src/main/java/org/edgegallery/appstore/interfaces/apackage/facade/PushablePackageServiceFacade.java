@@ -93,7 +93,7 @@ public class PushablePackageServiceFacade {
      * @throws FileNotFoundException e
      */
     public ResponseEntity<InputStreamResource> downloadPackage(String packageId) throws FileNotFoundException {
-        PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);\
+        PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
         // add message log for this action
         recordLog(packageDto);
         Release release = appService.download(packageDto.getAppId(), packageId);
