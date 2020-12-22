@@ -16,22 +16,20 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Builder
 @Table(name = "pushable_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
+@NoArgsConstructor
 public class PushablePackagePo {
 
     @Column(name = "packageId")
@@ -48,4 +46,30 @@ public class PushablePackagePo {
 
     @Column(name = "sourcePlatform")
     private String sourcePlatform;
+
+    /**
+     * all args constructor.
+     *
+     * @param packageId id
+     * @param atpTestReportUrl url
+     * @param latestPushTime time
+     * @param pushTimes times
+     * @param sourcePlatform source
+     */
+    public PushablePackagePo(String packageId, String atpTestReportUrl, Date latestPushTime, Integer pushTimes,
+        String sourcePlatform) {
+        this.packageId = packageId;
+        this.atpTestReportUrl = atpTestReportUrl;
+        this.latestPushTime = (Date) latestPushTime.clone();
+        this.pushTimes = pushTimes;
+        this.sourcePlatform = sourcePlatform;
+    }
+
+    public Date getLatestPushTime() {
+        return (Date) latestPushTime.clone();
+    }
+
+    public void setLatestPushTime(Date latestPushTime) {
+        this.latestPushTime = (Date) latestPushTime.clone();
+    }
 }

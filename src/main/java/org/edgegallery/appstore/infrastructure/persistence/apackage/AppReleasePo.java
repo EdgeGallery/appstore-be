@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.util.Date;
 import javax.persistence.Column;
@@ -37,7 +36,6 @@ import org.edgegallery.appstore.domain.model.user.User;
 @Entity
 @Table(name = "catalog_package_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "EI_EXPOSE_REP"})
 public class AppReleasePo {
     @Id
     @Column(name = "packageid")
@@ -104,6 +102,14 @@ public class AppReleasePo {
         // empty constructor of AppReleasePO
     }
 
+    public Date getCreateTime() {
+        return (Date) createTime.clone();
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = (Date) createTime.clone();
+    }
+
     /**
      * transfer Release to AppRelease.
      *
@@ -149,11 +155,22 @@ public class AppReleasePo {
         basicInfo.setContact(contact);
         basicInfo.setFileStructure(fileStructure);
         basicInfo.setMarkDownContent(markDownContent);
-        return Release.builder().packageFile(new AFile(new File(packageAddress).getName(), packageAddress)).appId(appId)
-            .packageId(packageId).icon(new AFile(new File(iconAddress).getName(), iconAddress)).createTime(createTime)
-            .shortDesc(shortDesc).affinity(affinity).applicationType(applicationType).industry(industry)
-            .user(new User(userId, userName)).appBasicInfo(basicInfo).status(EnumPackageStatus.valueOf(status))
-            .testTaskId(testTaskId).build();
+        Release release = new Release();
+
+        release.setPackageFile(new AFile(new File(packageAddress).getName(), packageAddress));
+        release.setAppId(appId);
+        release.setPackageId(packageId);
+        release.setIcon(new AFile(new File(iconAddress).getName(), iconAddress));
+        release.setCreateTime(createTime);
+        release.setShortDesc(shortDesc);
+        release.setAffinity(affinity);
+        release.setApplicationType(applicationType);
+        release.setIndustry(industry);
+        release.setUser(new User(userId, userName));
+        release.setAppBasicInfo(basicInfo);
+        release.setStatus(EnumPackageStatus.valueOf(status));
+        release.setTestTaskId(testTaskId);
+        return release;
     }
 }
 

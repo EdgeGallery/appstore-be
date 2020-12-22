@@ -392,11 +392,6 @@
             <version>2.6</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>3.0.1</version>
-        </dependency>
     </dependencies>
     <profiles>
         <profile>
