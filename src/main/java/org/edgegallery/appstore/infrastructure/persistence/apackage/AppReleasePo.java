@@ -101,15 +101,7 @@ public class AppReleasePo {
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
-
-    public Date getCreateTime() {
-        return (Date) createTime.clone();
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = (Date) createTime.clone();
-    }
-
+    
     /**
      * transfer Release to AppRelease.
      *
