@@ -109,9 +109,8 @@ public class MessageService {
                 message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
             Release release = new Release(apackage, icon, user, appParam);
             release.setStatus(EnumPackageStatus.Test_success);
-            RegisterRespDto dto = appService.registerApp(release);
+            appService.registerApp(release);
 
-            packageService.publishPackage(dto.getAppId(), dto.getPackageId());
             addDownloadMessage(message);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());
