@@ -64,10 +64,8 @@ public class PushablePackageRepository {
     public void updateOrSavePushLog(PushablePackageDto packagePo) {
         PushablePackagePo po = pushablePackageMapper.findPushTableByPackageId(packagePo.getPackageId());
         if (po == null) {
-            po = PushablePackagePo.builder()
-                .pushTimes(packagePo.getPushTimes() + 1)
-                .atpTestReportUrl(packagePo.getAtpTestReportUrl()).packageId(packagePo.getPackageId())
-                .latestPushTime(new Date()).sourcePlatform(packagePo.getSourcePlatform()).build();
+            po = new PushablePackagePo(packagePo.getPackageId(), packagePo.getAtpTestReportUrl(), new Date(),
+                packagePo.getPushTimes() + 1, packagePo.getSourcePlatform());
             pushablePackageMapper.savePushTable(po);
         } else {
             po.setPushTimes(po.getPushTimes() + 1);

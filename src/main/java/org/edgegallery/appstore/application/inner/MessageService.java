@@ -31,7 +31,6 @@ import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
-import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +54,6 @@ public class MessageService {
 
     @Autowired
     private AppService appService;
-
-    @Autowired
-    private PackageService packageService;
 
     /**
      * add a message.
