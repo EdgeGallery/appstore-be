@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces.app.facade;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -165,7 +166,7 @@ public class AppServiceFacade {
         String userId, int limit, long offset) {
         Stream<AppDto> appStream = appRepository
             .query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId)).map(AppDto::of)
-            .getResults().stream();
+            .getResults().stream().sorted(Comparator.comparing(AppDto::getName));
         if (userId == null) {
             appStream = appStream.filter(a -> a.getStatus() == EnumAppStatus.Published);
         }
