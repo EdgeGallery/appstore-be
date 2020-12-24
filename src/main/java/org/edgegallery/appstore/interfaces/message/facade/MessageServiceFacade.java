@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.message.facade;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.inner.MessageService;
@@ -53,7 +54,8 @@ public class MessageServiceFacade {
         List<Message> messages = messageService.getAllMessages();
         return ResponseEntity
             .ok(messages.stream().filter(m -> messageType == null ? m != null : m.getMessageType() == messageType)
-                .map(MessageRespDto::of).collect(Collectors.toList()));
+                .sorted(Comparator.comparing(Message::getTime).reversed()).map(MessageRespDto::of)
+                .collect(Collectors.toList()));
     }
 
     public ResponseEntity<MessageRespDto> getMessage(String messageId) {
