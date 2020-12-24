@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,6 +45,8 @@ import org.slf4j.LoggerFactory;
 public class App implements Entity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+
+    private static final int MAX_SAME_RELEASES = 5;
 
     private String appId;
 
@@ -132,6 +135,19 @@ public class App implements Entity {
                     LOGGER.error("Delete the package directory exception: {}", e.getMessage());
                 }
                 throw new IllegalArgumentException("The same app has existed.");
+            }
+        });
+        AtomicInteger sameSize = new AtomicInteger();
+        releases.stream().filter(r -> r.getStatus() != EnumPackageStatus.Published).forEach(r1 -> {
+            if (release.getAppBasicInfo().getVersion().equals(r1.getAppBasicInfo().getVersion())
+                && release.getUser().getUserId().equals(r1.getUser().getUserId())
+                && sameSize.incrementAndGet() >= MAX_SAME_RELEASES) {
+                try {
+                    FileUtils.deleteDirectory(new File(release.getPackageFile().getStorageAddress()).getParentFile());
+                } catch (IOException e) {
+                    LOGGER.error("Delete the package directory exception: {}", e.getMessage());
+                }
+                throw new IllegalArgumentException("The same unPublished apps have reach the limit.");
             }
         });
     }
