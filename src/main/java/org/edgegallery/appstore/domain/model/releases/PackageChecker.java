@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,10 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FileUtils;
@@ -113,49 +110,6 @@ public class PackageChecker extends FileChecker {
      * @param fileName file name.
      * @throws java.io.IOException throw IOException
      */
-    // public final void unzip(String fileName) throws IOException {
-    //
-    //     FileInputStream fis = FileUtils.openInputStream(new File(fileName));
-    //     ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
-    //     ZipEntry entry;
-    //     int entries = 0;
-    //     int total = 0;
-    //     byte[] data = new byte[BUFFER];
-    //     try {
-    //         while ((entry = zis.getNextEntry()) != null) {
-    //             int count;
-    //             // Write the files to the disk, but ensure that the entryName is valid,
-    //             // and that the file is not insanely big
-    //             String name = sanitzeFileName(entry.getName(), getDir() + File.separator + "temp");
-    //             File f = new File(name);
-    //             if (isDir(entry, f)) {
-    //                 continue;
-    //             }
-    //             FileOutputStream fos = FileUtils.openOutputStream(f);
-    //             try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER)) {
-    //                 while (total <= TOOBIG && (count = zis.read(data, 0, BUFFER)) != -1) {
-    //                     dest.write(data, 0, count);
-    //                     total += count;
-    //                 }
-    //                 dest.flush();
-    //             }
-    //             zis.closeEntry();
-    //             entries++;
-    //             if (entries > TOOMANY) {
-    //                 throw new IllegalStateException("Too many files to unzip.");
-    //             }
-    //             if (total > TOOBIG) {
-    //                 throw new IllegalStateException("File being unzipped is too big.");
-    //             }
-    //         }
-    //     } catch (IOException e) {
-    //         throw new IllegalArgumentException("unzip csar with exception.");
-    //     } finally {
-    //         zis.close();
-    //         FileUtils.deleteDirectory(new File(fileName.substring(0, fileName.lastIndexOf("."))));
-    //     }
-    // }
-
     public final void unzip(String fileName) throws IOException {
         ZipArchiveEntry entry;
         int entries = 0;
@@ -195,6 +149,7 @@ public class PackageChecker extends FileChecker {
             deleteTempFiles(tempFiles);
         }
     }
+
     /**
      * check if entry is directory, if then create dir.
      *
