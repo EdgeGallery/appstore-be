@@ -33,10 +33,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class BasicInfo {
 
     public static final String CSAR_EXTENSION = ".csar";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicInfo.class);
+    private static final String ZIP_EXTENSION = ".zip";
 
     private static final int BUFFER_SIZE = 2 * 1024 * 1024;
 
@@ -75,6 +75,8 @@ public class BasicInfo {
     private static final int READ_MAX_LONG = 10;
 
     private static final int LINE_MAX_LEN = 4096;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicInfo.class);
 
     private String appName;
 
@@ -116,16 +118,17 @@ public class BasicInfo {
     public static List<String> unzip(String zipFileName, String extPlace) throws IOException {
         List<String> unzipFileNams = new ArrayList<>();
         try (ZipFile zipFile = new ZipFile(zipFileName)) {
-            Enumeration<?> fileEn = zipFile.entries();
+            Enumeration<ZipArchiveEntry> fileEn = zipFile.getEntries();
             byte[] buffer = new byte[BUFFER_SIZE];
             while (fileEn.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) fileEn.nextElement();
+                ZipArchiveEntry entry = fileEn.nextElement();
                 if (entry.isDirectory()) {
+                    createDirectory(new File(extPlace, entry.getName()).getCanonicalPath());
                     continue;
                 }
                 File file = new File(extPlace, entry.getName());
                 if (!file.getParentFile().exists()) {
-                    createDirectory(file.getParentFile().getAbsolutePath());
+                    createDirectory(file.getParentFile().getCanonicalPath());
                 }
                 try (InputStream input = zipFile.getInputStream(entry);
                      FileOutputStream out = FileUtils.openOutputStream(file);
@@ -134,7 +137,7 @@ public class BasicInfo {
                     while ((length = input.read(buffer)) != -1) {
                         bos.write(buffer, 0, length);
                     }
-                    unzipFileNams.add(file.getAbsolutePath());
+                    unzipFileNams.add(file.getCanonicalPath());
                 }
             }
         }
@@ -153,7 +156,7 @@ public class BasicInfo {
 
     private static String getUnzipDir(String dirName) {
         File tmpDir = new File(File.separator + dirName);
-        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "");
+        return tmpDir.getAbsolutePath().replace(CSAR_EXTENSION, "").replace(ZIP_EXTENSION, "");
     }
 
     private static FileRelationResponse buildFileStructure(String root, String base) {
