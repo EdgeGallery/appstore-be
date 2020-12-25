@@ -16,16 +16,17 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class PackageChecker extends FileChecker {
 
-    static final int BUFFER = 512;
+    private static final int BUFFER = 512;
 
-    static final int TOOBIG = 0x6400000; // max size of unzipped data, 100MB
+    private static final int TOOBIG = 0x6400000; // max size of unzipped data, 100MB
 
-    static final int TOOMANY = 1024; // max number of files
+    private static final int TOOMANY = 1024; // max number of files
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageChecker.class);
 
@@ -57,7 +58,7 @@ public class PackageChecker extends FileChecker {
 
     @Override
     protected List<String> getFileExtensions() {
-        return Collections.singletonList("csar");
+        return Arrays.asList("csar", "zip");
     }
 
     @Override
@@ -87,8 +88,6 @@ public class PackageChecker extends FileChecker {
         return result;
     }
 
-    // ...
-
     private String sanitzeFileName(String entryName, String intendedDir) throws IOException {
 
         File f = new File(intendedDir, entryName);
@@ -112,19 +111,19 @@ public class PackageChecker extends FileChecker {
      * @throws java.io.IOException throw IOException
      */
     public final void unzip(String fileName) throws IOException {
-        FileInputStream fis = FileUtils.openInputStream(new File(fileName));
-        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
-        ZipEntry entry;
+        ZipArchiveEntry entry;
         int entries = 0;
-        int total = 0;
+        long total = 0;
         byte[] data = new byte[BUFFER];
-        try {
-            while ((entry = zis.getNextEntry()) != null) {
+        List<File> tempFiles = new ArrayList<>();
+        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new FileInputStream(new File(fileName)))) {
+            while ((entry = zis.getNextZipEntry()) != null) {
                 int count;
                 // Write the files to the disk, but ensure that the entryName is valid,
                 // and that the file is not insanely big
                 String name = sanitzeFileName(entry.getName(), getDir() + File.separator + "temp");
                 File f = new File(name);
+                tempFiles.add(f);
                 if (isDir(entry, f)) {
                     continue;
                 }
@@ -136,7 +135,6 @@ public class PackageChecker extends FileChecker {
                     }
                     dest.flush();
                 }
-                zis.closeEntry();
                 entries++;
                 if (entries > TOOMANY) {
                     throw new IllegalStateException("Too many files to unzip.");
@@ -148,8 +146,7 @@ public class PackageChecker extends FileChecker {
         } catch (IOException e) {
             throw new IllegalArgumentException("unzip csar with exception.");
         } finally {
-            zis.close();
-            FileUtils.deleteDirectory(new File(fileName.substring(0, fileName.lastIndexOf("."))));
+            deleteTempFiles(tempFiles);
         }
     }
 
@@ -170,5 +167,14 @@ public class PackageChecker extends FileChecker {
             }
         }
         return false;
+    }
+
+    // delete temp files
+    private void deleteTempFiles(List<File> tempFiles) throws IOException {
+        for (File f : tempFiles) {
+            if (f.exists()) {
+                FileUtils.forceDelete(f);
+            }
+        }
     }
 }
