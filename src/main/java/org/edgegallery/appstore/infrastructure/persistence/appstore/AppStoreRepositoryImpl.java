@@ -60,9 +60,8 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
             appStorePo.setAppStoreName(appStore.getAppStoreName());
             appStorePo.setCompany(appStore.getCompany());
         }
-        List<AppStorePo> list = appStoreMapper.queryAppStores(appStorePo);
-        List<AppStore> appStoreList = list.stream().map(item -> item.toAppStore()).collect(Collectors.toList());
 
-        return appStoreList;
+        return appStoreMapper.queryAppStores(appStorePo).stream().map(AppStorePo::toAppStore).collect(
+            Collectors.toList());
     }
 }

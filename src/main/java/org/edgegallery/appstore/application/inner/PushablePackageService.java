@@ -127,8 +127,8 @@ public class PushablePackageService {
         requestDto.setSourceAppStore(context.platformName);
         requestDto.setTargetAppStore(appStoreName);
         requestDto
-            .setPackageDownloadUrl(String.format(context.hostUrl + DOWNLOAD_PACKAGE_API, packageDto.getPackageId()));
-        requestDto.setIconDownloadUrl(String.format(context.hostUrl + DOWNLOAD_ICON_API, packageDto.getPackageId()));
+            .setPackageDownloadUrl(context.hostUrl + String.format(DOWNLOAD_PACKAGE_API, packageDto.getPackageId()));
+        requestDto.setIconDownloadUrl(context.hostUrl + String.format(DOWNLOAD_ICON_API, packageDto.getPackageId()));
         return requestDto;
 
     }

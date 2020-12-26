@@ -31,7 +31,7 @@ public class AppStoreServiceFacade {
         String uuid = appStoreRepository.addAppStore(AppStore.of(appStoreDto));
         AppStore appStore = appStoreRepository.queryAppStoreById(uuid);
         if (appStore == null) {
-            LOGGER.error("failed to add app store : " + appStoreDto);
+            LOGGER.error("failed to add app store : {}", appStoreDto);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(appStoreDto);
         }
         return ResponseEntity.ok(appStore.toAppStoreDto());
@@ -50,7 +50,7 @@ public class AppStoreServiceFacade {
      */
     public ResponseEntity<AppStoreDto> editAppStore(AppStoreDto appStoreDto) {
         if (appStoreRepository.updateAppStoreById(AppStore.of(appStoreDto)) != 1) {
-            LOGGER.error("failed to edit app store : " + appStoreDto);
+            LOGGER.error("failed to edit app store : {}", appStoreDto);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
         AppStore appStore = appStoreRepository.queryAppStoreById(appStoreDto.getAppStoreId());
@@ -62,10 +62,8 @@ public class AppStoreServiceFacade {
      */
     public ResponseEntity<List<AppStoreDto>> queryAppStores(String name, String company) {
         AppStore appStore = new AppStore(replaceSqlPattern(name), replaceSqlPattern(company));
-        List<AppStore> appStoreList = appStoreRepository.queryAppStores(appStore);
-        List<AppStoreDto> dtoList = appStoreList.stream().map(item -> item.toAppStoreDto())
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
+        return ResponseEntity.ok(appStoreRepository.queryAppStores(appStore).stream().map(AppStore::toAppStoreDto)
+            .collect(Collectors.toList()));
     }
 
     /**

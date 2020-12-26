@@ -62,7 +62,7 @@ public class LocalFileService implements FileService {
         if (file == null || file.getName() == null) {
             throw new IllegalArgumentException("file is null");
         }
-        String newFileName = UUID.randomUUID().toString().replaceAll("-", "");
+        String newFileName = UUID.randomUUID().toString().replace("-", "");
         String fileAddress = fileParent + File.separator + newFileName + "." + Files.getFileExtension(file.getName());
         File f = new File(fileParent);
         boolean success = f.mkdirs();
