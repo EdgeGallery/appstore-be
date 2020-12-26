@@ -33,6 +33,8 @@ public class MessageRepository {
     @Autowired
     private MessageMapper messageMapper;
 
+    private static final String MESSAGE_NOT_EXISTED = "message {} do not existed";
+
     /**
      * add a message to db.
      *
@@ -71,7 +73,7 @@ public class MessageRepository {
     public Message getOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
-            LOGGER.error("message {} do not existed", messageId);
+            LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
             throw new DomainException(String.format("message %s do not existed", messageId));
         }
         return messagePo.toDomainModel();
@@ -85,7 +87,7 @@ public class MessageRepository {
     public void deleteOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
-            LOGGER.error("message {} do not existed", messageId);
+            LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
             throw new EntityNotFoundException(String.format("message %s do not existed", messageId));
         }
         messageMapper.deleteOneMessage(messageId);
@@ -99,7 +101,7 @@ public class MessageRepository {
     public void updateMessageReaded(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
-            LOGGER.error("message {} do not existed", messageId);
+            LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
             throw new EntityNotFoundException(String.format("message %s do not existed", messageId));
         }
         messagePo.setReaded(true);
