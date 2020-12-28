@@ -188,19 +188,15 @@ public class AppServiceFacade {
         if (userId == null) {
             releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
         } else {
-            List<Release> releases = releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
-                .collect(Collectors.toList());
-            refreshStatus(releases, token);
-            releaseStream = releases.stream();
+            releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
+                .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
+                    s -> appService.loadTestTask(
+                        s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+            releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
+                .stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
         List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
         return ResponseEntity.ok(packageDtos);
-    }
-
-    private void refreshStatus(List<Release> releases, String token) {
-        releases.stream().filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
-            .forEach(s -> appService
-                .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
     }
 
 }
