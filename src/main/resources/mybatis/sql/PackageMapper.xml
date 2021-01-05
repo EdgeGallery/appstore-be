@@ -83,4 +83,10 @@
         #{offset}
     </select>
 
+    <select id="findReleaseByUserId"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            parameterType="java.lang.String">
+        select * from catalog_package_table where userid = #{userId}
+    </select>
+
 </mapper>

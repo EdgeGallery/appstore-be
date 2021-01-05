@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
@@ -93,8 +94,10 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<PackageDto> getPackageById(
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId) {
-        return new ResponseEntity<>(packageServiceFacade.queryPackageById(appId, packageId), HttpStatus.OK);
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        HttpServletRequest request) {
+        return ResponseEntity
+            .ok(packageServiceFacade.queryPackageById(appId, packageId, (String) request.getAttribute("access_token")));
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
@@ -157,5 +160,18 @@ public class PackageController {
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
         HttpServletRequest request) {
         return packageServiceFacade.testPackage(appId, packageId, (String) request.getAttribute("access_token"));
+    }
+
+    @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get app package by user id", response = PackageDto.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<List<PackageDto>> getPackageByUserId(
+        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
+        return packageServiceFacade.getPackageByUserId(userId);
     }
 }

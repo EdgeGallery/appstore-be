@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.util.List;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -95,5 +96,15 @@ public class PackageService {
             packageRepository.updateRelease(release);
         }
         return dto;
+    }
+
+    /**
+     * query all the packages by user id.
+     *
+     * @param userId user id
+     * @return releases
+     */
+    public List<Release> getPackageByUserId(String userId) {
+        return packageRepository.findReleaseByUserId(userId);
     }
 }

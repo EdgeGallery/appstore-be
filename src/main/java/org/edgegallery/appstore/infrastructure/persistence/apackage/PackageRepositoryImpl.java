@@ -15,6 +15,8 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
@@ -71,5 +73,11 @@ public class PackageRepositoryImpl implements PackageRepository {
             throw new EntityNotFoundException("find release error: can not find package");
         }
         packageMapper.removeByPackageId(release.getPackageId());
+    }
+
+    @Override
+    public List<Release> findReleaseByUserId(String userId) {
+        return packageMapper.findReleaseByUserId(userId).stream().map(AppReleasePo::toDomainModel)
+            .collect(Collectors.toList());
     }
 }
