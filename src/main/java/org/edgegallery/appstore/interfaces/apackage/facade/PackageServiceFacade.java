@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
@@ -61,8 +62,12 @@ public class PackageServiceFacade {
      * @param packageId package id.
      * @return PackageDto object.
      */
-    public PackageDto queryPackageById(String appId, String packageId) {
+    public PackageDto queryPackageById(String appId, String packageId, String token) {
         Release release = appService.getRelease(appId, packageId);
+        if (EnumPackageStatus.needRefresh(release.getStatus())) {
+            appService.loadTestTask(appId, packageId, new AtpMetadata(release.getTestTaskId(), token));
+            release = appService.getRelease(appId, packageId);
+        }
         return PackageDto.of(release);
     }
 

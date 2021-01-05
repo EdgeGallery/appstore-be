@@ -94,8 +94,10 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<PackageDto> getPackageById(
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId) {
-        return new ResponseEntity<>(packageServiceFacade.queryPackageById(appId, packageId), HttpStatus.OK);
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        HttpServletRequest request) {
+        return ResponseEntity
+            .ok(packageServiceFacade.queryPackageById(appId, packageId, (String) request.getAttribute("access_token")));
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
