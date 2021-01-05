@@ -26,7 +26,6 @@ import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

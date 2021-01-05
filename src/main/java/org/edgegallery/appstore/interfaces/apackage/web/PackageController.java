@@ -168,7 +168,7 @@ public class PackageController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
-    public ResponseEntity<List<PackageDto>> getPackageByUserId (
+    public ResponseEntity<List<PackageDto>> getPackageByUserId(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
         return packageServiceFacade.getPackageByUserId(userId);
     }
