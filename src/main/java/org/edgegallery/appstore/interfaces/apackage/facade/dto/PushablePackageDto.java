@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.shared.Entity;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo;
 
@@ -75,7 +76,8 @@ public class PushablePackageDto implements Entity {
         this.type = appReleasePo.getApplicationType();
         this.version = appReleasePo.getVersion();
         this.atpTestTaskId = appReleasePo.getTestTaskId();
-        this.atpTestStatus = appReleasePo.getStatus();
+        this.atpTestStatus = appReleasePo.getStatus().equals(EnumPackageStatus.Published.toString())
+            ? EnumPackageStatus.Test_success.getText() : appReleasePo.getStatus();
 
         this.pushTimes = appReleasePo.getPushTimes();
         this.latestPushTime = appReleasePo.getLatestPushTime();
