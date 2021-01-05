@@ -19,6 +19,9 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
@@ -123,5 +126,16 @@ public class PackageServiceFacade {
             throw new OperateAvailableException("The package status is not allowed to test again.");
         }
         return ResponseEntity.ok(packageService.testPackage(release, token));
+    }
+
+    /**
+     * query all the package owned by the user, and sorted by create time.
+     *
+     * @param userId user id
+     * @return packages
+     */
+    public ResponseEntity<List<PackageDto>> getPackageByUserId(String userId) {
+        return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
+            .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
     }
 }

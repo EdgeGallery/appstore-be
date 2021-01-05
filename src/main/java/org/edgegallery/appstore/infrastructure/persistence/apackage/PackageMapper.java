@@ -39,4 +39,6 @@ public interface PackageMapper {
     List<AppReleasePo> findAllWithPagination(PageCriteria pageCriteria);
 
     Integer countTotalForReleases(PageCriteria pageCriteria);
+
+    List<AppReleasePo> findReleaseByUserId(String userId);
 }

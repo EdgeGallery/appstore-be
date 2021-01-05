@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.util.List;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -25,6 +26,7 @@ import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,5 +97,15 @@ public class PackageService {
             packageRepository.updateRelease(release);
         }
         return dto;
+    }
+
+    /**
+     * query all the packages by user id.
+     *
+     * @param userId user id
+     * @return releases
+     */
+    public List<Release> getPackageByUserId(String userId) {
+        return packageRepository.findReleaseByUserId(userId);
     }
 }

@@ -15,6 +15,8 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
+import java.util.List;
+
 public interface PackageRepository {
 
     void updateRelease(Release release);
@@ -24,4 +26,6 @@ public interface PackageRepository {
     void storeRelease(Release release);
 
     void removeRelease(Release release);
+
+    List<Release> findReleaseByUserId(String userId);
 }
