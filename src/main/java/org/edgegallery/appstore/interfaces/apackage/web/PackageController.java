@@ -171,7 +171,7 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<PackageDto>> getPackageByUserId(
-        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
-        return packageServiceFacade.getPackageByUserId(userId);
+        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
+        return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute("access_token"));
     }
 }
