@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -143,8 +142,9 @@ public class PackageServiceFacade {
     public ResponseEntity<List<PackageDto>> getPackageByUserId(String userId, String token) {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
-            .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+            .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
+            .forEach(s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
+                new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
