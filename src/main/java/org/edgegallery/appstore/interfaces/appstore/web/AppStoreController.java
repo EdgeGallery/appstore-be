@@ -31,6 +31,7 @@ import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -74,6 +75,7 @@ public class AppStoreController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<AppStoreDto> addAppStore(
             @ApiParam(value = "app store name") @RequestPart("appStoreName")
             @NotNull(message = "appStoreName should not be null.")
@@ -111,6 +113,7 @@ public class AppStoreController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<String> deleteAppStore(
         @ApiParam(value = "app store id") @PathVariable("appStoreId") @Pattern(regexp = REG_UUID) @NotNull(
             message = "appStoreId should not be null.") String appStoreId) {
@@ -127,6 +130,7 @@ public class AppStoreController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
     public ResponseEntity<AppStoreDto> editAppStore(
             @PathVariable("appStoreId") @Pattern(regexp = REG_UUID)
             @NotNull(message = "appStoreId should not be null.") String appStoreId,
@@ -162,6 +166,7 @@ public class AppStoreController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<AppStoreDto>> queryAppStores(
         @ApiParam(value = "app store name") @PathParam("appStoreName") String appStoreName,
         @ApiParam(value = "app store company") @PathParam("company") String company) {
@@ -178,6 +183,7 @@ public class AppStoreController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<AppStoreDto> queryAppStore(
         @ApiParam(value = "app store id") @PathVariable("appStoreId") @Pattern(regexp = REG_UUID) @NotNull(
             message = "appStoreId should not be null.") String appStoreId) {
