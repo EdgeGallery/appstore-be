@@ -113,7 +113,7 @@ public class PushablePackageServiceFacade {
         message.setMessageType(EnumMessageType.BE_DOWNLOADED);
         BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
         message.setBasicInfo(basicMessageInfo);
-        message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        message.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
         // store message to the db
         messageRepository.addMessage(message);

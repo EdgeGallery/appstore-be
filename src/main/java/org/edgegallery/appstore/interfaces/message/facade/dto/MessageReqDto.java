@@ -70,7 +70,7 @@ public class MessageReqDto {
         message.setMessageType(type);
         message.setSourceAppStore(sourceAppStore);
         message.setTargetAppStore(targetAppStore);
-        message.setTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        message.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         message.setDescription(generateDescription(type));
         message.setAtpTestStatus(atpTestStatus);
         message.setAtpTestTaskId(atpTestTaskId);
