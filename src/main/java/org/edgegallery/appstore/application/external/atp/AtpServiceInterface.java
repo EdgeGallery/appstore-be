@@ -23,4 +23,6 @@ public interface AtpServiceInterface {
     String getAtpTaskResult(String token, String taskId);
 
     AtpTestDto createTestTask(Release release, String token);
+
+    String getReportDataFromRemote(String host, String taskId);
 }
