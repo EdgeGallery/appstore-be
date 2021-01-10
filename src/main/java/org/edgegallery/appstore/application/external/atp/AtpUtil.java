@@ -17,7 +17,26 @@ package org.edgegallery.appstore.application.external.atp;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.slf4j.Logger;
@@ -42,6 +61,14 @@ public class AtpUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
     private static final RestTemplate restTemplate = new RestTemplate();
+
+    private static CookieStore cookieStore = new BasicCookieStore();
+
+    private static final String USERNAME = "guest";
+
+    private static final String PASSWORD = "guest";
+
+    private static final String ATP_REPORT_ADDR = "%smec-atp/edgegallery/atp/v1/tasks/%s";
 
     @Value("${atp.urls.create-task}")
     private String createTaskUrl;
@@ -122,4 +149,66 @@ public class AtpUtil {
         return status;
     }
 
+    /**
+     * query report data from remote atp.
+     *
+     * @param host atp host
+     * @param taskId task id
+     * @return data
+     */
+    public String getReportDataFromRemote(String host, String taskId) {
+        String result = "";
+        HttpPost httpPost = new HttpPost(host.substring(0, host.lastIndexOf(":")) + ":30067/login");
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("username", USERNAME);
+        builder.addTextBody("password", PASSWORD);
+        httpPost.setEntity(builder.build());
+        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+
+            client.execute(httpPost);
+            String xsrf = getXsrf();
+
+            httpPost.setHeader("X-XSRF-TOKEN", xsrf);
+            client.execute(httpPost);
+
+            String taskUrl = String.format(ATP_REPORT_ADDR, host, taskId);
+            HttpGet httpGet = new HttpGet(taskUrl);
+            httpGet.setHeader("X-XSRF-TOKEN", xsrf);
+            client.execute(httpGet);
+            try (CloseableHttpResponse response = client.execute(httpGet)) {
+                result = EntityUtils.toString(response.getEntity());
+            }
+        } catch (IOException e) {
+            LOGGER.error("get report data from remote {} error: {}", host, e.getMessage());
+        }
+
+        return result;
+    }
+
+    private static String getXsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("XSRF-TOKEN")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
