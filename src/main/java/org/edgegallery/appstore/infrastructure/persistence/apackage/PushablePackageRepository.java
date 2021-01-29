@@ -15,9 +15,13 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -69,7 +73,8 @@ public class PushablePackageRepository {
             pushablePackageMapper.savePushTable(po);
         } else {
             po.setPushTimes(po.getPushTimes() + 1);
-            po.setLatestPushTime(new Date());
+            po.setLatestPushTime(Timestamp.valueOf(
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.SIMPLIFIED_CHINESE).format(new Date())));
             po.setSourcePlatform(packagePo.getSourcePlatform());
             pushablePackageMapper.updatePushTable(po);
         }
