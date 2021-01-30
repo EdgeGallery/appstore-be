@@ -67,7 +67,7 @@ public class MessageTest {
         basicInfo.setProvider("app provider");
         basicInfo.setVersion("v1");
         basicInfo.setShortDesc("test");
-        basicInfo.setAffinity("x86");
+        basicInfo.setAffinity("X86");
         basicInfo.setIndustry("smart city");
         basicInfo.setType("Video");
         reqDto.setBasicInfo(basicInfo);
