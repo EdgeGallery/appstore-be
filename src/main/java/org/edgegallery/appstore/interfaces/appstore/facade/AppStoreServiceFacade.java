@@ -28,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Service("AppStoreServiceFacade")
 public class AppStoreServiceFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreServiceFacade.class);
@@ -42,7 +44,11 @@ public class AppStoreServiceFacade {
     /**
      * add app store.
      */
-    public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto) {
+    public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto, HttpServletRequest request) {
+        if (appStoreDto.getUrl().indexOf(request.getLocalAddr()) != -1) {
+            LOGGER.error("can not add itself appstore : {}", appStoreDto);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(appStoreDto);
+        }
         String uuid = appStoreRepository.addAppStore(AppStore.of(appStoreDto));
         AppStore appStore = appStoreRepository.queryAppStoreById(uuid);
         if (appStore == null) {

@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.PathParam;
@@ -51,6 +52,8 @@ public class AppStoreController {
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     private static final String REG_SCHEMA = "(http)|(https)";
+
+    private static final String APPSTORE_URL = "^((http:\\/\\/|https:\\/\\/)?([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\\d{0,5})?(\\/.*)?$";
 
     private static final int MAX_NAME_LEN = 64;
 
@@ -87,6 +90,7 @@ public class AppStoreController {
             @NotNull(message = "company should not be null.")
             @Length(max = MAX_COMPANY_LEN) String company,
             @ApiParam(value = "app store url") @RequestPart("url")
+            @Pattern(regexp = APPSTORE_URL)
             @NotNull(message = "url should not be null.")
             @Length(max = MAX_URL_LEN) String url,
             @ApiParam(value = "app store schema", required = false) @RequestPart(name = "schema", required = false)
@@ -97,10 +101,10 @@ public class AppStoreController {
             @NotNull(message = "appdTransId should not be null.") String appdTransId,
             @ApiParam(value = "app store description", required = false)
             @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description) {
+            @Length(max = MAX_DESC_LEN) String description, HttpServletRequest request) {
         AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
                 appPushIntf, appdTransId, description, null, null);
-        return appStoreServiceFacade.addAppStore(appStoreDto);
+        return appStoreServiceFacade.addAppStore(appStoreDto, request);
     }
 
     /**
