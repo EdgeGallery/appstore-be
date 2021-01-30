@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
