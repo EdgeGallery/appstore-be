@@ -17,6 +17,7 @@ package org.edgegallery.appstore.interfaces.appstore.facade;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
@@ -27,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import javax.servlet.http.HttpServletRequest;
 
 @Service("AppStoreServiceFacade")
 public class AppStoreServiceFacade {
