@@ -158,7 +158,13 @@ public class AtpUtil {
      */
     public String getReportDataFromRemote(String host, String taskId) {
         String result = "";
-        HttpPost httpPost = new HttpPost(host.substring(0, host.lastIndexOf(":")) + ":30067/login");
+        String usrmgmtUrl = "";
+        if (host.contains("atp")) {
+            usrmgmtUrl = host.replace("atp", "auth") + "login";
+        } else {
+            usrmgmtUrl = host.substring(0, host.lastIndexOf(":")) + ":30067/login";
+        }
+        HttpPost httpPost = new HttpPost(usrmgmtUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addTextBody("username", USERNAME);
         builder.addTextBody("password", PASSWORD);
