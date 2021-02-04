@@ -157,14 +157,16 @@ public class AtpUtil {
      * @return data
      */
     public String getReportDataFromRemote(String host, String taskId) {
+        LOGGER.info("getReportDataFromRemote, host {}, taskId {}", host, taskId);
         String result = "";
-        String usrmgmtUrl = "";
+        String authUrl = "";
         if (host.contains("atp")) {
-            usrmgmtUrl = host.replace("atp", "auth") + "login";
+            authUrl = host.replace("atp", "auth") + "login";
         } else {
-            usrmgmtUrl = host.substring(0, host.lastIndexOf(":")) + ":30067/login";
+            authUrl = host.substring(0, host.lastIndexOf(":")) + ":30067/login";
         }
-        HttpPost httpPost = new HttpPost(usrmgmtUrl);
+        LOGGER.info("getReportDataFromRemote, authurl {}", authUrl);
+        HttpPost httpPost = new HttpPost(authUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addTextBody("username", USERNAME);
         builder.addTextBody("password", PASSWORD);
@@ -178,6 +180,7 @@ public class AtpUtil {
             client.execute(httpPost);
 
             String taskUrl = String.format(ATP_REPORT_ADDR, host, taskId);
+            LOGGER.info("get report data from atp, url {}", taskUrl);
             HttpGet httpGet = new HttpGet(taskUrl);
             httpGet.setHeader("X-XSRF-TOKEN", xsrf);
             client.execute(httpGet);
