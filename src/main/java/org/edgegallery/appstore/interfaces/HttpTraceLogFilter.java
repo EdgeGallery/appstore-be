@@ -104,6 +104,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter {
             if (buf.length > 0) {
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
+                    logger.error("read paylod is" + payload);
                     JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
                     if (element != null && !element.isJsonNull()) {
                         result = element.getAsString();
