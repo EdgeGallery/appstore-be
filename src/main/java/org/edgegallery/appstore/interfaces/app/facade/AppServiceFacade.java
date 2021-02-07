@@ -166,7 +166,7 @@ public class AppServiceFacade {
         String userId, int limit, long offset) {
         Stream<AppDto> appStream = appRepository
             .query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId)).map(AppDto::of)
-            .getResults().stream().sorted(Comparator.comparing(AppDto::getName));
+            .getResults().stream();
         if (userId == null) {
             appStream = appStream.filter(a -> a.getStatus() == EnumAppStatus.Published);
         }

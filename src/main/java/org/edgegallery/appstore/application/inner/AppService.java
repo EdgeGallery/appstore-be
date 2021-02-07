@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -78,6 +80,8 @@ public class AppService {
             app = new App(appId, release);
         }
         release.setAppIdValue(app.getAppId());
+        app.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        app.setUpdateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         appRepository.store(app);
         packageRepository.storeRelease(release);
         return RegisterRespDto.builder().appName(release.getAppBasicInfo().getAppName()).appId(app.getAppId())
