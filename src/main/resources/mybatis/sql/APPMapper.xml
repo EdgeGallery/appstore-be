@@ -33,7 +33,7 @@
     <update id="update"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo">
         update app_table
-        SET modifytime =  #{modifyTime}, shortdesc = #{shortDesc}, provider = #{provider}, appname = #{appName},
+        SET modifytime =  (select now()), shortdesc = #{shortDesc}, provider = #{provider}, appname = #{appName},
         applicationType = #{applicationType}, appIntroduction = #{appIntroduction},
         downloadcount = #{downloadCount}, affinity = #{affinity}, industry = #{industry}, contact = #{contact},
         userid = #{userId}, username = #{userName}, score = #{score}, status = #{status}
@@ -47,7 +47,7 @@
         (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, appIntroduction,
         downloadcount, affinity, industry, contact, userid, username, score, status)
         VALUES
-        (#{appId}, #{createTime},  #{modifyTime}, #{shortDesc},#{provider}, #{appName},
+        (#{appId}, (select now()),  (select now()), #{shortDesc},#{provider}, #{appName},
         #{applicationType},
         #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0,
         #{status})
