@@ -178,7 +178,8 @@ public class LocalFileService implements FileService {
 
         try {
             ResponseEntity<byte[]> response = restTemplate
-                .exchange(url+"?target_appstore=" + targetAppstore, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
+                .exchange(url + "?targetAppstore=" + targetAppstore, HttpMethod.GET, new HttpEntity<byte[]>(headers),
+                    byte[].class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
                 throw new DomainException("download file exception");

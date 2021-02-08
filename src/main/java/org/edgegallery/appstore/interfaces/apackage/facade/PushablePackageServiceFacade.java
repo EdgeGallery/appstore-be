@@ -94,10 +94,11 @@ public class PushablePackageServiceFacade {
      * @return file stream
      * @throws FileNotFoundException e
      */
-    public ResponseEntity<InputStreamResource> downloadPackage(String packageId, String target_appstore) throws FileNotFoundException {
+    public ResponseEntity<InputStreamResource> downloadPackage(String packageId, String targetAppstore)
+        throws FileNotFoundException {
         PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
         // add message log for this action
-        recordLog(packageDto, target_appstore);
+        recordLog(packageDto, targetAppstore);
         Release release = appService.download(packageDto.getAppId(), packageId);
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
@@ -106,16 +107,16 @@ public class PushablePackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
-    private void recordLog(PushablePackageDto packageDto, String target_appstore) {
+    private void recordLog(PushablePackageDto packageDto, String targetAppstore) {
         // add message log for this action
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageType(EnumMessageType.BE_DOWNLOADED);
         BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
-        String source_appstore = packageDto.getSourcePlatform();
-        message.setSourceAppStore(source_appstore);
-        message.setTargetAppStore(target_appstore);
-        message.setDescription(generateDescription(EnumMessageType.BE_DOWNLOADED, source_appstore, target_appstore));
+        String sourceAppstore = packageDto.getSourcePlatform();
+        message.setSourceAppStore(sourceAppstore);
+        message.setTargetAppStore(targetAppstore);
+        message.setDescription(generateDescription(EnumMessageType.BE_DOWNLOADED, sourceAppstore, targetAppstore));
         message.setAtpTestStatus(packageDto.getAtpTestStatus());
         message.setBasicInfo(basicMessageInfo);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -124,10 +125,10 @@ public class PushablePackageServiceFacade {
         messageRepository.addMessage(message);
     }
 
-    private String generateDescription(EnumMessageType type, String source_appstore, String target_appstore) {
+    private String generateDescription(EnumMessageType type, String sourceAppstore, String targetAppstore) {
         switch (type) {
             case BE_DOWNLOADED:
-                return String.format("%s download this app from %s.", target_appstore, source_appstore);
+                return String.format("%s download this app from %s.", targetAppstore, sourceAppstore);
             default:
                 return "";
         }
