@@ -101,8 +101,9 @@ public class MessageService {
         }
         try {
             String parentPath = dir + File.separator + UUID.randomUUID().toString();
-            File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath);
-            File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath);
+            String targetAppstore = message.getTargetAppStore();
+            File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
+            File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
             AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),

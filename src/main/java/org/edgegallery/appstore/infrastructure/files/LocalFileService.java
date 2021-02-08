@@ -164,7 +164,7 @@ public class LocalFileService implements FileService {
      * @param parentPath parent path
      * @return download file
      */
-    public File downloadFile(String url, String parentPath) {
+    public File downloadFile(String url, String parentPath, String targetAppstore) {
         if (!createParent(parentPath)) {
             LOGGER.error("create file parent fail");
             throw new DomainException("create file parent fail");
@@ -178,7 +178,7 @@ public class LocalFileService implements FileService {
 
         try {
             ResponseEntity<byte[]> response = restTemplate
-                .exchange(url, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
+                .exchange(url+"?target_appstore=" + targetAppstore, HttpMethod.GET, new HttpEntity<byte[]>(headers), byte[].class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
                 throw new DomainException("download file exception");

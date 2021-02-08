@@ -44,7 +44,7 @@ public class AppStoreServiceFacade {
      * add app store.
      */
     public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto, HttpServletRequest request) {
-        if (appStoreDto.getUrl().indexOf(request.getLocalAddr()) != -1) {
+        if (appStoreDto.getUrl().indexOf(request.getRemoteAddr()) != -1) {
             LOGGER.error("can not add itself appstore : {}", appStoreDto);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(appStoreDto);
         }
