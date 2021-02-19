@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "pushable-package")
-@RequestMapping("/mec/appstore/poke/pushable")
+@RequestMapping("/mec/appstore/v1/packages")
 @Api(tags = {"Pushable Package Controller"})
 @Validated
 public class PushablePackageController {
@@ -50,7 +50,7 @@ public class PushablePackageController {
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
-    @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
         responseContainer = "List")
     @ApiResponses(value = {
@@ -61,7 +61,7 @@ public class PushablePackageController {
         return pushablePackageServiceFacade.queryAllPushablePackages();
     }
 
-    @GetMapping(value = "/packages/{packageId}", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/{packageId}/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get one the pushable packages by id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
@@ -72,7 +72,7 @@ public class PushablePackageController {
         return pushablePackageServiceFacade.getPushablePackage(packageId);
     }
 
-    @PostMapping(value = "/packages/{packageId}/action/push", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/{packageId}/action/push", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get one the pushable packages by id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
@@ -85,7 +85,7 @@ public class PushablePackageController {
         return ResponseEntity.ok(pushResult);
     }
 
-    @GetMapping(value = "/packages/{packageId}/action/download-package", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/{packageId}/action/download-package", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "download packages by id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
@@ -96,7 +96,7 @@ public class PushablePackageController {
         return pushablePackageServiceFacade.downloadPackage(packageId, targetAppstore);
     }
 
-    @GetMapping(value = "/packages/{packageId}/action/download-icon", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/{packageId}/action/download-icon", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "download icon by id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)

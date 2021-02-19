@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RestSchema(schemaId = "message")
-@RequestMapping("/mec/appstore/poke/messages")
+@RequestMapping("/mec/appstore/v1/messages")
 @Api(tags = {"Message Controller"})
 @Validated
 public class MessageController {

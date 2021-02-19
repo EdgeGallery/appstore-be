@@ -65,7 +65,7 @@ public class PushPackageTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     @Test
     public void should_success_when_get_all_pushablepackages() throws Exception {
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/poke/pushable/packages")
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/packages/pushable")
             .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         int result = mvcResult.getResponse().getStatus();
@@ -80,7 +80,7 @@ public class PushPackageTest {
     @Test
     public void should_success_when_get_pushablepackages() throws Exception {
         MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/poke/pushable/packages/packageid-0002")
+            MockMvcRequestBuilders.get("/mec/appstore/v1/packages/packageid-0002/pushable")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         int result = mvcResult.getResponse().getStatus();
@@ -100,7 +100,7 @@ public class PushPackageTest {
         dto.setTargetPlatform(targetPlatform);
 
         MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/poke/pushable/packages/packageid-0002/action/push")
+            MockMvcRequestBuilders.post("/mec/appstore/v1/packages/packageid-0002/action/push")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).content(gson.toJson(dto))
                 .accept(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         int result = mvcResult.getResponse().getStatus();
