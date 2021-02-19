@@ -109,6 +109,7 @@ public class MessageService {
             AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),
                 message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
             Release release = new Release(apackage, icon, user, appParam);
+            // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);
 

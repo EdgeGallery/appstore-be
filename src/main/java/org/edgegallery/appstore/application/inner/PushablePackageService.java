@@ -46,12 +46,12 @@ public class PushablePackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageService.class);
 
-    private static final String NOTICE_API = "/mec/appstore/poke/messages";
+    private static final String NOTICE_API = "/mec/appstore/v1/messages";
 
     private static final String DOWNLOAD_PACKAGE_API
-        = "/mec/appstore/poke/pushable/packages/%s/action/download-package";
+        = "/mec/appstore/v1/packages/%s/action/download-package";
 
-    private static final String DOWNLOAD_ICON_API = "/mec/appstore/poke/pushable/packages/%s/action/download-icon";
+    private static final String DOWNLOAD_ICON_API = "/mec/appstore/v1/packages/%s/action/download-icon";
 
     @Autowired
     private PushablePackageRepository pushablePackageRepository;

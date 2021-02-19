@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 
 @Controller
 @RestSchema(schemaId = "appStore")
-@RequestMapping("/mec/appstore/poke")
+@RequestMapping("/mec/appstore/v1/appstores")
 @Api(tags = {"APP Store Controller"})
 @Validated
 public class AppStoreController {
@@ -73,7 +73,7 @@ public class AppStoreController {
     /**
      * add app store.
      */
-    @PostMapping(value = "/appstores", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "add app store.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -112,7 +112,7 @@ public class AppStoreController {
     /**
      * delete app store.
      */
-    @DeleteMapping(value = "/appstores/{appStoreId}", produces = MediaType.APPLICATION_JSON)
+    @DeleteMapping(value = "/{appStoreId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete app store.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -129,7 +129,7 @@ public class AppStoreController {
     /**
      * edit app store.
      */
-    @PutMapping(value = "/appstores/{appStoreId}", produces = MediaType.APPLICATION_JSON)
+    @PutMapping(value = "/{appStoreId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "edit app store.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -165,7 +165,7 @@ public class AppStoreController {
     /**
      * query app stores.
      */
-    @GetMapping(value = "/appstores", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "query app stores.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -182,7 +182,7 @@ public class AppStoreController {
     /**
      * query app store.
      */
-    @GetMapping(value = "/appstores/{appStoreId}", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/{appStoreId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "query app store.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),

@@ -73,7 +73,7 @@ public class MessageTest {
         reqDto.setBasicInfo(basicInfo);
         String body = new Gson().toJson(reqDto);
         return mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/poke/messages").contentType(MediaType.APPLICATION_JSON)
+            MockMvcRequestBuilders.post("/mec/appstore/v1/messages").contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON).content(body).with(csrf())).andDo(MockMvcResultHandlers.print()).andReturn();
     }
 }
