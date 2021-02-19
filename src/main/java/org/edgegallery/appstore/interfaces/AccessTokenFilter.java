@@ -59,7 +59,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         if (shouldFilter(request)) {
             String accessTokenStr = request.getHeader("access_token");
             if (StringUtils.isEmpty(accessTokenStr)) {
-                LOGGER.error("Access token is empty");
+                LOGGER.error("Access token is empty, url is {}",
+                    String.format("%s %s", request.getMethod(), request.getRequestURI()));
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Access token is empty");
                 return;
             }
