@@ -22,12 +22,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
+import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
+import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
@@ -52,6 +54,9 @@ public class PushablePackageServiceFacade {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private PullablePackageService pullablePackageService;
 
     /**
      * query all pushable packages.
@@ -148,5 +153,27 @@ public class PushablePackageServiceFacade {
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    /**
+     * get pullable packages by id.
+     *
+     * @param platformId id
+     * @return dto
+     */
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId) {
+        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId));
+    }
+
+    /**
+     * get pullable packages by id.
+     *
+     * @param packageId package id
+     * @param sourceStoreId source appStore id
+     * @param user userInfo
+     * @return bool
+     */
+    public Boolean pullPackage(String packageId, String sourceStoreId, User user) {
+        return pullablePackageService.pullPackage(packageId, sourceStoreId, user);
     }
 }

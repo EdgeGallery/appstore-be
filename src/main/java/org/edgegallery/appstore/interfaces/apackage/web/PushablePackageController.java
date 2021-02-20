@@ -22,8 +22,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 
 @Controller
 @RestSchema(schemaId = "pushable-package")
@@ -104,5 +107,47 @@ public class PushablePackageController {
     public ResponseEntity<InputStreamResource> downloadIcon(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) throws FileNotFoundException {
         return pushablePackageServiceFacade.downloadIcon(packageId);
+    }
+
+    /**
+     * get pullable packages by id.
+     *
+     * @param platformId source appstore id
+     */
+    @GetMapping(value = "/{platformId}/pullable", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get all the pullable packages by platform id.", response = PushablePackageDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "bad request", response = String.class)
+    })
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(
+        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId) {
+        return pushablePackageServiceFacade.getPullablePackages(platformId);
+    }
+
+    /**
+     * pull package by package id.
+     *
+     * @param packageId package id
+     * @param sourceStoreId source appstore id
+     * @param userId user id
+     * @param userName user name
+     */
+    @PostMapping(value = "/{packageId}/action/pull", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "pull one package by id.", response = PushablePackageDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "bad request", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    public ResponseEntity<Boolean> pullPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
+        @ApiParam(value = "source app store Id") @RequestPart("sourceStoreId")
+        @NotNull(message = "sourceStoreId should not be null.") String sourceStoreId,
+        @ApiParam(value = "user Id") @RequestPart("userId")
+        @NotNull(message = "userId should not be null.") String userId,
+        @ApiParam(value = "user name") @RequestPart("userName")
+        @NotNull(message = "userName should not be null.") String userName) {
+        Boolean pullResult = pushablePackageServiceFacade.pullPackage(packageId, sourceStoreId,
+            new User(userId, userName));
+        return ResponseEntity.ok(pullResult);
     }
 }

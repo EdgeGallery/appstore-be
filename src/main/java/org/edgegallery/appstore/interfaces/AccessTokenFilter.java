@@ -47,7 +47,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         "GET /health",
         "POST /mec/appstore/v1/messages",
         "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-package",
-        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon"
+        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon",
+        "GET /mec/appstore/v1/packages/pushable"
     };
 
     @Autowired
