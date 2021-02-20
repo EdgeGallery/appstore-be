@@ -109,7 +109,7 @@ public class PullablePackageService {
         String url = appStore.getUrl() + PUSHABLE_API;
         LOGGER.info(url);
 
-        List<PushablePackageDto> packages = new ArrayList<>();
+        List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
