@@ -15,11 +15,12 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -108,26 +109,35 @@ public class PullablePackageService {
         String url = appStore.getUrl() + PUSHABLE_API;
         LOGGER.info(url);
 
-        PushablePackageDto[] result = null;
+        List<PushablePackageDto> packages = new ArrayList<>();
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<PushablePackageDto[]> response = restTemplate
-                .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), PushablePackageDto[].class);
+            ResponseEntity<String> response = restTemplate
+                .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("getPullablePackages error, response code is {}", response.getStatusCode());
-                throw new DomainException("getPullablePackages exception");
+                return null;
             }
 
-            result = response.getBody();
+            String result = response.getBody();
             if (result == null) {
-                throw new DomainException("get pullable packages is null");
+                LOGGER.error("get pullable packages is null");
+                return null;
+            }
+
+            Gson g = new Gson();
+            packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
+            for (int i = 0; i < packages.size(); i++) {
+                PushablePackageDto dto = packages.get(i);
             }
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
+            return null;
         }
-        return filterPullabelPackages(Arrays.asList(result.clone()));
+
+        return filterPullabelPackages(packages);
     }
 
     /**
@@ -173,7 +183,7 @@ public class PullablePackageService {
     }
 
     private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages) {
-        List<PushablePackageDto> result = new ArrayList<PushablePackageDto>();
+        List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
