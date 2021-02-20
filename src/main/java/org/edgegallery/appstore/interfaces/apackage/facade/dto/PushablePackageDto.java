@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -64,7 +65,7 @@ public class PushablePackageDto implements Entity {
 
     private String type;
 
-    private Date createTime;
+    private String createTime;
 
     /**
      * init this object by AppReleasePo.
@@ -85,7 +86,7 @@ public class PushablePackageDto implements Entity {
 
         this.pushTimes = appReleasePo.getPushTimes();
         this.latestPushTime = appReleasePo.getLatestPushTime();
-        this.createTime = appReleasePo.getCreateTime();
+        this.createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(appReleasePo.getCreateTime());
 
         if (appReleasePo.getAtpTestReportUrl() == null) {
             String testId = appReleasePo.getTestTaskId();
