@@ -15,7 +15,9 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade.dto;
 
+import java.util.Date;
 import java.util.List;
+import javax.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +64,8 @@ public class PushablePackageDto implements Entity {
 
     private String type;
 
+    private Date createTime;
+
     /**
      * init this object by AppReleasePo.
      */
@@ -81,6 +85,7 @@ public class PushablePackageDto implements Entity {
 
         this.pushTimes = appReleasePo.getPushTimes();
         this.latestPushTime = appReleasePo.getLatestPushTime();
+        this.createTime = appReleasePo.getCreateTime();
 
         if (appReleasePo.getAtpTestReportUrl() == null) {
             String testId = appReleasePo.getTestTaskId();
