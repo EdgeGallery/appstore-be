@@ -126,12 +126,15 @@ public class PullablePackageService {
                 LOGGER.error("get pullable packages is null");
                 return null;
             }
+            LOGGER.info("get pushable packages from {}, result {}", appStore.getAppStoreName(), result);
 
             Gson g = new Gson();
             packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
             for (int i = 0; i < packages.size(); i++) {
                 PushablePackageDto dto = packages.get(i);
+                LOGGER.info("get pushable package name {}", dto.getName());
             }
+            LOGGER.info("get pushable packages size {}", packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
             return null;
@@ -190,7 +193,7 @@ public class PullablePackageService {
                 List<Release> releases = existedApp.get().getReleases();
                 releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published).forEach(r1 -> {
                     if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
-                        LOGGER.error("The same app has existed. packages name {}", dto.getName());
+                        LOGGER.info("The same app has existed. packages name {}", dto.getName());
                     } else {
                         result.add(dto);
                     }
@@ -199,6 +202,7 @@ public class PullablePackageService {
                 result.add(dto);
             }
         }
+        LOGGER.info("the packages size is {} after filter", result.size());
         return result;
     }
 
