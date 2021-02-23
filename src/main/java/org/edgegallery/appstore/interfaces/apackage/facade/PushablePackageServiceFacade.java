@@ -32,6 +32,7 @@ import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,11 +170,12 @@ public class PushablePackageServiceFacade {
      * get pullable packages by id.
      *
      * @param packageId package id
-     * @param sourceStoreId source appStore id
-     * @param user userInfo
+     * @param dto PullAppReqDto
      * @return bool
      */
-    public Boolean pullPackage(String packageId, String sourceStoreId, User user) {
-        return pullablePackageService.pullPackage(packageId, sourceStoreId, user);
+    public Boolean pullPackage(String packageId, PullAppReqDto dto) {
+        User user = new User(dto.getUserId(), dto.getUserName());
+        PushablePackageDto packageDto = new PushablePackageDto(dto);
+        return pullablePackageService.pullPackage(packageId, dto.getSourceStoreId(), user, packageDto);
     }
 }

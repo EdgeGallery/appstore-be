@@ -148,9 +148,10 @@ public class PullablePackageService {
      * @param packageId package id
      * @param sourceStoreId source appstore id
      * @param user user info
+     * @param packagePo package info
      * @return dto
      */
-    public Boolean pullPackage(String packageId, String sourceStoreId, User user) {
+    public Boolean pullPackage(String packageId, String sourceStoreId, User user, PushablePackageDto packagePo) {
         LOGGER.info("pullPackage sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
         AppStore appStore = appStoreRepository.queryAppStoreById(sourceStoreId);
         if (appStore == null) {
@@ -163,10 +164,8 @@ public class PullablePackageService {
         LOGGER.info("pullPackage packageDownloadUrl {}, iconDownloadUrl {}", packageDownloadUrl, iconDownloadUrl);
 
         try {
-            final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
             String parentPath = dir + File.separator + UUID.randomUUID().toString();
             String targetAppstore = context.platformName;
-            LOGGER.info("pullPackage targetAppstore {}", targetAppstore);
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
@@ -176,9 +175,8 @@ public class PullablePackageService {
             Release release = new Release(apackage, icon, user, appParam);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
-            LOGGER.info("pullPackage begin register app.");
             appService.registerApp(release);
-            LOGGER.info("pullPackage begin add pull message.");
+
             addPullMessage(packagePo);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());
@@ -209,17 +207,17 @@ public class PullablePackageService {
         return result;
     }
 
-    private void addPullMessage(PushablePackageDto packageDto) {
+    private void addPullMessage(PushablePackageDto packagePo) {
         // add message log for this action
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
         message.setMessageType(EnumMessageType.PULL);
-        BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packageDto);
-        String sourceAppstore = packageDto.getSourcePlatform();
+        BasicMessageInfo basicMessageInfo = new BasicMessageInfo(packagePo);
+        String sourceAppstore = packagePo.getSourcePlatform();
         message.setSourceAppStore(sourceAppstore);
         message.setTargetAppStore(context.platformName);
         message.setDescription(String.format("%s pull this app from %s.", context.platformName, sourceAppstore));
-        message.setAtpTestStatus(packageDto.getAtpTestStatus());
+        message.setAtpTestStatus(packagePo.getAtpTestStatus());
         message.setBasicInfo(basicMessageInfo);
         message.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         // store message to the db

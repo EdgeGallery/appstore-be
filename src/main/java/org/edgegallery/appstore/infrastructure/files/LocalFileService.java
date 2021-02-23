@@ -175,7 +175,6 @@ public class LocalFileService implements FileService {
         list.add(MediaType.ALL);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(list);
-        LOGGER.info("downloadFile request url {}", url + "?targetAppstore=" + targetAppstore);
 
         try {
             ResponseEntity<byte[]> response = restTemplate
@@ -185,7 +184,6 @@ public class LocalFileService implements FileService {
                 LOGGER.error("download file error, response is {}", response.getBody());
                 throw new DomainException("download file exception");
             }
-            LOGGER.info("after downloadFile request url {}", url + "?targetAppstore=" + targetAppstore);
 
             byte[] result = response.getBody();
             if (result == null) {
