@@ -158,8 +158,8 @@ public class PullablePackageService {
         }
         String baseUrl = appStore.getUrl();
         LOGGER.info(baseUrl);
-        String packageDownloadUrl = baseUrl + DOWNLOAD_PACKAGE_API;
-        String iconDownloadUrl = baseUrl + DOWNLOAD_ICON_API;
+        String packageDownloadUrl = baseUrl + String.format(DOWNLOAD_PACKAGE_API, packageId);
+        String iconDownloadUrl = baseUrl + String.format(DOWNLOAD_ICON_API, packageId);
         final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
 
         try {
