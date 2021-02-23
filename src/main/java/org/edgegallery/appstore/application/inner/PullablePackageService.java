@@ -151,18 +151,19 @@ public class PullablePackageService {
      * @return dto
      */
     public Boolean pullPackage(String packageId, String sourceStoreId, User user) {
+        LOGGER.info("pullPackage sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
         AppStore appStore = appStoreRepository.queryAppStoreById(sourceStoreId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", sourceStoreId);
             return false;
         }
         String baseUrl = appStore.getUrl();
-        LOGGER.info(baseUrl);
         String packageDownloadUrl = baseUrl + String.format(DOWNLOAD_PACKAGE_API, packageId);
         String iconDownloadUrl = baseUrl + String.format(DOWNLOAD_ICON_API, packageId);
-        final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
+        LOGGER.info("pullPackage packageDownloadUrl {}, iconDownloadUrl {}", packageDownloadUrl, iconDownloadUrl);
 
         try {
+            final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
             String parentPath = dir + File.separator + UUID.randomUUID().toString();
             String targetAppstore = context.platformName;
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
