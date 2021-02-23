@@ -23,6 +23,24 @@ import lombok.Setter;
 public class PullAppReqDto {
     private String sourceStoreId;
 
+    private String sourceStoreName;
+
+    private String name;
+
+    private String provider;
+
+    private String version;
+
+    private String atpTestStatus;
+
+    private String affinity;
+
+    private String shortDesc;
+
+    private String industry;
+
+    private String type;
+
     private String userId;
 
     private String userName;

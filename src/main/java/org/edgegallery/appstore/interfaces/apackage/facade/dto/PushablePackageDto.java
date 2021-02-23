@@ -16,9 +16,7 @@
 package org.edgegallery.appstore.interfaces.apackage.facade.dto;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -94,6 +92,21 @@ public class PushablePackageDto implements Entity {
         } else {
             this.atpTestReportUrl = appReleasePo.getAtpTestReportUrl();
         }
+    }
+
+    /**
+     * init this object by PullAppReqDto.
+     */
+    public PushablePackageDto(PullAppReqDto pullAppReqPo) {
+        this.name = pullAppReqPo.getName();
+        this.provider = pullAppReqPo.getProvider();
+        this.version = pullAppReqPo.getVersion();
+        this.atpTestStatus = pullAppReqPo.getAtpTestStatus();
+        this.affinity = pullAppReqPo.getAffinity();
+        this.shortDesc = pullAppReqPo.getShortDesc();
+        this.industry = pullAppReqPo.getIndustry();
+        this.type = pullAppReqPo.getType();
+        this.sourcePlatform = pullAppReqPo.getSourceStoreName();
     }
 
 }

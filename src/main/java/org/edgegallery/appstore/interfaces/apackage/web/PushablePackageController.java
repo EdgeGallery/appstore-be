@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
@@ -138,8 +137,7 @@ public class PushablePackageController {
     public ResponseEntity<Boolean> pullPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "source AppStore Id and user info") @RequestBody() PullAppReqDto dto) {
-        Boolean pullResult = pushablePackageServiceFacade.pullPackage(packageId, dto.getSourceStoreId(),
-            new User(dto.getUserId(), dto.getUserName()));
+        Boolean pullResult = pushablePackageServiceFacade.pullPackage(packageId, dto);
         return ResponseEntity.ok(pullResult);
     }
 }
