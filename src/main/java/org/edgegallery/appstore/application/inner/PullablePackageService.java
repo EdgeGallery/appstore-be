@@ -127,15 +127,13 @@ public class PullablePackageService {
                 LOGGER.error("get pullable packages is null");
                 return null;
             }
-            LOGGER.info("get pushable packages from {}, result {}", appStore.getAppStoreName(), result);
 
             Gson g = new Gson();
             packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
             for (int i = 0; i < packages.size(); i++) {
                 PushablePackageDto dto = packages.get(i);
-                LOGGER.info("get pushable package name {}", dto.getName());
             }
-            LOGGER.info("get pushable packages size {}", packages.size());
+            LOGGER.info("get pushable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
             return null;
@@ -189,7 +187,6 @@ public class PullablePackageService {
     private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
-            LOGGER.info("before filter, packages name {}", dto.getName());
             AtomicBoolean bexist = new AtomicBoolean(false);
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
