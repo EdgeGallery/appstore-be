@@ -166,6 +166,7 @@ public class PullablePackageService {
             final PushablePackageDto packagePo = pushablePackageRepository.getPushablePackages(packageId);
             String parentPath = dir + File.separator + UUID.randomUUID().toString();
             String targetAppstore = context.platformName;
+            LOGGER.info("pullPackage targetAppstore {}", targetAppstore);
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
@@ -175,8 +176,9 @@ public class PullablePackageService {
             Release release = new Release(apackage, icon, user, appParam);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
+            LOGGER.info("pullPackage begin register app.");
             appService.registerApp(release);
-
+            LOGGER.info("pullPackage begin add pull message.");
             addPullMessage(packagePo);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());

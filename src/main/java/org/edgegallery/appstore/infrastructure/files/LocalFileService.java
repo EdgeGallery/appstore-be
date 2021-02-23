@@ -101,7 +101,7 @@ public class LocalFileService implements FileService {
      *
      * @param filePath csar file address.
      * @param file file path in package.
-     * @return
+     * @return file content
      */
     public static String getCsarFileContentByName(String filePath, String file) throws IOException {
         return readFileContent(filePath, file);
@@ -136,7 +136,7 @@ public class LocalFileService implements FileService {
      *
      * @param dir file address.
      * @param target target file address.
-     * @return
+     * @return boolean
      */
     private static boolean checkEquals(String dir, String target) {
         return dir.replace("/", "").equals(target.replace(File.separator, ""));
@@ -175,6 +175,7 @@ public class LocalFileService implements FileService {
         list.add(MediaType.ALL);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(list);
+        LOGGER.info("downloadFile request url {}", url + "?targetAppstore=" + targetAppstore);
 
         try {
             ResponseEntity<byte[]> response = restTemplate
@@ -184,6 +185,7 @@ public class LocalFileService implements FileService {
                 LOGGER.error("download file error, response is {}", response.getBody());
                 throw new DomainException("download file exception");
             }
+            LOGGER.info("after downloadFile request url {}", url + "?targetAppstore=" + targetAppstore);
 
             byte[] result = response.getBody();
             if (result == null) {
