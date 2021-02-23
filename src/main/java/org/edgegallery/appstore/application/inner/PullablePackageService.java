@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
@@ -188,17 +189,19 @@ public class PullablePackageService {
     private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
+            LOGGER.info("before filter, packages name {}", dto.getName());
+            AtomicBoolean bexist = new AtomicBoolean(false);
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
                 releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published).forEach(r1 -> {
                     if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
+                        bexist.set(true);
                         LOGGER.info("The same app has existed. packages name {}", dto.getName());
-                    } else {
-                        result.add(dto);
                     }
                 });
-            } else {
+            }
+            if (!bexist.get()) {
                 result.add(dto);
             }
         }
