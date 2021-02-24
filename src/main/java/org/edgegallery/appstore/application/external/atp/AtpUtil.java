@@ -138,9 +138,12 @@ public class AtpUtil {
             }
 
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            status = jsonObject.get("status").getAsString();
-
-            LOGGER.info("Get task status: {}", status);
+            if (jsonObject.has("status")) {
+                status = jsonObject.get("status").getAsString();
+                LOGGER.info("Get task status: {}", status);
+            } else {
+                LOGGER.error("Get task status faieed.");
+            }
 
         } catch (RestClientException e) {
             LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());
