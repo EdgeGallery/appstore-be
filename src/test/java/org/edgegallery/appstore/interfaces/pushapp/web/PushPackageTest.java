@@ -62,7 +62,7 @@ public class PushPackageTest {
         this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).apply(springSecurity()).build();
     }
 
-    @WithMockUser(roles = "APPSTORE_TENANT")
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
     public void should_success_when_get_all_pushablepackages() throws Exception {
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/packages/pushable")
@@ -76,7 +76,7 @@ public class PushPackageTest {
         assertFalse(packages.isEmpty());
     }
 
-    @WithMockUser(roles = "APPSTORE_TENANT")
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
     public void should_success_when_get_pushablepackages() throws Exception {
         MvcResult mvcResult = mvc.perform(
@@ -90,7 +90,7 @@ public class PushPackageTest {
         assertEquals("packageid-0002", packageDto.getPackageId());
     }
 
-    @WithMockUser(roles = "APPSTORE_TENANT")
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
     public void should_success_when_push_package_notice() throws Exception {
         PushTargetAppStoreDto dto = new PushTargetAppStoreDto();
