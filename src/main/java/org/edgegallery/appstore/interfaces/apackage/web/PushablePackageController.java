@@ -110,7 +110,7 @@ public class PushablePackageController {
     /**
      * get pullable packages.
      */
-    @GetMapping(value = "/pushable", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
         responseContainer = "List")
     @ApiResponses(value = {
