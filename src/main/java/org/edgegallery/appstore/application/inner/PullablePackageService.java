@@ -68,7 +68,7 @@ public class PullablePackageService {
 
     private static final String DOWNLOAD_ICON_API = "/mec/appstore/v1/packages/%s/action/download-icon";
 
-    private static final String PUSHABLE_API = "/mec/appstore/v1/packages/pushable";
+    private static final String PULLABLE_API = "/mec/appstore/v1/packages/pullable";
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -107,7 +107,7 @@ public class PullablePackageService {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
             return null;
         }
-        String url = appStore.getUrl() + PUSHABLE_API;
+        String url = appStore.getUrl() + PULLABLE_API;
         LOGGER.info(url);
 
         List<PushablePackageDto> packages;

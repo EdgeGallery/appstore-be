@@ -108,6 +108,20 @@ public class PushablePackageController {
     }
 
     /**
+     * get pullable packages.
+     */
+    @GetMapping(value = "/pullable", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
+        responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "bad request", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
+        return pushablePackageServiceFacade.queryAllPullablePackages();
+    }
+
+    /**
      * get pullable packages by id.
      *
      * @param platformId source appstore id
