@@ -157,6 +157,15 @@ public class PushablePackageServiceFacade {
     }
 
     /**
+     * query all pullable packages.
+     *
+     * @return list
+     */
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
+        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages());
+    }
+
+    /**
      * get pullable packages by id.
      *
      * @param platformId id

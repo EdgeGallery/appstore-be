@@ -142,7 +142,7 @@ public class AtpUtil {
                 status = jsonObject.get("status").getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
-                LOGGER.error("Get task status faieed.");
+                LOGGER.error("Get task status failed.");
             }
 
         } catch (RestClientException e) {
