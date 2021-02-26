@@ -94,6 +94,14 @@ public class PullablePackageService {
     @Autowired
     private AppService appService;
 
+    /**
+     * query all pullable packages.
+     *
+     * @return list
+     */
+    public List<PushablePackageDto> queryAllPullablePackages() {
+        return pushablePackageRepository.queryAllPushablePackages();
+    }
 
     /**
      * get pullable packages by id.

@@ -162,7 +162,7 @@ public class PushablePackageServiceFacade {
      * @return list
      */
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
-        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages());
+        return ResponseEntity.ok(pullablePackageService.queryAllPullablePackages());
     }
 
     /**
