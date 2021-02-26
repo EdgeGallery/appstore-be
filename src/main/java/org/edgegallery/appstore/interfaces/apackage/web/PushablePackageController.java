@@ -57,7 +57,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
         return pushablePackageServiceFacade.queryAllPushablePackages();
     }
@@ -67,7 +67,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<PushablePackageDto> getPushablePackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) {
         return pushablePackageServiceFacade.getPushablePackage(packageId);
@@ -78,7 +78,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<Boolean>> pushPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "3rd AppStore") @RequestBody() PushTargetAppStoreDto dto) {
@@ -133,7 +133,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Boolean> pullPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "source AppStore Id and user info") @RequestBody() PullAppReqDto dto) {
