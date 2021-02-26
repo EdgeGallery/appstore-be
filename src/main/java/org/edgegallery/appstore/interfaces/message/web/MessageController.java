@@ -70,7 +70,7 @@ public class MessageController {
     @ApiResponses(value = {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_TENANT')")
     public ResponseEntity<List<MessageRespDto>> getAllMessages(
         @ApiParam(value = "messageType") @QueryParam("messageType") EnumMessageType messageType) {
         return messageServiceFacade.getAllMessages(messageType);
@@ -82,7 +82,7 @@ public class MessageController {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<MessageRespDto> getMessage(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
         return messageServiceFacade.getMessage(messageId);
@@ -95,7 +95,7 @@ public class MessageController {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> deleteMessage(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
         return messageServiceFacade.deleteMessage(messageId);
@@ -107,7 +107,7 @@ public class MessageController {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> download(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
         return messageServiceFacade.downloadFromMessage(messageId, new User((String) request.getAttribute("userId"),
@@ -120,7 +120,7 @@ public class MessageController {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> updateReaded(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
         return messageServiceFacade.updateMessageReaded(messageId);
@@ -132,7 +132,7 @@ public class MessageController {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> queryReportData(
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
         return messageServiceFacade.queryReportData(messageId);
