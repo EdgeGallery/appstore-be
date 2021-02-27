@@ -108,8 +108,8 @@ public class PullPackageTest {
 
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.post("/mec/appstore/v1/packages/packageid-0002/action/pull")
-                .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).content(gson.toJson(dto))
-                .accept(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+                .contentType(MediaType.APPLICATION_JSON).with(csrf()).content(gson.toJson(dto))
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         int result = mvcResult.getResponse().getStatus();
         assertEquals(200, result);
         String content = mvcResult.getResponse().getContentAsString();
