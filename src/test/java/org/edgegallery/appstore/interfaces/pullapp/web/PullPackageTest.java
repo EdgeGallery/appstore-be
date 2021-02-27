@@ -91,7 +91,7 @@ public class PullPackageTest {
 
     @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
-    public void should_success_when_push_package_notice() throws Exception {
+    public void should_success_when_pull_package_notice() throws Exception {
         PullAppReqDto dto = new PullAppReqDto();
         dto.setSourceStoreId("appstore-test-0002");
         dto.setSourceStoreName("移动");
