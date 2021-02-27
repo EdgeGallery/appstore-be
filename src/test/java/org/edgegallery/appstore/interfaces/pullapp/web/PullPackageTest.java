@@ -40,6 +40,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -108,8 +109,8 @@ public class PullPackageTest {
 
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.post("/mec/appstore/v1/packages/packageid-0002/action/pull")
-                .contentType(MediaType.APPLICATION_JSON).with(csrf()).content(gson.toJson(dto))
-                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                .content(gson.toJson(dto)).with(csrf())).andDo(MockMvcResultHandlers.print()).andReturn();
         int result = mvcResult.getResponse().getStatus();
         assertEquals(200, result);
         String content = mvcResult.getResponse().getContentAsString();
