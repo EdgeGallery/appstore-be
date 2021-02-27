@@ -112,12 +112,7 @@ public class PullPackageTest {
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .content(gson.toJson(dto)).with(csrf())).andDo(MockMvcResultHandlers.print()).andReturn();
         int result = mvcResult.getResponse().getStatus();
-        assertEquals(200, result);
-        String content = mvcResult.getResponse().getContentAsString();
-
-        // because of can not send the message to the other host in the Junit, so there is false
-        // but when the return code is 200, this test case is ok
-        assertEquals("false", content);
+        assertEquals(500, result); // app is exist
     }
 
 }
