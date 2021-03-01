@@ -62,8 +62,6 @@ public class AppController {
 
     private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final String REG_USER_NAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
-
     private static final String REG_APP_ID = "[0-9a-f]{32}";
 
     private static final int MAX_COMMON_STRING_LENGTH = 255;
@@ -86,7 +84,7 @@ public class AppController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<RegisterRespDto> appRegistering(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @RequestParam("userName") String userName,
         @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
@@ -174,7 +172,7 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> deleteAppById(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @RequestParam("userName") String userName,
         @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         appServiceFacade.unPublishApp(appId, new User(userId, userName));
         return ResponseEntity.ok("delete App success.");
