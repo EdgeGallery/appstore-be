@@ -116,7 +116,6 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
         return pushablePackageServiceFacade.queryAllPullablePackages();
     }
@@ -131,6 +130,7 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> getPullablePackages(
         @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId) {
         return pushablePackageServiceFacade.getPullablePackages(platformId);

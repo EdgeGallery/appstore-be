@@ -100,6 +100,7 @@ public class PullablePackageService {
      * @return list
      */
     public List<PushablePackageDto> queryAllPullablePackages() {
+        LOGGER.info("pullablePackageService queryAllPullablePackages come in");
         return pushablePackageRepository.queryAllPushablePackages();
     }
 
