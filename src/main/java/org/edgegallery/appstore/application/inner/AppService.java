@@ -333,7 +333,7 @@ public class AppService {
     }
 
     /**
-     * Update helm chart values
+     * Update helm chart values.
      *
      * @param valuesYaml       values file
      */
@@ -406,7 +406,7 @@ public class AppService {
     }
 
     /**
-     * docker client instance
+     * docker client instance.
      *
      * @param repo image repo
      * @param userName repo user name

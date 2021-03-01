@@ -59,7 +59,7 @@ public class LocalFileService implements FileService {
 
 
     /**
-     *sanitize file name
+     *sanitize file name.
      *
      * @param entryName entry name.
      * @parm  intendedDir parent dir
@@ -80,7 +80,7 @@ public class LocalFileService implements FileService {
     }
 
     /**
-     *create file name
+     *create file name.
      *
      * @param filePath file name.
      */
@@ -95,6 +95,7 @@ public class LocalFileService implements FileService {
             throw new IllegalArgumentException("create temp file failed");
         }
     }
+
     @Override
     public String saveTo(File file, String fileParent) {
         if (file == null || file.getName() == null) {
