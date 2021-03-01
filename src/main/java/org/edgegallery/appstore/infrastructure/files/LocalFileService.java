@@ -57,6 +57,45 @@ public class LocalFileService implements FileService {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileService.class);
 
+
+    /**
+     *sanitize file name.
+     *
+     * @param entryName entry name.
+     * @parm  intendedDir parent dir
+     */
+    public static String sanitizeFileName(String entryName, String intendedDir) throws IOException {
+        File f = new File(intendedDir, entryName);
+        String canonicalPath = f.getCanonicalPath();
+        File intendDir = new File(intendedDir);
+        if (intendDir.isDirectory() && !intendDir.exists()) {
+            createFile(intendedDir);
+        }
+        String canonicalID = intendDir.getCanonicalPath();
+        if (canonicalPath.startsWith(canonicalID)) {
+            return canonicalPath;
+        } else {
+            throw new IllegalStateException("file is outside extraction target directory.");
+        }
+    }
+
+    /**
+     *create file name.
+     *
+     * @param filePath file name.
+     */
+    static void createFile(String filePath) throws IOException {
+        File tempFile = new File(filePath);
+        boolean result = false;
+
+        if (!tempFile.getParentFile().exists() && !tempFile.isDirectory()) {
+            result = tempFile.getParentFile().mkdirs();
+        }
+        if (!tempFile.exists() && !tempFile.isDirectory() && !tempFile.createNewFile() && !result) {
+            throw new IllegalArgumentException("create temp file failed");
+        }
+    }
+
     @Override
     public String saveTo(File file, String fileParent) {
         if (file == null || file.getName() == null) {

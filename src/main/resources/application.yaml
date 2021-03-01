@@ -56,7 +56,11 @@ mybatis:
 ### appstore-be config ###
 appstore-be:
   package-path: "/usr/app/packages"
-
+  appstore-repo-password: ${APPSTORE_REPO_PASSWORD:}
+  appstore-repo-username: ${APPSTORE_REPO_USERNAME:}
+  appstore-repo-endpoint: ${APPSTORE_REPO_ENDPOINT:}
+  dev-repo-password: ${DEV_REPO_PASSWORD:}
+  dev-repo-username: ${DEV_REPO_USERNAME:}
 ### atp config ###
 atp:
   urls:

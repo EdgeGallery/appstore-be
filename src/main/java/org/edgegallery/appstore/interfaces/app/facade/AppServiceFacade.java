@@ -30,6 +30,7 @@ import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
@@ -38,12 +39,15 @@ import org.edgegallery.appstore.domain.model.releases.PackageChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -54,6 +58,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("AppServiceFacade")
 public class AppServiceFacade {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppService.class);
 
     @Autowired
     private AppService appService;
@@ -75,10 +81,10 @@ public class AppServiceFacade {
      * appRegistering.
      */
     public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
-        MultipartFile iconFile, AtpMetadata atpMetadata) {
+                                                          MultipartFile iconFile, AtpMetadata atpMetadata) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        AFile packageAFile = getFile(packageFile, new PackageChecker(dir), fileParent);
+        AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
 
         Release release = new Release(packageAFile, icon, user, appParam);
@@ -93,6 +99,37 @@ public class AppServiceFacade {
     private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        return new AFile(file.getOriginalFilename(), fileStoreageAddress);
+    }
+
+    private AFile getPkgFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
+        File tempfile = fileChecker.check(file);
+        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+
+        List<SwImgDesc> imgDecsList;
+        boolean isImgTarExist = false;
+
+        try {
+            imgDecsList = appService.getAppImageInfo(fileStoreageAddress, fileParent);
+            if (imgDecsList == null) {
+                return new AFile(file.getOriginalFilename(), fileStoreageAddress);
+            }
+
+            for (SwImgDesc imageDescr : imgDecsList) {
+                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz")
+                        || imageDescr.getSwImage().contains(".tgz")) {
+                    isImgTarExist = true;
+                }
+            }
+
+            if (!isImgTarExist) {
+                appService.updateAppPackageWithRepoInfo(fileParent);
+                appService.updateImgInRepo(imgDecsList);
+                fileStoreageAddress = appService.compressAppPackage(fileParent);
+            }
+        } catch (AppException | IllegalArgumentException ex) {
+            throw new AppException(ex.getMessage());
+        }
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);
     }
 
