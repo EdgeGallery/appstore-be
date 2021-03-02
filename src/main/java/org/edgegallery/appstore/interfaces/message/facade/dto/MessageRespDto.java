@@ -51,6 +51,8 @@ public class MessageRespDto {
 
     private String atpTestReportUrl;
 
+    private String iconDownloadUrl;
+
     private boolean readed;
 
     /**
@@ -72,7 +74,7 @@ public class MessageRespDto {
         dto.atpTestReportUrl = message.getAtpTestReportUrl();
         dto.basicInfo = message.getBasicInfo();
         dto.readed = message.isReaded();
+        dto.iconDownloadUrl = message.getIconDownloadUrl();
         return dto;
     }
-
 }
