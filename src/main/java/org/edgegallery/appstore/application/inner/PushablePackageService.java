@@ -123,8 +123,7 @@ public class PushablePackageService {
             LOGGER.info(url);
 
             MessageReqDto requestDto = generatorMessageRequest(appStore.getAppStoreName(), packagePo);
-            String appstorAppd = appStore.getAppdTransId();
-            String atpReportUrl = updateAtpReportUrl(atpUrl, atpScenariosDtoList, appstorAppd);
+            String atpReportUrl = updateAtpReportUrl(atpUrl, atpScenariosDtoList, appStore.getAppdTransId());
             requestDto.setAtpTestReportUrl(atpReportUrl);
 
             MessageReqDto messageReqDto = pushNotice(url, requestDto);
@@ -185,7 +184,8 @@ public class PushablePackageService {
     }
 
     private String updateAtpReportUrl(String oldUrl, List<AtpScenariosDto> atpScenariosDtoList, String appdTransId) {
-        String atpReportUrl = null;
+        LOGGER.info("updateAtpReportUrl old url: {}, appdTransId is {}", oldUrl, appdTransId);
+        String atpReportUrl;
         String unicomId = null;
         String mobileId = null;
         String telecomId = null;
@@ -211,6 +211,7 @@ public class PushablePackageService {
         } else {
             atpReportUrl = oldUrl + "&scenarioId=" + egId;
         }
+        LOGGER.info("updateAtpReportUrl new url: {}", atpReportUrl);
         return atpReportUrl;
     }
 }
