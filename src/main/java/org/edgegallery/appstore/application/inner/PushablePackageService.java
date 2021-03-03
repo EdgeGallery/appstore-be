@@ -55,6 +55,18 @@ public class PushablePackageService {
 
     private static final String DOWNLOAD_ICON_API = "/mec/appstore/v1/packages/%s/action/download-icon";
 
+    private static final String ATP_SCENARIO_UNICOM = "China Unicom";
+
+    private static final String ATP_SCENARIO_MOBILE = "China Mobile";
+
+    private static final String ATP_SCENARIO_TELECOM = "China Telecom";
+
+    private static final String APPD_TRANSID_UNICOM = "联通_APPD_2.0";
+
+    private static final String APPD_TRANSID_MOBILE = "移动_APPD_2.0";
+
+    private static final String APPD_TRANSID_TELECOM = "电信_APPD_2.0";
+
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
 
@@ -179,22 +191,22 @@ public class PushablePackageService {
         String telecomId = null;
         String egId = null;
         for (AtpScenariosDto dto : atpScenariosDtoList) {
-            if (dto.getScenariosLabel().equals("China Unicom")) {
+            if (dto.getScenariosLabel().equals(ATP_SCENARIO_UNICOM)) {
                 unicomId = dto.getScenariosId();
-            } else if (dto.getScenariosLabel().equals("China Mobile")) {
+            } else if (dto.getScenariosLabel().equals(ATP_SCENARIO_MOBILE)) {
                 mobileId = dto.getScenariosId();
-            } else if (dto.getScenariosLabel().equals("China Telecom")) {
+            } else if (dto.getScenariosLabel().equals(ATP_SCENARIO_TELECOM)) {
                 telecomId = dto.getScenariosId();
             } else {
                 egId = dto.getScenariosId();
             }
         }
 
-        if (appdTransId.equals("联通_APPD_2.0") && !unicomId.isEmpty()) {
+        if (appdTransId.equals(APPD_TRANSID_UNICOM) && !unicomId.isEmpty()) {
             atpReportUrl = oldUrl + "&scenarioId=" + unicomId;
-        } else if (appdTransId.equals("移动_APPD_2.0") && !mobileId.isEmpty()) {
+        } else if (appdTransId.equals(APPD_TRANSID_MOBILE) && !mobileId.isEmpty()) {
             atpReportUrl = oldUrl + "&scenarioId=" + mobileId;
-        } else if (appdTransId.equals("电信_APPD_2.0") && !telecomId.isEmpty()) {
+        } else if (appdTransId.equals(APPD_TRANSID_TELECOM) && !telecomId.isEmpty()) {
             atpReportUrl = oldUrl + "&scenarioId=" + telecomId;
         } else {
             atpReportUrl = oldUrl + "&scenarioId=" + egId;
