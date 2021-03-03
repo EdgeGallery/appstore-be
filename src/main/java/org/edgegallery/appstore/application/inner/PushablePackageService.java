@@ -17,6 +17,8 @@ package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.edgegallery.appstore.application.external.atp.AtpUtil;
+import org.edgegallery.appstore.application.external.atp.model.AtpScenariosDto;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
@@ -65,6 +67,9 @@ public class PushablePackageService {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private AtpUtil atpUtil;
+
     public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();
     }
@@ -92,6 +97,8 @@ public class PushablePackageService {
             return results;
         }
 
+        String atpUrl = packagePo.getAtpTestReportUrl();
+        List<AtpScenariosDto> atpScenariosDtoList = atpUtil.getTaskScenariosFromAtp(packagePo.getAtpTestTaskId());
         final List<Boolean> results = new ArrayList<>();
         LOGGER.info("push package {}", packagePo.getPackageId());
         targetAppStore.getTargetPlatform().forEach(platformId -> {
@@ -104,6 +111,9 @@ public class PushablePackageService {
             LOGGER.info(url);
 
             MessageReqDto requestDto = generatorMessageRequest(appStore.getAppStoreName(), packagePo);
+            String appstorAppd = appStore.getAppdTransId();
+            String atpReportUrl = updateAtpReportUrl(atpUrl, atpScenariosDtoList, appstorAppd);
+            requestDto.setAtpTestReportUrl(atpReportUrl);
 
             MessageReqDto messageReqDto = pushNotice(url, requestDto);
             if (messageReqDto == null) {
@@ -160,5 +170,35 @@ public class PushablePackageService {
             LOGGER.error("failed to send notice to {}", url);
         }
         return null;
+    }
+
+    private String updateAtpReportUrl(String oldUrl, List<AtpScenariosDto> atpScenariosDtoList, String appdTransId) {
+        String atpReportUrl = null;
+        String unicomId = null;
+        String mobileId = null;
+        String telecomId = null;
+        String egId = null;
+        for (AtpScenariosDto dto : atpScenariosDtoList) {
+            if (dto.getScenariosLabel().equals("China Unicom")) {
+                unicomId = dto.getScenariosId();
+            } else if (dto.getScenariosLabel().equals("China Mobile")) {
+                mobileId = dto.getScenariosId();
+            } else if (dto.getScenariosLabel().equals("China Telecom")) {
+                telecomId = dto.getScenariosId();
+            } else {
+                egId = dto.getScenariosId();
+            }
+        }
+
+        if (appdTransId.equals("联通_APPD_2.0") && !unicomId.isEmpty()) {
+            atpReportUrl = oldUrl + "&scenarioId=" + unicomId;
+        } else if (appdTransId.equals("移动_APPD_2.0") && !mobileId.isEmpty()) {
+            atpReportUrl = oldUrl + "&scenarioId=" + mobileId;
+        } else if (appdTransId.equals("电信_APPD_2.0") && !telecomId.isEmpty()) {
+            atpReportUrl = oldUrl + "&scenarioId=" + telecomId;
+        } else {
+            atpReportUrl = oldUrl + "&scenarioId=" + egId;
+        }
+        return atpReportUrl;
     }
 }
