@@ -105,6 +105,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             request.setAttribute("access_token", accessTokenStr);
             request.setAttribute("userId", userIdFromToken);
             request.setAttribute("userName", userNameFromToken);
+            LOGGER.info("doFilterInternal, token is {}", accessTokenStr);
+            LOGGER.info("doFilterInternal userName: {}, userId: {}", userNameFromToken, userIdFromToken);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
