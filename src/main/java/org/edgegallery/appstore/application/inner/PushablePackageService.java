@@ -17,6 +17,7 @@ package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.application.external.atp.model.AtpScenariosDto;
 import org.edgegallery.appstore.config.ApplicationContext;
@@ -186,10 +187,10 @@ public class PushablePackageService {
     private String updateAtpReportUrl(String oldUrl, List<AtpScenariosDto> atpScenariosDtoList, String appdTransId) {
         LOGGER.info("updateAtpReportUrl old url: {}, appdTransId is {}", oldUrl, appdTransId);
         String atpReportUrl;
-        String unicomId = null;
-        String mobileId = null;
-        String telecomId = null;
-        String egId = null;
+        String unicomId = "";
+        String mobileId = "";
+        String telecomId = "";
+        String egId = "";
         for (AtpScenariosDto dto : atpScenariosDtoList) {
             if (dto.getScenariosLabel().equals(ATP_SCENARIO_UNICOM)) {
                 unicomId = dto.getScenariosId();
@@ -202,11 +203,11 @@ public class PushablePackageService {
             }
         }
 
-        if (appdTransId.equals(APPD_TRANSID_UNICOM) && !unicomId.isEmpty()) {
+        if (appdTransId.equals(APPD_TRANSID_UNICOM) && StringUtils.isEmpty(unicomId)) {
             atpReportUrl = oldUrl + "&scenarioId=" + unicomId;
-        } else if (appdTransId.equals(APPD_TRANSID_MOBILE) && !mobileId.isEmpty()) {
+        } else if (appdTransId.equals(APPD_TRANSID_MOBILE) && StringUtils.isEmpty(mobileId)) {
             atpReportUrl = oldUrl + "&scenarioId=" + mobileId;
-        } else if (appdTransId.equals(APPD_TRANSID_TELECOM) && !telecomId.isEmpty()) {
+        } else if (appdTransId.equals(APPD_TRANSID_TELECOM) && StringUtils.isEmpty(telecomId)) {
             atpReportUrl = oldUrl + "&scenarioId=" + telecomId;
         } else {
             atpReportUrl = oldUrl + "&scenarioId=" + egId;
