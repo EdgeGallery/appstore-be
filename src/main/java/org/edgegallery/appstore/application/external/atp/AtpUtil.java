@@ -96,7 +96,6 @@ public class AtpUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set("access_token", token);
-        LOGGER.info("sendCreatTask2Atp, token is {}", token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = createTaskUrl;
