@@ -70,7 +70,7 @@ public class MessageController {
     @ApiResponses(value = {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<MessageRespDto>> getAllMessages(
         @ApiParam(value = "messageType") @QueryParam("messageType") EnumMessageType messageType) {
         return messageServiceFacade.getAllMessages(messageType);
