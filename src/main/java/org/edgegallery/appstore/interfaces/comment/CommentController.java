@@ -58,7 +58,7 @@ public class CommentController {
 
     @PostMapping(value = "/apps/{appId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "add comment to a app.", response = String.class)
-    @PreAuthorize("hasRole('APPSTORE_TENANT')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> addComments(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
         @ApiParam(value = "appId", required = true) @Pattern(regexp = REG_APP_ID) @PathVariable("appId") String appId,
@@ -74,7 +74,7 @@ public class CommentController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<Comment>> getComments(@ApiParam(value = "app Id", required = true) @PathVariable("appId")
         @Pattern(regexp = REG_APP_ID) String appId) {
         return appCommentService.getComments(appId, 100, 0);

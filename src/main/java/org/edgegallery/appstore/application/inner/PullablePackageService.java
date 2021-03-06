@@ -201,7 +201,7 @@ public class PullablePackageService {
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
-                releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published).forEach(r1 -> {
+                releases.stream().forEach(r1 -> {
                     if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
                         bexist.set(true);
                         LOGGER.info("The same app has existed. packages name {}", dto.getName());
