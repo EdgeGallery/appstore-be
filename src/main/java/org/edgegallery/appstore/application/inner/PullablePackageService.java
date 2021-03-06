@@ -108,9 +108,10 @@ public class PullablePackageService {
      * get pullable packages by id.
      *
      * @param platformId appstore id
+     * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackages(String platformId) {
+    public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
@@ -148,7 +149,7 @@ public class PullablePackageService {
             return null;
         }
 
-        return filterPullabelPackages(packages);
+        return filterPullabelPackages(packages, userId);
     }
 
     /**
@@ -194,19 +195,20 @@ public class PullablePackageService {
         return true;
     }
 
-    private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages) {
+    private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages, String userId) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
             AtomicBoolean bexist = new AtomicBoolean(false);
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
-                releases.stream().forEach(r1 -> {
-                    if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
-                        bexist.set(true);
-                        LOGGER.info("The same app has existed. packages name {}", dto.getName());
-                    }
-                });
+                releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published
+                    || userId.equals(r.getUser().getUserId())).forEach(r1 -> {
+                        if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
+                            bexist.set(true);
+                            LOGGER.info("The same app has existed. packages name {}", dto.getName());
+                        }
+                    });
             }
             if (!bexist.get()) {
                 result.add(dto);

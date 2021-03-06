@@ -168,11 +168,12 @@ public class PushablePackageServiceFacade {
     /**
      * get pullable packages by id.
      *
-     * @param platformId id
+     * @param platformId appstore id
+     * @param userId user id
      * @return dto
      */
-    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId) {
-        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId));
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId) {
+        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId));
     }
 
     /**

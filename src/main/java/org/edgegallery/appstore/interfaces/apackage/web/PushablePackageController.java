@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
@@ -132,8 +133,8 @@ public class PushablePackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> getPullablePackages(
-        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId) {
-        return pushablePackageServiceFacade.getPullablePackages(platformId);
+        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId, HttpServletRequest request) {
+        return pushablePackageServiceFacade.getPullablePackages(platformId, (String) request.getAttribute("userId"));
     }
 
     /**
