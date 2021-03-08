@@ -58,13 +58,16 @@ public class Release implements ValueObject<Release> {
 
     private BasicInfo appBasicInfo;
 
+    private AFile demoVideo;
+
     /**
      * Constructor of Release.
      */
-    public Release(AFile packageFile, AFile icon, User user, AppParam appParam) {
+    public Release(AFile packageFile, AFile icon, AFile demoVideo, User user, AppParam appParam) {
         String random = UUID.randomUUID().toString();
         this.packageId = random.replace("-", "");
         this.packageFile = packageFile;
+        this.demoVideo = demoVideo;
         this.icon = icon;
         this.user = user;
         this.createTime = new Date();

@@ -98,6 +98,9 @@ public class AppReleasePo {
     @Column(name = "STATUS")
     private String status;
 
+    @Column(name = "demoVideoAddress")
+    private String demoVideoAddress;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
@@ -121,6 +124,9 @@ public class AppReleasePo {
         po.packageId = pack.getPackageId();
         po.packageAddress = pack.getPackageFile().getStorageAddress();
         po.iconAddress = pack.getIcon().getStorageAddress();
+        if (pack.getDemoVideo() != null) {
+            po.demoVideoAddress = pack.getDemoVideo().getStorageAddress();
+        }
         po.size = pack.getPackageFile().getSize();
         po.fileStructure = pack.getAppBasicInfo().getFileStructure();
         po.createTime = pack.getCreateTime();
@@ -157,6 +163,9 @@ public class AppReleasePo {
         basicInfo.setMarkDownContent(markDownContent);
         Release release = new Release();
 
+        if (demoVideoAddress != null) {
+            release.setDemoVideo(new AFile(new File(demoVideoAddress).getName(), demoVideoAddress));
+        }
         release.setPackageFile(new AFile(new File(packageAddress).getName(), packageAddress));
         release.setAppId(appId);
         release.setPackageId(packageId);

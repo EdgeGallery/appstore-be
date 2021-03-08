@@ -174,6 +174,10 @@ public class App implements Entity {
             .max(Comparator.comparing(Release::getCreateTime));
     }
 
+    public Optional<Release> findLatestRelease() {
+        return releases.stream().max(Comparator.comparing(Release::getCreateTime));
+    }
+
     public boolean hasPublishedRelease() {
         return releases.stream().anyMatch(r -> r.getStatus() == EnumPackageStatus.Published);
     }

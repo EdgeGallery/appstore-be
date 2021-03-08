@@ -27,8 +27,8 @@
     <update id="updateRelease"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         update catalog_package_table
-        SET packageid = #{packageId}, packageAddress = #{packageAddress}, iconAddress = #{iconAddress}, size = #{size},
-        fileStructure = #{fileStructure}, createTime = #{createTime}, shortDesc = #{shortDesc}, appName = #{appName},
+        SET packageid = #{packageId}, packageAddress = #{packageAddress}, demoVideoAddress = #{demoVideoAddress},
+        iconAddress = #{iconAddress}, size = #{size}, fileStructure = #{fileStructure}, createTime = #{createTime}, shortDesc = #{shortDesc}, appName = #{appName},
         version = #{version}, provider = #{provider}, applicationType = #{applicationType}, markDownContent = #{markDownContent},
         affinity = #{affinity}, industry = #{industry}, contact = #{contact}, appId = #{appId}, userId = #{userId}, userName = #{userName},
         TESTTASKID = #{testTaskId}, status = #{status}
@@ -38,12 +38,12 @@
     <insert id="insertRelease"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         insert into catalog_package_table
-        (packageid, packageAddress,iconAddress, size, fileStructure, CREATETIME, SHORTDESC,
+        (packageid, packageAddress, iconAddress, demoVideoAddress, size, fileStructure, CREATETIME, SHORTDESC,
         appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username,
         TESTTASKID, STATUS, provider)
         VALUES
-        (#{packageId}, #{packageAddress}, #{iconAddress}, #{size}, #{fileStructure},(select now()),#{shortDesc},
-        #{appName}, #{version}, #{applicationType},
+        (#{packageId}, #{packageAddress}, #{iconAddress}, #{demoVideoAddress}, #{size}, #{fileStructure},(select
+        now()),#{shortDesc}, #{appName}, #{version}, #{applicationType},
         #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName}, #{testTaskId},
         #{status}, #{provider})
     </insert>

@@ -94,6 +94,7 @@ public class MessageService {
         Message message = messageRepository.getOneMessage(messageId);
         String packageDownloadUrl = message.getPackageDownloadUrl();
         String iconDownloadUrl = message.getIconDownloadUrl();
+        String demoVideoDownloadUrl = message.getDemoVideoDownloadUrl();
         if (packageDownloadUrl == null || iconDownloadUrl == null) {
             LOGGER.error("download url null: package download url is {}, icon download url is {}", packageDownloadUrl,
                 iconDownloadUrl);
@@ -104,11 +105,17 @@ public class MessageService {
             String targetAppstore = message.getTargetAppStore();
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
+            AFile demoVideo = null;
+            if (demoVideoDownloadUrl != null) {
+                File tempDemoVideo = fileService.downloadFile(demoVideoDownloadUrl, parentPath, targetAppstore);
+                demoVideo = new AFile(tempDemoVideo.getName(), tempDemoVideo.getCanonicalPath());
+            }
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
+
             AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),
                 message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
-            Release release = new Release(apackage, icon, user, appParam);
+            Release release = new Release(apackage, icon, demoVideo, user, appParam);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);
