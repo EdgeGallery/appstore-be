@@ -90,7 +90,7 @@ public class AppServiceFacade {
         MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        AFile packageAFile = getFile(packageFile, new PackageChecker(dir), fileParent);
+        AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
