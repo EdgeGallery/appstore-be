@@ -182,7 +182,7 @@ public class PullablePackageService {
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
             AppParam appParam = new AppParam(packagePo.getType(), packagePo.getShortDesc(),
                 packagePo.getAffinity(), packagePo.getIndustry());
-            Release release = new Release(apackage, icon, user, appParam);
+            Release release = new Release(apackage, icon, null, user, appParam);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);

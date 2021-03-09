@@ -39,6 +39,7 @@ import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -87,6 +89,7 @@ public class AppController {
         @RequestParam("userName") String userName,
         @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
+        @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
         @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
@@ -99,7 +102,7 @@ public class AppController {
         HttpServletRequest request) {
         return appServiceFacade
             .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
-                new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
+                    demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
@@ -147,6 +150,21 @@ public class AppController {
         @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
         throws FileNotFoundException {
         return appServiceFacade.downloadIcon(appId);
+    }
+
+    @GetMapping(value = "/apps/{appId}/demoVideo", produces = "video/mp4")
+    @ApiOperation(value = "get demo Video by appId.", response = File.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+            @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+            @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<byte[]> downloadDemoVideo(
+            @ApiParam(value = "appId", required = true) @PathVariable("appId")
+            @Pattern(regexp = REG_APP_ID) String appId)
+            throws FileNotFoundException {
+        return appServiceFacade.downloadDemoVideo(appId);
     }
 
     @GetMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)

@@ -93,8 +93,12 @@ public class MessagePo implements PersistenceObject<Message> {
     @Column(name = "ICONDOWNLOADURL")
     private String iconDownloadUrl;
 
+    @Column(name = "DEMOVIDEODOWNLOADURL")
+    private String demoVideoDownloadUrl;
+
     static MessagePo of(Message message) {
         MessagePo po = new MessagePo();
+        po.demoVideoDownloadUrl = message.getDemoVideoDownloadUrl();
         po.messageId = message.getMessageId();
         po.name = message.getBasicInfo().getName();
         po.provider = message.getBasicInfo().getProvider();
@@ -134,6 +138,7 @@ public class MessagePo implements PersistenceObject<Message> {
         message.setAtpTestReportUrl(atpTestReportUrl);
         message.setPackageDownloadUrl(packageDownloadUrl);
         message.setIconDownloadUrl(iconDownloadUrl);
+        message.setDemoVideoDownloadUrl(demoVideoDownloadUrl);
         BasicMessageInfo basicInfo = new BasicMessageInfo();
         basicInfo.setName(name);
         basicInfo.setProvider(provider);

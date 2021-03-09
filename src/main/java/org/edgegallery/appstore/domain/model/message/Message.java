@@ -50,4 +50,5 @@ public class Message {
 
     private String iconDownloadUrl;
 
+    private String demoVideoDownloadUrl;
 }
