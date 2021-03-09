@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -132,13 +133,17 @@ public class AppServiceFacade {
             }
 
             if (!isImgTarExist) {
+                FileUtils.forceDelete(new File(fileStoreageAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
                 fileStoreageAddress = appService.compressAppPackage(fileParent);
             }
         } catch (AppException | IllegalArgumentException ex) {
             throw new AppException(ex.getMessage());
+        } catch (IOException ex) {
+            LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
+
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);
     }
 

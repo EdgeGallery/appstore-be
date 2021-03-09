@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -91,9 +92,12 @@ public class AppService {
 
     static final int TOO_MANY = 1024;
 
-    static final int TOO_BIG = 104857600;
+    static final int TOO_BIG = 536870912;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppService.class);
+
+    @Value("${appstore-be.package-path}")
+    private String dir;
 
     @Value("${appstore-be.appstore-repo-password:}")
     private String appstoreRepoPassword;
@@ -233,12 +237,6 @@ public class AppService {
         }
 
         try {
-            FileUtils.forceDelete(new File(localFilePath));
-        } catch (IOException ex) {
-            LOGGER.debug("failed to delete csar package {}", ex.getMessage());
-        }
-
-        try {
             return getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
@@ -285,6 +283,7 @@ public class AppService {
 
         File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         updateRepoInfoInSwImageDescr(swImageDesc);
+        String unZipPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
 
         File chartsTar = getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
         if (chartsTar == null) {
@@ -292,11 +291,16 @@ public class AppService {
         }
 
         try {
-            deCompress(chartsTar.getCanonicalFile().toString(),
-                    new File(chartsTar.getCanonicalFile().getParent()));
+            File unZipPathDir = new File(unZipPath);
+            if (!unZipPathDir.mkdirs()) {
+                LOGGER.info("unZip path existed.");
+            }
+
+            String chartsTarStr = chartsTar.getCanonicalFile().toString();
+            deCompress(chartsTarStr, new File(unZipPath));
 
             FileUtils.forceDelete(chartsTar);
-            File valuesYaml = getFileFromPackage(parentDir, "/values.yaml");
+            File valuesYaml = getFileFromPackage(unZipPath, "/values.yaml");
             if (valuesYaml == null) {
                 throw new AppException("failed to find values yaml");
             }
@@ -323,11 +327,12 @@ public class AppService {
             FileUtils.writeStringToFile(valuesYaml, json, StandardCharsets.UTF_8.name());
             LOGGER.info("imageLocation updated in values yaml {}", json);
 
-            compress(valuesYaml.getParent());
+            compress(valuesYaml.getParent(), chartsTarStr);
+            LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
 
-            FileUtils.deleteDirectory(new File(valuesYaml.getParent()));
+            FileUtils.deleteDirectory(new File(unZipPath));
         } catch (IOException e) {
-            throw new AppException("failed to find charts directory");
+            LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
         }
     }
 
@@ -413,9 +418,9 @@ public class AppService {
      */
     private DockerClient getDockerClient(String repo, String userName, String password) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                //.withDockerTlsVerify(true)
-                //.withDockerCertPath("/usr/app/ssl")
-                .withRegistryUrl("http://" + repo)
+                .withDockerTlsVerify(true)
+                .withDockerCertPath("/usr/app/ssl")
+                .withRegistryUrl("https://" + repo)
                 .withRegistryUsername(userName)
                 .withRegistryPassword(password)
                 .build();
@@ -545,13 +550,13 @@ public class AppService {
         }
     }
 
-    private void compress(String sourceDir) {
+    private void compress(String sourceDir, String destPath) {
         if (sourceDir == null || sourceDir.isEmpty()) {
             return;
         }
 
-        File destination = new File(sourceDir);
-        try (FileOutputStream destOutStream = new FileOutputStream(destination.getCanonicalPath().concat(".tgz"));
+        File destination = new File(destPath);
+        try (FileOutputStream destOutStream = new FileOutputStream(destination.getCanonicalPath());
                 GZIPOutputStream gipOutStream = new GZIPOutputStream(new BufferedOutputStream(destOutStream));
                 TarArchiveOutputStream outStream = new TarArchiveOutputStream(gipOutStream)) {
 
@@ -562,16 +567,16 @@ public class AppService {
         }
     }
 
-    private void addFileToTar(String filePath, String parent, TarArchiveOutputStream tarArchive) {
+    private void addFileToTar(String filePath, String parent, TarArchiveOutputStream tarArchive) throws IOException {
 
         File file = new File(filePath);
         LOGGER.info("compressing... {}", file.getName());
-
+        FileInputStream inputStream = null;
         String entry = parent + file.getName();
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
-                FileInputStream inputStream = new FileInputStream(file);
+                inputStream = new FileInputStream(file);
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
 
                 IOUtils.copy(bufferedInputStream, tarArchive);
@@ -588,6 +593,10 @@ public class AppService {
             }
         } catch (IOException e) {
             throw new AppException("failed to compress " + e.getMessage());
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();  
+            }
         }
     }
 
