@@ -49,8 +49,6 @@ public class CommentController {
 
     private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final String REG_USER_NAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
-
     private static final String REG_APP_ID = "[0-9a-f]{32}";
 
     @Autowired
@@ -60,7 +58,7 @@ public class CommentController {
     @ApiOperation(value = "add comment to a app.", response = String.class)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> addComments(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @RequestParam("userName") @Pattern(regexp = REG_USER_NAME) String userName,
+        @RequestParam("userName") String userName,
         @ApiParam(value = "appId", required = true) @Pattern(regexp = REG_APP_ID) @PathVariable("appId") String appId,
         @Validated @RequestBody CommentRequest entity) {
         appCommentService.comment(new User(userId, userName), appId, entity.getBody(), entity.getScore());
