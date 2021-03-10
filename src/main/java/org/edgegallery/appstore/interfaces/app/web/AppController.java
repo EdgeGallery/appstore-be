@@ -87,6 +87,38 @@ public class AppController {
     public ResponseEntity<RegisterRespDto> appRegistering(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
+        @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
+        @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
+        @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
+        @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "type should not be null.") @RequestPart("type") String type,
+        @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
+        @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "affinity should not be null.") @RequestPart("affinity") String affinity,
+        @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "industry should not be null.") @RequestPart("industry") String industry,
+        @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
+        HttpServletRequest request) {
+        return appServiceFacade
+            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon
+                ,demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
+    }
+
+    /**
+     * app upload function.
+     */
+    @PostMapping(value = "/appsBigFile", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "upload app package", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<RegisterRespDto> appRegister(
+        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+        @RequestParam("userName") String userName,
         @ApiParam(value = "app fileAddress", required = true) @NotNull(
             message = "address should not be null.") @RequestPart("fileAddress") String fileAddress,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
@@ -102,7 +134,7 @@ public class AppController {
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
         return appServiceFacade
-            .appRegistering(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon
+            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon
                 ,demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
     }
 

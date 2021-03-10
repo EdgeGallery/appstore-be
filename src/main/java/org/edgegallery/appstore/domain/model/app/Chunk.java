@@ -1,10 +1,13 @@
 package org.edgegallery.appstore.domain.model.app;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Serializable;
 
 @Setter
 @Getter
@@ -60,4 +63,12 @@ public class Chunk implements Serializable {
     private String type;
 
     private MultipartFile file;
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+    }
 }
