@@ -101,8 +101,8 @@ public class AppController {
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
         return appServiceFacade
-            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon
-                ,demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
+            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
+                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
     }
 
     /**
@@ -134,8 +134,8 @@ public class AppController {
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
         return appServiceFacade
-            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon
-                ,demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
+            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon,
+                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)

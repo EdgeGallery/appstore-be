@@ -21,14 +21,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -56,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -109,11 +105,11 @@ public class AppServiceFacade {
     /**
      * appRegistering big file.
      */
-    public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam,
-        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+    public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
+        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf( File.separator));
+        String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         AFile packageAFile = getPkgFileNew(fileAddress, fileDir);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
@@ -129,10 +125,10 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew( String fileAddress, String fileDir) {
+    private AFile getPkgFileNew(String fileAddress, String fileDir) {
         List<SwImgDesc> imgDecsList;
         boolean isImgTarExist = false;
-        String fileDirName = fileAddress.substring(fileAddress.lastIndexOf( File.separator) + 1);
+        String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
         try {
 
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
@@ -141,8 +137,8 @@ public class AppServiceFacade {
             }
 
             for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz")
-                    || imageDescr.getSwImage().contains(".tgz")) {
+                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz") || imageDescr
+                    .getSwImage().contains(".tgz")) {
                     isImgTarExist = true;
                 }
             }
@@ -160,6 +156,7 @@ public class AppServiceFacade {
         }
         return new AFile(fileDirName, fileAddress);
     }
+
     private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
