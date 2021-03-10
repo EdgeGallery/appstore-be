@@ -23,6 +23,6 @@ public class RedundantCommentsException extends DomainException {
     private static final long serialVersionUID = 4184922855060285901L;
 
     public <T extends Entity> RedundantCommentsException(String userId, String appId) {
-        super("User " + userId + " has already comments to app " + appId + " yet.");
+        super("User " + userId + " can not comment own app " + appId);
     }
 }
