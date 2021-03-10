@@ -26,7 +26,8 @@ security:
         key-value: test
 
 appstore-be:
-  package-path: "usr/apptest/packages"
+  temp-path: usr/apptest/temp
+  package-path: usr/apptest/packages
 
 ### atp config ###
 atp:
