@@ -87,12 +87,11 @@ public class AppServiceFacade {
     /**
      * appRegistering.
      */
-    public ResponseEntity<RegisterRespDto> appRegistering(User user, AppParam appParam,
-        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+    public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
+        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf( File.separator));
-        AFile packageAFile = getPkgFileNew(fileAddress, fileDir);
+        AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -107,30 +106,6 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew( String fileAddress, String fileDir) {
-        List<SwImgDesc> imgDecsList;
-        boolean isImgTarExist = false;
-        try {
-
-            imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
-
-            for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz")
-                    || imageDescr.getSwImage().contains(".tgz")) {
-                    isImgTarExist = true;
-                }
-            }
-
-            if (!isImgTarExist) {
-                appService.updateAppPackageWithRepoInfo(fileDir);
-                appService.updateImgInRepo(imgDecsList);
-                fileAddress = appService.compressAppPackage(fileDir);
-            }
-        } catch (AppException | IllegalArgumentException ex) {
-            throw new AppException(ex.getMessage());
-        }
-        return new AFile(fileAddress, fileAddress);
-    }
     private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);

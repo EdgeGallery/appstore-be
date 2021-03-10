@@ -87,8 +87,7 @@ public class AppController {
     public ResponseEntity<RegisterRespDto> appRegistering(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
-        @ApiParam(value = "app fileAddress", required = true) @NotNull(
-            message = "address should not be null.") @RequestPart("fileAddress") String fileAddress,
+        @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
         @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
@@ -102,8 +101,8 @@ public class AppController {
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
         return appServiceFacade
-            .appRegistering(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon
-                ,demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
+            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
+                    demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
