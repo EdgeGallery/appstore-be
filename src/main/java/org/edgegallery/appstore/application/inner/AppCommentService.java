@@ -50,6 +50,10 @@ public class AppCommentService {
      */
     public void comment(User user, String appId, String comments, double score) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        if (user.getUserId().equals(app.getUser().getUserId())) {
+            LOGGER.info("User {} can not comment own app {}.", user.getUserId(), appId);
+            throw new RedundantCommentsException(user.getUserId(), appId);
+        }
         Comment comment = new Comment(user, app.getAppId(), comments, score);
         commentRepository.store(comment);
         app.setNumOfcomment(commentRepository.getNumofComments(appId));
