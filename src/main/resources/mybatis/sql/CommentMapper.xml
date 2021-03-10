@@ -25,10 +25,7 @@
     <insert id="insert">
         insert into csar_package_score
         (userid, username, appid, comments, score, commenttime)
-        select #{userId}, #{userName}, #{appId}, #{comments}, #{score}, (select now())
-        where
-        not exists(select 1 from csar_package_score c where
-        c.userid = #{userId} and c.appid = #{appId})
+        values (#{userId}, #{userName}, #{appId}, #{comments}, #{score}, (select now()))
     </insert>
 
     <select id="findAllWithPagination"
