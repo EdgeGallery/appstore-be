@@ -38,6 +38,8 @@ public class LeaveCommentsTest extends AppTest {
     public void should_success() throws Exception {
         CommentRequest body = new CommentRequest("good", 5);
         String requestJson = new Gson().toJson(body);
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        String userName = "admin";
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/comments", appId))
                 .param("userId", userId).param("userName", userName).content(requestJson).with(csrf())
@@ -71,6 +73,19 @@ public class LeaveCommentsTest extends AppTest {
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_comment_own_app() throws Exception {
+        CommentRequest body = new CommentRequest("great", 5);
+        String requestJson = new Gson().toJson(body);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/comments", appId))
+                .param("userId", userId).param("userName", userName).content(requestJson).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
     }
 
 }
