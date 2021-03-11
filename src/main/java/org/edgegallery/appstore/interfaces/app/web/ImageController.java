@@ -20,6 +20,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
@@ -36,11 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.UUID;
 
 @Controller
 @RestSchema(schemaId = "image")
@@ -96,6 +96,9 @@ public class ImageController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * merge image.
+     */
     @ApiOperation(value = "merge image", response = ResponseEntity.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),

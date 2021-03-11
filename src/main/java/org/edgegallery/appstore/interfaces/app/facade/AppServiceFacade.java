@@ -21,14 +21,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.edgegallery.appstore.application.external.atp.AtpUtil;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -56,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -87,11 +83,33 @@ public class AppServiceFacade {
     /**
      * appRegistering.
      */
-    public ResponseEntity<RegisterRespDto> appRegistering(User user, AppParam appParam,
-        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+    public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
+        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf( File.separator));
+        AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
+        AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
+        Release release;
+        AFile demoVideoFile = null;
+        if (demoVideo != null) {
+            demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
+        }
+        release = new Release(packageAFile, icon, demoVideoFile, user, appParam);
+        RegisterRespDto dto = appService.registerApp(release);
+        if (atpMetadata.getTestTaskId() != null) {
+            appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
+        }
+        return ResponseEntity.ok(dto);
+    }
+
+    /**
+     * appRegistering big file.
+     */
+    public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
+        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+
+        String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
+        String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         AFile packageAFile = getPkgFileNew(fileAddress, fileDir);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
@@ -107,30 +125,38 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew( String fileAddress, String fileDir) {
+    private AFile getPkgFileNew(String fileAddress, String fileDir) {
         List<SwImgDesc> imgDecsList;
         boolean isImgTarExist = false;
+        String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
         try {
 
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
+            if (imgDecsList == null) {
+                return new AFile(fileDirName, fileAddress);
+            }
 
             for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz")
-                    || imageDescr.getSwImage().contains(".tgz")) {
+                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz") || imageDescr
+                    .getSwImage().contains(".tgz")) {
                     isImgTarExist = true;
                 }
             }
 
             if (!isImgTarExist) {
+                FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileDir);
                 appService.updateImgInRepo(imgDecsList);
                 fileAddress = appService.compressAppPackage(fileDir);
             }
         } catch (AppException | IllegalArgumentException ex) {
             throw new AppException(ex.getMessage());
+        } catch (IOException ex) {
+            LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
-        return new AFile(fileAddress, fileAddress);
+        return new AFile(fileDirName, fileAddress);
     }
+
     private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
