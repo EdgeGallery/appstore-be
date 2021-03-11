@@ -55,8 +55,8 @@ mybatis:
 
 ### appstore-be config ###
 appstore-be:
-  temp-path: "/usr/app/temp"
-  package-path: "/usr/app/packages"
+  temp-path: /usr/app/temp
+  package-path: /usr/app/packages
   appstore-repo-password: ${APPSTORE_REPO_PASSWORD:}
   appstore-repo-username: ${APPSTORE_REPO_USERNAME:}
   appstore-repo-endpoint: ${APPSTORE_REPO_ENDPOINT:}
