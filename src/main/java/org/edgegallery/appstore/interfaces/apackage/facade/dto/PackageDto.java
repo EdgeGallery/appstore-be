@@ -66,6 +66,8 @@ public class PackageDto {
 
     private String provider;
 
+    private String demoVideoName;
+
     public PackageDto() {
         // empty construct function
     }
@@ -82,7 +84,7 @@ public class PackageDto {
      * Transfer Release object to PackageDto object.
      *
      * @param release Release object.
-     * @return
+     * @return PackageDto
      */
     public static PackageDto of(Release release) {
         PackageDto dto = new PackageDto();
@@ -104,6 +106,9 @@ public class PackageDto {
         dto.shortDesc = release.getShortDesc();
         dto.testTaskId = release.getTestTaskId();
         dto.provider = release.getAppBasicInfo().getProvider();
+        if (release.getDemoVideo() != null) {
+            dto.demoVideoName = release.getDemoVideo().getOriginalFileName();
+        }
         return dto;
     }
 }
