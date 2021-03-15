@@ -17,9 +17,6 @@ package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.edgegallery.appstore.application.external.atp.AtpUtil;
-import org.edgegallery.appstore.application.external.atp.model.AtpScenariosDto;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
@@ -56,18 +53,6 @@ public class PushablePackageService {
 
     private static final String DOWNLOAD_ICON_API = "/mec/appstore/v1/packages/%s/action/download-icon";
 
-    private static final String ATP_SCENARIO_UNICOM = "China Unicom";
-
-    private static final String ATP_SCENARIO_MOBILE = "China Mobile";
-
-    private static final String ATP_SCENARIO_TELECOM = "China Telecom";
-
-    private static final String APPD_TRANSID_UNICOM = "联通_APPD_2.0";
-
-    private static final String APPD_TRANSID_MOBILE = "移动_APPD_2.0";
-
-    private static final String APPD_TRANSID_TELECOM = "电信_APPD_2.0";
-
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
 
@@ -79,9 +64,6 @@ public class PushablePackageService {
 
     @Autowired
     private ApplicationContext context;
-
-    @Autowired
-    private AtpUtil atpUtil;
 
     public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();
@@ -110,8 +92,6 @@ public class PushablePackageService {
             return results;
         }
 
-        String atpUrl = packagePo.getAtpTestReportUrl();
-        List<AtpScenariosDto> atpScenariosDtoList = atpUtil.getTaskScenariosFromAtp(packagePo.getAtpTestTaskId());
         final List<Boolean> results = new ArrayList<>();
         LOGGER.info("push package {}", packagePo.getPackageId());
         targetAppStore.getTargetPlatform().forEach(platformId -> {
@@ -124,8 +104,6 @@ public class PushablePackageService {
             LOGGER.info(url);
 
             MessageReqDto requestDto = generatorMessageRequest(appStore.getAppStoreName(), packagePo);
-            String atpReportUrl = updateAtpReportUrl(atpUrl, atpScenariosDtoList, appStore.getAppdTransId());
-            requestDto.setAtpTestReportUrl(atpReportUrl);
 
             MessageReqDto messageReqDto = pushNotice(url, requestDto);
             if (messageReqDto == null) {
@@ -182,37 +160,5 @@ public class PushablePackageService {
             LOGGER.error("failed to send notice to {}", url);
         }
         return null;
-    }
-
-    private String updateAtpReportUrl(String oldUrl, List<AtpScenariosDto> atpScenariosDtoList, String appdTransId) {
-        LOGGER.info("updateAtpReportUrl old url: {}, appdTransId is {}", oldUrl, appdTransId);
-        String atpReportUrl;
-        String unicomId = "";
-        String mobileId = "";
-        String telecomId = "";
-        String egId = "";
-        for (AtpScenariosDto dto : atpScenariosDtoList) {
-            if (dto.getScenariosLabel().equals(ATP_SCENARIO_UNICOM)) {
-                unicomId = dto.getScenariosId();
-            } else if (dto.getScenariosLabel().equals(ATP_SCENARIO_MOBILE)) {
-                mobileId = dto.getScenariosId();
-            } else if (dto.getScenariosLabel().equals(ATP_SCENARIO_TELECOM)) {
-                telecomId = dto.getScenariosId();
-            } else {
-                egId = dto.getScenariosId();
-            }
-        }
-
-        if (appdTransId.equals(APPD_TRANSID_UNICOM) && StringUtils.isEmpty(unicomId)) {
-            atpReportUrl = oldUrl + "&scenarioId=" + unicomId;
-        } else if (appdTransId.equals(APPD_TRANSID_MOBILE) && StringUtils.isEmpty(mobileId)) {
-            atpReportUrl = oldUrl + "&scenarioId=" + mobileId;
-        } else if (appdTransId.equals(APPD_TRANSID_TELECOM) && StringUtils.isEmpty(telecomId)) {
-            atpReportUrl = oldUrl + "&scenarioId=" + telecomId;
-        } else {
-            atpReportUrl = oldUrl + "&scenarioId=" + egId;
-        }
-        LOGGER.info("updateAtpReportUrl new url: {}", atpReportUrl);
-        return atpReportUrl;
     }
 }
