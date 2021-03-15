@@ -15,15 +15,11 @@
 
 package org.edgegallery.appstore.application.external.atp;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response;
 import org.apache.http.client.CookieStore;
@@ -42,7 +38,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.appstore.application.external.atp.model.AtpScenariosDto;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,48 +194,6 @@ public class AtpUtil {
         }
 
         return result;
-    }
-
-    /**
-     * get task scenarios by taskId from atp.
-     *
-     * @param taskId taskId
-     * @return AtpScenariosDto
-     */
-    public List<AtpScenariosDto> getTaskScenariosFromAtp(String taskId) {
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> request = new HttpEntity<>(headers);
-
-        String url = String.format(queryTaskUrl, taskId);
-        LOGGER.info("get task scenarios frm atp, url: {}", url);
-        List<AtpScenariosDto> testScenariosDtos = new ArrayList<>();
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-            if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Get task scenarios from atp reponse failed, the taskId is {}, The status code is {}",
-                    taskId, response.getStatusCode());
-                throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                    "Get task scenarios from atp reponse failed.");
-            }
-
-            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            if (jsonObject.has("testScenarios")) {
-                JsonArray jsonArray = jsonObject.get("testScenarios").getAsJsonArray();
-
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    AtpScenariosDto testScenariosDto = new AtpScenariosDto();
-                    testScenariosDto.setScenariosId(jsonArray.get(i).getAsJsonObject().get("id").getAsString());
-                    testScenariosDto.setScenariosLabel(jsonArray.get(i).getAsJsonObject().get("label").getAsString());
-                    testScenariosDtos.add(testScenariosDto);
-                }
-            } else {
-                LOGGER.error("Get task scenarios failed.");
-            }
-
-        } catch (RestClientException e) {
-            LOGGER.error("Failed to get task scenarios from atp, taskId is {} exception {}", taskId, e.getMessage());
-        }
-        return testScenariosDtos;
     }
 
     private static String getXsrf() {
