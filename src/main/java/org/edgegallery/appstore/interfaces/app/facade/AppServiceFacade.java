@@ -127,7 +127,7 @@ public class AppServiceFacade {
 
     private AFile getPkgFileNew(String fileAddress, String fileDir) {
         List<SwImgDesc> imgDecsList;
-        boolean isImgTarExist = false;
+        boolean isImgZipExist = false;
         String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
         try {
 
@@ -137,13 +137,12 @@ public class AppServiceFacade {
             }
 
             for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz") || imageDescr
-                    .getSwImage().contains(".tgz")) {
-                    isImgTarExist = true;
+                if (imageDescr.getSwImage().contains(".zip")) {
+                    isImgZipExist = true;
                 }
             }
 
-            if (!isImgTarExist) {
+            if (!isImgZipExist) {
                 FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileDir);
                 appService.updateImgInRepo(imgDecsList);
@@ -168,7 +167,7 @@ public class AppServiceFacade {
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
 
         List<SwImgDesc> imgDecsList;
-        boolean isImgTarExist = false;
+        boolean isImgZipExist = false;
 
         try {
             imgDecsList = appService.getAppImageInfo(fileStoreageAddress, fileParent);
@@ -177,13 +176,12 @@ public class AppServiceFacade {
             }
 
             for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains("tar") || imageDescr.getSwImage().contains("tar.gz")
-                        || imageDescr.getSwImage().contains(".tgz")) {
-                    isImgTarExist = true;
+                if (imageDescr.getSwImage().contains(".zip")) {
+                    isImgZipExist = true;
                 }
             }
 
-            if (!isImgTarExist) {
+            if (!isImgZipExist) {
                 FileUtils.forceDelete(new File(fileStoreageAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
