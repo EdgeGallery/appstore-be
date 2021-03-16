@@ -97,11 +97,11 @@ public class AppTest {
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video", "test", "GPU", "Smart City", testTaskId);
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId);
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName) throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video", "test", "GPU", "Smart City", null);
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", null);
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String type,
