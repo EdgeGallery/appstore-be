@@ -85,6 +85,9 @@ public class AppServiceFacade {
      */
     public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
         MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
+        if (!appParam.checkValidParam(appParam)) {
+            throw new AppException("app param is invalid!");
+        }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
@@ -107,6 +110,9 @@ public class AppServiceFacade {
      */
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
         MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+        if (!appParam.checkValidParam(appParam)) {
+            throw new AppException("app param is invalid!");
+        }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
@@ -200,7 +206,7 @@ public class AppServiceFacade {
      * download APP.
      *
      * @param appId download package by app id, return latest version.
-     * @return
+     * @return file
      */
     public ResponseEntity<InputStreamResource> downloadApp(String appId) throws FileNotFoundException {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
@@ -218,7 +224,7 @@ public class AppServiceFacade {
      * download icon by app id.
      *
      * @param appId app id.
-     * @return
+     * @return file
      */
     public ResponseEntity<InputStreamResource> downloadIcon(String appId) throws FileNotFoundException {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
@@ -283,7 +289,7 @@ public class AppServiceFacade {
      * @param userId user id.
      * @param limit limit of single page.
      * @param offset offset of pages.
-     * @return
+     * @return List<AppDto></AppDto>
      */
     public ResponseEntity<List<AppDto>> queryAppsByCond(String name, String provider, String type, String affinity,
         String userId, int limit, long offset) {
@@ -302,7 +308,7 @@ public class AppServiceFacade {
      * @param appId app id.
      * @param limit limit of single page.
      * @param offset offset of pages.
-     * @return
+     * @return List<PackageDto></PackageDto>
      */
     public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset,
         String token) {

@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.interfaces.app.facade;
 
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,4 +37,46 @@ public class AppParam {
 
     private String industry;
 
+    private static Set<String> typeSet = new HashSet<String>();
+
+    private static Set<String> industrySet = new HashSet<String>();
+
+    private static Set<String> architectureSet = new HashSet<String>();
+
+    static {
+        typeSet.add("Video Application");
+        typeSet.add("Game Application");
+        typeSet.add("Video Surveillance");
+        typeSet.add("Safety");
+        typeSet.add("Blockchain");
+        typeSet.add("Smart Device");
+        typeSet.add("Internet of Things");
+        typeSet.add("Big Data");
+        typeSet.add("AR/VR");
+        typeSet.add("API");
+        typeSet.add("SDK");
+        typeSet.add("MEP");
+    }
+
+    static {
+        industrySet.add("Smart Park");
+        industrySet.add("Smart Supermarket");
+        industrySet.add("Industrial Manufacturing");
+        industrySet.add("Transportation Logistics");
+        industrySet.add("Water Conservancy");
+        industrySet.add("Game Competition");
+        industrySet.add("Open Source");
+        industrySet.add("Other");
+    }
+
+    static {
+        architectureSet.add("X86");
+        architectureSet.add("ARM64");
+        architectureSet.add("ARM32");
+    }
+
+    public boolean checkValidParam(AppParam appparam) {
+        return (typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())
+            && architectureSet.contains(appparam.getAffinity()));
+    }
 }
