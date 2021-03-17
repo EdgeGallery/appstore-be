@@ -30,7 +30,10 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
+import org.edgegallery.appstore.domain.model.app.Chunk;
+import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
@@ -39,7 +42,6 @@ import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,9 +52,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -72,6 +74,36 @@ public class AppController {
 
     @Autowired
     private AppServiceFacade appServiceFacade;
+
+    /**
+     * upload image.
+     */
+    @ApiOperation(value = "upload image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        return appServiceFacade.uploadImage(isMultipart,chunk);
+    }
+
+    /**
+     * merge image.
+     */
+    @ApiOperation(value = "merge image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/merge", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity merge(@RequestParam(value = "fileName", required = false) String fileName,
+        @RequestParam(value = "guid", required = false) String guid) throws Exception {
+        return appServiceFacade.merge(fileName,guid);
+    }
 
     /**
      * app upload function.
@@ -108,7 +140,7 @@ public class AppController {
     /**
      * app upload function.
      */
-    @PostMapping(value = "/appsBigFile", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/appsImage", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "upload app package", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
