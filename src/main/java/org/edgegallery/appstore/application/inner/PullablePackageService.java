@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +116,7 @@ public class PullablePackageService {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
-            return null;
+            return Collections.emptyList();
         }
         String url = appStore.getUrl() + PULLABLE_API;
         LOGGER.info(url);
@@ -129,24 +130,21 @@ public class PullablePackageService {
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("getPullablePackages error, response code is {}", response.getStatusCode());
-                return null;
+                return Collections.emptyList();
             }
 
             String result = response.getBody();
             if (result == null) {
                 LOGGER.error("get pullable packages is null");
-                return null;
+                return Collections.emptyList();
             }
 
             Gson g = new Gson();
             packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
-            for (int i = 0; i < packages.size(); i++) {
-                PushablePackageDto dto = packages.get(i);
-            }
             LOGGER.info("get pushable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
-            return null;
+            return Collections.emptyList();
         }
 
         return filterPullabelPackages(packages, userId);
