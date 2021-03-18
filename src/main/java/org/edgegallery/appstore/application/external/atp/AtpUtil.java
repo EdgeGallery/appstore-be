@@ -20,6 +20,7 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response;
 import org.apache.http.client.CookieStore;
@@ -137,15 +138,15 @@ public class AtpUtil {
                     "Get task status from atp reponse failed.");
             }
 
-            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            if (jsonObject.has("status")) {
-                status = jsonObject.get("status").getAsString();
+            JsonObject jsonResp = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            if (jsonResp.has("status")) {
+                status = jsonResp.get("status").getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
                 LOGGER.error("Get task status failed.");
             }
 
-        } catch (RestClientException e) {
+        } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());
         }
         return status;
