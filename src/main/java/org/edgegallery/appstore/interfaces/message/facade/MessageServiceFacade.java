@@ -76,8 +76,4 @@ public class MessageServiceFacade {
         messageService.updateMessageReaded(messageId);
         return ResponseEntity.ok("success");
     }
-
-    public ResponseEntity<String> queryReportData(String messageId) {
-        return ResponseEntity.ok(messageService.queryReportData(messageId));
-    }
 }

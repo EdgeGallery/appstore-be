@@ -125,16 +125,4 @@ public class MessageController {
         @ApiParam(value = "messageId") @PathVariable("messageId") String messageId) {
         return messageServiceFacade.updateMessageReaded(messageId);
     }
-
-    @GetMapping(value = "/{messageId}/report-data", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "query the report data in the message.", response = String.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> queryReportData(
-        @ApiParam(value = "messageId") @PathVariable("messageId") String messageId, HttpServletRequest request) {
-        return messageServiceFacade.queryReportData(messageId);
-    }
 }

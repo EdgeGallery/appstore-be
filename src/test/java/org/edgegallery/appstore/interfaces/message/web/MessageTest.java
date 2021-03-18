@@ -52,8 +52,6 @@ public class MessageTest {
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
-
-
     public MvcResult addOneMessage() throws Exception {
         MessageReqDto reqDto = new MessageReqDto();
         reqDto.setSourceAppStore("source appstore");
