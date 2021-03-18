@@ -565,7 +565,6 @@ public class AppService {
 
         File file = new File(filePath);
         LOGGER.info("compressing... {}", file.getName());
-        FileInputStream inputStream = null;
         String entry = parent + file.getName();
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
@@ -585,10 +584,6 @@ public class AppService {
             }
         } catch (IOException e) {
             throw new AppException("failed to compress " + e.getMessage());
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();  
-            }
         }
     }
 
