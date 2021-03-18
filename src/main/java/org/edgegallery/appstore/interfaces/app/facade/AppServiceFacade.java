@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.app.facade;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -31,6 +32,7 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
+import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
@@ -76,9 +78,92 @@ public class AppServiceFacade {
     @Value("${appstore-be.package-path}")
     private String dir;
 
+    @Value("${appstore-be.temp-path}")
+    private String filePathTemp;
+
+    @Value("${appstore-be.package-path}")
+    private String filePath;
+
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
+
+    /**
+     * upload image.
+     */
+    public ResponseEntity uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
+        if (isMultipart) {
+            MultipartFile file = chunk.getFile();
+
+            if (file == null) {
+                LOGGER.error("can not find any needed file");
+                return ResponseEntity.badRequest().build();
+            }
+            File uploadDirTmp = new File(filePathTemp);
+            if (!uploadDirTmp.exists()) {
+                boolean rt = uploadDirTmp.mkdirs();
+                if (rt == false) {
+                    throw new Exception("create folder failed");
+                }
+            }
+
+            Integer chunkNumber = chunk.getChunkNumber();
+            if (chunkNumber == null) {
+                chunkNumber = 0;
+            }
+            File outFile = new File(filePathTemp + File.separator + chunk.getIdentifier(), chunkNumber + ".part");
+            InputStream inputStream = file.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, outFile);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * merge image.
+     */
+    public ResponseEntity merge(String fileName, String guid) throws Exception {
+        File uploadDir = new File(dir);
+        if (!uploadDir.exists()) {
+            boolean rt = uploadDir.mkdirs();
+            if (rt == false) {
+                throw new Exception("create folder failed");
+            }
+
+        }
+        File file = new File(filePathTemp + File.separator + guid);
+        String newFileAddress = "";
+        String newFileName = "";
+        String temfolder = "";
+        String randomPath = "";
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null && files.length > 0) {
+                temfolder = UUID.randomUUID().toString().replace("-", "");
+                newFileAddress = dir + File.separator + temfolder;
+                File partFiles = new File(newFileAddress);
+                if (!partFiles.exists()) {
+                    boolean rt = partFiles.mkdirs();
+                    if (rt == false) {
+                        throw new Exception("create folder failed");
+                    }
+                }
+                randomPath = temfolder + File.separator + fileName;
+                newFileName = partFiles + File.separator + fileName;
+                File partFile = new File(newFileName);
+                for (int i = 1; i <= files.length; i++) {
+                    File s = new File(filePathTemp + File.separator + guid, i + ".part");
+                    FileOutputStream destTempfos = new FileOutputStream(partFile, true);
+                    FileUtils.copyFile(s, destTempfos);
+                    destTempfos.close();
+                }
+                FileUtils.deleteDirectory(file);
+            }
+        }
+
+        return ResponseEntity.ok(randomPath);
+    }
+
 
     /**
      * appRegistering.
@@ -113,10 +198,10 @@ public class AppServiceFacade {
         if (!appParam.checkValidParam(appParam)) {
             throw new AppException("app param is invalid!");
         }
-
-        String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
-        AFile packageAFile = getPkgFileNew(fileAddress, fileDir);
+        String fileParent = dir + File.separator + fileDir;
+        fileAddress =  dir + File.separator + fileAddress;
+        AFile packageAFile = getPkgFileNew(fileAddress, fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
