@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.AFile;
@@ -55,9 +54,6 @@ public class MessageService {
 
     @Autowired
     private AppService appService;
-
-    @Autowired
-    private AtpService atpService;
 
     /**
      * add a message.
@@ -137,17 +133,5 @@ public class MessageService {
 
     public void updateMessageReaded(String messageId) {
         messageRepository.updateMessageReaded(messageId);
-    }
-
-    /**
-     * query report data in the message.
-     *
-     * @param messageId id
-     * @return report data
-     */
-    public String queryReportData(String messageId) {
-        Message message = messageRepository.getOneMessage(messageId);
-        String host = message.getAtpTestReportUrl().substring(0, message.getAtpTestReportUrl().indexOf("#"));
-        return atpService.getReportDataFromRemote(host, message.getAtpTestTaskId());
     }
 }

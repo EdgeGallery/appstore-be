@@ -36,9 +36,4 @@ public class AtpService implements AtpServiceInterface {
         return atpUtil.sendCreatTask2Atp(release.getPackageFile().getStorageAddress(), token);
     }
 
-    @Override
-    public String getReportDataFromRemote(String host, String taskId) {
-        return atpUtil.getReportDataFromRemote(host, taskId);
-    }
-
 }
