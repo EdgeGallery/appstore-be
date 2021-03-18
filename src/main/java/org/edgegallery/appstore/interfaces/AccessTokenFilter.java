@@ -132,5 +132,6 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userName");
             return false;
         }
+        return true;
     }
 }

@@ -132,12 +132,10 @@ public class PushablePackageServiceFacade {
     }
 
     private String generateDescription(EnumMessageType type, String sourceAppstore, String targetAppstore) {
-        switch (type) {
-            case BE_DOWNLOADED:
-                return String.format("%s download this app from %s.", targetAppstore, sourceAppstore);
-            default:
-                return "";
+        if (type == EnumMessageType.BE_DOWNLOADED) {
+            return String.format("%s download this app from %s.", targetAppstore, sourceAppstore);
         }
+        return "";
     }
 
     /**

@@ -62,6 +62,8 @@ public class PackageController {
 
     private static final int MAX_PATH_STRING_LENGTH = 1024;
 
+    private static final String ACCESS_TOKEN = "access_token";
+
     @Autowired
     private PackageServiceFacade packageServiceFacade;
 
@@ -95,7 +97,7 @@ public class PackageController {
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
         HttpServletRequest request) {
         return ResponseEntity
-            .ok(packageServiceFacade.queryPackageById(appId, packageId, (String) request.getAttribute("access_token")));
+            .ok(packageServiceFacade.queryPackageById(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
@@ -157,7 +159,7 @@ public class PackageController {
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
         HttpServletRequest request) {
-        return packageServiceFacade.testPackage(appId, packageId, (String) request.getAttribute("access_token"));
+        return packageServiceFacade.testPackage(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
@@ -170,6 +172,6 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PackageDto>> getPackageByUserId(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
-        return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute("access_token"));
+        return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute(ACCESS_TOKEN));
     }
 }
