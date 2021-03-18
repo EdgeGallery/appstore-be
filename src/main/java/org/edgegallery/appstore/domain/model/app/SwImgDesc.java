@@ -40,8 +40,6 @@ public class SwImgDesc {
     private String architecture;
     private String size;
     private String swImage;
-    //private String hw_scsi_model;
-    //private String hw_disk_bus;
     private String operatingSystem;
     private String supportedVirtualisationEnvironment;
 }

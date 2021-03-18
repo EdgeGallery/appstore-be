@@ -60,7 +60,7 @@ public abstract class FileChecker {
      *
      * @param dir package path
      */
-    public FileChecker(String dir) {
+    protected FileChecker(String dir) {
         this.dir = dir;
     }
 
