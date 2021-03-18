@@ -87,7 +87,7 @@ public class PullPackageTest {
         int result = mvcResult.getResponse().getStatus();
         assertEquals(200, result);
         String content = mvcResult.getResponse().getContentAsString();
-        assertTrue(content.isEmpty());
+        assertFalse(content.isEmpty());
     }
 
     @WithMockUser(roles = "APPSTORE_ADMIN")

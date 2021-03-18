@@ -141,7 +141,7 @@ public class PullablePackageService {
 
             Gson g = new Gson();
             packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
-            LOGGER.info("get pushable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
+            LOGGER.info("get pullable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
             return Collections.emptyList();
