@@ -83,7 +83,7 @@ public class AppController {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/app/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/apps/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -98,7 +98,7 @@ public class AppController {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/app/merge", method = RequestMethod.GET)
+    @RequestMapping(value = "/apps/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity merge(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "guid", required = false) String guid) throws Exception {
@@ -140,7 +140,7 @@ public class AppController {
     /**
      * app upload function.
      */
-    @PostMapping(value = "/app/vm-register", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/apps/vm-register", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "upload app package", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
