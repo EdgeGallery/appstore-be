@@ -223,7 +223,7 @@ public class AppServiceFacade {
         try {
 
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
-            if (imgDecsList == null) {
+            if (imgDecsList.isEmpty()) {
                 return new AFile(fileDirName, fileAddress);
             }
 
@@ -262,7 +262,7 @@ public class AppServiceFacade {
 
         try {
             imgDecsList = appService.getAppImageInfo(fileStoreageAddress, fileParent);
-            if (imgDecsList == null) {
+            if (imgDecsList.isEmpty()) {
                 return new AFile(file.getOriginalFilename(), fileStoreageAddress);
             }
 

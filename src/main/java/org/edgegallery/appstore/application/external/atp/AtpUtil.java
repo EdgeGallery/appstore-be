@@ -44,6 +44,8 @@ public class AtpUtil {
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    private static final String ATP_STATUS = "status";
+
     @Value("${atp.urls.create-task}")
     private String createTaskUrl;
 
@@ -75,7 +77,7 @@ public class AtpUtil {
                 .equals(response.getStatusCode())) {
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
                 String id = jsonObject.get("id").getAsString();
-                String status = jsonObject.get("status").getAsString();
+                String status = jsonObject.get(ATP_STATUS).getAsString();
                 LOGGER.info("Create test task {} success, status is {}", id, status);
                 return new AtpTestDto(id, status);
             }
@@ -112,8 +114,8 @@ public class AtpUtil {
             }
 
             JsonObject jsonResp = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
-            if (jsonResp.has("status")) {
-                status = jsonResp.get("status").getAsString();
+            if (jsonResp.has(ATP_STATUS)) {
+                status = jsonResp.get(ATP_STATUS).getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
                 LOGGER.error("Get task status failed.");
