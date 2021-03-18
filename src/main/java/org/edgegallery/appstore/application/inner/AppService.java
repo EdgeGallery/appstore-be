@@ -33,7 +33,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,12 +43,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -95,6 +94,16 @@ public class AppService {
     static final int TOO_BIG = 536870912;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppService.class);
+
+    private static final String SWIMAGE = "swImage";
+
+    private static final String APPSTORE_URL = "/appstore/";
+
+    private static final String IMAGE_LOCATION = "imagelocation";
+
+    private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
+
+    private static final String PUSH_IMAGE_ERR_MESSAGES = "failed to push image to edge repo";
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -233,7 +242,7 @@ public class AppService {
 
         File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         if (swImageDesc == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         try {
@@ -257,13 +266,13 @@ public class AppService {
 
             for (JsonElement descr : swImgDescrArray) {
                 JsonObject jsonObject = descr.getAsJsonObject();
-                String swImage = jsonObject.get("swImage").getAsString();
+                String swImage = jsonObject.get(SWIMAGE).getAsString();
                 String[] image = swImage.split("/");
 
                 if (image.length > 1) {
-                    jsonObject.addProperty("swImage", appstoreRepoEndpoint + "/appstore/" + image[image.length - 1]);
+                    jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[image.length - 1]);
                 } else {
-                    jsonObject.addProperty("swImage", appstoreRepoEndpoint + "/appstore/" + image[0]);
+                    jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[0]);
                 }
             }
             FileUtils.writeStringToFile(swImageDescr, swImgDescrArray.toString(), StandardCharsets.UTF_8.name());
@@ -309,16 +318,16 @@ public class AppService {
             Map<String, Object> values = loadvaluesYaml(valuesYaml);
             ImgLoc imageLocn = null;
             for (String key : values.keySet()) {
-                if (key.equals("imagelocation")) {
+                if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
-                    imageLocn = mapper.map(values.get("imagelocation"), ImgLoc.class);
+                    imageLocn = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
                     imageLocn.setDomainame(appstoreRepoEndpoint);
                     imageLocn.setProject("appstore");
                     break;
                 }
             }
             if (imageLocn != null) {
-                values.put("imagelocation", imageLocn);
+                values.put(IMAGE_LOCATION, imageLocn);
             } else {
                 LOGGER.error("missing image location parameters ");
                 throw new AppException("failed to update values yaml, missing image location parameters");
@@ -347,8 +356,6 @@ public class AppService {
         Yaml yaml = new Yaml();
         try (InputStream inputStream = new FileInputStream(valuesYaml)) {
             valuesYamlMap = yaml.load(inputStream);
-        } catch (FileNotFoundException e) {
-            throw new AppException("failed to load value yaml form charts");
         } catch (IOException e) {
             throw new AppException("failed to load value yaml form charts");
         }
@@ -376,19 +383,19 @@ public class AppService {
                         os.write(bytes, 0, bytes.length);
                         os.closeEntry();
                     } catch (IOException e) {
-                        throw new AppException("failed to zip application package");
+                        throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {
-            throw new AppException("failed to zip application package");
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
         }
         try {
             FileUtils.deleteDirectory(new File(intendedDir));
             FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
         } catch (IOException e) {
-            throw new AppException("failed to zip application package");
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
         }
         return fileStorageAdd;
     }
@@ -399,14 +406,10 @@ public class AppService {
      * @param imageInfoList image list
      */
     public void updateImgInRepo(List<SwImgDesc> imageInfoList) {
-        Set<String> downloadedImgs = null;
-        Set<String> uploadedImgs = null;
-
         if (imageInfoList != null) {
             downloadAppImage(imageInfoList);
             uploadAppImage(imageInfoList);
         }
-
     }
 
     /**
@@ -449,14 +452,10 @@ public class AppService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException("failed to download image");
-            } catch (NotFoundException e) {
+            } catch (NotFoundException | InternalServerErrorException e) {
                 LOGGER.error("failed to download image {}, image not found in repository, {}", imageInfo.getSwImage(),
                         e.getMessage());
-                throw new AppException("failed to push image to edge repo");
-            } catch (InternalServerErrorException e) {
-                LOGGER.error("internal server error while downloading image {},{}", imageInfo.getSwImage(),
-                        e.getMessage());
-                throw new AppException("failed to push image to edge repo");
+                throw new AppException(PUSH_IMAGE_ERR_MESSAGES);
             }
         }
 
@@ -480,10 +479,10 @@ public class AppService {
             String uploadImgName;
             if (dockerImageNames.length > 1) {
                 uploadImgName = new StringBuilder(appstoreRepoEndpoint)
-                        .append("/appstore/").append(dockerImageNames[dockerImageNames.length - 1]).toString();
+                        .append(APPSTORE_URL).append(dockerImageNames[dockerImageNames.length - 1]).toString();
             } else {
                 uploadImgName = new StringBuilder(appstoreRepoEndpoint)
-                        .append("/appstore/").append(dockerImageNames[0]).toString();
+                        .append(APPSTORE_URL).append(dockerImageNames[0]).toString();
             }
 
             String id = dockerClient.inspectImageCmd(imageInfo.getSwImage()).exec().getId();
@@ -496,13 +495,10 @@ public class AppService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException("failed to download image");
-            } catch (NotFoundException e) {
+            } catch (NotFoundException | InternalServerErrorException e) {
                 LOGGER.error("failed to download image {}, image not found in repository, {}", uploadImgName,
                         e.getMessage());
-                throw new AppException("failed to push image to edge repo");
-            } catch (InternalServerErrorException e) {
-                LOGGER.error("internal server error while downloading image {},{}", uploadImgName, e.getMessage());
-                throw new AppException("failed to push image to edge repo");
+                throw new AppException(PUSH_IMAGE_ERR_MESSAGES);
             }
         }
         LOGGER.info("images to appstore repo uploaded successfully");
@@ -527,9 +523,7 @@ public class AppService {
 
             TarArchiveEntry tarEntry;
             while ((tarEntry = tis.getNextTarEntry()) != null) {
-                if (tarEntry.isDirectory()) {
-                    continue;
-                } else {
+                if (!tarEntry.isDirectory()) {
                     File outputFile = new File(destFile + File.separator + tarEntry.getName());
                     LOGGER.info("deCompressing... {}", outputFile.getName());
                     boolean result = outputFile.getParentFile().mkdirs();
@@ -576,12 +570,10 @@ public class AppService {
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
-                inputStream = new FileInputStream(file);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-
-                IOUtils.copy(bufferedInputStream, tarArchive);
-                tarArchive.closeArchiveEntry();
-                bufferedInputStream.close();
+                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
+                    IOUtils.copy(bufferedInputStream, tarArchive);
+                    tarArchive.closeArchiveEntry();
+                }
             } else if (file.isDirectory()) {
                 tarArchive.closeArchiveEntry();
                 File[] files = file.listFiles();
@@ -655,7 +647,7 @@ public class AppService {
      *
      * @param appId     app id.
      * @param packageId package id.
-     * @return
+     * @return release
      */
     public Release download(String appId, String packageId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
