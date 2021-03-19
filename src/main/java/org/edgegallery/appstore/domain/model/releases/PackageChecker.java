@@ -53,7 +53,7 @@ public class PackageChecker extends FileChecker {
 
     @Override
     protected long getMaxFileSize() {
-        return 50 * 1024 * 1024L;
+        return 5 * 1024 * 1024L* 1024 * 1024L;
     }
 
     @Override

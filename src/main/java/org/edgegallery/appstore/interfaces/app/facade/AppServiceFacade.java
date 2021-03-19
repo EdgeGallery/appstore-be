@@ -83,7 +83,7 @@ public class AppServiceFacade {
 
     @Value("${appstore-be.temp-path}")
     private String filePathTemp;
-    
+
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
@@ -220,7 +220,11 @@ public class AppServiceFacade {
         File packageFile  = new File(fileAddress);
         FileInputStream fileInputStream = new FileInputStream(packageFile);
         MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain", IOUtils.toByteArray(fileInputStream));
-        File tempfile = fileChecker.check(multipartFile);
+        File file = fileChecker.check(multipartFile);
+        if(!file.exists()){
+            LOGGER.error("Package File  is Illegal.");
+            throw new IllegalArgumentException("Package File name is Illegal.");
+        }
         List<SwImgDesc> imgDecsList;
         boolean isImgZipExist = false;
         String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
@@ -408,8 +412,8 @@ public class AppServiceFacade {
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
                 .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                    s -> appService.loadTestTask(
-                        s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+                s -> appService.loadTestTask(
+                    s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
             releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
                 .stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
