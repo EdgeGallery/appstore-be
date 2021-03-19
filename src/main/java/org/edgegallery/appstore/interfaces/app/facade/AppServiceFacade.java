@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.interfaces.app.facade;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -58,6 +60,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -80,10 +83,7 @@ public class AppServiceFacade {
 
     @Value("${appstore-be.temp-path}")
     private String filePathTemp;
-
-    @Value("${appstore-be.package-path}")
-    private String filePath;
-
+    
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
@@ -194,14 +194,15 @@ public class AppServiceFacade {
      * appRegistering big file.
      */
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
-        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) throws IOException {
         if (!appParam.checkValidParam(appParam)) {
             throw new AppException("app param is invalid!");
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
-        fileAddress =  dir + File.separator + fileAddress;
-        AFile packageAFile = getPkgFileNew(fileAddress, fileParent);
+        fileAddress =  dir + File.separator + fileAddress;       
+        PackageChecker fileChecker = new PackageChecker(fileAddress);
+        AFile packageAFile = getPkgFileNew(fileAddress, new PackageChecker(fileParent), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -216,14 +217,18 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew(String fileAddress, String fileDir) {
+    private AFile getPkgFileNew(String fileAddress, FileChecker fileChecker, String fileDir) throws IOException {
+        File packageFile  = new File(fileAddress);
+        FileInputStream fileInputStream = new FileInputStream(packageFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain", IOUtils.toByteArray(fileInputStream));
+        File tempfile = fileChecker.check(multipartFile);
         List<SwImgDesc> imgDecsList;
         boolean isImgZipExist = false;
         String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
         try {
 
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
-            if (imgDecsList.isEmpty()) {
+            if (imgDecsList == null) {
                 return new AFile(fileDirName, fileAddress);
             }
 

@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -164,7 +165,7 @@ public class AppController {
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
-        HttpServletRequest request) {
+        HttpServletRequest request) throws IOException {
         return appServiceFacade
             .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon,
                 demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
