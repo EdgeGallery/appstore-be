@@ -228,7 +228,7 @@ public class AppServiceFacade {
         try {
 
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
-            if (imgDecsList == null) {
+            if (imgDecsList.isEmpty()) {
                 return new AFile(fileDirName, fileAddress);
             }
 
