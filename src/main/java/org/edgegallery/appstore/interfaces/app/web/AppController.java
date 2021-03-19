@@ -73,6 +73,8 @@ public class AppController {
 
     private static final int MAX_DETAILS_STRING_LENGTH = 1024;
 
+    private static final String ACCESS_TOKEN = "access_token";
+
     @Autowired
     private AppServiceFacade appServiceFacade;
 
@@ -135,7 +137,7 @@ public class AppController {
         HttpServletRequest request) {
         return appServiceFacade
             .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
-                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")));
+                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
     /**
@@ -168,7 +170,7 @@ public class AppController {
         HttpServletRequest request) throws IOException {
         return appServiceFacade
             .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon,
-                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute("access_token")),fileAddress);
+                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)),fileAddress);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
@@ -273,6 +275,6 @@ public class AppController {
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
         @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
         @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
-        return appServiceFacade.findAllPackages(appId, userId, 100, 0, (String) request.getAttribute("access_token"));
+        return appServiceFacade.findAllPackages(appId, userId, 100, 0, (String) request.getAttribute(ACCESS_TOKEN));
     }
 }

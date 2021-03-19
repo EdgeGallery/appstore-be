@@ -93,8 +93,7 @@ public class AppStoreServiceFacade {
         if (StringUtils.isBlank(param)) {
             return null;
         }
-
-        return param.replaceAll(COMMON_PATTERN, SQL_COMMON_PATTERN);
+        return param.replace(COMMON_PATTERN, SQL_COMMON_PATTERN);
     }
 
     /**

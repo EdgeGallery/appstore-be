@@ -37,11 +37,11 @@ public class AppParam {
 
     private String industry;
 
-    private static Set<String> typeSet = new HashSet<String>();
+    private static Set<String> typeSet = new HashSet<>();
 
-    private static Set<String> industrySet = new HashSet<String>();
+    private static Set<String> industrySet = new HashSet<>();
 
-    private static Set<String> architectureSet = new HashSet<String>();
+    private static Set<String> architectureSet = new HashSet<>();
 
     static {
         typeSet.add("Video Application");
