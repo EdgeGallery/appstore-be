@@ -91,7 +91,7 @@ public class AppServiceFacade {
     /**
      * upload image.
      */
-    public ResponseEntity uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
+    public ResponseEntity<RegisterRespDto> uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
 
@@ -200,8 +200,7 @@ public class AppServiceFacade {
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
-        fileAddress =  dir + File.separator + fileAddress;       
-        PackageChecker fileChecker = new PackageChecker(fileAddress);
+        fileAddress =  dir + File.separator + fileAddress;
         AFile packageAFile = getPkgFileNew(fileAddress, new PackageChecker(fileParent), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;

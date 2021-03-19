@@ -86,7 +86,7 @@ public class AppController {
     })
     @RequestMapping(value = "/apps/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
+    public ResponseEntity<RegisterRespDto> uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         return appServiceFacade.uploadImage(isMultipart,chunk);
     }
@@ -101,7 +101,7 @@ public class AppController {
     })
     @RequestMapping(value = "/apps/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity merge(@RequestParam(value = "fileName", required = false) String fileName,
+    public ResponseEntity<RegisterRespDto> merge(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "guid", required = false) String guid) throws Exception {
         return appServiceFacade.merge(fileName,guid);
     }
