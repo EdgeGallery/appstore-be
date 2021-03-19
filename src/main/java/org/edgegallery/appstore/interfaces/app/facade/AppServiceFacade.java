@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.interfaces.app.facade;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -58,6 +60,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,9 +84,6 @@ public class AppServiceFacade {
     @Value("${appstore-be.temp-path}")
     private String filePathTemp;
 
-    @Value("${appstore-be.package-path}")
-    private String filePath;
-
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
@@ -91,7 +91,7 @@ public class AppServiceFacade {
     /**
      * upload image.
      */
-    public ResponseEntity uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
+    public ResponseEntity<RegisterRespDto> uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
 
@@ -126,7 +126,7 @@ public class AppServiceFacade {
         File uploadDir = new File(dir);
         if (!uploadDir.exists()) {
             boolean rt = uploadDir.mkdirs();
-            if (rt == false) {
+            if (!rt) {
                 throw new Exception("create folder failed");
             }
 
@@ -134,21 +134,21 @@ public class AppServiceFacade {
         File file = new File(filePathTemp + File.separator + guid);
         String newFileAddress = "";
         String newFileName = "";
-        String temfolder = "";
+        String temp = "";
         String randomPath = "";
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
-                temfolder = UUID.randomUUID().toString().replace("-", "");
-                newFileAddress = dir + File.separator + temfolder;
+                temp = UUID.randomUUID().toString().replace("-", "");
+                newFileAddress = dir + File.separator + temp;
                 File partFiles = new File(newFileAddress);
                 if (!partFiles.exists()) {
                     boolean rt = partFiles.mkdirs();
-                    if (rt == false) {
-                        throw new Exception("create folder failed");
+                    if (!rt) {
+                        throw new IllegalArgumentException("create folder failed");
                     }
                 }
-                randomPath = temfolder + File.separator + fileName;
+                randomPath = temp + File.separator + fileName;
                 newFileName = partFiles + File.separator + fileName;
                 File partFile = new File(newFileName);
                 for (int i = 1; i <= files.length; i++) {
@@ -194,14 +194,14 @@ public class AppServiceFacade {
      * appRegistering big file.
      */
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
-        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
+        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) throws IOException {
         if (!appParam.checkValidParam(appParam)) {
             throw new AppException("app param is invalid!");
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
         fileAddress =  dir + File.separator + fileAddress;
-        AFile packageAFile = getPkgFileNew(fileAddress, fileParent);
+        AFile packageAFile = getPkgFileNew(fileAddress, new PackageChecker(fileParent), fileParent);
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -216,7 +216,16 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew(String fileAddress, String fileDir) {
+    private AFile getPkgFileNew(String fileAddress, FileChecker fileChecker, String fileDir) throws IOException {
+        File packageFile  = new File(fileAddress);
+        FileInputStream fileInputStream = new FileInputStream(packageFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain",
+            IOUtils.toByteArray(fileInputStream));
+        File file = fileChecker.check(multipartFile);
+        if (!file.exists()) {
+            LOGGER.error("Package File  is Illegal.");
+            throw new IllegalArgumentException("Package File name is Illegal.");
+        }
         List<SwImgDesc> imgDecsList;
         boolean isImgZipExist = false;
         String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
@@ -327,7 +336,7 @@ public class AppServiceFacade {
      * @param appId app id.
      * @return video entity
      */
-    public ResponseEntity<byte[]> downloadDemoVideo(String appId) throws FileNotFoundException {
+    public ResponseEntity<byte[]> downloadDemoVideo(String appId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         byte[] image = new byte[0];
@@ -403,9 +412,9 @@ public class AppServiceFacade {
             releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
-                .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                    s -> appService.loadTestTask(
-                        s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+                    .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
+                        s -> appService.loadTestTask(
+                            s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
             releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
                 .stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
