@@ -126,7 +126,7 @@ public class AppServiceFacade {
         File uploadDir = new File(dir);
         if (!uploadDir.exists()) {
             boolean rt = uploadDir.mkdirs();
-            if (rt == false) {
+            if (!rt) {
                 throw new Exception("create folder failed");
             }
 
@@ -134,21 +134,21 @@ public class AppServiceFacade {
         File file = new File(filePathTemp + File.separator + guid);
         String newFileAddress = "";
         String newFileName = "";
-        String temfolder = "";
+        String temp = "";
         String randomPath = "";
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
-                temfolder = UUID.randomUUID().toString().replace("-", "");
-                newFileAddress = dir + File.separator + temfolder;
+                temp = UUID.randomUUID().toString().replace("-", "");
+                newFileAddress = dir + File.separator + temp;
                 File partFiles = new File(newFileAddress);
                 if (!partFiles.exists()) {
                     boolean rt = partFiles.mkdirs();
-                    if (rt == false) {
-                        throw new Exception("create folder failed");
+                    if (!rt) {
+                        throw new IllegalArgumentException("create folder failed");
                     }
                 }
-                randomPath = temfolder + File.separator + fileName;
+                randomPath = temp + File.separator + fileName;
                 newFileName = partFiles + File.separator + fileName;
                 File partFile = new File(newFileName);
                 for (int i = 1; i <= files.length; i++) {
@@ -336,7 +336,7 @@ public class AppServiceFacade {
      * @param appId app id.
      * @return video entity
      */
-    public ResponseEntity<byte[]> downloadDemoVideo(String appId) throws FileNotFoundException {
+    public ResponseEntity<byte[]> downloadDemoVideo(String appId) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         byte[] image = new byte[0];
@@ -413,8 +413,8 @@ public class AppServiceFacade {
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
                     .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                    s -> appService.loadTestTask(
-                        s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+                        s -> appService.loadTestTask(
+                            s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
             releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
                 .stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
