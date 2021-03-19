@@ -24,12 +24,15 @@ import java.util.Locale;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class PushablePackageRepository {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageRepository.class);
 
     @Autowired
     private PushablePackageMapper pushablePackageMapper;
@@ -57,6 +60,7 @@ public class PushablePackageRepository {
     public PushablePackageDto getPushablePackages(String packageId) {
         PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
             .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+        LOGGER.warn("sourcePlatform is:", appReleasePo.getSourcePlatform());
         return new PushablePackageDto(appReleasePo, context.atpReportUrl);
     }
 

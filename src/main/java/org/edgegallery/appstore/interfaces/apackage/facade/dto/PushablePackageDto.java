@@ -85,7 +85,7 @@ public class PushablePackageDto implements Entity {
         this.pushTimes = appReleasePo.getPushTimes();
         this.latestPushTime = appReleasePo.getLatestPushTime();
         this.createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(appReleasePo.getCreateTime());
-
+        this.sourcePlatform = appReleasePo.getSourcePlatform();
         if (appReleasePo.getAtpTestReportUrl() == null) {
             String testId = appReleasePo.getTestTaskId();
             atpTestReportUrl = String.format(reportUrl, testId);
