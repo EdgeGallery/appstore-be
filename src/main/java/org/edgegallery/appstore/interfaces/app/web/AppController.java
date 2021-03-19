@@ -223,15 +223,14 @@ public class AppController {
     @GetMapping(value = "/apps/{appId}/demoVideo", produces = "video/mp4")
     @ApiOperation(value = "get demo Video by appId.", response = File.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-            @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
-            @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<byte[]> downloadDemoVideo(
             @ApiParam(value = "appId", required = true) @PathVariable("appId")
-            @Pattern(regexp = REG_APP_ID) String appId)
-            throws FileNotFoundException {
+            @Pattern(regexp = REG_APP_ID) String appId) {
         return appServiceFacade.downloadDemoVideo(appId);
     }
 

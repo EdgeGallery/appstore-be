@@ -69,6 +69,12 @@ public class AppServiceFacade {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AppServiceFacade.class);
 
+    public static final String CONTENT_TYPE = "Content-Type";
+
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
+
+    public static final String HEADER_VALUE = "attachment; filename=";
+
     @Autowired
     private AppService appService;
 
@@ -91,7 +97,7 @@ public class AppServiceFacade {
     /**
      * upload image.
      */
-    public ResponseEntity<RegisterRespDto> uploadImage(boolean isMultipart, Chunk chunk) throws Exception {
+    public ResponseEntity<RegisterRespDto> uploadImage(boolean isMultipart, Chunk chunk) throws IOException {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
 
@@ -100,20 +106,16 @@ public class AppServiceFacade {
                 return ResponseEntity.badRequest().build();
             }
             File uploadDirTmp = new File(filePathTemp);
-            if (!uploadDirTmp.exists()) {
-                boolean rt = uploadDirTmp.mkdirs();
-                if (rt == false) {
-                    throw new Exception("create folder failed");
-                }
-            }
+            checkDir(uploadDirTmp);
 
             Integer chunkNumber = chunk.getChunkNumber();
             if (chunkNumber == null) {
                 chunkNumber = 0;
             }
             File outFile = new File(filePathTemp + File.separator + chunk.getIdentifier(), chunkNumber + ".part");
-            InputStream inputStream = file.getInputStream();
-            FileUtils.copyInputStreamToFile(inputStream, outFile);
+            try (InputStream inputStream = file.getInputStream()) {
+                FileUtils.copyInputStreamToFile(inputStream, outFile);
+            }
         }
 
         return ResponseEntity.ok().build();
@@ -122,34 +124,20 @@ public class AppServiceFacade {
     /**
      * merge image.
      */
-    public ResponseEntity merge(String fileName, String guid) throws Exception {
+    public ResponseEntity merge(String fileName, String guid) throws IOException {
         File uploadDir = new File(dir);
-        if (!uploadDir.exists()) {
-            boolean rt = uploadDir.mkdirs();
-            if (!rt) {
-                throw new Exception("create folder failed");
-            }
-
-        }
+        checkDir(uploadDir);
         File file = new File(filePathTemp + File.separator + guid);
-        String newFileAddress = "";
-        String newFileName = "";
-        String temp = "";
         String randomPath = "";
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
-                temp = UUID.randomUUID().toString().replace("-", "");
-                newFileAddress = dir + File.separator + temp;
+                String temp = UUID.randomUUID().toString().replace("-", "");
+                String newFileAddress = dir + File.separator + temp;
                 File partFiles = new File(newFileAddress);
-                if (!partFiles.exists()) {
-                    boolean rt = partFiles.mkdirs();
-                    if (!rt) {
-                        throw new IllegalArgumentException("create folder failed");
-                    }
-                }
+                checkDir(partFiles);
                 randomPath = temp + File.separator + fileName;
-                newFileName = partFiles + File.separator + fileName;
+                String newFileName = partFiles + File.separator + fileName;
                 File partFile = new File(newFileName);
                 for (int i = 1; i <= files.length; i++) {
                     File s = new File(filePathTemp + File.separator + guid, i + ".part");
@@ -164,6 +152,13 @@ public class AppServiceFacade {
         return ResponseEntity.ok(randomPath);
     }
 
+    private void checkDir(File fileDir) throws IOException {
+        if (!fileDir.exists()) {
+            if (!fileDir.mkdirs()) {
+                throw new IOException("create folder failed");
+            }
+        }
+    }
 
     /**
      * appRegistering.
@@ -309,8 +304,8 @@ public class AppServiceFacade {
         appRepository.store(app);
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        headers.add(CONTENT_TYPE, "application/octet-stream");
+        headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getPackageFile().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -325,8 +320,8 @@ public class AppServiceFacade {
         Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
+        headers.add(CONTENT_TYPE, "application/octet-stream");
+        headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getIcon().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -341,7 +336,7 @@ public class AppServiceFacade {
         Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         byte[] image = new byte[0];
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "video/mp4");
+        headers.add(CONTENT_TYPE, "video/mp4");
         if (release.getDemoVideo() != null && release.getDemoVideo().getStorageAddress() != null) {
             try {
                 image = Files.readAllBytes(new File(release.getDemoVideo().getStorageAddress()).toPath());
@@ -349,7 +344,7 @@ public class AppServiceFacade {
                 LOGGER.error("get download video error: {}", e.getMessage());
             }
             headers.setContentLength(image.length);
-            headers.add("Content-Disposition", "attachment; filename=" + release.getDemoVideo().getOriginalFileName());
+            headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getDemoVideo().getOriginalFileName());
         }
         return ResponseEntity.ok().headers(headers).body(image);
     }
