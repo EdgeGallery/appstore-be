@@ -51,6 +51,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         "GET /mec/appstore/v1/packages/pullable"
     };
 
+    private static final String USERID = "userId";
+
+    private static final String USERNAME = "userName";
+
     @Autowired
     TokenStore jwtTokenStore;
 
@@ -82,18 +86,9 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, Additional is null.");
                 return;
             }
-            String userIdFromRequest = request.getParameter("userId");
-            String userIdFromToken = additionalInfoMap.get("userId").toString();
-            if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
-                LOGGER.error("Illegal userId");
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userId");
-                return;
-            }
-            String userNameFromRequest = request.getParameter("userName");
-            String userNameFromToken = additionalInfoMap.get("userName").toString();
-            if (!StringUtils.isEmpty(userNameFromRequest) && !userNameFromRequest.equals(userNameFromToken)) {
-                LOGGER.error("Illegal userName");
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userName");
+            String userIdFromToken = additionalInfoMap.get(USERID).toString();
+            String userNameFromToken = additionalInfoMap.get(USERNAME).toString();
+            if (!checkUserValid(request, response, userIdFromToken, userNameFromToken)) {
                 return;
             }
             OAuth2Authentication auth = jwtTokenStore.readAuthentication(accessToken);
@@ -103,8 +98,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 return;
             }
             request.setAttribute("access_token", accessTokenStr);
-            request.setAttribute("userId", userIdFromToken);
-            request.setAttribute("userName", userNameFromToken);
+            request.setAttribute(USERID, userIdFromToken);
+            request.setAttribute(USERNAME, userNameFromToken);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
@@ -119,6 +114,23 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             if (accessUrl.matches(filter)) {
                 return false;
             }
+        }
+        return true;
+    }
+
+    private boolean checkUserValid(HttpServletRequest request, HttpServletResponse response,
+        String userIdFromToken, String userNameFromToken) throws IOException {
+        String userIdFromRequest = request.getParameter(USERID);
+        if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
+            LOGGER.error("Illegal userId");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userId");
+            return false;
+        }
+        String userNameFromRequest = request.getParameter(USERNAME);
+        if (!StringUtils.isEmpty(userNameFromRequest) && !userNameFromRequest.equals(userNameFromToken)) {
+            LOGGER.error("Illegal userName");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userName");
+            return false;
         }
         return true;
     }
