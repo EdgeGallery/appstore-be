@@ -47,7 +47,7 @@ public class DeleteAppByIdTest extends AppTest {
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.delete("/mec/appstore/v1/apps/" + appId).with(csrf()).param("userId", userId)
                 .param("userName", userName)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.FORBIDDEN.value(), mvcResult.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
 
     @Test
