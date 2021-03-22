@@ -74,8 +74,8 @@ public class AppServiceFacade {
     public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     public static final String HEADER_VALUE = "attachment; filename=";
-	
-	private static final String ROLE_APPSTORE_ADMIN = "ROLE_APPSTORE_ADMIN";
+
+    private static final String ROLE_APPSTORE_ADMIN = "ROLE_APPSTORE_ADMIN";
 
     @Autowired
     private AppService appService;

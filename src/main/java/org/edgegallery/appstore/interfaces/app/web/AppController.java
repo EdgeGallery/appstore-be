@@ -249,6 +249,9 @@ public class AppController {
         return ResponseEntity.ok(AppDto.of(appServiceFacade.queryByAppId(appId)));
     }
 
+    /**
+     * app delete function.
+     */
     @DeleteMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete app and package list by id.", response = String.class)
     @ApiResponses(value = {
@@ -267,6 +270,9 @@ public class AppController {
         return ResponseEntity.ok("delete App success.");
     }
 
+    /**
+     * app find function.
+     */
     @GetMapping(value = "/apps/{appId}/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package list by appId", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
