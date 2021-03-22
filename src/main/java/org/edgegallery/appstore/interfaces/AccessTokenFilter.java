@@ -88,7 +88,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, Additional is null.");
                 return;
             }
-            String authoriToken = additionalInfoMap.get(AUTIORITIES).toString();
+            String authorityToken = additionalInfoMap.get(AUTIORITIES).toString();
             String userIdFromToken = additionalInfoMap.get(USERID).toString();
             String userNameFromToken = additionalInfoMap.get(USERNAME).toString();
             if (!checkUserValid(request, response, userIdFromToken, userNameFromToken)) {
@@ -103,7 +103,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             request.setAttribute("access_token", accessTokenStr);
             request.setAttribute(USERID, userIdFromToken);
             request.setAttribute(USERNAME, userNameFromToken);
-            request.setAttribute(AUTIORITIES, authoriToken);
+            request.setAttribute(AUTIORITIES, authorityToken);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
