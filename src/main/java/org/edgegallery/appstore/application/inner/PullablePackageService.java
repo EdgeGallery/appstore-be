@@ -172,7 +172,7 @@ public class PullablePackageService {
         LOGGER.info("pullPackage packageDownloadUrl {}, iconDownloadUrl {}", packageDownloadUrl, iconDownloadUrl);
 
         try {
-            String parentPath = dir + File.separator + UUID.randomUUID().toString();
+            String parentPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
             String targetAppstore = context.platformName;
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
