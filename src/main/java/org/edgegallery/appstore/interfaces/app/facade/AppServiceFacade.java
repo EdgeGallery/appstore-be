@@ -75,6 +75,8 @@ public class AppServiceFacade {
 
     public static final String HEADER_VALUE = "attachment; filename=";
 
+    private static final String ROLE_APPSTORE_ADMIN = "ROLE_APPSTORE_ADMIN";
+
     @Autowired
     private AppService appService;
 
@@ -359,9 +361,9 @@ public class AppServiceFacade {
      * @param appId app id.
      * @param user User object.
      */
-    public void unPublishApp(String appId, User user) {
+    public void unPublishApp(String appId, User user, String authorities) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        if ("admin".equals(user.getUserName()) || user.getUserId().equals(app.getUserId())) {
+        if (user.getUserId().equals(app.getUserId()) || authorities.indexOf(ROLE_APPSTORE_ADMIN) != -1) {
             appService.unPublish(app);
         } else {
             throw new PermissionNotAllowedException("can not delete app");
