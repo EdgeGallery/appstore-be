@@ -75,6 +75,8 @@ public class AppController {
 
     private static final String ACCESS_TOKEN = "access_token";
 
+    private static final String ACCESS_AUTIORITIES = "authorities";
+
     @Autowired
     private AppServiceFacade appServiceFacade;
 
@@ -258,8 +260,8 @@ public class AppController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> deleteAppById(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
-        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
-        appServiceFacade.unPublishApp(appId, new User(userId, userName));
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId, HttpServletRequest request) {
+        appServiceFacade.unPublishApp(appId, new User(userId, userName),(String) request.getAttribute(ACCESS_AUTIORITIES));
         return ResponseEntity.ok("delete App success.");
     }
 

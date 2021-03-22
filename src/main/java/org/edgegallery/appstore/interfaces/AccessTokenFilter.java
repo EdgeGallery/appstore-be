@@ -55,6 +55,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     private static final String USERNAME = "userName";
 
+    private static final String AUTIORITIES = "authorities";
+
     @Autowired
     TokenStore jwtTokenStore;
 
@@ -86,6 +88,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, Additional is null.");
                 return;
             }
+            String authoriToken  = additionalInfoMap.get(AUTIORITIES).toString();
             String userIdFromToken = additionalInfoMap.get(USERID).toString();
             String userNameFromToken = additionalInfoMap.get(USERNAME).toString();
             if (!checkUserValid(request, response, userIdFromToken, userNameFromToken)) {
@@ -100,6 +103,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             request.setAttribute("access_token", accessTokenStr);
             request.setAttribute(USERID, userIdFromToken);
             request.setAttribute(USERNAME, userNameFromToken);
+            request.setAttribute(AUTIORITIES,authoriToken);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
