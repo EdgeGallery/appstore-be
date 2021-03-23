@@ -15,25 +15,14 @@
 
 package org.edgegallery.appstore.interfaces.appstore.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.util.ArrayList;
-import java.util.List;
-import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
-import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +36,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AppstoreApplicationTest.class)
