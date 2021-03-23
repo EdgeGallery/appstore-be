@@ -241,4 +241,59 @@ public class AppRegisterTest extends AppTest {
         }
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_fail_with_VM() {
+        try {
+            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
+                .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
+                    FileUtils.openInputStream(csarFile)))
+                .with(csrf()));
+            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.OK.value());
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_fail_with_no_vm() {
+        try {
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
+                .with(csrf())
+                .param("fileName", fileName)
+                .param("guid", guid));
+            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_fail_with_merge() {
+        try {
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/merge")
+                .with(csrf())
+                .param("fileName", fileName)
+                .param("guid", guid));
+            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andReturn();
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
 }
