@@ -20,7 +20,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
+import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
+import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
+import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.junit.Assert;
 import org.junit.Test;
@@ -73,5 +76,16 @@ public class MessageTest {
         return mvc.perform(
             MockMvcRequestBuilders.post("/mec/appstore/v1/messages").contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON).content(body).with(csrf())).andDo(MockMvcResultHandlers.print()).andReturn();
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_message_should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/messages").param("messageType",
+                String.valueOf(EnumMessageType.NOTICE))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 }

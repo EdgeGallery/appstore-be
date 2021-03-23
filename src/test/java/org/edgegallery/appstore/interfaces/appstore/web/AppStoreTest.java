@@ -55,7 +55,6 @@ public class AppStoreTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void add_appstore_should_success() throws Exception {
         MvcResult result = addAppstore();
-        AppStoreDto dto = gson.fromJson(result.getResponse().getContentAsString(), AppStoreDto.class);
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
