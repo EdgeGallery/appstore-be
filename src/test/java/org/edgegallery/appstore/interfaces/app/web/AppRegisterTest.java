@@ -251,13 +251,29 @@ public class AppRegisterTest extends AppTest {
     public void should_success_with_VM() {
         try {
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
+                .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
+                    FileUtils.openInputStream(csarFile))).with(csrf()));
+            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            int result = mvcResult.getResponse().getStatus();
+            Assert.assertEquals(result, HttpStatus.OK.value());
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_with_Chun() {
+        try {
+            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
             FileInputStream fileInputStream = new FileInputStream(csarFile);
             MultipartFile multipartFile = new MockMultipartFile("file", csarFile.getName(), "text/plain",
                 IOUtils.toByteArray(fileInputStream));
             Chunk chunk = new Chunk();
             chunk.setFile(multipartFile);
             chunk.setChunkSize(8 * 1024 * 1024L);
-
             MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v1/apps/upload")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).content(gson.toJson(chunk))
                 .accept(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
