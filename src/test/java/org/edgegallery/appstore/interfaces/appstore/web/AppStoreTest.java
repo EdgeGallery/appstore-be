@@ -72,21 +72,6 @@ public class AppStoreTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void modify_appstore_should_success() throws Exception {
-        MvcResult result = modifyAppstore();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-    }
-
-    public MvcResult modifyAppstore() throws Exception {
-        ResultActions resultActions = mvc.perform(
-            MockMvcRequestBuilders.multipart("/mec/appstore/v1/appstores/" + appStoreId)
-                .file(new MockMultipartFile("appStoreName", "", MediaType.TEXT_PLAIN_VALUE, "test appstore".getBytes()))
-                .file(new MockMultipartFile("description", "", MediaType.TEXT_PLAIN_VALUE, "test description".getBytes())).with(csrf()));
-        return resultActions.andReturn();
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_all_appstore_should_success() throws Exception {
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get("/mec/appstore/v1/appstores").param("appStoreName", "test name")
@@ -106,8 +91,8 @@ public class AppStoreTest {
         gson.fromJson(result.getResponse().getContentAsString(), RegisterRespDto.class);
     }
 
-    @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void delete_appstore_should_success() throws Exception {
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.delete("/mec/appstore/v1/appstores/" + appStoreId)

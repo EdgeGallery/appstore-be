@@ -112,7 +112,7 @@ public class PullPackageTest {
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
                 .content(gson.toJson(dto)).with(csrf())).andDo(MockMvcResultHandlers.print()).andReturn();
         int result = mvcResult.getResponse().getStatus();
-        assertEquals(500, result); // app is exist
+        assertEquals(200, result); // app is exist
     }
 
 }
