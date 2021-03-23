@@ -99,6 +99,8 @@ public class AppTest {
 
     protected static final String LOGO_PNG = "testfile/logo.png";
 
+    protected static final String NEW_CSAR = "testfile/new_csar.csar";
+
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
         return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId);

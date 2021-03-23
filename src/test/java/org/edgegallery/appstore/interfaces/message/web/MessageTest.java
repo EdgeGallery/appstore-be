@@ -19,12 +19,18 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
+import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,6 +92,9 @@ public class MessageTest {
                 String.valueOf(EnumMessageType.NOTICE))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
+        Gson gson = new Gson();
+        List<MessageRespDto>  appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertEquals(1, appDtos.size());
     }
 }
