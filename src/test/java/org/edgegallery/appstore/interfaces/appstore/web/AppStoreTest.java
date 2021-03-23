@@ -95,10 +95,8 @@ public class AppStoreTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void delete_appstore_should_success() throws Exception {
         MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.delete("/mec/appstore/v1/appstores/" + appStoreId)
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print()).andReturn();
+            MockMvcRequestBuilders.delete("/mec/appstore/v1/appstores/" + appStoreId).with(csrf()))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
     }
-
 }
