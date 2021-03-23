@@ -335,11 +335,11 @@ public class AppRegisterTest extends AppTest {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File videoFile = Resources.getResourceAsFile(DEMO_VIDEO);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
-                .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
+                .file(new MockMultipartFile("file", "positioning_eg_2.0.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
-                .file(new MockMultipartFile("demoVideo", "logo.png", MediaType.TEXT_PLAIN_VALUE,
+                .file(new MockMultipartFile("demoVideo", "demo_video.mp4", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(videoFile)))
                 .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
                 .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
