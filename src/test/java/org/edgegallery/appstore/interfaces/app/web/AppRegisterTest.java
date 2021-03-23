@@ -15,13 +15,17 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
 import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
@@ -36,6 +40,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.multipart.MultipartFile;
 
 public class AppRegisterTest extends AppTest {
 
@@ -246,15 +251,18 @@ public class AppRegisterTest extends AppTest {
     public void should_success_with_VM() {
         try {
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
-                .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
-                    FileUtils.openInputStream(csarFile)))
-                .with(csrf()));
-            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
+            FileInputStream fileInputStream = new FileInputStream(csarFile);
+            MultipartFile multipartFile = new MockMultipartFile("file", csarFile.getName(), "text/plain",
+                IOUtils.toByteArray(fileInputStream));
+            Chunk chunk = new Chunk();
+            chunk.setFile(multipartFile);
+            chunk.setChunkSize(8 * 1024 * 1024L);
+
+            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v1/apps/upload")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).content(gson.toJson(chunk))
+                .accept(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
             int result = mvcResult.getResponse().getStatus();
-            Assert.assertEquals(result, HttpStatus.OK.value());
+            assertEquals(200, result);
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -264,13 +272,11 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_vm() {
         try {
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
-                .with(csrf())
-                .param("fileName", fileName)
-                .param("guid", guid));
+            ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload").with(csrf())
+                    .param("fileName", fileName).param("guid", guid));
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
             int result = mvcResult.getResponse().getStatus();
             Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
@@ -282,13 +288,11 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_merge() {
         try {
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/merge")
-                .with(csrf())
-                .param("fileName", fileName)
-                .param("guid", guid));
+            ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/merge").with(csrf()).param("fileName", fileName)
+                    .param("guid", guid));
             MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
             int result = mvcResult.getResponse().getStatus();
             Assert.assertEquals(result, HttpStatus.INTERNAL_SERVER_ERROR.value());
         } catch (Exception e) {
