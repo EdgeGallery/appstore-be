@@ -79,6 +79,10 @@ public class AppTest {
 
     protected String userName = "username";
 
+    protected String fileName = "positioning_eg_1.0.csar";
+
+    protected String guid = "123456";
+
     protected String appId;
 
     protected String packageId;
