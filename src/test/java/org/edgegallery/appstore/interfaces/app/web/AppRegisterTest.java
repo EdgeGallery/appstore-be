@@ -349,11 +349,8 @@ public class AppRegisterTest extends AppTest {
                 .with(csrf())
                 .param("userId", userId)
                 .param("userName", userName));
-            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andReturn();
-            int result = mvcResult.getResponse().getStatus();
-            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
+            MvcResult mvcResult = resultActions.andReturn();
+            Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
