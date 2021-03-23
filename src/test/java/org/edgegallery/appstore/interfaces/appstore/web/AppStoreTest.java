@@ -55,7 +55,6 @@ public class AppStoreTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void add_appstore_should_success() throws Exception {
         MvcResult result = addAppstore();
-        AppStoreDto dto = gson.fromJson(result.getResponse().getContentAsString(), AppStoreDto.class);
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
@@ -95,10 +94,8 @@ public class AppStoreTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void delete_appstore_should_success() throws Exception {
         MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.delete("/mec/appstore/v1/appstores/" + appStoreId)
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print()).andReturn();
+            MockMvcRequestBuilders.delete("/mec/appstore/v1/appstores/" + appStoreId).with(csrf()))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
     }
-
 }
