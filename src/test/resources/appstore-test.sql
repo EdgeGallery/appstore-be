@@ -130,8 +130,8 @@ INSERT INTO catalog_package_table(
 
 INSERT INTO app_store_table(
 	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0001', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
+	VALUES ('a09bca74-04cb-4bae-9ee2-9c5072ec9d4b', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
 
 INSERT INTO app_store_table(
 	appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
-	VALUES ('appstore-test-0002', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
+	VALUES ('02ef9eeb-d50e-4835-8d05-e5fdb87b7596', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
