@@ -19,6 +19,9 @@ package org.edgegallery.appstore.interfaces.appstore.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.google.gson.Gson;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
+import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
@@ -30,10 +33,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
@@ -59,18 +64,14 @@ public class AppStoreTest {
     }
 
     public MvcResult addAppstore() throws Exception {
-        AppStoreDto reqDto = new AppStoreDto();
-        reqDto.setAppStoreName("test appstore");
-        reqDto.setAppStoreVersion("1.0");
-        reqDto.setCompany("huawei");
-        reqDto.setUrl("http://127.0.0.1:8099");
-        reqDto.setAppdTransId("社区_APPD_2.0");
-        reqDto.setDescription("test");
-        String body = gson.toJson(reqDto);
-        return mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/v1/appstores").contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
-                .andDo(MockMvcResultHandlers.print()).andReturn();
+        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/appstores")
+            .file(new MockMultipartFile("appStoreName", "", MediaType.TEXT_PLAIN_VALUE, "test appstore".getBytes()))
+            .file(new MockMultipartFile("appStoreVersion", "", MediaType.TEXT_PLAIN_VALUE, "1.0".getBytes()))
+            .file(new MockMultipartFile("company", "", MediaType.TEXT_PLAIN_VALUE, "huawei".getBytes()))
+            .file(new MockMultipartFile("url", "", MediaType.TEXT_PLAIN_VALUE, "http://127.0.0.1:8099".getBytes()))
+            .file(new MockMultipartFile("appdTransId", "", MediaType.TEXT_PLAIN_VALUE, "社区_APPD_2.0".getBytes()))
+            .file(new MockMultipartFile("description", "", MediaType.TEXT_PLAIN_VALUE, "test".getBytes())).with(csrf()));
+        return resultActions.andReturn();
     }
 
     @Test
@@ -87,8 +88,8 @@ public class AppStoreTest {
         reqDto.setDescription("test modifying appstore description");
         String body = gson.toJson(reqDto);
         return mvc.perform(
-            MockMvcRequestBuilders.put("/mec/appstore/v1/appstores").contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
+            MockMvcRequestBuilders.put("/mec/appstore/v1/appstores/" + appStoreId)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
                 .andDo(MockMvcResultHandlers.print()).andReturn();
     }
 
