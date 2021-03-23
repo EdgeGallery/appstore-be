@@ -243,7 +243,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_fail_with_VM() {
+    public void should_success_with_VM() {
         try {
             File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
