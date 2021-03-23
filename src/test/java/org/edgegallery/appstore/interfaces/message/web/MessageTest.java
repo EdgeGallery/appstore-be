@@ -95,6 +95,6 @@ public class MessageTest {
         Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
         Gson gson = new Gson();
         List<MessageRespDto>  appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
-        Assert.assertEquals(1, appDtos.size());
+        Assert.assertEquals(0, appDtos.size());
     }
 }
