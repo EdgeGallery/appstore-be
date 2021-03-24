@@ -196,7 +196,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.apache.tomcat.embed</groupId>
-            <version>10.0.4</version>
+            <version>${tomcat.embed.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -254,6 +254,10 @@
                 <exclusion>
                     <artifactId>spring-tx</artifactId>
                     <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
