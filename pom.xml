@@ -270,6 +270,7 @@
                     <groupId>org.mybatis</groupId>
                     <artifactId>mybatis-spring</artifactId>
                 </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <artifactId>spring-tx</artifactId>
