@@ -196,7 +196,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.apache.tomcat.embed</groupId>
-            <version>${tomcat.embed.version}</version>
+            <version>10.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
