@@ -105,8 +105,8 @@ public class AppController {
     })
     @RequestMapping(value = "/apps/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Object> merge(@RequestParam(value = "fileName", required = false) String fileName,
-        @RequestParam(value = "guid", required = false) String guid) throws Exception {
+    public ResponseEntity<Object> merge(@RequestParam(value = "fileName") String fileName,
+        @RequestParam(value = "guid") String guid) throws Exception {
         return appServiceFacade.merge(fileName,guid);
     }
 
