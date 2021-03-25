@@ -99,7 +99,7 @@ public class AppServiceFacade {
     /**
      * upload image.
      */
-    public ResponseEntity<RegisterRespDto> uploadImage(boolean isMultipart, Chunk chunk) throws IOException {
+    public ResponseEntity<String> uploadImage(boolean isMultipart, Chunk chunk) throws IOException {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
 
@@ -120,7 +120,7 @@ public class AppServiceFacade {
             }
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("upload package success.");
     }
 
     /**

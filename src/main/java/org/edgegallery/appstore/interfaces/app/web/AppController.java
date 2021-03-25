@@ -90,7 +90,7 @@ public class AppController {
     })
     @RequestMapping(value = "/apps/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<RegisterRespDto> uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
+    public ResponseEntity<String> uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         return appServiceFacade.uploadImage(isMultipart,chunk);
     }
