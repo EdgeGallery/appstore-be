@@ -293,12 +293,6 @@
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
             <version>5.1.8.RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-transport</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -421,22 +415,13 @@
         <dependency>
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java</artifactId>
-            <version>3.2.5</version>
+            <version>3.2.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.docker-java</groupId>
                     <artifactId>docker-java-transport-netty</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.github.docker-java</groupId>
-                    <artifactId>docker-java-core</artifactId>
-                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.docker-java</groupId>
-            <artifactId>docker-java-core</artifactId>
-            <version>3.2.7</version>
         </dependency>
         <dependency>
             <groupId>org.modelmapper</groupId>
