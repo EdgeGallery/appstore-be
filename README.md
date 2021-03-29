@@ -14,7 +14,7 @@ AppStore是开发者发布和上线App应用的市场，上传App包后首先要
 
 ## 编译构建
 
-AppStore-be项目基于docker进行了容器化改造，在编译构建时共分为两步
+AppStore-be项目基于docker进行了容器化改造，在编译构建时共分为两步.
 
 - ### 编译
 
