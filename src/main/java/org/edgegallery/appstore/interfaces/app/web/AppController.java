@@ -243,7 +243,7 @@ public class AppController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<AppDto> queryAppById(
         @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return ResponseEntity.ok(AppDto.of(appServiceFacade.queryByAppId(appId)));
