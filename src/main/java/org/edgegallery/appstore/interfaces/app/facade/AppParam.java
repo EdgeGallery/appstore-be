@@ -45,7 +45,7 @@ public class AppParam {
 
     static {
         typeSet.add("Video Application");
-        typeSet.add("Game Application");
+        typeSet.add("Game");
         typeSet.add("Video Surveillance");
         typeSet.add("Safety");
         typeSet.add("Blockchain");
