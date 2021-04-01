@@ -321,7 +321,7 @@ public class AppService {
                 if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
                     imageLocn = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
-                    imageLocn.setDomainame(appstoreRepoEndpoint);
+                    imageLocn.setDomainname(appstoreRepoEndpoint);
                     imageLocn.setProject("appstore");
                     break;
                 }
