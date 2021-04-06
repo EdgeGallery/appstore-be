@@ -16,17 +16,23 @@
 
 package org.edgegallery.appstore.interfaces.app.facade;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -76,6 +82,8 @@ public class AppServiceFacade {
     public static final String HEADER_VALUE = "attachment; filename=";
 
     private static final String ROLE_APPSTORE_ADMIN = "ROLE_APPSTORE_ADMIN";
+
+    private static final String VM = "vm";
 
     @Autowired
     private AppService appService;
@@ -227,7 +235,10 @@ public class AppServiceFacade {
         boolean isImgZipExist = false;
         String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
         try {
-
+            String appClass = getAppClass(fileAddress);
+            if (appClass.equals(VM)) {
+                return new AFile(fileDirName, fileAddress);
+            }
             imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
             if (imgDecsList.isEmpty()) {
                 return new AFile(fileDirName, fileAddress);
@@ -267,6 +278,10 @@ public class AppServiceFacade {
         boolean isImgZipExist = false;
 
         try {
+            String appClass = getAppClass(fileStoreageAddress);
+            if (appClass.equals(VM)) {
+                return new AFile(file.getOriginalFilename(), fileStoreageAddress);
+            }
             imgDecsList = appService.getAppImageInfo(fileStoreageAddress, fileParent);
             if (imgDecsList.isEmpty()) {
                 return new AFile(file.getOriginalFilename(), fileStoreageAddress);
@@ -417,6 +432,36 @@ public class AppServiceFacade {
         }
         List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
         return ResponseEntity.ok(packageDtos);
+    }
+
+    /**
+     * get app_class.
+     *
+     * @param filePath filePath
+     * @return appClass
+     */
+    private String getAppClass(String filePath) {
+        try (ZipFile zipFile = new ZipFile(filePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().split("/").length == 1 && entry.getName().endsWith(".mf")) {
+                    try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(zipFile.getInputStream(entry), StandardCharsets.UTF_8))) {
+                        String line = "";
+                        while ((line = br.readLine()) != null) {
+                            // prefix: path
+                            if (line.trim().startsWith("app_class")) {
+                                return line.split(":")[1].trim();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new AppException("failed to get app class.");
+        }
+        return null;
     }
 
 }
