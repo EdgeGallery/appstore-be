@@ -353,7 +353,7 @@ public class AppService {
     private Map<String, Object> loadvaluesYaml(File valuesYaml) {
 
         Map<String, Object> valuesYamlMap;
-        Yaml yaml = new Yaml();
+        Yaml yaml = new Yaml(new SafeConstructor());
         try (InputStream inputStream = new FileInputStream(valuesYaml)) {
             valuesYamlMap = yaml.load(inputStream);
         } catch (IOException e) {
