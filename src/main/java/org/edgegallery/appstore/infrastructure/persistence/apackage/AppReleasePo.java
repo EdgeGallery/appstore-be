@@ -98,8 +98,11 @@ public class AppReleasePo {
     @Column(name = "STATUS")
     private String status;
 
-    @Column(name = "demoVideoAddress")
+    @Column(name = "DEMOVIDEOADDRESS")
     private String demoVideoAddress;
+
+    @Column(name = "DEPLOYMODE")
+    private String deployMode;
 
     public AppReleasePo() {
         // empty constructor of AppReleasePO
@@ -145,6 +148,7 @@ public class AppReleasePo {
         po.testTaskId = pack.getTestTaskId();
         po.status = pack.getStatus().toString();
         po.provider = pack.getAppBasicInfo().getProvider();
+        po.deployMode = pack.getDeployMode();
         return po;
     }
 
@@ -167,6 +171,7 @@ public class AppReleasePo {
             release.setDemoVideo(new AFile(new File(demoVideoAddress).getName(), demoVideoAddress));
         }
         release.setPackageFile(new AFile(new File(packageAddress).getName(), packageAddress));
+        release.getPackageFile().setFileSize(new File(packageAddress).length());
         release.setAppId(appId);
         release.setPackageId(packageId);
         release.setIcon(new AFile(new File(iconAddress).getName(), iconAddress));
@@ -179,6 +184,7 @@ public class AppReleasePo {
         release.setAppBasicInfo(basicInfo);
         release.setStatus(EnumPackageStatus.valueOf(status));
         release.setTestTaskId(testTaskId);
+        release.setDeployMode(deployMode);
         return release;
     }
 }

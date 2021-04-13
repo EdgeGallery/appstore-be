@@ -56,6 +56,8 @@ public class AppDto {
 
     private EnumAppStatus status;
 
+    private String deployMode;
+
     public AppDto() {
         // empty construct
     }
@@ -83,6 +85,7 @@ public class AppDto {
         dto.userId = app.getUser().getUserId();
         dto.userName = app.getUser().getUserName();
         dto.status = app.getStatus();
+        dto.deployMode = app.getDeployMode();
         return dto;
     }
 

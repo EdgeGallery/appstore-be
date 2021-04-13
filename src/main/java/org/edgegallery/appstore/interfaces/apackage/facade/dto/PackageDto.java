@@ -68,6 +68,8 @@ public class PackageDto {
 
     private String demoVideoName;
 
+    private String deployMode;
+
     public PackageDto() {
         // empty construct function
     }
@@ -109,6 +111,7 @@ public class PackageDto {
         if (release.getDemoVideo() != null) {
             dto.demoVideoName = release.getDemoVideo().getOriginalFileName();
         }
+        dto.deployMode = release.getDeployMode();
         return dto;
     }
 }

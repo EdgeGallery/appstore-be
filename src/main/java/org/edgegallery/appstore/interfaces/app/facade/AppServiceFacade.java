@@ -16,23 +16,17 @@
 
 package org.edgegallery.appstore.interfaces.app.facade;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -56,6 +50,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
@@ -93,6 +88,9 @@ public class AppServiceFacade {
 
     @Autowired
     private AppRepository appRepository;
+
+    @Autowired
+    private AppUtil appUtil;
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -180,14 +178,23 @@ public class AppServiceFacade {
         }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        AFile packageAFile = getPkgFile(packageFile, new PackageChecker(dir), fileParent);
+        File tempfile = new PackageChecker(dir).check(packageFile);
+        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        AFile packageAFile;
+        String appClass = appUtil.getAppClass(fileStoreageAddress);
+        if (appClass.equals(VM)) {
+            packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
+        } else {
+            packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
+        }
+        packageAFile.setFileSize(packageFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
-        release = new Release(packageAFile, icon, demoVideoFile, user, appParam);
+        release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -206,14 +213,30 @@ public class AppServiceFacade {
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
         fileAddress =  dir + File.separator + fileAddress;
-        AFile packageAFile = getPkgFileNew(fileAddress, new PackageChecker(fileParent), fileParent);
+        File packageFile  = new File(fileAddress);
+        FileInputStream fileInputStream = new FileInputStream(packageFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain",
+            IOUtils.toByteArray(fileInputStream));
+        File file = new PackageChecker(fileParent).check(multipartFile);
+        if (!file.exists()) {
+            LOGGER.error("Package File  is Illegal.");
+            throw new IllegalArgumentException("Package File name is Illegal.");
+        }
+        AFile packageAFile;
+        String appClass = appUtil.getAppClass(fileAddress);
+        if (appClass.equals(VM)) {
+            packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
+        } else {
+            packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
+        }
+        packageAFile.setFileSize(multipartFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
-        release = new Release(packageAFile, icon, demoVideoFile, user, appParam);
+        release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -221,27 +244,20 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getPkgFileNew(String fileAddress, FileChecker fileChecker, String fileDir) throws IOException {
-        File packageFile  = new File(fileAddress);
-        FileInputStream fileInputStream = new FileInputStream(packageFile);
-        MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain",
-            IOUtils.toByteArray(fileInputStream));
-        File file = fileChecker.check(multipartFile);
-        if (!file.exists()) {
-            LOGGER.error("Package File  is Illegal.");
-            throw new IllegalArgumentException("Package File name is Illegal.");
-        }
+    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
+        File tempfile = fileChecker.check(file);
+        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        return new AFile(file.getOriginalFilename(), fileStoreageAddress);
+    }
+
+    private AFile getPkgFile(String fileName, String fileAddress, String fileParent) {
         List<SwImgDesc> imgDecsList;
         boolean isImgZipExist = false;
-        String fileDirName = fileAddress.substring(fileAddress.lastIndexOf(File.separator) + 1);
+
         try {
-            String appClass = getAppClass(fileAddress);
-            if (appClass.equals(VM)) {
-                return new AFile(fileDirName, fileAddress);
-            }
-            imgDecsList = appService.getAppImageInfo(fileAddress, fileDir);
+            imgDecsList = appService.getAppImageInfo(fileAddress, fileParent);
             if (imgDecsList.isEmpty()) {
-                return new AFile(fileDirName, fileAddress);
+                return new AFile(fileName, fileAddress);
             }
 
             for (SwImgDesc imageDescr : imgDecsList) {
@@ -252,52 +268,9 @@ public class AppServiceFacade {
 
             if (!isImgZipExist) {
                 FileUtils.forceDelete(new File(fileAddress));
-                appService.updateAppPackageWithRepoInfo(fileDir);
-                appService.updateImgInRepo(imgDecsList);
-                fileAddress = appService.compressAppPackage(fileDir);
-            }
-        } catch (AppException | IllegalArgumentException ex) {
-            throw new AppException(ex.getMessage());
-        } catch (IOException ex) {
-            LOGGER.debug("failed to delete csar package {}", ex.getMessage());
-        }
-        return new AFile(fileDirName, fileAddress);
-    }
-
-    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
-        File tempfile = fileChecker.check(file);
-        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
-        return new AFile(file.getOriginalFilename(), fileStoreageAddress);
-    }
-
-    private AFile getPkgFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
-        File tempfile = fileChecker.check(file);
-        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
-
-        List<SwImgDesc> imgDecsList;
-        boolean isImgZipExist = false;
-
-        try {
-            String appClass = getAppClass(fileStoreageAddress);
-            if (appClass.equals(VM)) {
-                return new AFile(file.getOriginalFilename(), fileStoreageAddress);
-            }
-            imgDecsList = appService.getAppImageInfo(fileStoreageAddress, fileParent);
-            if (imgDecsList.isEmpty()) {
-                return new AFile(file.getOriginalFilename(), fileStoreageAddress);
-            }
-
-            for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains(".zip")) {
-                    isImgZipExist = true;
-                }
-            }
-
-            if (!isImgZipExist) {
-                FileUtils.forceDelete(new File(fileStoreageAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
-                fileStoreageAddress = appService.compressAppPackage(fileParent);
+                fileAddress = appService.compressAppPackage(fileParent);
             }
         } catch (AppException | IllegalArgumentException ex) {
             throw new AppException(ex.getMessage());
@@ -305,7 +278,7 @@ public class AppServiceFacade {
             LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
 
-        return new AFile(file.getOriginalFilename(), fileStoreageAddress);
+        return new AFile(fileName, fileAddress);
     }
 
     /**
@@ -432,36 +405,6 @@ public class AppServiceFacade {
         }
         List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
         return ResponseEntity.ok(packageDtos);
-    }
-
-    /**
-     * get app_class.
-     *
-     * @param filePath filePath
-     * @return appClass
-     */
-    private String getAppClass(String filePath) {
-        try (ZipFile zipFile = new ZipFile(filePath)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.getName().split("/").length == 1 && entry.getName().endsWith(".mf")) {
-                    try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(zipFile.getInputStream(entry), StandardCharsets.UTF_8))) {
-                        String line = "";
-                        while ((line = br.readLine()) != null) {
-                            // prefix: path
-                            if (line.trim().startsWith("app_class")) {
-                                return line.split(":")[1].trim();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new AppException("failed to get app class.");
-        }
-        return null;
     }
 
 }
