@@ -82,6 +82,8 @@ public class App implements Entity {
 
     private List<Release> releases;
 
+    private String deployMode;
+
     /**
      * Constructor of App.
      *
@@ -101,6 +103,7 @@ public class App implements Entity {
         this.contact = release.getAppBasicInfo().getContact();
         this.status = EnumAppStatus.UnPublish;
         this.releases = Collections.singletonList(release);
+        this.deployMode = release.getDeployMode();
     }
 
     public String getUserId() {
@@ -118,6 +121,7 @@ public class App implements Entity {
         this.contact = release.getAppBasicInfo().getContact();
         this.applicationType = release.getApplicationType();
         this.appIntroduction = release.getAppBasicInfo().getMarkDownContent();
+        this.deployMode = release.getDeployMode();
         releases.add(release);
     }
 

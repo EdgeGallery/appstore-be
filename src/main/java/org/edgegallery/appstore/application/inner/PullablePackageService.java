@@ -43,6 +43,7 @@ import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.slf4j.Logger;
@@ -94,6 +95,9 @@ public class PullablePackageService {
 
     @Autowired
     private AppService appService;
+
+    @Autowired
+    private AppUtil appUtil;
 
     /**
      * query all pullable packages.
@@ -178,9 +182,11 @@ public class PullablePackageService {
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
+            apackage.setFileSize(tempPackage.length());
+            String appClass = appUtil.getAppClass(apackage.getStorageAddress());
             AppParam appParam = new AppParam(packagePo.getType(), packagePo.getShortDesc(),
                 packagePo.getAffinity(), packagePo.getIndustry());
-            Release release = new Release(apackage, icon, null, user, appParam);
+            Release release = new Release(apackage, icon, null, user, appParam, appClass);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);

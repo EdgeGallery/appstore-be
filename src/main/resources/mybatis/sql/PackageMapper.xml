@@ -28,10 +28,11 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         update catalog_package_table
         SET packageid = #{packageId}, packageAddress = #{packageAddress}, demoVideoAddress = #{demoVideoAddress},
-        iconAddress = #{iconAddress}, size = #{size}, fileStructure = #{fileStructure}, createTime = #{createTime}, shortDesc = #{shortDesc}, appName = #{appName},
-        version = #{version}, provider = #{provider}, applicationType = #{applicationType}, markDownContent = #{markDownContent},
-        affinity = #{affinity}, industry = #{industry}, contact = #{contact}, appId = #{appId}, userId = #{userId}, userName = #{userName},
-        TESTTASKID = #{testTaskId}, status = #{status}
+        iconAddress = #{iconAddress}, size = #{size}, fileStructure = #{fileStructure}, createTime = #{createTime},
+        shortDesc = #{shortDesc}, appName = #{appName}, version = #{version}, provider = #{provider},
+        applicationType = #{applicationType}, deployMode = #{deployMode}, markDownContent = #{markDownContent},
+        affinity = #{affinity}, industry = #{industry}, contact = #{contact}, appId = #{appId}, userId = #{userId},
+        userName = #{userName}, TESTTASKID = #{testTaskId}, status = #{status}
         WHERE packageid = #{packageId}
     </update>
 
@@ -39,11 +40,11 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         insert into catalog_package_table
         (packageid, packageAddress, iconAddress, demoVideoAddress, size, fileStructure, CREATETIME, SHORTDESC,
-        appName, version, applicationType, markdowncontent, affinity, industry, contact, appid, userid, username,
+        appName, version, applicationType, deployMode, markdowncontent, affinity, industry, contact, appid, userid, username,
         TESTTASKID, STATUS, provider)
         VALUES
         (#{packageId}, #{packageAddress}, #{iconAddress}, #{demoVideoAddress}, #{size}, #{fileStructure},(select
-        now()),#{shortDesc}, #{appName}, #{version}, #{applicationType},
+        now()),#{shortDesc}, #{appName}, #{version}, #{applicationType}, #{deployMode},
         #{markDownContent},#{affinity}, #{industry}, #{contact}, #{appId}, #{userId}, #{userName}, #{testTaskId},
         #{status}, #{provider})
     </insert>

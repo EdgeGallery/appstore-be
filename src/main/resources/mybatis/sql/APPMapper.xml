@@ -34,7 +34,7 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo">
         update app_table
         SET modifytime =  (select now()), shortdesc = #{shortDesc}, provider = #{provider}, appname = #{appName},
-        applicationType = #{applicationType}, appIntroduction = #{appIntroduction},
+        applicationType = #{applicationType}, deployMode = #{deployMode}, appIntroduction = #{appIntroduction},
         downloadcount = #{downloadCount}, affinity = #{affinity}, industry = #{industry}, contact = #{contact},
         userid = #{userId}, username = #{userName}, score = #{score}, status = #{status}
         WHERE appid = #{appId}
@@ -44,11 +44,11 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo">
         insert into
         app_table
-        (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, appIntroduction,
+        (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, deployMode, appIntroduction,
         downloadcount, affinity, industry, contact, userid, username, score, status)
         VALUES
         (#{appId}, (select now()),  (select now()), #{shortDesc},#{provider}, #{appName},
-        #{applicationType},
+        #{applicationType}, #{deployMode},
         #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0,
         #{status})
     </insert>

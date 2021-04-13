@@ -30,6 +30,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.slf4j.Logger;
@@ -54,6 +55,9 @@ public class MessageService {
 
     @Autowired
     private AppService appService;
+
+    @Autowired
+    private AppUtil appUtil;
 
     /**
      * add a message.
@@ -108,10 +112,12 @@ public class MessageService {
             }
             AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
+            apackage.setFileSize(tempPackage.length());
+            String appClass = appUtil.getAppClass(apackage.getStorageAddress());
 
             AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),
                 message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry());
-            Release release = new Release(apackage, icon, demoVideo, user, appParam);
+            Release release = new Release(apackage, icon, demoVideo, user, appParam, appClass);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);

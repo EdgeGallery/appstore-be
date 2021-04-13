@@ -84,6 +84,9 @@ public class AppPo implements PersistenceObject<App> {
     @Column(name = "STATUS")
     private EnumAppStatus status;
 
+    @Column(name = "DEPLOYMODE")
+    private String deployMode;
+
     public AppPo() {
         // empty construct
     }
@@ -106,6 +109,7 @@ public class AppPo implements PersistenceObject<App> {
         po.contact = app.getContact();
         po.score = app.getScore();
         po.status = app.getStatus();
+        po.deployMode = app.getDeployMode();
         return po;
     }
 
@@ -114,6 +118,7 @@ public class AppPo implements PersistenceObject<App> {
         return App.builder().appId(appId).appName(appName).provider(provider).createTime(createTime)
             .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).affinity(affinity)
             .industry(industry).contact(contact).applicationType(applicationType).appIntroduction(appIntroduction)
-            .user(new User(userId, userName)).numOfcomment(0).releases(null).status(status).build();
+            .user(new User(userId, userName)).numOfcomment(0).releases(null).status(status)
+            .deployMode(deployMode).build();
     }
 }

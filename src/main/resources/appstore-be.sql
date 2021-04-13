@@ -10,6 +10,7 @@
     	APPNAME                  VARCHAR(100)       NULL,
     	VERSION                  VARCHAR(20)        NULL,
     	APPLICATIONTYPE          VARCHAR(300)       NULL,
+    	DEPLOYMODE               VARCHAR(100)       NULL,
     	MARKDOWNCONTENT          TEXT			    NULL,
     	AFFINITY                 VARCHAR(100)       NULL,
     	INDUSTRY                 VARCHAR(100)       NULL,
@@ -27,6 +28,7 @@
     	APPID                    VARCHAR(200)       NOT NULL,
     	APPNAME                  VARCHAR(100)       NULL,
     	APPLICATIONTYPE          VARCHAR(300)       NULL,
+    	DEPLOYMODE               VARCHAR(100)       NULL,
     	SHORTDESC	             TEXT		        NULL,
     	PROVIDER                 VARCHAR(300)       NULL,
     	APPINTRODUCTION		     TEXT			    NULL,
@@ -106,3 +108,11 @@
     alter table catalog_package_table add column IF NOT EXISTS DEMOVIDEOADDRESS VARCHAR(200) NULL;
 
     alter table message_table add column IF NOT EXISTS DEMOVIDEODOWNLOADURL VARCHAR(255) NULL;
+
+    alter table catalog_package_table add column IF NOT EXISTS DEPLOYMODE VARCHAR(100) NULL;
+
+    alter table app_table add column IF NOT EXISTS DEPLOYMODE VARCHAR(100) NULL;
+
+    update catalog_package_table set DEPLOYMODE = 'container' where DEPLOYMODE is NULL;
+
+    update app_table set DEPLOYMODE = 'container' where DEPLOYMODE is NULL;

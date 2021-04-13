@@ -37,6 +37,10 @@ public class AFile {
         return storageAddress;
     }
 
+    public void setFileSize(long size) {
+        this.fileSize = size;
+    }
+
     public String getSize() {
         return String.valueOf(fileSize);
     }

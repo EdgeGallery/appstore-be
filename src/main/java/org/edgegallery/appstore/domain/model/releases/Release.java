@@ -60,10 +60,12 @@ public class Release implements ValueObject<Release> {
 
     private AFile demoVideo;
 
+    private String deployMode;
+
     /**
      * Constructor of Release.
      */
-    public Release(AFile packageFile, AFile icon, AFile demoVideo, User user, AppParam appParam) {
+    public Release(AFile packageFile, AFile icon, AFile demoVideo, User user, AppParam appParam, String appClass) {
         String random = UUID.randomUUID().toString();
         this.packageId = random.replace("-", "");
         this.packageFile = packageFile;
@@ -76,6 +78,7 @@ public class Release implements ValueObject<Release> {
         this.industry = appParam.getIndustry();
         this.affinity = appParam.getAffinity();
         this.status = EnumPackageStatus.Upload;
+        this.deployMode = appClass;
         appBasicInfo = new BasicInfo().load(packageFile.getStorageAddress());
     }
 
