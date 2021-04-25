@@ -33,6 +33,8 @@ public class AppParam {
 
     private String shortDesc;
 
+    private String showType;
+
     private String affinity;
 
     private String industry;

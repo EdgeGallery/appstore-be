@@ -184,7 +184,8 @@ public class PullablePackageService {
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
             apackage.setFileSize(tempPackage.length());
             String appClass = appUtil.getAppClass(apackage.getStorageAddress());
-            AppParam appParam = new AppParam(packagePo.getType(), packagePo.getShortDesc(),
+            String showType = "public";
+            AppParam appParam = new AppParam(packagePo.getType(), packagePo.getShortDesc(), showType,
                 packagePo.getAffinity(), packagePo.getIndustry());
             Release release = new Release(apackage, icon, null, user, appParam, appClass);
             // the package pulled from third appstore need to be tested by local appstore's atp

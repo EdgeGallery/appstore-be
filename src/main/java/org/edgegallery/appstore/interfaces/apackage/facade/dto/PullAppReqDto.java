@@ -37,6 +37,8 @@ public class PullAppReqDto {
 
     private String shortDesc;
 
+    private String showType;
+
     private String industry;
 
     private String type;
