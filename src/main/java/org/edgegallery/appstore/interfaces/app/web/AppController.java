@@ -131,15 +131,17 @@ public class AppController {
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
+        @ApiParam(value = "app showType", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "showType should not be null.") @RequestPart("showType") String showType,
         @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
-        return appServiceFacade
-            .appRegistering(new User(userId, userName), file, new AppParam(type, shortDesc, affinity, industry), icon,
-                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
+        return appServiceFacade.appRegistering(new User(userId, userName), file,
+            new AppParam(type, shortDesc, showType, affinity, industry), icon, demoVideo,
+            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
     /**
@@ -164,6 +166,8 @@ public class AppController {
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
+        @ApiParam(value = "app showType", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+            message = "showType should not be null.") @RequestPart("showType") String showType,
         @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
@@ -171,8 +175,8 @@ public class AppController {
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) throws IOException {
         return appServiceFacade
-            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, affinity, industry), icon,
-                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)),fileAddress);
+            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, showType, affinity, industry), icon,
+                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)), fileAddress);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)

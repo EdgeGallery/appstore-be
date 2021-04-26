@@ -44,6 +44,8 @@ public class Release implements ValueObject<Release> {
 
     private String shortDesc;
 
+    private String showType;
+
     private String affinity;
 
     private String industry;
@@ -74,6 +76,7 @@ public class Release implements ValueObject<Release> {
         this.user = user;
         this.createTime = new Date();
         this.shortDesc = appParam.getShortDesc();
+        this.showType = appParam.getShowType();
         this.applicationType = appParam.getApplicationType();
         this.industry = appParam.getIndustry();
         this.affinity = appParam.getAffinity();

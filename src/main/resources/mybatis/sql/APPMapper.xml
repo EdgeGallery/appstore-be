@@ -33,24 +33,35 @@
     <update id="update"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo">
         update app_table
-        SET modifytime =  (select now()), shortdesc = #{shortDesc}, provider = #{provider}, appname = #{appName},
-        applicationType = #{applicationType}, deployMode = #{deployMode}, appIntroduction = #{appIntroduction},
-        downloadcount = #{downloadCount}, affinity = #{affinity}, industry = #{industry}, contact = #{contact},
-        userid = #{userId}, username = #{userName}, score = #{score}, status = #{status}
+        SET modifytime      = (select now()),
+            shortdesc       = #{shortDesc},
+            showtype        = #{showType},
+            provider        = #{provider},
+            appname         = #{appName},
+            applicationType = #{applicationType},
+            deployMode      = #{deployMode},
+            appIntroduction = #{appIntroduction},
+            downloadcount   = #{downloadCount},
+            affinity        = #{affinity},
+            industry        = #{industry},
+            contact         = #{contact},
+            userid          = #{userId},
+            username        = #{userName},
+            score           = #{score},
+            status          = #{status}
         WHERE appid = #{appId}
     </update>
 
     <insert id="insert"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo">
-        insert into
-        app_table
-        (appid, createtime, modifytime, shortdesc, provider, appname, applicationType, deployMode, appIntroduction,
-        downloadcount, affinity, industry, contact, userid, username, score, status)
-        VALUES
-        (#{appId}, (select now()),  (select now()), #{shortDesc},#{provider}, #{appName},
-        #{applicationType}, #{deployMode},
-        #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry},#{contact}, #{userId}, #{userName}, 5.0,
-        #{status})
+        insert into app_table
+        (appid, createtime, modifytime, shortdesc, showtype, provider, appname, applicationType, deployMode,
+         appIntroduction,
+         downloadcount, affinity, industry, contact, userid, username, score, status)
+        VALUES (#{appId}, (select now()), (select now()), #{shortDesc}, #{showType}, #{provider}, #{appName},
+                #{applicationType}, #{deployMode},
+                #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry}, #{contact}, #{userId}, #{userName}, 5.0,
+                #{status})
     </insert>
 
     <delete id="remove" parameterType="String">

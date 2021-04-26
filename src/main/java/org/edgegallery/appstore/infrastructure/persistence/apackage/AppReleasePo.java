@@ -59,6 +59,9 @@ public class AppReleasePo {
     @Column(name = "SHORTDESC")
     private String shortDesc;
 
+    @Column(name = "SHOWTYPE")
+    private String showType;
+
     @Column(name = "appName")
     private String appName;
 
@@ -134,6 +137,7 @@ public class AppReleasePo {
         po.fileStructure = pack.getAppBasicInfo().getFileStructure();
         po.createTime = pack.getCreateTime();
         po.shortDesc = pack.getShortDesc();
+        po.showType = pack.getShowType();
         po.appName = pack.getAppBasicInfo().getAppName();
         po.version = pack.getAppBasicInfo().getVersion();
         po.applicationType = pack.getApplicationType();
@@ -177,6 +181,7 @@ public class AppReleasePo {
         release.setIcon(new AFile(new File(iconAddress).getName(), iconAddress));
         release.setCreateTime(createTime);
         release.setShortDesc(shortDesc);
+        release.setShowType(showType);
         release.setAffinity(affinity);
         release.setApplicationType(applicationType);
         release.setIndustry(industry);

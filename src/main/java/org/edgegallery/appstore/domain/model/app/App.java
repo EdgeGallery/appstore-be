@@ -64,6 +64,8 @@ public class App implements Entity {
 
     private String shortDesc;
 
+    private String showType;
+
     private String affinity;
 
     private String industry;
@@ -94,6 +96,7 @@ public class App implements Entity {
         this.appId = appId;
         this.appName = release.getAppBasicInfo().getAppName();
         this.shortDesc = release.getShortDesc();
+        this.showType = release.getShowType();
         this.provider = release.getAppBasicInfo().getProvider();
         this.user = release.getUser();
         this.affinity = release.getAffinity();
@@ -117,6 +120,7 @@ public class App implements Entity {
      */
     public void upload(Release release) {
         this.shortDesc = release.getShortDesc();
+        this.showType = release.getShowType();
         this.affinity = release.getAffinity();
         this.contact = release.getAppBasicInfo().getContact();
         this.applicationType = release.getApplicationType();

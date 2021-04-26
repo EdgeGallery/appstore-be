@@ -48,6 +48,9 @@ public class AppPo implements PersistenceObject<App> {
     @Column(name = "SHORTDESC")
     private String shortDesc; //
 
+    @Column(name = "SHOWTYPE")
+    private String showType;
+
     @Column(name = "PROVIDER")
     private String provider; //
 
@@ -97,6 +100,7 @@ public class AppPo implements PersistenceObject<App> {
         po.appName = app.getAppName();
         po.applicationType = app.getApplicationType();
         po.shortDesc = app.getShortDesc();
+        po.showType = app.getShowType();
         po.provider = app.getProvider();
         po.appIntroduction = app.getAppIntroduction();
         po.downloadCount = app.getDownloadCount();
@@ -116,9 +120,9 @@ public class AppPo implements PersistenceObject<App> {
     @Override
     public App toDomainModel() {
         return App.builder().appId(appId).appName(appName).provider(provider).createTime(createTime)
-            .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).affinity(affinity)
-            .industry(industry).contact(contact).applicationType(applicationType).appIntroduction(appIntroduction)
-            .user(new User(userId, userName)).numOfcomment(0).releases(null).status(status)
-            .deployMode(deployMode).build();
+            .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).showType(showType)
+            .affinity(affinity).industry(industry).contact(contact).applicationType(applicationType)
+            .appIntroduction(appIntroduction).user(new User(userId, userName)).numOfcomment(0).releases(null)
+            .status(status).deployMode(deployMode).build();
     }
 }
