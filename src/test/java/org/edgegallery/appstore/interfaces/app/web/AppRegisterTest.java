@@ -346,6 +346,7 @@ public class AppRegisterTest extends AppTest {
                 .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
                 .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
                     "Smart Park".getBytes()))
+                .file(new MockMultipartFile("showType", "", MediaType.TEXT_PLAIN_VALUE, "public".getBytes()))
                 .with(csrf())
                 .param("userId", userId)
                 .param("userName", userName));

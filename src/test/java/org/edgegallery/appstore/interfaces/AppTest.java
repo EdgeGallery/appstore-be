@@ -105,15 +105,15 @@ public class AppTest {
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId);
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId, "public");
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName) throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", null);
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", null, "public");
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String type,
-        String shortDesc, String affinity, String industry, String testTaskId) throws Exception {
+        String shortDesc, String affinity, String industry, String testTaskId, String showType) throws Exception {
         File iconFile = Resources.getResourceAsFile(iconAddr);
         File csarFile = Resources.getResourceAsFile(csarAddr);
         byte[] taskBytes = testTaskId == null ? null : testTaskId.getBytes();
@@ -126,7 +126,8 @@ public class AppTest {
             .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, shortDesc.getBytes()))
             .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, affinity.getBytes()))
             .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE, industry.getBytes()))
-            .file(new MockMultipartFile("testTaskId", "", MediaType.TEXT_PLAIN_VALUE, taskBytes)).with(csrf())
+            .file(new MockMultipartFile("testTaskId", "", MediaType.TEXT_PLAIN_VALUE, taskBytes))
+            .file(new MockMultipartFile("showType", "", MediaType.TEXT_PLAIN_VALUE, showType.getBytes())).with(csrf())
             .param("userId", userId).param("userName", userName));
         return resultActions.andReturn();
     }
