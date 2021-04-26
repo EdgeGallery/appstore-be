@@ -89,7 +89,6 @@ public class PackageChecker extends FileChecker {
     }
 
     private String sanitzeFileName(String entryName, String intendedDir) throws IOException {
-
         File f = new File(intendedDir, entryName);
         String canonicalPath = f.getCanonicalPath();
         File intendDir = new File(intendedDir);
