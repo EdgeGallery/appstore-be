@@ -77,7 +77,7 @@ public class PackageRepositoryImpl implements PackageRepository {
 
     @Override
     public List<Release> findReleaseByUserId(String userId) {
-        return packageMapper.findReleaseByUserId(userId).stream().filter(s -> s.getShowType() != "private")
-            .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
+        return packageMapper.findReleaseByUserId(userId).stream().map(AppReleasePo::toDomainModel)
+            .collect(Collectors.toList());
     }
 }

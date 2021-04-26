@@ -21,7 +21,7 @@
     <select id="getAllPushablePackages"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
-        where a.STATUS = 'Published' and a.SHOWTYPE = 'publish' order by CREATETIME
+        where a.STATUS = 'Published' and a.SHOWTYPE = 'public' order by CREATETIME
     </select>
 
     <select id="getPushablePackages"

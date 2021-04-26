@@ -36,6 +36,8 @@ public class AppDto {
 
     private String shortDesc;
 
+    private String showType;
+
     private String createTime;
 
     private String details;
@@ -75,6 +77,7 @@ public class AppDto {
         dto.provider = app.getProvider();
         dto.type = app.getApplicationType();
         dto.shortDesc = app.getShortDesc();
+        dto.showType = app.getShowType();
         dto.createTime = app.getCreateTime();
         dto.details = app.getAppIntroduction();
         dto.downloadCount = app.getDownloadCount();
