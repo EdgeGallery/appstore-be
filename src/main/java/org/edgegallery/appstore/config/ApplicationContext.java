@@ -22,13 +22,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationContext {
 
-    @Value("${app-share.platformName}")
+    @Value("${appShare.platformName}")
     public String platformName;
 
-    @Value("${app-share.atp-report-url}")
+    @Value("${appShare.atp-report-url}")
     public String atpReportUrl;
 
-    @Value("${app-share.host-url}")
+    @Value("${appShare.host-url}")
     public String hostUrl;
 
 }
