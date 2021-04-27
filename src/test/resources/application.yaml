@@ -51,8 +51,8 @@ atp:
     create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
     query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
 
-### poke feature config ###
-poke:
+### app-share feature config ###
+app-share:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}
   atp-report-url: http://127.0.0.1:8899/atp/report
   host-url: ${PLATFORM_URL:http://127.0.0.1:8099}
