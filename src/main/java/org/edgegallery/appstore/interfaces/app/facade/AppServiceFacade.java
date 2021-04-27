@@ -182,7 +182,7 @@ public class AppServiceFacade {
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileStoreageAddress);
-        if (appClass.equals(VM)) {
+        if (!appClass.isEmpty() && appClass.equals(VM)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
         } else {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
@@ -224,7 +224,7 @@ public class AppServiceFacade {
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
-        if (appClass.equals(VM)) {
+        if (!appClass.isEmpty() && appClass.equals(VM)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
