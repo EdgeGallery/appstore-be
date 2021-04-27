@@ -178,7 +178,8 @@ public class AppServiceFacade {
         }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        File tempfile = new PackageChecker(dir).check(packageFile);
+        FileChecker fileChecker = new PackageChecker(dir);
+        File tempfile = fileChecker.check(packageFile);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileStoreageAddress);
@@ -217,7 +218,8 @@ public class AppServiceFacade {
         FileInputStream fileInputStream = new FileInputStream(packageFile);
         MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain",
             IOUtils.toByteArray(fileInputStream));
-        File file = new PackageChecker(fileParent).check(multipartFile);
+        FileChecker fileChecker = new PackageChecker(fileParent);
+        File file = fileChecker.check(multipartFile);
         if (!file.exists()) {
             LOGGER.error("Package File  is Illegal.");
             throw new IllegalArgumentException("Package File name is Illegal.");
