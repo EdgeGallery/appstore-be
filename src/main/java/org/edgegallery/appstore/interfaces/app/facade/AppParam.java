@@ -45,6 +45,8 @@ public class AppParam {
 
     private static Set<String> architectureSet = new HashSet<>();
 
+    private static Set<String> showTypeSet = new HashSet<>();
+
     static {
         typeSet.add("Video Application");
         typeSet.add("Game");
@@ -77,8 +79,20 @@ public class AppParam {
         architectureSet.add("ARM32");
     }
 
+    static {
+        showTypeSet.add("public");
+        showTypeSet.add("inner-public");
+        showTypeSet.add("private");
+    }
+
+    /**
+     * check app param valid.
+     */
     public boolean checkValidParam(AppParam appparam) {
+        if (appparam.getShowType().isEmpty()) {
+            appparam.setShowType("public");
+        }
         return (typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())
-            && architectureSet.contains(appparam.getAffinity()));
+            && architectureSet.contains(appparam.getAffinity()) && showTypeSet.contains(appparam.getShowType()));
     }
 }

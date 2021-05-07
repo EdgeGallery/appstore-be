@@ -131,8 +131,7 @@ public class AppController {
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
-        @ApiParam(value = "app showType", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
-            message = "showType should not be null.") @RequestPart("showType") String showType,
+        @ApiParam(value = "app showType") @RequestPart(name = "showType", required = false) String showType,
         @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
