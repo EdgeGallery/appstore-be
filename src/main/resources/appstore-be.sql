@@ -21,7 +21,7 @@
         TESTTASKID               VARCHAR(100)       NULL,
         STATUS                   VARCHAR(100)       NULL,
         PROVIDER                 VARCHAR(100)       NULL,
-        SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
+        SHOWTYPE                 VARCHAR(100)       DEFAULT 'public',
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -43,7 +43,7 @@
         MODIFYTIME               TIMESTAMP          NULL,
         SCORE                    NUMERIC(2,1)       NULL,
         STATUS                   VARCHAR(50)        NULL,
-        SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
+        SHOWTYPE                 VARCHAR(100)       DEFAULT 'public',
         CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
@@ -119,6 +119,6 @@
 
     update app_table set DEPLOYMODE = 'container' where DEPLOYMODE is NULL;
 
-    alter table catalog_package_table add column if NOT EXISTS SHOWTYPE varchar(100) NOT NULL DEFAULT 'public';
+    alter table catalog_package_table add column if NOT EXISTS SHOWTYPE varchar(100) DEFAULT 'public';
 
-    alter table app_table add column if NOT EXISTS SHOWTYPE varchar(100) NOT NULL DEFAULT 'public';
+    alter table app_table add column if NOT EXISTS SHOWTYPE varchar(100) DEFAULT 'public';
