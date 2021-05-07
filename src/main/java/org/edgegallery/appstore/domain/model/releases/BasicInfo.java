@@ -151,7 +151,7 @@ public class BasicInfo {
      * @return boolean
      */
     public static boolean isYamlFile(File file) {
-        return !file.isDirectory() && file.getName().indexOf("PACKAGE_YAML_FORMAT") != -1;
+        return !file.isDirectory() && file.getName().indexOf(PACKAGE_YAML_FORMAT) != -1;
     }
 
     private static String getUnzipDir(String dirName) {
