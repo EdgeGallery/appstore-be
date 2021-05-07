@@ -85,6 +85,9 @@ public class AppParam {
         showTypeSet.add("private");
     }
 
+    /**
+     * check app param valid.
+     */
     public boolean checkValidParam(AppParam appparam) {
         if (appparam.getShowType().isEmpty()) {
             appparam.setShowType("public");
