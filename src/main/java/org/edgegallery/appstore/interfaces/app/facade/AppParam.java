@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 
 @Getter
 @Setter
@@ -89,7 +90,7 @@ public class AppParam {
      * check app param valid.
      */
     public boolean checkValidParam(AppParam appparam) {
-        if (appparam.getShowType().isEmpty()) {
+        if (StringUtils.isEmpty(appparam.getShowType())) {
             appparam.setShowType("public");
         }
         return (typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())

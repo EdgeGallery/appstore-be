@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -183,7 +184,7 @@ public class AppServiceFacade {
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileStoreageAddress);
-        if (!appClass.isEmpty() && appClass.equals(VM)) {
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
         } else {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
@@ -226,7 +227,7 @@ public class AppServiceFacade {
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
-        if (!appClass.isEmpty() && appClass.equals(VM)) {
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
