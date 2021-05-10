@@ -379,7 +379,8 @@ public class AppServiceFacade {
             .query(new AppPageCriteria(limit, offset, name, provider, type, affinity, userId)).map(AppDto::of)
             .getResults().stream();
         if (userId == null) {
-            appStream = appStream.filter(a -> a.getStatus().equals(EnumAppStatus.Published) && !a.getShowType().equals("private"));
+            appStream = appStream
+                .filter(a -> a.getStatus().equals(EnumAppStatus.Published) && !a.getShowType().equals("private"));
         }
         return ResponseEntity.ok(appStream.collect(Collectors.toList()));
     }
