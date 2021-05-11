@@ -27,10 +27,14 @@ public class PageCriteria {
 
     private String appId;
 
+    private final String userId;
+
+    private final String appName;
+
     /**
      * Constructor of PageCriteria.
      */
-    public PageCriteria(int limit, long offset, String appId) {
+    public PageCriteria(int limit, long offset, String appId, String userId, String appName) {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must >= 1");
         }
@@ -40,6 +44,8 @@ public class PageCriteria {
         this.limit = limit;
         this.offset = offset;
         this.appId = appId;
+        this.userId = userId;
+        this.appName = appName;
     }
 
 }

@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -31,5 +32,9 @@ public interface MessageMapper {
 
     MessagePo getOneMessage(String messageId);
 
+    List<MessagePo> getAllMessagesV2(Map<String, Object> params);
+
     List<MessagePo> getAllMessages();
+
+    Integer getAllMessageCount();
 }

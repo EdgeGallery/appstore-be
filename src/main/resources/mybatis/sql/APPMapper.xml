@@ -72,26 +72,95 @@
     </delete>
 
 
+    <select id="countTotalV2" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) from app_table
+        <where>
+            <if test="appId != null">
+                and appid = #{appId}
+            </if>
+            <if test="appName != null">
+                and appname like '%' || #{appName} || '%'
+            </if>
+            <if test="provider != null">
+                and provider = #{provider}
+            </if>
+            <if test="applicationType != null">
+                and applicationtype = #{applicationType}
+            </if>
+            <if test="affinity != null">
+                and affinity = #{affinity}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="userId != null">
+                and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findAllWithAppPaginationV2"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo"
+            parameterType="java.util.Map">
+        select * from app_table
+        <where>
+            <if test="appId != null">
+                and appid = #{appId}
+            </if>
+            <if test="appName != null">
+                and appname like '%' || #{appName} || '%'
+            </if>
+            <if test="provider != null">
+                and provider = #{provider}
+            </if>
+            <if test="applicationType != null">
+                and applicationtype = #{applicationType}
+            </if>
+            <if test="affinity != null">
+                and affinity = #{affinity}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="showType != null">
+                and showType != #{showType}
+            </if>
+            <if test="userId != null">
+                and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
+            </if>
+        </where>
+        <if test="order != null and orderType != null and createTime !=null">
+            order by ${orderType} ${order},${createTime} ${order}
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+    <select id="countTotalAppForUser" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) from app_table where userid = #{userId}
+    </select>
+
     <select id="countTotal" resultType="java.lang.Integer"
             parameterType="java.util.Map">
         select count(*) from app_table
         <where>
-        <if test="appName != null">
-            and appname = #{appName}
-        </if>
-        <if test="provider != null">
-            and provider = #{provider}
-        </if>
-        <if test="applicationType != null">
-            and applicationtype = #{applicationType}
-        </if>
-        <if test="affinity != null">
-            and affinity = #{affinity}
-        </if>
-        <if test="userId != null">
-            and userid = #{userId}
-        </if>
-    </where>
+            <if test="appName != null">
+                and appname = #{appName}
+            </if>
+            <if test="provider != null">
+                and provider = #{provider}
+            </if>
+            <if test="applicationType != null">
+                and applicationtype = #{applicationType}
+            </if>
+            <if test="affinity != null">
+                and affinity = #{affinity}
+            </if>
+            <if test="userId != null">
+                and userid = #{userId}
+            </if>
+        </where>
         limit #{limit} offset #{offset}
     </select>
 
@@ -122,9 +191,5 @@
         </where>
         order by createtime DESC
         limit #{limit} offset #{offset}
-    </select>
-    <select id="countTotalAppForUser" resultType="java.lang.Integer"
-            parameterType="java.util.Map">
-        select count(*) from app_table where userid = #{userId}
     </select>
 </mapper>

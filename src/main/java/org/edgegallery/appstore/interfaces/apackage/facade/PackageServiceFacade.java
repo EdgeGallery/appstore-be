@@ -20,7 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
@@ -30,6 +32,8 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -139,12 +143,43 @@ public class PackageServiceFacade {
      * @param userId user id
      * @return packages
      */
+    public Page<PackageDto> getPackageByUserIdV2(String userId, int limit, long offset, String appName, String prop,
+        String order, String token) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (prop == "createTime") {
+            params.put("createTime", prop);
+            params.put("orderType", prop);
+        } else {
+            params.put("createTime", "createTime");
+            params.put("orderType", prop);
+        }
+        params.put("userid", userId);
+        params.put("limit", limit);
+        params.put("offset", offset);
+        params.put("appName", appName);
+        params.put("order", order);
+        params.put("PageCriteria", new PageCriteria(limit, offset, null, userId, appName));
+
+        packageService.getPackageByUserIdV2(params).stream()
+            .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+        long total = packageService.countTotalForUserId(new PageCriteria(limit, offset, null, userId, appName));
+        return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
+            .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()), limit,
+            offset, total);
+    }
+
+    /**
+     * query all the package owned by the user, and sorted by create time.
+     *
+     * @param userId user id
+     * @return packages
+     */
     public ResponseEntity<List<PackageDto>> getPackageByUserId(String userId, String token) {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
-            .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus()))
-            .forEach(s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                new AtpMetadata(s.getTestTaskId(), token)));
+            .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));

@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.appstore;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,10 @@ public interface AppStoreMapper {
 
     AppStorePo queryAppStoreById(String appStoreId);
 
-    List<AppStorePo> queryAppStores(AppStorePo appStorePo);
+    AppStorePo queryAppStoreByAppstoreId(Map<String, Object> params);
+
+    List<AppStorePo> queryAppStores(Map<String, Object> params);
+
+    Integer getAllAppstoreCount(String appStoreName);
 
 }

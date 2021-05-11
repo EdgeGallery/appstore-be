@@ -16,12 +16,15 @@
 package org.edgegallery.appstore.interfaces.message.facade;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.inner.MessageService;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,34 @@ public class MessageServiceFacade {
      */
     public ResponseEntity<String> addMessage(MessageReqDto dto) {
         return ResponseEntity.ok(messageService.addMessage(dto));
+    }
+
+    /**
+     * get all messages by type limit offset.
+     *
+     * @param messageType type
+     * @return list
+     */
+    public Page<MessageRespDto> getAllMessagesV2(EnumMessageType messageType, String appName, int limit, int offset,
+        String order, String prop) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("limit", limit);
+        params.put("offset", offset);
+        params.put("appName", appName);
+        if (prop == "time") {
+            params.put("time", prop);
+            params.put("orderType", prop);
+        } else {
+            params.put("time", "time");
+            params.put("orderType", prop);
+        }
+        params.put("order", order);
+
+        List<Message> messages = messageService.getAllMessagesV2(params);
+        long total = messageService.getAllMessageCount();
+        return new Page<>(
+            messages.stream().filter(m -> messageType == null ? m != null : m.getMessageType() == messageType)
+                .map(MessageRespDto::of).collect(Collectors.toList()), limit, offset, total);
     }
 
     /**

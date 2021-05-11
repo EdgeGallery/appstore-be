@@ -23,18 +23,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 public class GetCommentsTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/comments", appId))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        ResultActions actions = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/comments", appId)).param("limit", "12").param("offset", "0").contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 }

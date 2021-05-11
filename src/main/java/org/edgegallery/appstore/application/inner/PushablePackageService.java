@@ -22,6 +22,7 @@ import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
@@ -64,6 +65,12 @@ public class PushablePackageService {
 
     @Autowired
     private ApplicationContext context;
+
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
+        String prop) {
+        String typeList = "push";
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, typeList);
+    }
 
     public List<PushablePackageDto> queryAllPushablePackages() {
         return pushablePackageRepository.queryAllPushablePackages();

@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
@@ -62,8 +63,27 @@ public class MessageRepository {
      *
      * @return list
      */
+    public List<Message> getAllMessagesV2(Map<String, Object> params) {
+        return messageMapper.getAllMessagesV2(params).stream().map(MessagePo::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * get all messages in db.
+     *
+     * @return list
+     */
     public List<Message> getAllMessages() {
         return messageMapper.getAllMessages().stream().map(MessagePo::toDomainModel).collect(Collectors.toList());
+    }
+
+    /**
+     * get all messages count in db.
+     *
+     * @return long
+     */
+    public long getAllMessageCount() {
+        return messageMapper.getAllMessageCount();
     }
 
     /**

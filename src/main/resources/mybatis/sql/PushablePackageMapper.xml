@@ -18,10 +18,46 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageMapper">
 
+    <select id="getAllPushablePackagesV2"
+            parameterType="java.util.Map"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        <where>
+            <if test="status != null">
+                a.STATUS = #{status}
+            </if>
+            <if test="appName != null">
+                and a.appname like '%' || #{appName} || '%'
+            </if>
+                and a.SHOWTYPE ='public'
+        </where>
+        <if test="order != null and orderType != null and latestPushTime != null">
+            order by ${orderType} ${order}, ${latestPushTime} ${order}
+        </if>
+        <if test="order != null and orderType != null and createTime != null">
+            order by ${orderType} ${order}, ${createTime} ${order}
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
     <select id="getAllPushablePackages"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         where a.STATUS = 'Published' and a.SHOWTYPE = 'public' order by CREATETIME
+    </select>
+
+
+    <select id="getAllPushablePackagesCount"
+            resultType="java.lang.Integer">
+        select count(*) from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        <where>
+            <if test="status != null">
+                a.STATUS = #{status}
+            </if>
+            <if test="appName != null">
+                and a.appname like '%' || #{appName} || '%'
+            </if>
+        </where>
     </select>
 
     <select id="getPushablePackages"

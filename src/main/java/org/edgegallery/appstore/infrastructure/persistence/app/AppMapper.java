@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.app;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
@@ -39,6 +40,10 @@ public interface AppMapper {
     Integer countTotal(AppPageCriteria appPageCriteria);
 
     List<AppPo> findAllWithAppPagination(AppPageCriteria appPageCriteria);
+
+    Integer countTotalV2(Map<String, Object> params);
+
+    List<AppPo> findAllWithAppPaginationV2(Map<String, Object> params);
 
     Integer countTotalAppForUser(String userId);
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
@@ -72,8 +73,16 @@ public class MessageService {
         return "add a message success";
     }
 
+    public List<Message> getAllMessagesV2(Map<String, Object> params) {
+        return messageRepository.getAllMessagesV2(params);
+    }
+
     public List<Message> getAllMessages() {
         return messageRepository.getAllMessages();
+    }
+
+    public long getAllMessageCount() {
+        return messageRepository.getAllMessageCount();
     }
 
     public Message getMessageById(String messageId) {

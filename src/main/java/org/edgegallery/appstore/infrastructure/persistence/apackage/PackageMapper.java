@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.springframework.stereotype.Component;
@@ -40,5 +41,10 @@ public interface PackageMapper {
 
     Integer countTotalForReleases(PageCriteria pageCriteria);
 
+    List<AppReleasePo> findReleaseByUserIdV2(Map<String, Object> params);
+
     List<AppReleasePo> findReleaseByUserId(String userId);
+
+    Integer countTotalForUserId(PageCriteria pageCriteria);
+
 }

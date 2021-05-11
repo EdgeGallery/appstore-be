@@ -30,6 +30,7 @@ import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
@@ -58,6 +59,16 @@ public class PushablePackageServiceFacade {
 
     @Autowired
     private PullablePackageService pullablePackageService;
+
+    /**
+     * query all pushable packages.
+     *
+     * @return list
+     */
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
+        String prop) {
+        return pushablePackageService.queryAllPushablePackagesV2(limit, offset, appName, order, prop);
+    }
 
     /**
      * query all pushable packages.
@@ -152,6 +163,32 @@ public class PushablePackageServiceFacade {
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + release.getIcon().getOriginalFileName());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    /**
+     * query all pullable packages.
+     *
+     * @param limit appstore size
+     * @param offset appstore list offset
+     * @return list
+     */
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackagesV2(int limit, int offset, String appName,
+        String order, String prop) {
+        return ResponseEntity
+            .ok(pullablePackageService.queryAllPullablePackagesV2(limit, offset, appName, order, prop).getResults());
+    }
+
+    /**
+     * get pullable packages by id.
+     *
+     * @param platformId appstore id
+     * @param userId user id
+     * @return dto
+     */
+    public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
+        String order, String prop, String appName, String userId) {
+        return ResponseEntity
+            .ok(pullablePackageService.getPullablePackagesV2(platformId, limit, offset, order, prop, appName, userId));
     }
 
     /**

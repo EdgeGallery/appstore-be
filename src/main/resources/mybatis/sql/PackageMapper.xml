@@ -85,10 +85,41 @@
         #{offset}
     </select>
 
+    <select id="findReleaseByUserIdV2"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            parameterType="java.util.Map">
+        select * from catalog_package_table
+        <where>
+            <if test="userId != null">
+                userid = #{userId}
+            </if>
+            <if test="appName != null">
+                and appname like '%' || #{appName} || '%'
+            </if>
+        </where>
+        <if test="order != null and orderType != null">
+            order by ${orderType} ${order},${createTime} ${order}
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
     <select id="findReleaseByUserId"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
             parameterType="java.lang.String">
         select * from catalog_package_table where userid = #{userId}
+    </select>
+
+    <select id="countTotalForUserId" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) FROM catalog_package_table
+        <where>
+            <if test="userId != null">
+                userid = #{userId}
+            </if>
+            <if test="appName != null">
+                and appname like '%' || #{appName} || '%'
+            </if>
+        </where>
     </select>
 
 </mapper>
