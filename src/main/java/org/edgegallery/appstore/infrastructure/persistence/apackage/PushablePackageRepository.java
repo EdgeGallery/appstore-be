@@ -56,7 +56,7 @@ public class PushablePackageRepository {
         params.put("offset", offset);
         params.put("appName", appName);
         params.put("status", EnumAppStatus.Published.toString());
-        if (prop == "latestPushTime" || typeList == "push") {
+        if (prop.equals("latestPushTime") || typeList.equals("push")) {
             params.put("latestPushTime", prop);
             params.put("orderType", prop);
         } else {

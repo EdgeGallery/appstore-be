@@ -146,13 +146,12 @@ public class PackageServiceFacade {
     public Page<PackageDto> getPackageByUserIdV2(String userId, int limit, long offset, String appName, String prop,
         String order, String token) {
         Map<String, Object> params = new HashMap<String, Object>();
-        if (prop == "createTime") {
+        if (prop.equals("createTime")) {
             params.put("createTime", prop);
-            params.put("orderType", prop);
         } else {
             params.put("createTime", "createTime");
-            params.put("orderType", prop);
         }
+        params.put("orderType", prop);
         params.put("userid", userId);
         params.put("limit", limit);
         params.put("offset", offset);

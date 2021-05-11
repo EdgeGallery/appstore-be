@@ -382,13 +382,12 @@ public class AppServiceFacade {
         params.put("type", type);
         params.put("affinity", affinity);
         params.put("userId", userId);
-        if (prop == "createTime") {
+        if (prop.equals("createTime")) {
             params.put("createTime", prop);
-            params.put("orderType", prop);
         } else {
             params.put("createTime", "createTime");
-            params.put("orderType", prop);
         }
+        params.put("orderType", prop);
         params.put("order", order);
         params.put("status", EnumAppStatus.Published.toString());
         // Stream<AppDto> appStream = new Page<>(appRepository.query(params), limit, offset, 1).map(AppDto::of).getResults().stream();;

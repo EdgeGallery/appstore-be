@@ -59,13 +59,12 @@ public class MessageServiceFacade {
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        if (prop == "time") {
+        if (prop.equals("time")) {
             params.put("time", prop);
-            params.put("orderType", prop);
         } else {
             params.put("time", "time");
-            params.put("orderType", prop);
         }
+        params.put("orderType", prop);
         params.put("order", order);
 
         List<Message> messages = messageService.getAllMessagesV2(params);
