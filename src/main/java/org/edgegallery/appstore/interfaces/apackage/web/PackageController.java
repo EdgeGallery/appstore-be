@@ -179,6 +179,9 @@ public class PackageController {
         return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
+    /**
+     * modify app package info.
+     */
     @PutMapping(value = "/apps/{appId}/package/{packageId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "modify the app.", response = String.class)
     @ApiResponses(value = {
