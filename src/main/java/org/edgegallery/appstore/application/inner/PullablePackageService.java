@@ -125,8 +125,8 @@ public class PullablePackageService {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
             return Collections.emptyList();
         }
-        String url = appStore.getUrl() + PULLABLE_API + "?limitSize=" + limitSize + "&offsetPage=" + offsetPage + "&appName="
-            + appName + "&order=" + order + "&prop=" + prop;
+        String url = appStore.getUrl() + PULLABLE_API + "?limitSize=" + limitSize + "&offsetPage="
+            + offsetPage + "&appName=" + appName + "&order=" + order + "&prop=" + prop;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);
@@ -185,7 +185,7 @@ public class PullablePackageService {
      * @param params params.
      * @return count.
      */
-    public Integer getAllPushablePackagesCount(Map<String, Object> params){
+    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
         return pushablePackageRepository.getAllPushablePackagesCount(params);
     }
 

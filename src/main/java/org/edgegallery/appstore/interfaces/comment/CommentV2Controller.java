@@ -25,7 +25,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.model.comment.Comment;
-import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.comment.facade.CommentServiceFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -47,8 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = {"Comment V2Controller"})
 @Validated
 public class CommentV2Controller {
-
-    private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     private static final String REG_APP_ID = "[0-9a-f]{32}";
 

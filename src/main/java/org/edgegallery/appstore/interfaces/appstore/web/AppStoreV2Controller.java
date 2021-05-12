@@ -42,23 +42,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = {"APP StoreV2 Controller"})
 @Validated
 public class AppStoreV2Controller {
-    private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REG_SCHEMA = "(http)|(https)";
-
-    private static final String APPSTORE_URL =
-        "^((http:\\/\\/|https:\\/\\/)?([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)"
-            + "{3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\\d{0,5})?(\\/.*)?$";
-
-    private static final int MAX_NAME_LEN = 64;
-
-    private static final int MAX_VERSION_LEN = 64;
-
-    private static final int MAX_COMPANY_LEN = 64;
-
-    private static final int MAX_URL_LEN = 256;
-
-    private static final int MAX_DESC_LEN = 1024;
 
     @Autowired
     private AppStoreServiceFacade appStoreServiceFacade;

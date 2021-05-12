@@ -71,7 +71,8 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
      * query app stores.
      */
     public List<AppStore> queryAppStoresV2(Map<String, Object> params) {
-        return appStoreMapper.queryAppStoresV2(params).stream().map(AppStorePo::toAppStore).collect(Collectors.toList());
+        return appStoreMapper
+            .queryAppStoresV2(params).stream().map(AppStorePo::toAppStore).collect(Collectors.toList());
     }
 
     /**

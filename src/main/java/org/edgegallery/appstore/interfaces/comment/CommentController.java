@@ -22,12 +22,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.user.User;
-import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.comment.facade.CommentServiceFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -77,7 +75,7 @@ public class CommentController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<Comment>> getComments(@ApiParam(value = "app Id", required = true) @PathVariable("appId")
-    @Pattern(regexp = REG_APP_ID) String appId) {
+        @Pattern(regexp = REG_APP_ID) String appId) {
         return appCommentService.getComments(appId, 100, 0);
     }
 }
