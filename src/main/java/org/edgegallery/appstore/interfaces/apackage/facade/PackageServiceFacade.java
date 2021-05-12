@@ -161,7 +161,8 @@ public class PackageServiceFacade {
 
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
+                    new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(new PageCriteria(limit, offset, null, userId, appName));
         return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()), limit,
@@ -178,7 +179,8 @@ public class PackageServiceFacade {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
+                    new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));

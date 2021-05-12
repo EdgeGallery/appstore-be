@@ -59,6 +59,17 @@ public class PackageV2Controller {
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
+    /**
+     *
+     * @param userId userId.
+     * @param limitSize limitSize.
+     * @param offsetPage offsetPage.
+     * @param appName appName.
+     * @param order order by.
+     * @param prop order type.
+     * @param request HttpServletRequest.
+     * @return Page object.
+     */
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package by user id", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
@@ -131,7 +142,9 @@ public class PackageV2Controller {
         @ApiParam(value = "query order") @RequestParam("order") String order,
         @ApiParam(value = "query condition") @RequestParam("prop") String prop,
         HttpServletRequest request) {
-        return pushablePackageServiceFacade.getPullablePackagesV2(platformId, limitSize, offsetPage,order, prop, appName, (String) request.getAttribute("userId"));
+        return pushablePackageServiceFacade
+            .getPullablePackagesV2(platformId, limitSize, offsetPage, order, prop, appName,
+                (String) request.getAttribute("userId"));
     }
 
 }
