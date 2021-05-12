@@ -60,6 +60,7 @@ public class PackageV2Controller {
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
     /**
+     *query all the package owned by the user, and sorted by.
      *
      * @param userId userId.
      * @param limitSize limitSize.
@@ -126,6 +127,18 @@ public class PackageV2Controller {
         return pushablePackageServiceFacade.queryAllPullablePackagesV2(limitSize, offsetPage, appName, order, prop);
     }
 
+    /**
+     * query all the  pull package under appstoreId, and sorted by.
+     *
+     * @param platformId appstoreId.
+     * @param limitSize limitSize.
+     * @param offsetPage offsetPage.
+     * @param appName appName.
+     * @param order order by.
+     * @param prop order type
+     * @param request HttpServletRequest.
+     * @return Page Object.
+     */
     @GetMapping(value = "/packages/{platformId}/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages by platform id.", response = PushablePackageDto.class)
     @ApiResponses(value = {
