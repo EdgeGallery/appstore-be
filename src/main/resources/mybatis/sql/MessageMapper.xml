@@ -38,8 +38,8 @@
                 and appname like like '%' || #{appName} || '%'
             </if>
         </where>
-        <if test="order != null and orderType != null">
-            order by ${orderType} ${order},${time} ${order}
+        <if test="sortType != null and sortItem != null">
+            order by ${sortItem} ${sortType},${time} ${sortType}
         </if>
         limit #{limit} offset #{offset}
     </select>

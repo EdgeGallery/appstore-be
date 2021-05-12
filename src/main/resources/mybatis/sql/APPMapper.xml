@@ -131,8 +131,8 @@
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
             </if>
         </where>
-        <if test="order != null and orderType != null and createTime !=null">
-            order by ${orderType} ${order},${createTime} ${order}
+        <if test="sortType != null and sortItem != null and createTime !=null">
+            order by ${sortItem} ${sortType},${createTime} ${sortType}
         </if>
         limit #{limit} offset #{offset}
     </select>

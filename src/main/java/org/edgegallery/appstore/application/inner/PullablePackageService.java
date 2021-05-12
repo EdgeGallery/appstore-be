@@ -105,10 +105,10 @@ public class PullablePackageService {
      *
      * @return list
      */
-    public Page<PushablePackageDto> queryAllPullablePackagesV2(int limit, int offset, String appName, String order,
-        String prop) {
+    public Page<PushablePackageDto> queryAllPullablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem) {
         LOGGER.info("pullablePackageService queryAllPullablePackages come in");
-        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, "pull");
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem, "pull");
     }
 
     /**
@@ -118,15 +118,15 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limitSize, long offsetPage,
-        String order, String prop, String appName, String userId) {
+    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limit, long offet,
+        String sortType, String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
             return Collections.emptyList();
         }
-        String url = appStore.getUrl() + PULLABLE_API + "?limitSize=" + limitSize + "&offsetPage="
-            + offsetPage + "&appName=" + appName + "&order=" + order + "&prop=" + prop;
+        String url = appStore.getUrl() + PULLABLE_API + "?limit=" + limit + "&offet="
+            + offet + "&appName=" + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);

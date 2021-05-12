@@ -97,7 +97,7 @@ public class AppStoreServiceFacade {
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appStoreName", name);
-        long total = appStoreRepository.getAllAppstoreCountV2(name);
+        long total = appStoreRepository.getAllAppstoreCount(name);
         return new Page<>(appStoreRepository.queryAppStoresV2(params).stream().map(AppStore::toAppStoreDto)
             .collect(Collectors.toList()), limit, offset, total);
     }

@@ -54,18 +54,14 @@ public class MessageServiceFacade {
      * @return list
      */
     public Page<MessageRespDto> getAllMessagesV2(EnumMessageType messageType, String appName, int limit, int offset,
-        String order, String prop) {
+        String sortType, String sortItem) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        if (prop.equals("time")) {
-            params.put("time", prop);
-        } else {
-            params.put("time", "time");
-        }
-        params.put("orderType", prop);
-        params.put("order", order);
+        params.put("time", "time");
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
 
         List<Message> messages = messageService.getAllMessagesV2(params);
         long total = messageService.getAllMessageCount();

@@ -371,7 +371,7 @@ public class AppServiceFacade {
      * @return List<AppDto></AppDto>
      */
     public ResponseEntity<Page<AppDto>> queryAppsByCondV2(String name, String provider, String type, String affinity,
-        String userId, int limit, long offset, String order, String prop) {
+        String userId, int limit, long offset, String sortType, String sortItem) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("offset", offset);
@@ -379,13 +379,9 @@ public class AppServiceFacade {
         params.put("provider", provider);
         params.put("type", type);
         params.put("affinity", affinity);
-        if (prop.equals("createTime")) {
-            params.put("createTime", prop);
-        } else {
-            params.put("createTime", "createTime");
-        }
-        params.put("orderType", prop);
-        params.put("order", order);
+        params.put("createTime", "createTime");
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
         params.put("status", EnumAppStatus.Published.toString());
         Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
             .stream();

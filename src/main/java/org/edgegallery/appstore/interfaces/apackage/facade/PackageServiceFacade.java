@@ -143,20 +143,16 @@ public class PackageServiceFacade {
      * @param userId user id
      * @return packages
      */
-    public Page<PackageDto> getPackageByUserIdV2(String userId, int limit, long offset, String appName, String prop,
-        String order, String token) {
+    public Page<PackageDto> getPackageByUserIdV2(String userId, int limit, long offset, String appName, String sortItem,
+        String sortType, String token) {
         Map<String, Object> params = new HashMap<String, Object>();
-        if (prop.equals("createTime")) {
-            params.put("createTime", prop);
-        } else {
-            params.put("createTime", "createTime");
-        }
-        params.put("orderType", prop);
+        params.put("createTime", "createTime");
+        params.put("sortItem", sortItem);
         params.put("userid", userId);
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        params.put("order", order);
+        params.put("sortType", sortType);
         params.put("PageCriteria", new PageCriteria(limit, offset, null, userId, appName));
 
         packageService.getPackageByUserIdV2(params).stream()

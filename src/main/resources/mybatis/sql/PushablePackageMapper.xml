@@ -31,11 +31,11 @@
             </if>
                 and a.SHOWTYPE ='public'
         </where>
-        <if test="order != null and orderType != null and latestPushTime != null">
-            order by ${orderType} ${order}, ${latestPushTime} ${order}
+        <if test="sortType != null and sortItem != null and latestPushTime != null">
+            order by ${sortItem} ${sortType}, ${latestPushTime} ${sortType}
         </if>
-        <if test="order != null and orderType != null and createTime != null">
-            order by ${orderType} ${order}, ${createTime} ${order}
+        <if test="sortType != null and sortItem != null and createTime != null">
+            order by ${sortItem} ${sortType}, ${createTime} ${sortType}
         </if>
         limit #{limit} offset #{offset}
     </select>

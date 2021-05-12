@@ -29,7 +29,7 @@ public interface AppStoreRepository {
 
     List<AppStore> queryAppStoresV2(Map<String, Object> params);
 
-    Integer getAllAppstoreCountV2(String appStoreName);
+    Integer getAllAppstoreCount(String appStoreName);
 
     List<AppStore> queryAppStores(AppStore appStore);
 }

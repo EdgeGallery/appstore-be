@@ -63,11 +63,11 @@ public class PackageV2Controller {
      *query all the package owned by the user, and sorted by.
      *
      * @param userId userId.
-     * @param limitSize limitSize.
-     * @param offsetPage offsetPage.
+     * @param limit limit.
+     * @param offset offset.
      * @param appName appName.
-     * @param order order by.
-     * @param prop order type.
+     * @param sortType sortType by.
+     * @param sortItem sortType type.
      * @param request HttpServletRequest.
      * @return Page object.
      */
@@ -81,14 +81,14 @@ public class PackageV2Controller {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PackageDto>> getPackageByUserIdV2(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage, @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "query condition") @RequestParam("prop") String prop, HttpServletRequest request) {
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset, @ApiParam(value = "app Name") @RequestParam("appName") String appName,
+        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
         return ResponseEntity.ok(packageServiceFacade
-            .getPackageByUserIdV2(userId, limitSize, offsetPage, appName, prop, order,
+            .getPackageByUserIdV2(userId, limit, offset, appName, sortItem, sortType,
                 (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
@@ -100,14 +100,14 @@ public class PackageV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PushablePackageDto>> queryAllPushablePackagesV2(
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage, @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "query condition") @RequestParam("prop") String prop) {
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset, @ApiParam(value = "app Name") @RequestParam("appName") String appName,
+        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem) {
         return ResponseEntity
-            .ok(pushablePackageServiceFacade.queryAllPushablePackagesV2(limitSize, offsetPage, appName, order, prop));
+            .ok(pushablePackageServiceFacade.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem));
     }
 
     @GetMapping(value = "/packages/pullable", produces = MediaType.APPLICATION_JSON)
@@ -117,25 +117,25 @@ public class PackageV2Controller {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset,
         @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "sort condition") @RequestParam("prop") String prop) {
-        return pushablePackageServiceFacade.queryAllPullablePackagesV2(limitSize, offsetPage, appName, order, prop);
+        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "sort condition") @RequestParam("sortItem") String sortItem) {
+        return pushablePackageServiceFacade.queryAllPullablePackagesV2(limit, offset, appName, sortType, sortItem);
     }
 
     /**
      * query all the  pull package under appstoreId, and sorted by.
      *
      * @param platformId appstoreId.
-     * @param limitSize limitSize.
-     * @param offsetPage offsetPage.
+     * @param limit limit.
+     * @param offset offset.
      * @param appName appName.
-     * @param order order by.
-     * @param prop order type
+     * @param sortType sortType by.
+     * @param sortItem sortType type
      * @param request HttpServletRequest.
      * @return Page Object.
      */
@@ -147,16 +147,16 @@ public class PackageV2Controller {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(
         @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset,
         @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "query condition") @RequestParam("prop") String prop,
+        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem,
         HttpServletRequest request) {
         return pushablePackageServiceFacade
-            .getPullablePackagesV2(platformId, limitSize, offsetPage, order, prop, appName,
+            .getPullablePackagesV2(platformId, limit, offset, sortType, sortItem, appName,
                 (String) request.getAttribute("userId"));
     }
 

@@ -70,12 +70,12 @@ public class AppV2Controller {
     public ResponseEntity<Page<AppDto>> queryAppsByCond(
         @ApiParam(value = "app Name") @RequestParam("appName") String name,
         @ApiParam(value = "userId") @RequestParam("userId") String userId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage, @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "query condition") @RequestParam("prop") String prop) {
-        return appServiceFacade.queryAppsByCondV2(name, null, null, null, userId, limitSize, offsetPage, order, prop);
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset, @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem) {
+        return appServiceFacade.queryAppsByCondV2(name, null, null, null, userId, limit, offset, sortType, sortItem);
     }
 
     /**

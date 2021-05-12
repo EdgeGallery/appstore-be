@@ -31,7 +31,7 @@
     <select id="findAllWithPagination"
             resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPo"
             parameterType="java.util.Map">
-        select * from csar_package_score where appid = #{appId} limit #{limit} offset #{offset}
+        select * from csar_package_score where appid = #{appId} order by commenttime desc limit #{limit} offset #{offset}
     </select>
 
     <select id="countTotal" resultType="java.lang.Integer"

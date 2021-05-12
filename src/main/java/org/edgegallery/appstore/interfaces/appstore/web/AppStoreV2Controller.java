@@ -51,8 +51,8 @@ public class AppStoreV2Controller {
      *
      * @param appStoreName appStoreName,
      * @param company company.
-     * @param limitSize limitSize.
-     * @param offsetPage offsetPage.
+     * @param limit limit.
+     * @param offset offset.
      * @return page object.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON)
@@ -66,11 +66,11 @@ public class AppStoreV2Controller {
     public ResponseEntity<Page<AppStoreDto>> queryAppStores(
         @ApiParam(value = "app store name") @RequestParam("appStoreName") String appStoreName,
         @ApiParam(value = "app store company") @PathParam("company") String company,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage) {
-        return ResponseEntity.ok(appStoreServiceFacade.queryAppStoresV2(appStoreName, company, limitSize, offsetPage));
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
+            int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
+            int offset) {
+        return ResponseEntity.ok(appStoreServiceFacade.queryAppStoresV2(appStoreName, company, limit, offset));
     }
 
 }

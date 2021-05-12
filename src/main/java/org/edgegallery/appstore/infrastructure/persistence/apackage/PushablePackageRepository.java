@@ -49,20 +49,20 @@ public class PushablePackageRepository {
      *
      * @return
      */
-    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
-        String prop, String shareType) {
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem, String shareType) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
         params.put("status", EnumAppStatus.Published.toString());
-        if (prop.equals("latestPushTime") || shareType.equals("push")) {
-            params.put("latestPushTime", prop);
+        if (shareType.equals("push")) {
+            params.put("latestPushTime", "latestPushTime");
         } else {
             params.put("createTime", "createTime");
         }
-        params.put("orderType", prop);
-        params.put("order", order);
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
         long total = pushablePackageMapper.getAllPushablePackagesCount(params);
         List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackagesV2(params);
         List<PushablePackageDto> packages = new ArrayList<>();

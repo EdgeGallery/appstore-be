@@ -58,10 +58,10 @@ public class MessageV2Controller {
         @ApiParam(value = "app Name") @RequestParam("appName") String appName,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
-        @ApiParam(value = "query order") @RequestParam("order") String order,
-        @ApiParam(value = "query condition")  @RequestParam("prop") String prop) {
+        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
+        @ApiParam(value = "query condition")  @RequestParam("sortItem") String sortItem) {
         return ResponseEntity
-            .ok(messageServiceFacade.getAllMessagesV2(messageType, appName, limit, offset, order, prop));
+            .ok(messageServiceFacade.getAllMessagesV2(messageType, appName, limit, offset, sortType, sortItem));
     }
 
 }

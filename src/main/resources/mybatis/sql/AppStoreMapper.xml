@@ -81,10 +81,11 @@
                 appstorename like '%' || #{appStoreName} || '%'
             </if>
         </where>
+        order by addedtime desc
         limit #{limit} offset #{offset}
     </select>
 
-    <select id="getAllAppstoreCountV2" parameterType="java.lang.String"
+    <select id="getAllAppstoreCount" parameterType="java.lang.String"
             resultType="java.lang.Integer">
         select count(*) from app_store_table
         <where>

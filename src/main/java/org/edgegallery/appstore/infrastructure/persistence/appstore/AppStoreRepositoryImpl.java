@@ -78,8 +78,8 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
     /**
      * query app stores count.
      */
-    public Integer getAllAppstoreCountV2(String appStoreName) {
-        return appStoreMapper.getAllAppstoreCountV2(appStoreName);
+    public Integer getAllAppstoreCount(String appStoreName) {
+        return appStoreMapper.getAllAppstoreCount(appStoreName);
     }
 
     /**

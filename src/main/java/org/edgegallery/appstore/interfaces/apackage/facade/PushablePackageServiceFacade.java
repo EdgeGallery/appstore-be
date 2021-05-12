@@ -67,9 +67,9 @@ public class PushablePackageServiceFacade {
      *
      * @return list
      */
-    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
-        String prop) {
-        return pushablePackageService.queryAllPushablePackagesV2(limit, offset, appName, order, prop);
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem) {
+        return pushablePackageService.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem);
     }
 
     /**
@@ -175,9 +175,9 @@ public class PushablePackageServiceFacade {
      * @return list
      */
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackagesV2(int limit, int offset, String appName,
-        String order, String prop) {
+        String sortType, String sortItem) {
         return ResponseEntity
-            .ok(pullablePackageService.queryAllPullablePackagesV2(limit, offset, appName, order, prop).getResults());
+            .ok(pullablePackageService.queryAllPullablePackagesV2(limit, offset, appName, sortType, sortItem).getResults());
     }
 
     /**
@@ -188,12 +188,12 @@ public class PushablePackageServiceFacade {
      * @return dto
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
-        String order, String prop, String appName, String userId) {
+        String sortType, String sortItem, String appName, String userId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("appName", appName);
         long total = pullablePackageService.getAllPushablePackagesCount(params);
         List<PushablePackageDto> list = pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
-            order, prop, appName, userId);
+            sortType, sortItem, appName, userId);
         return ResponseEntity
             .ok(new Page<PushablePackageDto>(list, limit, offset, total));
     }

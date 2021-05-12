@@ -66,9 +66,9 @@ public class PushablePackageService {
     @Autowired
     private ApplicationContext context;
 
-    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
-        String prop) {
-        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, "push");
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem) {
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem, "push");
     }
 
     public List<PushablePackageDto> queryAllPushablePackages() {
