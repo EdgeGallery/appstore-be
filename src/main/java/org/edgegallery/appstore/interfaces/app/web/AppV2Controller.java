@@ -53,11 +53,7 @@ public class AppV2Controller {
 
     private static final String REG_APP_ID = "[0-9a-f]{32}";
 
-    private static final int MAX_DETAILS_STRING_LENGTH = 1024;
-
     private static final String ACCESS_TOKEN = "access_token";
-
-    private static final String ACCESS_AUTIORITIES = "authorities";
 
     @Autowired
     private AppServiceFacade appServiceFacade;

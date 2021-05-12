@@ -165,10 +165,8 @@ public class AppServiceFacade {
     }
 
     private void checkDir(File fileDir) throws IOException {
-        if (!fileDir.exists()) {
-            if (!fileDir.mkdirs()) {
-                throw new IOException("create folder failed");
-            }
+        if (!fileDir.exists() && !fileDir.mkdirs()) {
+            throw new IOException("create folder failed");
         }
     }
 

@@ -34,10 +34,6 @@ import org.springframework.stereotype.Service;
 public class AppStoreServiceFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreServiceFacade.class);
 
-    private static final String COMMON_PATTERN = "\\*";
-
-    private static final String SQL_COMMON_PATTERN = "%";
-
     @Autowired
     private AppStoreRepository appStoreRepository;
 

@@ -51,10 +51,6 @@ public class PackageV2Controller {
 
     private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
-
-    private static final int MAX_PATH_STRING_LENGTH = 1024;
-
     private static final String ACCESS_TOKEN = "access_token";
 
     @Autowired
