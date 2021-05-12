@@ -62,6 +62,8 @@ public class PackageDto {
 
     private String shortDesc;
 
+    private String showType;
+
     private String testTaskId;
 
     private String provider;
@@ -106,6 +108,7 @@ public class PackageDto {
         dto.userName = release.getUser().getUserName();
         dto.status = release.getStatus();
         dto.shortDesc = release.getShortDesc();
+        dto.showType = release.getShowType();
         dto.testTaskId = release.getTestTaskId();
         dto.provider = release.getAppBasicInfo().getProvider();
         if (release.getDemoVideo() != null) {

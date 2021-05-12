@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
@@ -46,8 +47,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RestSchema(schemaId = "package")
@@ -173,5 +177,39 @@ public class PackageController {
     public ResponseEntity<List<PackageDto>> getPackageByUserId(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
         return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute(ACCESS_TOKEN));
+    }
+
+    @PutMapping(value = "/apps/{appId}/package/{packageId}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "modify the app.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<PackageDto> modifyAppAttr(@PathVariable("appId") @Pattern(regexp = REG_APP_ID) @NotNull(
+        message = "appId should not be null.") String appId,
+        @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) @NotNull(
+            message = "packageId should not be null.") String packageId,
+        @ApiParam(value = "app industry") @RequestPart(value = "industry", required = true)
+        @NotNull(message = "industry should not be null.") String industry,
+        @ApiParam(value = "app type") @RequestPart(value = "type", required = true)
+        @NotNull(message = "type should not be null.") String type,
+        @ApiParam(value = "app icon") @RequestPart(value = "icon", required = false) MultipartFile icon,
+        @ApiParam(value = "app vedio") @RequestPart(value = "vedio", required = false) MultipartFile vedio,
+        @ApiParam(value = "app affinity") @RequestPart(value = "affinity", required = true)
+        @NotNull(message = "affinity should not be null.") String affinity,
+        @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = true)
+        @NotNull(message = "shortDesc should not be null.") String shortDesc,
+        @ApiParam(value = "app showType") @RequestPart(value = "showType", required = true) String showType) {
+        PackageDto packageDto = new PackageDto();
+        packageDto.setAppId(appId);
+        packageDto.setPackageId(packageId);
+        packageDto.setIndustry(industry);
+        packageDto.setType(type);
+        packageDto.setAffinity(affinity);
+        packageDto.setShortDesc(shortDesc);
+        packageDto.setShowType(showType);
+        return packageServiceFacade.updateAppById(appId, packageId, icon, vedio, packageDto);
     }
 }
