@@ -176,8 +176,8 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackagesV2(int limit, int offset, String appName,
         String sortType, String sortItem) {
-        return ResponseEntity
-            .ok(pullablePackageService.queryAllPullablePackagesV2(limit, offset, appName, sortType, sortItem).getResults());
+        return ResponseEntity.ok(pullablePackageService.
+                queryAllPullablePackagesV2(limit, offset, appName, sortType, sortItem).getResults());
     }
 
     /**
