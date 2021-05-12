@@ -70,14 +70,28 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
     /**
      * query app stores.
      */
-    public List<AppStore> queryAppStores(Map<String, Object> params) {
-        return appStoreMapper.queryAppStores(params).stream().map(AppStorePo::toAppStore).collect(Collectors.toList());
+    public List<AppStore> queryAppStoresV2(Map<String, Object> params) {
+        return appStoreMapper.queryAppStoresV2(params).stream().map(AppStorePo::toAppStore).collect(Collectors.toList());
     }
 
     /**
      * query app stores count.
      */
-    public Integer getAllAppstoreCount(String appStoreName) {
-        return appStoreMapper.getAllAppstoreCount(appStoreName);
+    public Integer getAllAppstoreCountV2(String appStoreName) {
+        return appStoreMapper.getAllAppstoreCountV2(appStoreName);
+    }
+
+    /**
+     * query app stores.
+     */
+    public List<AppStore> queryAppStores(AppStore appStore) {
+        AppStorePo appStorePo = new AppStorePo();
+        if (appStore != null) {
+            appStorePo.setAppStoreName(appStore.getAppStoreName());
+            appStorePo.setCompany(appStore.getCompany());
+        }
+
+        return appStoreMapper.queryAppStores(appStorePo).stream().map(AppStorePo::toAppStore).collect(
+            Collectors.toList());
     }
 }

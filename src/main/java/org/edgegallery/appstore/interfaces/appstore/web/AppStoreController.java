@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -175,14 +176,10 @@ public class AppStoreController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<Page<AppStoreDto>> queryAppStores(
-        @ApiParam(value = "app store name") @RequestParam("appStoreName") String appStoreName,
-        @ApiParam(value = "app store company") @PathParam("company") String company,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limitSize")
-            int limitSize,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offsetPage")
-            int offsetPage) {
-        return ResponseEntity.ok(appStoreServiceFacade.queryAppStores(appStoreName, company, limitSize, offsetPage));
+    public ResponseEntity<List<AppStoreDto>> queryAppStores(
+        @ApiParam(value = "app store name") @PathParam("appStoreName") String appStoreName,
+        @ApiParam(value = "app store company") @PathParam("company") String company) {
+        return appStoreServiceFacade.queryAppStores(appStoreName, company);
     }
 
     /**

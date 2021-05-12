@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,8 +73,6 @@ public class PullablePackageService {
 
     private static final String PULLABLE_API = "/mec/appstore/v1/packages/pullable";
 
-    private static final String PULLABLE_API_V2 = "/mec/appstore/v2/packages/pullable?limitSize=";
-
     @Value("${appstore-be.package-path}")
     private String dir;
 
@@ -108,9 +107,8 @@ public class PullablePackageService {
      */
     public Page<PushablePackageDto> queryAllPullablePackagesV2(int limit, int offset, String appName, String order,
         String prop) {
-        String typeList = "pull";
         LOGGER.info("pullablePackageService queryAllPullablePackages come in");
-        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, typeList);
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, "pull");
     }
 
     /**
@@ -120,19 +118,28 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public Page<PushablePackageDto> getPullablePackagesV2(String platformId, int limitSize, long offsetPage,
+    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limitSize, long offsetPage,
         String order, String prop, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
-            return new Page<PushablePackageDto>(Collections.emptyList(), limitSize, offsetPage,
-                Collections.emptyList().size());
+            return Collections.emptyList();
         }
-        // String url = appStore.getUrl() + PULLABLE_API;
-        String url = appStore.getUrl() + PULLABLE_API_V2 + limitSize + "&offsetPage=" + offsetPage + "&appName="
+        String url = appStore.getUrl() + PULLABLE_API + "?limitSize=" + limitSize + "&offsetPage=" + offsetPage + "&appName="
             + appName + "&order=" + order + "&prop=" + prop;
         LOGGER.info(url);
+        List<PushablePackageDto> packages = commonPackage(url, appStore);
+        return filterPullabelPackages(packages, userId);
+    }
 
+    /**
+     * get pull package list.
+     *
+     * @param url appstore url.
+     * @param appStore appStore.
+     * @return PushablePackageDto list.
+     */
+    public  List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
         List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -142,15 +149,13 @@ public class PullablePackageService {
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("getPullablePackages error, response code is {}", response.getStatusCode());
-                return new Page<PushablePackageDto>(Collections.emptyList(), limitSize, offsetPage,
-                    Collections.emptyList().size());
+                return Collections.emptyList();
             }
 
             String result = response.getBody();
             if (result == null) {
                 LOGGER.error("get pullable packages is null");
-                return new Page<PushablePackageDto>(Collections.emptyList(), limitSize, offsetPage,
-                    Collections.emptyList().size());
+                return Collections.emptyList();
             }
 
             Gson g = new Gson();
@@ -158,12 +163,10 @@ public class PullablePackageService {
             LOGGER.info("get pullable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
-            return new Page<PushablePackageDto>(Collections.emptyList(), limitSize, offsetPage,
-                Collections.emptyList().size());
+            return Collections.emptyList();
         }
+        return  packages;
 
-        List<PushablePackageDto> list = filterPullabelPackages(packages, userId);
-        return new Page<PushablePackageDto>(list, limitSize, offsetPage, list.size());
     }
 
     /**
@@ -174,6 +177,16 @@ public class PullablePackageService {
     public List<PushablePackageDto> queryAllPullablePackages() {
         LOGGER.info("pullablePackageService queryAllPullablePackages come in");
         return pushablePackageRepository.queryAllPushablePackages();
+    }
+
+    /**
+     * query push packege count.
+     *
+     * @param params params.
+     * @return count.
+     */
+    public Integer getAllPushablePackagesCount(Map<String, Object> params){
+        return pushablePackageRepository.getAllPushablePackagesCount(params);
     }
 
     /**
@@ -191,33 +204,7 @@ public class PullablePackageService {
         }
         String url = appStore.getUrl() + PULLABLE_API;
         LOGGER.info(url);
-
-        List<PushablePackageDto> packages;
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate
-                .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-            if (response.getStatusCode() != HttpStatus.OK) {
-                LOGGER.error("getPullablePackages error, response code is {}", response.getStatusCode());
-                return Collections.emptyList();
-            }
-
-            String result = response.getBody();
-            if (result == null) {
-                LOGGER.error("get pullable packages is null");
-                return Collections.emptyList();
-            }
-
-            Gson g = new Gson();
-            packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
-            LOGGER.info("get pullable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
-        } catch (RestClientException e) {
-            LOGGER.error("failed to get pullable packages from url {}", url);
-            return Collections.emptyList();
-        }
-
+        List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);
     }
 

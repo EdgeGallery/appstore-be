@@ -27,7 +27,9 @@ public interface AppStoreRepository {
 
     AppStore queryAppStoreById(String appStoreId);
 
-    List<AppStore> queryAppStores(Map<String, Object> params);
+    List<AppStore> queryAppStoresV2(Map<String, Object> params);
 
-    Integer getAllAppstoreCount(String appStoreName);
+    Integer getAllAppstoreCountV2(String appStoreName);
+
+    List<AppStore> queryAppStores(AppStore appStore);
 }

@@ -71,7 +71,7 @@
         appdtransid, addedtime, modifiedtime, description from app_store_table where appstoreid = #{appStoreId}
     </select>
 
-    <select id="queryAppStores"
+    <select id="queryAppStoresV2"
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo">
         select appstoreid, APPSTORENAME, appstoreversion, company, url, schema, apppushintf,
@@ -84,12 +84,27 @@
         limit #{limit} offset #{offset}
     </select>
 
-    <select id="getAllAppstoreCount" parameterType="java.lang.String"
+    <select id="getAllAppstoreCountV2" parameterType="java.lang.String"
             resultType="java.lang.Integer">
         select count(*) from app_store_table
         <where>
             <if test="appStoreName != null and appStoreName != ''">
                 and appstorename like '%' || #{appStoreName} || '%'
+            </if>
+        </where>
+    </select>
+
+    <select id="queryAppStores"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.appstore.AppStorePo">
+        select appstoreid, APPSTORENAME, appstoreversion, company, url, schema, apppushintf,
+        appdtransid, addedtime, modifiedtime, description from app_store_table
+        <where>
+            <if test="appStoreName != null and appStoreName != ''">
+                and appstorename like #{appStoreName}
+            </if>
+            <if test="company != null and company != ''">
+                and company like #{company}
             </if>
         </where>
     </select>

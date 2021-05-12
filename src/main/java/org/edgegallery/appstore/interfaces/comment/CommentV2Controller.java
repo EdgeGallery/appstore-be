@@ -21,7 +21,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -43,11 +42,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RestSchema(schemaId = "comment")
-@RequestMapping("/mec/appstore/v1/")
-@Api(tags = {"Comment Controller"})
+@RestSchema(schemaId = "commentV2")
+@RequestMapping("/mec/appstore/v2/")
+@Api(tags = {"Comment V2Controller"})
 @Validated
-public class CommentController {
+public class CommentV2Controller {
 
     private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
@@ -56,18 +55,14 @@ public class CommentController {
     @Autowired
     CommentServiceFacade appCommentService;
 
-    @PostMapping(value = "/apps/{appId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "add comment to a app.", response = String.class)
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> addComments(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @RequestParam("userName") String userName,
-        @ApiParam(value = "appId", required = true) @Pattern(regexp = REG_APP_ID) @PathVariable("appId") String appId,
-        @Validated @RequestBody CommentRequest entity) {
-        appCommentService.comment(new User(userId, userName), appId, entity.getBody(), entity.getScore());
-        return ResponseEntity.ok("comments success.");
-    }
-
-
+    /**
+     * query comments list.
+     *
+     * @param appId appId。
+     * @param limit limit。
+     * @param offset offset
+     * @return page object.
+     */
     @GetMapping(value = "/apps/{appId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "get comments by csar id.", response = Comment.class, responseContainer = "List")
     @ApiResponses(value = {
@@ -76,8 +71,10 @@ public class CommentController {
         @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<List<Comment>> getComments(@ApiParam(value = "app Id", required = true) @PathVariable("appId")
-    @Pattern(regexp = REG_APP_ID) String appId) {
-        return appCommentService.getComments(appId, 100, 0);
+    public ResponseEntity<Page<Comment>> getCommentsV2(
+        @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+        return appCommentService.getCommentsV2(appId, limit, offset);
     }
 }

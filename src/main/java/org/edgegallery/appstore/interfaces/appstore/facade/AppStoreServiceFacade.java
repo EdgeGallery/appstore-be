@@ -16,9 +16,11 @@
 package org.edgegallery.appstore.interfaces.appstore.facade;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
 import org.edgegallery.appstore.domain.shared.Page;
@@ -33,6 +35,10 @@ import org.springframework.stereotype.Service;
 @Service("AppStoreServiceFacade")
 public class AppStoreServiceFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreServiceFacade.class);
+
+    private static final String COMMON_PATTERN = "\\*";
+
+    private static final String SQL_COMMON_PATTERN = "%";
 
     @Autowired
     private AppStoreRepository appStoreRepository;
@@ -75,15 +81,24 @@ public class AppStoreServiceFacade {
     }
 
     /**
-     * query app stores list.
+     * query app stores.
      */
-    public Page<AppStoreDto> queryAppStores(String name, String company, int limit, int offset) {
+    public ResponseEntity<List<AppStoreDto>> queryAppStores(String name, String company) {
+        AppStore appStore = new AppStore(replaceSqlPattern(name), replaceSqlPattern(company));
+        return ResponseEntity.ok(appStoreRepository.queryAppStores(appStore).stream().map(AppStore::toAppStoreDto)
+            .collect(Collectors.toList()));
+    }
+
+    /**
+     * query app storesV2 list.
+     */
+    public Page<AppStoreDto> queryAppStoresV2(String name, String company, int limit, int offset) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appStoreName", name);
-        long total = appStoreRepository.getAllAppstoreCount(name);
-        return new Page<>(appStoreRepository.queryAppStores(params).stream().map(AppStore::toAppStoreDto)
+        long total = appStoreRepository.getAllAppstoreCountV2(name);
+        return new Page<>(appStoreRepository.queryAppStoresV2(params).stream().map(AppStore::toAppStoreDto)
             .collect(Collectors.toList()), limit, offset, total);
     }
 
@@ -93,5 +108,15 @@ public class AppStoreServiceFacade {
     public ResponseEntity<AppStoreDto> queryAppStore(String appStoreId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(appStoreId);
         return ResponseEntity.status(HttpStatus.OK).body(appStore == null ? null : appStore.toAppStoreDto());
+    }
+
+    /**
+     * replace * to %.
+     */
+    private String replaceSqlPattern(String param) {
+        if (StringUtils.isBlank(param)) {
+            return null;
+        }
+        return param.replace(COMMON_PATTERN, SQL_COMMON_PATTERN);
     }
 }

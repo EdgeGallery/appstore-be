@@ -19,11 +19,14 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
@@ -187,8 +190,13 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
         String order, String prop, String appName, String userId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("appName", appName);
+        long total = pullablePackageService.getAllPushablePackagesCount(params);
+        List<PushablePackageDto> list = pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
+            order, prop, appName, userId);
         return ResponseEntity
-            .ok(pullablePackageService.getPullablePackagesV2(platformId, limit, offset, order, prop, appName, userId));
+            .ok(new Page<PushablePackageDto>(list, limit, offset, total));
     }
 
     /**

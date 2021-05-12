@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.comment.facade;
 
+import java.util.List;
 import org.edgegallery.appstore.application.inner.AppCommentService;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
@@ -55,11 +56,21 @@ public class CommentServiceFacade {
     }
 
     /**
-     * get comments by app id and page parameters.
+     * get commentsV2 by app id and page parameters.
      */
-    public ResponseEntity<Page<Comment>> getComments(String appId, int limit, long offset) {
+    public ResponseEntity<Page<Comment>> getCommentsV2(String appId, int limit, long offset) {
         App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
         return ResponseEntity
             .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId(), null, null)));
+    }
+
+    /**
+     * get comments by app id and page parameters.
+     */
+    public ResponseEntity<List<Comment>> getComments(String appId, int limit, long offset) {
+        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        return ResponseEntity
+            .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId(), null, null))
+                .getResults());
     }
 }

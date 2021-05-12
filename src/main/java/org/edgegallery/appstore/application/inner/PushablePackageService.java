@@ -68,8 +68,7 @@ public class PushablePackageService {
 
     public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String order,
         String prop) {
-        String typeList = "push";
-        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, typeList);
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, order, prop, "push");
     }
 
     public List<PushablePackageDto> queryAllPushablePackages() {

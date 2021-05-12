@@ -34,8 +34,9 @@ public interface AppStoreMapper {
 
     AppStorePo queryAppStoreByAppstoreId(Map<String, Object> params);
 
-    List<AppStorePo> queryAppStores(Map<String, Object> params);
+    List<AppStorePo> queryAppStoresV2(Map<String, Object> params);
 
-    Integer getAllAppstoreCount(String appStoreName);
+    Integer getAllAppstoreCountV2(String appStoreName);
 
+    List<AppStorePo> queryAppStores(AppStorePo appStorePo);
 }
