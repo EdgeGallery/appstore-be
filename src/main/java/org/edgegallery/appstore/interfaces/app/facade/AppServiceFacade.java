@@ -379,7 +379,6 @@ public class AppServiceFacade {
         params.put("provider", provider);
         params.put("type", type);
         params.put("affinity", affinity);
-        params.put("userId", userId);
         if (prop.equals("createTime")) {
             params.put("createTime", prop);
         } else {
