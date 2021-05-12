@@ -63,16 +63,6 @@ public class PackageV2Controller {
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
-    /**
-     * query all package.
-     *
-     * @param userId
-     * @param limitSize
-     * @param offsetPage
-     * @param appName
-     * @param request
-     * @return
-     */
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package by user id", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
@@ -94,14 +84,6 @@ public class PackageV2Controller {
                 (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
-    /**
-     * query all pushPackage.
-     *
-     * @param limitSize
-     * @param offsetPage
-     * @param appName
-     * @return
-     */
     @GetMapping(value = "/packages/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
         responseContainer = "List")
@@ -120,9 +102,6 @@ public class PackageV2Controller {
             .ok(pushablePackageServiceFacade.queryAllPushablePackagesV2(limitSize, offsetPage, appName, order, prop));
     }
 
-    /**
-     * get pullable packages.
-     */
     @GetMapping(value = "/packages/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
         responseContainer = "List")
@@ -140,11 +119,6 @@ public class PackageV2Controller {
         return pushablePackageServiceFacade.queryAllPullablePackagesV2(limitSize, offsetPage, appName, order, prop);
     }
 
-    /**
-     * get pullable packages by id.
-     *
-     * @param platformId source appstore id
-     */
     @GetMapping(value = "/packages/{platformId}/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages by platform id.", response = PushablePackageDto.class)
     @ApiResponses(value = {

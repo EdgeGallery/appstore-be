@@ -102,8 +102,6 @@ public class PackageService {
 
     /**
      * query all the packages by user id.
-     *
-     * @param pageCriteria search condition
      * @return releases
      */
     public List<Release> getPackageByUserIdV2(Map<String, Object> params) {

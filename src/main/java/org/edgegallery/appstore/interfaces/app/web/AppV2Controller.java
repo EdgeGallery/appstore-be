@@ -82,7 +82,6 @@ public class AppV2Controller {
         return appServiceFacade.queryAppsByCondV2(name, null, null, null, userId, limitSize, offsetPage, order, prop);
     }
 
-
     /**
      * app find function.
      */

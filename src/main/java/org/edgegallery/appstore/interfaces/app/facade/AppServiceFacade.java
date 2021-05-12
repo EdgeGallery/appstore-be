@@ -390,7 +390,6 @@ public class AppServiceFacade {
         params.put("orderType", prop);
         params.put("order", order);
         params.put("status", EnumAppStatus.Published.toString());
-        // Stream<AppDto> appStream = new Page<>(appRepository.query(params), limit, offset, 1).map(AppDto::of).getResults().stream();;
         Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
             .stream();
         long total = appRepository.countTotalV2(params);
@@ -443,7 +442,7 @@ public class AppServiceFacade {
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
                 .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService
+                    s -> appService
                     .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
             releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
                 .getResults().stream().filter(r -> r.getUser().getUserId().equals(userId));
