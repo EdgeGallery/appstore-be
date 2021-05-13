@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.app;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -103,6 +104,12 @@ public class AppRepositoryImpl implements AppRepository {
     }
 
     @Override
+    public List<App> queryV2(Map<String, Object> params) {
+        return appMapper.findAllWithAppPaginationV2(params).stream().map(AppPo::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public Page<App> query(AppPageCriteria appPageCriteria) {
         long total = appMapper.countTotal(appPageCriteria).longValue();
         List<App> releases = appMapper.findAllWithAppPagination(appPageCriteria).stream().map(AppPo::toDomainModel)
@@ -119,6 +126,11 @@ public class AppRepositoryImpl implements AppRepository {
         List<Release> releases = packageMapper.findAllWithPagination(pageCriteria).stream()
             .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
         return new Page<>(releases, pageCriteria.getLimit(), pageCriteria.getOffset(), total);
+    }
+
+    @Override
+    public long countTotalV2(Map<String, Object> params) {
+        return appMapper.countTotalV2(params).longValue();
     }
 
 }

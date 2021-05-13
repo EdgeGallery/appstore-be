@@ -16,9 +16,11 @@
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.slf4j.Logger;
@@ -76,8 +78,19 @@ public class PackageRepositoryImpl implements PackageRepository {
     }
 
     @Override
+    public List<Release> findReleaseByUserIdV2(Map<String, Object> params) {
+        return packageMapper.findReleaseByUserIdV2(params).stream().map(AppReleasePo::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Release> findReleaseByUserId(String userId) {
         return packageMapper.findReleaseByUserId(userId).stream().map(AppReleasePo::toDomainModel)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer countTotalForUserId(PageCriteria pageCriteria) {
+        return packageMapper.countTotalForUserId(pageCriteria);
     }
 }

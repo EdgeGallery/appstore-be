@@ -29,6 +29,21 @@
         select * from message_table
     </select>
 
+    <select id="getAllMessagesV2"
+            parameterType="java.util.Map"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+        select * from message_table
+        <where>
+            <if test="appName != null and appName != ''">
+                and appname like like '%' || #{appName} || '%'
+            </if>
+        </where>
+        <if test="sortType != null and sortItem != null">
+            order by ${sortItem} ${sortType},${time} ${sortType}
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
     <insert id="insert"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
         insert into message_table
@@ -40,6 +55,16 @@
         #{readed}, #{messageType},#{sourceAppStore}, #{targetAppStore}, #{time}, #{description},
         #{atpTestStatus}, #{atpTestTaskId}, #{atpTestReportUrl}, #{packageDownloadUrl}, #{iconDownloadUrl})
     </insert>
+
+    <select id="getAllMessageCount"
+            resultType="java.lang.Integer">
+        select count(*) from message_table
+        <where>
+            <if test="appName != null">
+                and appname = like '%' || #{appName} || '%'
+            </if>
+        </where>
+    </select>
 
     <delete id="deleteOneMessage" parameterType="String">
         delete from

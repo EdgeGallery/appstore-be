@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.util.List;
+import java.util.Map;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.app.App;
@@ -24,6 +25,7 @@ import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.slf4j.Logger;
@@ -100,11 +102,29 @@ public class PackageService {
 
     /**
      * query all the packages by user id.
+     * @return releases
+     */
+    public List<Release> getPackageByUserIdV2(Map<String, Object> params) {
+        return packageRepository.findReleaseByUserIdV2(params);
+    }
+
+    /**
+     * query all the packages by user id.
      *
      * @param userId user id
      * @return releases
      */
     public List<Release> getPackageByUserId(String userId) {
         return packageRepository.findReleaseByUserId(userId);
+    }
+
+    /**
+     * query all the packages total by user id.
+     *
+     * @param pageCriteria search condition
+     * @return releases
+     */
+    public Integer countTotalForUserId(PageCriteria pageCriteria) {
+        return packageRepository.countTotalForUserId(pageCriteria);
     }
 }

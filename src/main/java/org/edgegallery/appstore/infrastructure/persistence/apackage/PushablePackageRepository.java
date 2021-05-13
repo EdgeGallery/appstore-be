@@ -19,9 +19,13 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.edgegallery.appstore.config.ApplicationContext;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
 import org.slf4j.Logger;
@@ -45,11 +49,46 @@ public class PushablePackageRepository {
      *
      * @return
      */
+    public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem, String shareType) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("limit", limit);
+        params.put("offset", offset);
+        params.put("appName", appName);
+        params.put("status", EnumAppStatus.Published.toString());
+        if (shareType.equals("push")) {
+            params.put("latestPushTime", "latestPushTime");
+        } else {
+            params.put("createTime", "createTime");
+        }
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
+        long total = pushablePackageMapper.getAllPushablePackagesCount(params);
+        List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackagesV2(params);
+        List<PushablePackageDto> packages = new ArrayList<>();
+        apps.forEach(app -> packages.add(new PushablePackageDto(app, context.atpReportUrl)));
+        return new Page<>(packages, limit, offset, total);
+    }
+
+    /**
+     * query all of the pushable packages.
+     *
+     * @return
+     */
     public List<PushablePackageDto> queryAllPushablePackages() {
         List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
         List<PushablePackageDto> packages = new ArrayList<>();
         apps.forEach(app -> packages.add(new PushablePackageDto(app, context.atpReportUrl)));
         return packages;
+    }
+
+    /**
+     * query all of the pushable packages count.
+     *
+     * @return
+     */
+    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
+        return pushablePackageMapper.getAllPushablePackagesCount(params);
     }
 
     /**

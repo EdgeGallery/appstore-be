@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.domain.model.app;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
@@ -33,7 +35,11 @@ public interface AppRepository {
 
     void remove(String appId);
 
+    List<App> queryV2(Map<String, Object> params);
+
     Page<App> query(AppPageCriteria appPageCriteria);
 
     Page<Release> findAllWithPagination(PageCriteria pageCriteria);
+
+    long countTotalV2(Map<String, Object> params);
 }

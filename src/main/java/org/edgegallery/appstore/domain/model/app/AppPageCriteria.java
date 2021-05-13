@@ -37,12 +37,13 @@ public class AppPageCriteria extends PageCriteria {
      */
     public AppPageCriteria(int limit, long offset, String appName, String provider, String applicationType,
         String affinity, String userId) {
-        super(limit, offset, null);
+        super(limit, offset, null, null, null);
         this.appName = appName;
         this.provider = provider;
         this.applicationType = applicationType;
         this.affinity = affinity;
         this.userId = userId;
+
     }
 
 }

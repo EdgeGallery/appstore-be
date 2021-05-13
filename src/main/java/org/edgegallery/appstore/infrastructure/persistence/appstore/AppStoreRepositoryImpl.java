@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.infrastructure.persistence.appstore;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
@@ -64,6 +65,21 @@ public class AppStoreRepositoryImpl implements AppStoreRepository {
             return null;
         }
         return appStorePo.toAppStore();
+    }
+
+    /**
+     * query app stores.
+     */
+    public List<AppStore> queryAppStoresV2(Map<String, Object> params) {
+        return appStoreMapper
+            .queryAppStoresV2(params).stream().map(AppStorePo::toAppStore).collect(Collectors.toList());
+    }
+
+    /**
+     * query app stores count.
+     */
+    public Integer getAllAppstoreCount(String appStoreName) {
+        return appStoreMapper.getAllAppstoreCount(appStoreName);
     }
 
     /**

@@ -16,6 +16,8 @@
 package org.edgegallery.appstore.domain.model.releases;
 
 import java.util.List;
+import java.util.Map;
+import org.edgegallery.appstore.domain.shared.PageCriteria;
 
 public interface PackageRepository {
 
@@ -27,5 +29,10 @@ public interface PackageRepository {
 
     void removeRelease(Release release);
 
+    List<Release> findReleaseByUserIdV2(Map<String, Object> params);
+
     List<Release> findReleaseByUserId(String userId);
+
+    Integer countTotalForUserId(PageCriteria pageCriteria);
+
 }

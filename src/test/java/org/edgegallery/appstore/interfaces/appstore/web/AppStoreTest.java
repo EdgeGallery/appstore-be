@@ -21,7 +21,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.google.gson.Gson;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
-import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,7 +73,8 @@ public class AppStoreTest {
     public void query_all_appstore_should_success() throws Exception {
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get("/mec/appstore/v1/appstores").param("appStoreName", "test name")
-                .param("company", "liantong").contentType(MediaType.APPLICATION_JSON)
+                .param("company", "liantong").param("limitSize", "12").param("offsetPage", "0")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }

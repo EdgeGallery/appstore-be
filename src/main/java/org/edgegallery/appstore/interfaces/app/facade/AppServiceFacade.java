@@ -23,7 +23,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +48,7 @@ import org.edgegallery.appstore.domain.model.releases.PackageChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
@@ -162,10 +165,8 @@ public class AppServiceFacade {
     }
 
     private void checkDir(File fileDir) throws IOException {
-        if (!fileDir.exists()) {
-            if (!fileDir.mkdirs()) {
-                throw new IOException("create folder failed");
-            }
+        if (!fileDir.exists() && !fileDir.mkdirs()) {
+            throw new IOException("create folder failed");
         }
     }
 
@@ -365,6 +366,38 @@ public class AppServiceFacade {
      * Query app list by parameters follows.
      *
      * @param name app name.
+     * @param limit limit of single page.
+     * @param offset offset of pages.
+     * @return List<AppDto></AppDto>
+     */
+    public ResponseEntity<Page<AppDto>> queryAppsByCondV2(String name, String provider, String type, String affinity,
+        String userId, int limit, long offset, String sortType, String sortItem) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("limit", limit);
+        params.put("offset", offset);
+        params.put("name", name);
+        params.put("provider", provider);
+        params.put("type", type);
+        params.put("affinity", affinity);
+        params.put("createTime", "createTime");
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
+        params.put("status", EnumAppStatus.Published.toString());
+        Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
+            .stream();
+        long total = appRepository.countTotalV2(params);
+        if (userId == null) {
+            appStream = appStream.filter(a -> !a.getShowType().equals("private"));
+            params.put("showType", "private");
+            total = appRepository.countTotalV2(params);
+        }
+        return ResponseEntity.ok(new Page<>(appStream.collect(Collectors.toList()), limit, offset, total));
+    }
+
+    /**
+     * Query app list by parameters follows.
+     *
+     * @param name app name.
      * @param provider app provider.
      * @param type app type.
      * @param affinity app affinity.
@@ -395,17 +428,17 @@ public class AppServiceFacade {
      */
     public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset,
         String token) {
-        Stream<Release> releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId))
-            .getResults().stream();
+        Stream<Release> releaseStream = appRepository
+            .findAllWithPagination(new PageCriteria(limit, offset, appId, null, null)).getResults().stream();
         if (userId == null) {
             releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
-                    .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                        s -> appService.loadTestTask(
-                            s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
-            releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId)).getResults()
-                .stream().filter(r -> r.getUser().getUserId().equals(userId));
+                .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
+                    s -> appService
+                    .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+            releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
+                .getResults().stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
         List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
         return ResponseEntity.ok(packageDtos);

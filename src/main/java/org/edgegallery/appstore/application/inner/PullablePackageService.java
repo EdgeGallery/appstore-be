@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,6 +39,7 @@ import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
@@ -65,8 +67,7 @@ public class PullablePackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PullablePackageService.class);
 
-    private static final String DOWNLOAD_PACKAGE_API
-        = "/mec/appstore/v1/packages/%s/action/download-package";
+    private static final String DOWNLOAD_PACKAGE_API = "/mec/appstore/v1/packages/%s/action/download-package";
 
     private static final String DOWNLOAD_ICON_API = "/mec/appstore/v1/packages/%s/action/download-icon";
 
@@ -104,9 +105,10 @@ public class PullablePackageService {
      *
      * @return list
      */
-    public List<PushablePackageDto> queryAllPullablePackages() {
+    public Page<PushablePackageDto> queryAllPullablePackagesV2(int limit, int offset, String appName, String sortType,
+        String sortItem) {
         LOGGER.info("pullablePackageService queryAllPullablePackages come in");
-        return pushablePackageRepository.queryAllPushablePackages();
+        return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem, "pull");
     }
 
     /**
@@ -116,15 +118,28 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
+    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limit, long offet,
+        String sortType, String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
             return Collections.emptyList();
         }
-        String url = appStore.getUrl() + PULLABLE_API;
+        String url = appStore.getUrl() + PULLABLE_API + "?limit=" + limit + "&offet="
+            + offet + "&appName=" + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
+        List<PushablePackageDto> packages = commonPackage(url, appStore);
+        return filterPullabelPackages(packages, userId);
+    }
 
+    /**
+     * get pull package list.
+     *
+     * @param url appstore url.
+     * @param appStore appStore.
+     * @return PushablePackageDto list.
+     */
+    public  List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
         List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -144,13 +159,52 @@ public class PullablePackageService {
             }
 
             Gson g = new Gson();
-            packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>(){}.getType());
+            packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>() { }.getType());
             LOGGER.info("get pullable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
         } catch (RestClientException e) {
             LOGGER.error("failed to get pullable packages from url {}", url);
             return Collections.emptyList();
         }
+        return  packages;
 
+    }
+
+    /**
+     * query all pullable packages.
+     *
+     * @return list
+     */
+    public List<PushablePackageDto> queryAllPullablePackages() {
+        LOGGER.info("pullablePackageService queryAllPullablePackages come in");
+        return pushablePackageRepository.queryAllPushablePackages();
+    }
+
+    /**
+     * query push packege count.
+     *
+     * @param params params.
+     * @return count.
+     */
+    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
+        return pushablePackageRepository.getAllPushablePackagesCount(params);
+    }
+
+    /**
+     * get pullable packages by id.
+     *
+     * @param platformId appstore id
+     * @param userId user id
+     * @return dto
+     */
+    public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
+        AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
+        if (appStore == null) {
+            LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
+            return Collections.emptyList();
+        }
+        String url = appStore.getUrl() + PULLABLE_API;
+        LOGGER.info(url);
+        List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);
     }
 

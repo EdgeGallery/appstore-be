@@ -44,11 +44,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
 
     private static final String[] NoNeedTokenUrls = {
-        "GET /health",
-        "POST /mec/appstore/v1/messages",
+        "GET /health", "POST /mec/appstore/v1/messages",
         "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-package",
-        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon",
-        "GET /mec/appstore/v1/packages/pullable"
+        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon", "GET /mec/appstore/v1/packages/pullable",
+        "GET /mec/appstore/v2/packages/pullable"
     };
 
     private static final String USERID = "userId";

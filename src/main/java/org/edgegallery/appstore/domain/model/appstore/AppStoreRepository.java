@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.domain.model.appstore;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AppStoreRepository {
     String addAppStore(AppStore appStore);
@@ -25,6 +26,10 @@ public interface AppStoreRepository {
     int updateAppStoreById(AppStore appStore);
 
     AppStore queryAppStoreById(String appStoreId);
+
+    List<AppStore> queryAppStoresV2(Map<String, Object> params);
+
+    Integer getAllAppstoreCount(String appStoreName);
 
     List<AppStore> queryAppStores(AppStore appStore);
 }

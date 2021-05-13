@@ -15,12 +15,15 @@
 
 package org.edgegallery.appstore.interfaces.appstore.facade;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +90,16 @@ public class AppStoreServiceFacade {
     }
 
     /**
-     * replace * to %.
+     * query app storesV2 list.
      */
-    private String replaceSqlPattern(String param) {
-        if (StringUtils.isBlank(param)) {
-            return null;
-        }
-        return param.replace(COMMON_PATTERN, SQL_COMMON_PATTERN);
+    public Page<AppStoreDto> queryAppStoresV2(String name, String company, int limit, int offset) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("limit", limit);
+        params.put("offset", offset);
+        params.put("appStoreName", name);
+        long total = appStoreRepository.getAllAppstoreCount(name);
+        return new Page<>(appStoreRepository.queryAppStoresV2(params).stream().map(AppStore::toAppStoreDto)
+            .collect(Collectors.toList()), limit, offset, total);
     }
 
     /**
@@ -101,7 +107,16 @@ public class AppStoreServiceFacade {
      */
     public ResponseEntity<AppStoreDto> queryAppStore(String appStoreId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(appStoreId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                appStore == null ? null : appStore.toAppStoreDto());
+        return ResponseEntity.status(HttpStatus.OK).body(appStore == null ? null : appStore.toAppStoreDto());
+    }
+
+    /**
+     * replace * to %.
+     */
+    private String replaceSqlPattern(String param) {
+        if (StringUtils.isBlank(param)) {
+            return null;
+        }
+        return param.replace(COMMON_PATTERN, SQL_COMMON_PATTERN);
     }
 }
