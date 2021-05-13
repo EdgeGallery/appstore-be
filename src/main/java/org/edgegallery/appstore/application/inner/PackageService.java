@@ -15,24 +15,34 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
+import org.edgegallery.appstore.domain.model.releases.FileChecker;
+import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("PackageService")
 public class PackageService {
@@ -47,6 +57,12 @@ public class PackageService {
 
     @Autowired
     private AtpService atpService;
+
+    @Autowired
+    private LocalFileService fileService;
+
+    @Value("${appstore-be.package-path}")
+    private String dir;
 
     /**
      * publish a package.
@@ -126,5 +142,42 @@ public class PackageService {
      */
     public Integer countTotalForUserId(PageCriteria pageCriteria) {
         return packageRepository.countTotalForUserId(pageCriteria);
+    }
+
+    /**
+     * update app package information.
+     *
+     * @param appId app Id
+     * @param packageId package Id
+     * @param packageDto packageDto
+     */
+    public void updateAppById(String appId, String packageId, MultipartFile iconFile, MultipartFile demoVideo,
+        PackageDto packageDto) {
+        Release release = packageRepository.findReleaseById(appId, packageId);
+        release.setIndustry(packageDto.getIndustry());
+        release.setApplicationType(packageDto.getType());
+        String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
+        AFile icon = null;
+        if (iconFile != null) {
+            icon = getFile(iconFile, new IconChecker(dir), fileParent);
+        }
+        AFile demoVideoFile = null;
+        if (demoVideo != null) {
+            demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
+        }
+        release.setAffinity(packageDto.getAffinity());
+        release.setShortDesc(packageDto.getShortDesc());
+        release.setShowType(packageDto.getShowType());
+        release.setIcon(icon);
+        release.setDemoVideo(demoVideoFile);
+        release.setIcon(null);
+        release.setDemoVideo(null);
+        packageRepository.updateRelease(release);
+    }
+
+    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
+        File tempfile = fileChecker.check(file);
+        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        return new AFile(file.getOriginalFilename(), fileStoreageAddress);
     }
 }

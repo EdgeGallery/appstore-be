@@ -194,17 +194,13 @@ public class PackageController {
         message = "appId should not be null.") String appId,
         @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) @NotNull(
             message = "packageId should not be null.") String packageId,
-        @ApiParam(value = "app industry") @RequestPart(value = "industry", required = true)
-        @NotNull(message = "industry should not be null.") String industry,
-        @ApiParam(value = "app type") @RequestPart(value = "type", required = true)
-        @NotNull(message = "type should not be null.") String type,
+        @ApiParam(value = "app industry") @RequestPart(value = "industry", required = false) String industry,
+        @ApiParam(value = "app type") @RequestPart(value = "type", required = false) String type,
         @ApiParam(value = "app icon") @RequestPart(value = "icon", required = false) MultipartFile icon,
         @ApiParam(value = "app vedio") @RequestPart(value = "vedio", required = false) MultipartFile vedio,
-        @ApiParam(value = "app affinity") @RequestPart(value = "affinity", required = true)
-        @NotNull(message = "affinity should not be null.") String affinity,
-        @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = true)
-        @NotNull(message = "shortDesc should not be null.") String shortDesc,
-        @ApiParam(value = "app showType") @RequestPart(value = "showType", required = true) String showType) {
+        @ApiParam(value = "app affinity") @RequestPart(value = "affinity", required = false) String affinity,
+        @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = false) String shortDesc,
+        @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType) {
         PackageDto packageDto = new PackageDto();
         packageDto.setAppId(appId);
         packageDto.setPackageId(packageId);
