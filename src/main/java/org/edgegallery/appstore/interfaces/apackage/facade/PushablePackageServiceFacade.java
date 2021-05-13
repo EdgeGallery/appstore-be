@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
@@ -192,6 +193,7 @@ public class PushablePackageServiceFacade {
         String sortType, String sortItem, String appName, String userId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("appName", appName);
+        params.put("status", EnumAppStatus.Published.toString());
         long total = pullablePackageService.getAllPushablePackagesCount(params);
         List<PushablePackageDto> list = pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
             sortType, sortItem, appName, userId);
