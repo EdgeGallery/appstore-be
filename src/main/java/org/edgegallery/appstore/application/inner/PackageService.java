@@ -154,8 +154,6 @@ public class PackageService {
     public void updateAppById(String appId, String packageId, MultipartFile iconFile, MultipartFile demoVideo,
         PackageDto packageDto) {
         Release release = packageRepository.findReleaseById(appId, packageId);
-        release.setIndustry(packageDto.getIndustry());
-        release.setApplicationType(packageDto.getType());
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         AFile icon = null;
         if (iconFile != null) {
@@ -165,13 +163,23 @@ public class PackageService {
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
-        release.setAffinity(packageDto.getAffinity());
-        release.setShortDesc(packageDto.getShortDesc());
-        release.setShowType(packageDto.getShowType());
+        if (packageDto.getIndustry() != null) {
+            release.setIndustry(packageDto.getIndustry());
+        }
+        if (packageDto.getType() != null) {
+            release.setApplicationType(packageDto.getType());
+        }
+        if (packageDto.getAffinity() != null) {
+            release.setAffinity(packageDto.getAffinity());
+        }
+        if (packageDto.getShortDesc() != null) {
+            release.setShortDesc(packageDto.getShortDesc());
+        }
+        if (packageDto.getShowType() != null) {
+            release.setShowType(packageDto.getShowType());
+        }
         release.setIcon(icon);
         release.setDemoVideo(demoVideoFile);
-        release.setIcon(null);
-        release.setDemoVideo(null);
         packageRepository.updateRelease(release);
     }
 
