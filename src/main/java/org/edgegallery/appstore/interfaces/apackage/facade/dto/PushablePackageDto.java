@@ -65,6 +65,8 @@ public class PushablePackageDto implements Entity {
 
     private String createTime;
 
+    private String deployMode;
+
     /**
      * init this object by AppReleasePo.
      */
@@ -78,6 +80,7 @@ public class PushablePackageDto implements Entity {
         this.provider = appReleasePo.getProvider();
         this.type = appReleasePo.getApplicationType();
         this.version = appReleasePo.getVersion();
+        this.deployMode = appReleasePo.getDeployMode();
         this.atpTestTaskId = appReleasePo.getTestTaskId();
         this.atpTestStatus = appReleasePo.getStatus().equals(EnumPackageStatus.Published.toString())
             ? EnumPackageStatus.Test_success.getText() : appReleasePo.getStatus();
