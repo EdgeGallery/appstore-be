@@ -27,12 +27,29 @@
     <update id="updateRelease"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         update catalog_package_table
-        SET packageid = #{packageId}, packageAddress = #{packageAddress}, demoVideoAddress = #{demoVideoAddress},
-        iconAddress = #{iconAddress}, size = #{size}, fileStructure = #{fileStructure}, createTime = #{createTime},
-        shortDesc = #{shortDesc}, appName = #{appName}, version = #{version}, provider = #{provider},
-        applicationType = #{applicationType}, deployMode = #{deployMode}, markDownContent = #{markDownContent},
-        affinity = #{affinity}, industry = #{industry}, contact = #{contact}, appId = #{appId}, userId = #{userId},
-        userName = #{userName}, TESTTASKID = #{testTaskId}, status = #{status}
+        SET packageid        = #{packageId},
+            packageAddress   = #{packageAddress},
+            demoVideoAddress = #{demoVideoAddress},
+            iconAddress      = #{iconAddress},
+            size             = #{size},
+            fileStructure    = #{fileStructure},
+            createTime       = #{createTime},
+            shortDesc        = #{shortDesc},
+            showType         = #{showType},
+            appName          = #{appName},
+            version          = #{version},
+            provider         = #{provider},
+            applicationType  = #{applicationType},
+            deployMode       = #{deployMode},
+            markDownContent  = #{markDownContent},
+            affinity         = #{affinity},
+            industry         = #{industry},
+            contact          = #{contact},
+            appId            = #{appId},
+            userId           = #{userId},
+            userName         = #{userName},
+            TESTTASKID       = #{testTaskId},
+            status           = #{status}
         WHERE packageid = #{packageId}
     </update>
 

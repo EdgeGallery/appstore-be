@@ -30,6 +30,7 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
+import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
@@ -44,6 +45,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("PackageServiceFacade")
 public class PackageServiceFacade {
@@ -58,6 +60,9 @@ public class PackageServiceFacade {
 
     @Autowired
     private PackageService packageService;
+
+    @Autowired
+    private PackageRepository packageRepository;
 
     /**
      * Query package by package id.
@@ -118,6 +123,21 @@ public class PackageServiceFacade {
     public ResponseEntity<String> publishPackage(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
         return ResponseEntity.ok("Publish Success");
+    }
+
+    /**
+     * modify app attributes.
+     *
+     * @param appId app id.
+     * @param packageId package id.
+     * @param packageDto packageDto.
+     * @return
+     */
+    public ResponseEntity<PackageDto> updateAppById(String appId, String packageId, MultipartFile iconFile,
+        MultipartFile demoVideo, PackageDto packageDto) {
+        packageService.updateAppById(appId, packageId, iconFile, demoVideo, packageDto);
+        Release release = packageRepository.findReleaseById(appId, packageId);
+        return ResponseEntity.ok(PackageDto.of(release));
     }
 
     /**
