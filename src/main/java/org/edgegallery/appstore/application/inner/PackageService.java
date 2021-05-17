@@ -155,13 +155,13 @@ public class PackageService {
         PackageDto packageDto) {
         Release release = packageRepository.findReleaseById(appId, packageId);
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        AFile icon = null;
         if (iconFile != null) {
-            icon = getFile(iconFile, new IconChecker(dir), fileParent);
+            AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
+            release.setIcon(icon);
         }
-        AFile demoVideoFile = null;
         if (demoVideo != null) {
-            demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
+            AFile demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
+            release.setDemoVideo(demoVideoFile);
         }
         if (packageDto.getIndustry() != null) {
             release.setIndustry(packageDto.getIndustry());
@@ -178,8 +178,6 @@ public class PackageService {
         if (packageDto.getShowType() != null) {
             release.setShowType(packageDto.getShowType());
         }
-        release.setIcon(icon);
-        release.setDemoVideo(demoVideoFile);
         packageRepository.updateRelease(release);
     }
 
