@@ -57,6 +57,7 @@
             <if test="appName != null">
                 and a.appname like '%' || #{appName} || '%'
             </if>
+            and a.SHOWTYPE ='public'
         </where>
     </select>
 
