@@ -134,10 +134,13 @@ public abstract class FileChecker {
 
         if (originalFilename != null && !isAllowedFileName(originalFilename)) {
             List<String> validExtensions = getFileExtensions();
-            String extensions = "[";
+            StringBuffer buf = new StringBuffer();
+            buf.append("[");
             for (String extension : validExtensions) {
-                extensions += extension + ",";
+                buf.append(extension);
+                buf.append(",");
             }
+            String extensions = buf.toString();
             extensions = extensions.substring(0, extensions.length() - 1)  + "]";
             throw new IllegalRequestException(originalFilename + " :fileName is Illegal",
                 ResponseConst.RET_FILE_NAME_POSTFIX_INVALID, originalFilename, extensions);
