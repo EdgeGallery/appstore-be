@@ -73,6 +73,8 @@ public class PullablePackageService {
 
     private static final String PULLABLE_API = "/mec/appstore/v1/packages/pullable";
 
+    private static final String PULLABLE_API_V2 = "/mec/appstore/v2/packages/pullable";
+    
     @Value("${appstore-be.package-path}")
     private String dir;
 
@@ -118,15 +120,15 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limit, long offet,
-        String sortType, String sortItem, String appName, String userId) {
+    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limit, long offset, String sortType,
+        String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
             return Collections.emptyList();
         }
-        String url = appStore.getUrl() + PULLABLE_API + "?limit=" + limit + "&offet="
-            + offet + "&appName=" + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
+        String url = appStore.getUrl() + PULLABLE_API_V2 + "?limit=" + limit + "&offset=" + offset + "&appName="
+            + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);
