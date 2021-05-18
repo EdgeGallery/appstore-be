@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
@@ -48,8 +49,10 @@ import org.edgegallery.appstore.domain.model.releases.PackageChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
@@ -64,6 +67,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -173,10 +177,10 @@ public class AppServiceFacade {
     /**
      * appRegistering.
      */
-    public ResponseEntity<RegisterRespDto> appRegistering(User user, MultipartFile packageFile, AppParam appParam,
+    public RegisterRespDto appRegistering(User user, MultipartFile packageFile, AppParam appParam,
         MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
         if (!appParam.checkValidParam(appParam)) {
-            throw new AppException("app param is invalid!");
+            throw new AppException("app param is invalid!", ResponseConst.RET_PARAM_INVALID);
         }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
@@ -202,7 +206,7 @@ public class AppServiceFacade {
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
         }
-        return ResponseEntity.ok(dto);
+        return dto;
     }
 
     /**
@@ -276,8 +280,8 @@ public class AppServiceFacade {
                 appService.updateImgInRepo(imgDecsList);
                 fileAddress = appService.compressAppPackage(fileParent);
             }
-        } catch (AppException | IllegalArgumentException ex) {
-            throw new AppException(ex.getMessage());
+        } catch (FileNotFoundException ex) {
+            throw new AppException(ex.getMessage(), ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
         } catch (IOException ex) {
             LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
@@ -444,4 +448,13 @@ public class AppServiceFacade {
         return ResponseEntity.ok(packageDtos);
     }
 
+    /**
+     * appRegistering.
+     */
+    public ResponseEntity<ResponseObject> appV2Registering(User user, MultipartFile packageFile, AppParam appParam,
+        MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
+        RegisterRespDto dto = appRegistering(user, packageFile, appParam, iconFile, demoVideo, atpMetadata);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "register app success."));
+    }
 }

@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.springframework.web.multipart.MultipartFile;
 
 public class IconChecker extends FileChecker {
@@ -60,9 +62,9 @@ public class IconChecker extends FileChecker {
             result = new File(tempFileAddress);
             file.transferTo(result);
         } catch (IOException e) {
-            throw new IllegalArgumentException("create temp file with IOException");
+            throw new FileOperateException("create temp file with IOException", ResponseConst.RET_ICON_CHECK_EXCEPTION);
         } catch (IllegalStateException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new FileOperateException(e.getMessage(), ResponseConst.RET_ICON_CHECK_EXCEPTION);
         }
         return result;
     }

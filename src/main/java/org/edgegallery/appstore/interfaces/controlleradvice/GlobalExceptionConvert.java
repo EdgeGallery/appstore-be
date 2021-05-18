@@ -21,8 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
@@ -43,7 +45,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle Exception.
      *
-     * @return
      */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
@@ -66,7 +67,6 @@ public class GlobalExceptionConvert {
     /**
      * Handler IllegalArgumentException.
      *
-     * @return
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
@@ -77,7 +77,6 @@ public class GlobalExceptionConvert {
     /**
      * Handler AccessDeniedException.
      *
-     * @return
      */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
@@ -90,7 +89,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle RuntimeException.
      *
-     * @return
      */
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
@@ -103,7 +101,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle ConstraintViolationException.
      *
-     * @return
      */
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseBody
@@ -114,7 +111,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle MissingServletRequestParameterException.
      *
-     * @return
      */
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     @ResponseBody
@@ -126,7 +122,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle HttpMessageNotReadableException.
      *
-     * @return
      */
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
@@ -137,7 +132,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle MissingServletRequestPartException.
      *
-     * @return
      */
     @ExceptionHandler(value = MissingServletRequestPartException.class)
     @ResponseBody
@@ -149,7 +143,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle EntityNotFoundException.
      *
-     * @return
      */
     @ExceptionHandler(value = EntityNotFoundException.class)
     @ResponseBody
@@ -162,7 +155,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle FileNotFoundException.
      *
-     * @return
      */
     @ExceptionHandler(value = FileNotFoundException.class)
     @ResponseBody
@@ -176,7 +168,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle UnknownReleaseExecption.
      *
-     * @return
      */
     @ExceptionHandler(value = UnknownReleaseExecption.class)
     @ResponseBody
@@ -189,7 +180,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle RedundantCommentsException.
      *
-     * @return
      */
     @ExceptionHandler(value = RedundantCommentsException.class)
     @ResponseBody
@@ -200,7 +190,6 @@ public class GlobalExceptionConvert {
     /**
      * Handle PermissionNotAccessException.
      *
-     * @return
      */
     @ExceptionHandler(value = PermissionNotAllowedException.class)
     @ResponseBody
@@ -213,18 +202,19 @@ public class GlobalExceptionConvert {
     /**
      * Handle FileOperateException.
      *
-     * @return
      */
     @ExceptionHandler(value = FileOperateException.class)
     @ResponseBody
     public RestReturn fileOperateException(HttpServletRequest request, FileOperateException e) {
-        return badRequestResponse(request, e);
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
     }
 
     /**
      * Handle OperateAvailableException.
      *
-     * @return
      */
     @ExceptionHandler(value = OperateAvailableException.class)
     @ResponseBody
@@ -232,5 +222,31 @@ public class GlobalExceptionConvert {
         return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .build();
+    }
+
+    /**
+     * Handle RuntimeException.
+     *
+     */
+    @ExceptionHandler(value = AppException.class)
+    @ResponseBody
+    public RestReturn appException(HttpServletRequest request, AppException e) {
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
+    }
+
+    /**
+     * Handle RuntimeException.
+     *
+     */
+    @ExceptionHandler(value = IllegalRequestException.class)
+    @ResponseBody
+    public RestReturn illegalRequestException(HttpServletRequest request, IllegalRequestException e) {
+        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
     }
 }

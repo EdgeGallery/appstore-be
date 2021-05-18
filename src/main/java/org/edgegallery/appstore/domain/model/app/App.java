@@ -29,11 +29,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Entity;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +144,7 @@ public class App implements Entity {
                 } catch (IOException e) {
                     LOGGER.error("Delete the package directory exception: {}", e.getMessage());
                 }
-                throw new IllegalArgumentException("The same app has existed.");
+                throw new AppException("The same app has existed.", ResponseConst.RET_SAME_APP_EXIST);
             }
         });
         AtomicInteger sameSize = new AtomicInteger();
@@ -155,7 +157,8 @@ public class App implements Entity {
                 } catch (IOException e) {
                     LOGGER.error("Delete the package directory exception: {}", e.getMessage());
                 }
-                throw new IllegalArgumentException("The same unPublished apps have reach the limit.");
+                throw new AppException("The same unPublished apps have reach the limit.",
+                    ResponseConst.RET_SAME_APP_REACH_LIMIT, MAX_SAME_RELEASES);
             }
         });
     }

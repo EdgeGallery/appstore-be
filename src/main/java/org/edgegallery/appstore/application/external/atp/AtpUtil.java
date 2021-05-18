@@ -21,6 +21,8 @@ import java.util.Objects;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,8 +111,8 @@ public class AtpUtil {
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}", taskId,
                     response.getStatusCode());
-                throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                    "Get task status from atp reponse failed.");
+                throw new AppException("Get task status from atp reponse failed.",
+                    ResponseConst.RET_GET_TEST_STATUS_FAILED);
             }
 
             JsonObject jsonResp = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();

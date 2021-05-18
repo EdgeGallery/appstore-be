@@ -62,6 +62,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
@@ -103,6 +104,8 @@ public class AppService {
     private static final String IMAGE_LOCATION = "imagelocation";
 
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
+
+    private static final String PULL_IMAGE_ERR_MESSAGES = "failed to pull image to edge repo";
 
     private static final String PUSH_IMAGE_ERR_MESSAGES = "failed to push image to edge repo";
 
@@ -153,7 +156,7 @@ public class AppService {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 if (entriesCount > TOO_MANY) {
-                    throw new IllegalStateException("too many files to unzip");
+                    throw new AppException("too many files to unzip", ResponseConst.RET_UNZIP_TOO_MANY_FILES, TOO_MANY);
                 }
                 entriesCount++;
                 // sanitize file path
@@ -175,7 +178,7 @@ public class AppService {
             }
         } catch (IOException e) {
             LOGGER.error("Failed to unzip");
-            throw new AppException("Failed to unzip");
+            throw new AppException("Failed to unzip", ResponseConst.RET_DECOMPRESS_FAILED);
         }
     }
 
@@ -250,7 +253,7 @@ public class AppService {
             return getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
-            throw new AppException("failed to get sw image descriptor file");
+            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
         }
     }
 
@@ -280,7 +283,8 @@ public class AppService {
             LOGGER.info("Updated swImages : {}", swImgDescrArray);
         } catch (IOException e) {
             LOGGER.info("failed to update sw image descriptor");
-            throw new AppException("Failed to update repo info to image descriptor file");
+            throw new AppException("Failed to update repo info to image descriptor file",
+                ResponseConst.RET_UPDATE_IMAGE_FAILED);
         }
     }
 
@@ -297,7 +301,8 @@ public class AppService {
 
         File chartsTar = getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
         if (chartsTar == null) {
-            throw new AppException("failed to find values yaml");
+            throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND,
+                "/Artifacts/Deployment/Charts/");
         }
 
         try {
@@ -312,7 +317,7 @@ public class AppService {
             FileUtils.forceDelete(chartsTar);
             File valuesYaml = getFileFromPackage(unZipPath, "/values.yaml");
             if (valuesYaml == null) {
-                throw new AppException("failed to find values yaml");
+                throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND, "/values.yaml");
             }
 
             //update values.yaml
@@ -331,7 +336,8 @@ public class AppService {
                 values.put(IMAGE_LOCATION, imageLocn);
             } else {
                 LOGGER.error("missing image location parameters ");
-                throw new AppException("failed to update values yaml, missing image location parameters");
+                throw new AppException("failed to update values yaml, missing image location parameters",
+                    ResponseConst.RET_MISS_IMAGE_LOCATION);
             }
             String json = new Gson().toJson(values);
             FileUtils.writeStringToFile(valuesYaml, json, StandardCharsets.UTF_8.name());
@@ -358,7 +364,7 @@ public class AppService {
         try (InputStream inputStream = new FileInputStream(valuesYaml)) {
             valuesYamlMap = yaml.load(inputStream);
         } catch (IOException e) {
-            throw new AppException("failed to load value yaml form charts");
+            throw new AppException("failed to load value yaml form charts", ResponseConst.RET_LOAD_YAML_FAILED);
         }
         return valuesYamlMap;
     }
@@ -384,19 +390,19 @@ public class AppService {
                         os.write(bytes, 0, bytes.length);
                         os.closeEntry();
                     } catch (IOException e) {
-                        throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
+                        throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
         } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
         try {
             FileUtils.deleteDirectory(new File(intendedDir));
             FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
         } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES);
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
         return fileStorageAdd;
     }
@@ -452,11 +458,13 @@ public class AppService {
                         .exec(new PullImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new AppException("failed to download image");
+                throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
+                    imageInfo.getSwImage());
             } catch (NotFoundException | InternalServerErrorException e) {
                 LOGGER.error("failed to download image {}, image not found in repository, {}", imageInfo.getSwImage(),
                         e.getMessage());
-                throw new AppException(PUSH_IMAGE_ERR_MESSAGES);
+                throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
+                    imageInfo.getSwImage());
             }
         }
 
@@ -495,11 +503,11 @@ public class AppService {
                         .exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new AppException("failed to download image");
+                throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             } catch (NotFoundException | InternalServerErrorException e) {
-                LOGGER.error("failed to download image {}, image not found in repository, {}", uploadImgName,
+                LOGGER.error("failed to push image {}, image not found in repository, {}", uploadImgName,
                         e.getMessage());
-                throw new AppException(PUSH_IMAGE_ERR_MESSAGES);
+                throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             }
         }
         LOGGER.info("images to appstore repo uploaded successfully");
@@ -533,7 +541,8 @@ public class AppService {
                 }
             }
         } catch (IOException ex) {
-            throw new AppException("failed to decompress, IO exception " + ex.getMessage());
+            throw new AppException("failed to decompress, IO exception " + ex.getMessage(),
+                ResponseConst.RET_DECOMPRESS_FAILED);
         } finally {
             if (tis != null) {
                 try {
@@ -558,7 +567,7 @@ public class AppService {
             addFileToTar(sourceDir, "", outStream);
 
         } catch (IOException e) {
-            throw new AppException("failed to compress " + e.getMessage());
+            throw new AppException("failed to compress " + e.getMessage(), ResponseConst.RET_COMPRESS_FAILED);
         }
     }
 
@@ -584,7 +593,7 @@ public class AppService {
                 }
             }
         } catch (IOException e) {
-            throw new AppException("failed to compress " + e.getMessage());
+            throw new AppException("failed to compress " + e.getMessage(), ResponseConst.RET_COMPRESS_FAILED);
         }
     }
 
@@ -605,7 +614,7 @@ public class AppService {
                 }
             }
         } catch (IOException e) {
-            throw new AppException(file + e.getMessage());
+            throw new AppException(file + e.getMessage(), ResponseConst.RET_PARSE_FILE_EXCEPTION, file);
         }
         return null;
     }

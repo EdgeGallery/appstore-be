@@ -18,9 +18,11 @@ package org.edgegallery.appstore.infrastructure.persistence.apackage;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.slf4j.Logger;
@@ -42,7 +44,7 @@ public class PackageRepositoryImpl implements PackageRepository {
         AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
         if (releasePO == null) {
             LOGGER.error("update status error: can not find package by {}", release.getPackageId());
-            throw new EntityNotFoundException("update status error: can not find package");
+            throw new AppException("update status error: can not find package", ResponseConst.RET_PACKAGE_NOT_FOUND);
         }
         packageMapper.updateRelease(AppReleasePo.of(release));
     }
@@ -52,7 +54,7 @@ public class PackageRepositoryImpl implements PackageRepository {
         AppReleasePo releasePO = packageMapper.findReleaseById(packageId);
         if (releasePO == null || !releasePO.getAppId().equals(appId)) {
             LOGGER.error("find release error: can not find package by {}", packageId);
-            throw new EntityNotFoundException("find release error: can not find package");
+            throw new AppException("find release error: can not find package", ResponseConst.RET_PACKAGE_NOT_FOUND);
         }
         return releasePO.toDomainModel();
     }
@@ -62,7 +64,7 @@ public class PackageRepositoryImpl implements PackageRepository {
         AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
         if (releasePO != null) {
             LOGGER.error("release {} has existed.", release.getPackageId());
-            throw new OperateAvailableException("release has existed.");
+            throw new AppException("release has existed.", ResponseConst.RET_RELEASE_EXIST);
         }
         packageMapper.insertRelease(AppReleasePo.of(release));
     }
@@ -72,7 +74,7 @@ public class PackageRepositoryImpl implements PackageRepository {
         AppReleasePo releasePO = packageMapper.findReleaseById(release.getPackageId());
         if (releasePO == null) {
             LOGGER.error("find release error: can not find package by {}", release.getPackageId());
-            throw new EntityNotFoundException("find release error: can not find package");
+            throw new AppException("find release error: can not find package", ResponseConst.RET_PACKAGE_NOT_FOUND);
         }
         packageMapper.removeByPackageId(release.getPackageId());
     }

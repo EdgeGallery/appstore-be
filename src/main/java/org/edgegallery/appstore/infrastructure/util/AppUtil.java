@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,7 @@ public class AppUtil {
                 }
             }
         } catch (IOException e) {
-            throw new AppException("failed to get app class.");
+            throw new AppException("failed to get app class.", ResponseConst.RET_GET_APP_CLASS_FAILED);
         }
         return null;
     }

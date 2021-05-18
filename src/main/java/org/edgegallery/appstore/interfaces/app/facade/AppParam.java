@@ -93,7 +93,7 @@ public class AppParam {
         if (StringUtils.isEmpty(appparam.getShowType())) {
             appparam.setShowType("public");
         }
-        return typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())
-            && architectureSet.contains(appparam.getAffinity()) && showTypeSet.contains(appparam.getShowType());
+        return (typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())
+            && architectureSet.contains(appparam.getAffinity()) && showTypeSet.contains(appparam.getShowType()));
     }
 }
