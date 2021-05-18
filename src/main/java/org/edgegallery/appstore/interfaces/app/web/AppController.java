@@ -138,9 +138,9 @@ public class AppController {
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         HttpServletRequest request) {
-        return appServiceFacade.appRegistering(new User(userId, userName), file,
+        return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
             new AppParam(type, shortDesc, showType, affinity, industry), icon, demoVideo,
-            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
+            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
     }
 
     /**

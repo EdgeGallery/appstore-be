@@ -43,7 +43,6 @@ public class AppPageCriteria extends PageCriteria {
         this.applicationType = applicationType;
         this.affinity = affinity;
         this.userId = userId;
-
     }
 
 }

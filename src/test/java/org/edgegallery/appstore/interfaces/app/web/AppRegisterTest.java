@@ -77,7 +77,7 @@ public class AppRegisterTest extends AppTest {
     public void should_fail_with_same_app() {
         try {
             MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
-            Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), mvcResult.getResponse().getStatus());
+            Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
         } catch (Exception e) {
             Assert.assertNull(e);
         }

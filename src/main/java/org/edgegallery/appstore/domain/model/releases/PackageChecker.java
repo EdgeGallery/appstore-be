@@ -28,6 +28,9 @@ import java.util.zip.ZipEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,7 +56,7 @@ public class PackageChecker extends FileChecker {
 
     @Override
     protected long getMaxFileSize() {
-        return 5 * 1024 * 1024 * 1024 * 1024L;
+        return 5 * 1024 * 1024 * 1024L;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class PackageChecker extends FileChecker {
         String originalFileName = file.getOriginalFilename();
 
         if (originalFileName == null) {
-            throw new IllegalArgumentException("Package File name is null.");
+            throw new IllegalRequestException("Package File name is null.", ResponseConst.RET_FILE_NAME_NULL);
         }
 
         String tempFileAddress = new StringBuilder().append(getDir()).append(File.separator).append("temp")
@@ -80,10 +83,11 @@ public class PackageChecker extends FileChecker {
             unzip(tempFileAddress);
         } catch (IOException e) {
             LOGGER.error("create temp file failed: {}", e.getMessage());
-            throw new IllegalArgumentException("create temp file with IOException");
+            throw new FileOperateException("create temp file with IOException",
+                ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
         } catch (IllegalStateException e) {
             LOGGER.error("IllegalStateException: {}", e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
+            throw new FileOperateException(e.getMessage(), ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
         }
         return result;
     }

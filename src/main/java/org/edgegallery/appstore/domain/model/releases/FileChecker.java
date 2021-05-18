@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
 public abstract class FileChecker {
@@ -68,7 +70,7 @@ public abstract class FileChecker {
      * check if file path is valid.
      *
      * @param filePath file path.
-     * @return
+     *
      */
     public static String checkByPath(String filePath) {
         filePath = Normalizer.normalize(filePath, Normalizer.Form.NFKC);
@@ -101,7 +103,7 @@ public abstract class FileChecker {
      * check if file name if it's invalid.
      *
      * @param fileName file name
-     * @return
+     *
      */
     static boolean isValid(String fileName) {
         if (StringUtils.isEmpty(fileName) || fileName.length() > MAX_LENGTH_FILE_NAME) {
@@ -126,15 +128,27 @@ public abstract class FileChecker {
 
         // file name should not contains blank.
         if (originalFilename != null && originalFilename.split("\\s").length > 1) {
-            throw new IllegalArgumentException(originalFilename + " :fileName contain blank");
+            throw new IllegalRequestException(originalFilename + " :fileName contain blank",
+                ResponseConst.RET_FILE_NAME_CONTAIN_BLANK, originalFilename);
         }
 
         if (originalFilename != null && !isAllowedFileName(originalFilename)) {
-            throw new IllegalArgumentException(originalFilename + " :fileName is Illegal");
+            List<String> validExtensions = getFileExtensions();
+            StringBuffer buf = new StringBuffer();
+            buf.append("[");
+            for (String extension : validExtensions) {
+                buf.append(extension);
+                buf.append(",");
+            }
+            String extensions = buf.toString();
+            extensions = extensions.substring(0, extensions.length() - 1)  + "]";
+            throw new IllegalRequestException(originalFilename + " :fileName is Illegal",
+                ResponseConst.RET_FILE_NAME_POSTFIX_INVALID, originalFilename, extensions);
         }
 
         if (file.getSize() > getMaxFileSize()) {
-            throw new IllegalArgumentException(originalFilename + " :fileSize is too big");
+            throw new IllegalRequestException(originalFilename + " :fileSize is too big",
+                ResponseConst.RET_FILE_TOO_BIG, originalFilename, getMaxFileSize() / 1024 / 1024L);
         }
         return null;
     }

@@ -15,12 +15,36 @@
 
 package org.edgegallery.appstore.domain.shared.exceptions;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
+
 public class FileOperateException extends DomainException {
 
     private static final long serialVersionUID = 1224743617068936039L;
+
+    private ErrorMessage errMsg;
 
     public FileOperateException(String message) {
         super(message);
     }
 
+    /**
+     * Constructor to create FileOperateException with retCode and params.
+     *
+     * @param ret retCode
+     */
+    public FileOperateException(String msg, int ret) {
+        super(msg);
+        ErrorMessage errorMessage = new ErrorMessage(ret, null);
+        errMsg = errorMessage;
+    }
+
+    /**
+     * get error message.
+     *
+     */
+    public ErrorMessage getErrMsg() {
+        return errMsg;
+    }
 }

@@ -21,14 +21,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.domain.shared.exceptions.MaxRecordLimitException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
@@ -58,7 +59,8 @@ public class AppRepositoryImpl implements AppRepository {
         } else {
             if (appMapper.countTotalAppForUser(app.getUserId()) >= MAX_ENTRY_PER_USER_PER_MODEL) {
                 LOGGER.error("maximum app limit has reached for user " + app.getUserId());
-                throw new MaxRecordLimitException("maximum app limit has reached for user " + app.getUserId());
+                throw new AppException("maximum app limit has reached for user " + app.getUserId(),
+                    ResponseConst.RET_USER_APPS_REACH_LIMIT, app.getUser().getUserName(), MAX_ENTRY_PER_USER_PER_MODEL);
             }
             appMapper.insert(appPO);
         }

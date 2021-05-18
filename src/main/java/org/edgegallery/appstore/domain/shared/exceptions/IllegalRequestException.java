@@ -20,39 +20,39 @@ import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 
-public class AppException extends RuntimeException {
+public class IllegalRequestException extends IllegalArgumentException {
 
-    private static final long serialVersionUID = 1311109258952411164L;
+    private static final long serialVersionUID = 1311109258952411165L;
 
     private ErrorMessage errMsg;
 
     /**
-     * Constructor to create AppException with message.
+     * Constructor to create IllegalRequestException with message.
      *
      * @param msg exception message
      */
-    public AppException(String msg) {
+    public IllegalRequestException(String msg) {
         super(msg);
     }
 
     /**
-     * Constructor to create AppException with retCode and params.
+     * Constructor to create IllegalRequestException with retCode and params.
      *
      * @param ret retCode
      */
-    public AppException(String msg, int ret) {
+    public IllegalRequestException(String msg, int ret) {
         super(msg);
         ErrorMessage errorMessage = new ErrorMessage(ret, null);
         errMsg = errorMessage;
     }
 
     /**
-     * Constructor to create AppException with retCode and params.
+     * Constructor to create IllegalRequestException with retCode and params.
      *
      * @param ret retCode
      * @param args params of error message
      */
-    public AppException(String msg, int ret, Object... args) {
+    public IllegalRequestException(String msg, int ret, Object... args) {
         super(msg);
         List<String> params = new ArrayList<>();
         int length = args == null ? 0 : args.length;

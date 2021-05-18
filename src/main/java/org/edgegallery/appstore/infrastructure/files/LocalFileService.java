@@ -37,10 +37,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.service.FileService;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -99,7 +101,7 @@ public class LocalFileService implements FileService {
     @Override
     public String saveTo(File file, String fileParent) {
         if (file == null || file.getName() == null) {
-            throw new IllegalArgumentException("file is null");
+            throw new IllegalRequestException("file is null.", ResponseConst.RET_FILE_NAME_NULL);
         }
         String newFileName = UUID.randomUUID().toString().replace("-", "");
         String fileAddress = fileParent + File.separator + newFileName + "." + Files.getFileExtension(file.getName());
@@ -112,7 +114,7 @@ public class LocalFileService implements FileService {
             FileUtils.moveFile(file, new File(fileAddress));
         } catch (IOException e) {
             LOGGER.error("move file exception : {}", e.getMessage());
-            throw new FileOperateException("move file exception.");
+            throw new FileOperateException("move file exception.", ResponseConst.RET_SAVE_FILE_EXCEPTION);
         }
         return fileAddress;
     }

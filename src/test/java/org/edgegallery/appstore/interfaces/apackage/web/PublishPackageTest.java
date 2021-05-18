@@ -64,7 +64,7 @@ public class PublishPackageTest extends AppTest {
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
 
