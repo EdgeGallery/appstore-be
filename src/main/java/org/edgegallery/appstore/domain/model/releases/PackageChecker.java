@@ -83,7 +83,8 @@ public class PackageChecker extends FileChecker {
             unzip(tempFileAddress);
         } catch (IOException e) {
             LOGGER.error("create temp file failed: {}", e.getMessage());
-            throw new FileOperateException("create temp file with IOException", ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
+            throw new FileOperateException("create temp file with IOException",
+                ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
         } catch (IllegalStateException e) {
             LOGGER.error("IllegalStateException: {}", e.getMessage());
             throw new FileOperateException(e.getMessage(), ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
