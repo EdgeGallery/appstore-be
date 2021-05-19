@@ -384,7 +384,6 @@ public class AppServiceFacade {
         params.put("workloadType", queryAppReqDto.getWorkloadType());
         params.put("queryCtrl", queryAppReqDto.getQueryCtrl());
         params.put("type", queryAppReqDto.getTypes());
-        params.put("userId", queryAppReqDto.getUserId());
         params.put("limit", queryAppReqDto.getQueryCtrl().getLimit());
         params.put("offset", queryAppReqDto.getQueryCtrl().getOffset());
         params.put("status", EnumAppStatus.Published.toString());
