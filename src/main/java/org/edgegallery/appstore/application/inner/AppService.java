@@ -201,6 +201,10 @@ public class AppService {
         return swImgDescrs;
     }
 
+    /**
+     * get release.
+     *
+     */
     public Release getRelease(String appId, String packageId) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
