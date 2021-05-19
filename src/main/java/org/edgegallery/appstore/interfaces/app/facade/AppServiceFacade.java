@@ -57,9 +57,11 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.persistence.app.AppMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +101,9 @@ public class AppServiceFacade {
 
     @Autowired
     private AppUtil appUtil;
+
+    @Autowired
+    private AppMapper appMapper;
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -369,34 +374,30 @@ public class AppServiceFacade {
     /**
      * Query app list by parameters follows.
      *
-     * @param name app name.
-     * @param limit limit of single page.
-     * @param offset offset of pages.
+     * @param queryAppReqDto query condition.
      * @return List<AppDto></AppDto>
      */
-    public ResponseEntity<Page<AppDto>> queryAppsByCondV2(String name, String provider, String type, String affinity,
-        String userId, int limit, long offset, String sortType, String sortItem) {
+    public ResponseEntity<Page<AppDto>> queryAppsByCondV2(QueryAppReqDto queryAppReqDto) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("limit", limit);
-        params.put("offset", offset);
-        params.put("name", name);
-        params.put("provider", provider);
-        params.put("type", type);
-        params.put("affinity", affinity);
-        params.put("createTime", "createTime");
-        params.put("sortItem", sortItem);
-        params.put("sortType", sortType);
+        params.put("industry", queryAppReqDto.getIndustry());
+        params.put("affinity", queryAppReqDto.getAffinity());
+        params.put("workloadType", queryAppReqDto.getWorkloadType());
+        params.put("queryCtrl", queryAppReqDto.getQueryCtrl());
+        params.put("type", queryAppReqDto.getTypes());
+        params.put("userId", queryAppReqDto.getUserId());
+        params.put("limit", queryAppReqDto.getQueryCtrl().getLimit());
+        params.put("offset", queryAppReqDto.getQueryCtrl().getOffset());
         params.put("status", EnumAppStatus.Published.toString());
+        params.put("appName", queryAppReqDto.getAppName());
+        params.put("showType", "private");
         Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
             .stream();
-        long total = appRepository.countTotalV2(params);
-        if (userId == null) {
-            appStream = appStream.filter(a -> !a.getShowType().equals("private"));
-            params.put("showType", "private");
-            total = appRepository.countTotalV2(params);
-        }
-        return ResponseEntity.ok(new Page<>(appStream.collect(Collectors.toList()), limit, offset, total));
+        int total = appMapper.countTotalV2(params);
+        return ResponseEntity
+            .ok(new Page<>(appStream.collect(Collectors.toList()), queryAppReqDto.getQueryCtrl().getLimit(),
+                queryAppReqDto.getQueryCtrl().getOffset(), total));
     }
+
 
     /**
      * Query app list by parameters follows.

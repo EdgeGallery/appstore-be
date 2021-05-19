@@ -72,73 +72,101 @@
     </delete>
 
 
-    <select id="countTotalV2" resultType="java.lang.Integer"
+<select id="countTotalV2" resultType="java.lang.Integer"
             parameterType="java.util.Map">
         select count(*) from app_table
         <where>
-            <if test="appId != null">
-                and appid = #{appId}
+            <if test="industry != null and industry.size()>0">
+                and industry in
+                <foreach collection="industry" item="industry" index="index" open="(" close=")" separator=",">
+                    #{industry}
+                </foreach>
             </if>
-            <if test="appName != null">
+            <if test="affinity != null and affinity.size()>0">
+                or affinity in
+                <foreach collection="affinity" item="affinity" index="index" open="(" close=")" separator=",">
+                    #{affinity}
+                </foreach>
+            </if>
+            <if test="workloadType != null and workloadType.size()>0">
+                or deploymode in
+                <foreach collection="workloadType" item="workloadType" index="index" open="(" close=")" separator=",">
+                    #{workloadType}
+                </foreach>
+            </if>
+            <if test="type != null and type.size()>0">
+                or applicationtype in
+                <foreach collection="type" item="type" index="index" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="appName != null and appName != ''">
                 and appname like '%' || #{appName} || '%'
             </if>
-            <if test="provider != null">
-                and provider = #{provider}
-            </if>
-            <if test="applicationType != null">
-                and applicationtype = #{applicationType}
-            </if>
-            <if test="affinity != null">
-                and affinity = #{affinity}
-            </if>
-            <if test="status != null">
+            <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
-            <if test="userId != null">
+            <if test="showType != null and showType != '' ">
+                and showtype != #{showType}
+            </if>
+            <if test="userId != null and userId != '' ">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
             </if>
         </where>
     </select>
 
 
-    <select id="findAllWithAppPaginationV2"
+<select id="findAllWithAppPaginationV2"
             resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo"
             parameterType="java.util.Map">
         select * from app_table
         <where>
-            <if test="appId != null">
-                and appid = #{appId}
+
+            <if test="industry != null and industry.size()>0">
+                and industry in
+                <foreach collection="industry" item="industry" index="index" open="(" close=")" separator=",">
+                    #{industry}
+                </foreach>
             </if>
-            <if test="appName != null">
+            <if test="affinity != null and affinity.size()>0">
+                or affinity in
+                <foreach collection="affinity" item="affinity" index="index" open="(" close=")" separator=",">
+                    #{affinity}
+                </foreach>
+            </if>
+            <if test="workloadType != null and workloadType.size()>0">
+                or deploymode in
+                <foreach collection="workloadType" item="workloadType" index="index" open="(" close=")" separator=",">
+                    #{workloadType}
+                </foreach>
+            </if>
+            <if test="type != null and type.size()>0">
+                or applicationtype in
+                <foreach collection="type" item="type" index="index" open="(" close=")" separator=",">
+                    #{types}
+                </foreach>
+            </if>
+            <if test="appName != null and appName != ''">
                 and appname like '%' || #{appName} || '%'
             </if>
-            <if test="provider != null">
-                and provider = #{provider}
-            </if>
-            <if test="applicationType != null">
-                and applicationtype = #{applicationType}
-            </if>
-            <if test="affinity != null">
-                and affinity = #{affinity}
-            </if>
-            <if test="status != null">
+            <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
-            <if test="showType != null">
-                and showType != #{showType}
+            <if test="showType != null and showType != '' ">
+                and showtype != #{showType}
             </if>
-            <if test="userId != null">
+            <if test="userId != null  and userId != ''">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
             </if>
         </where>
-        <if test="sortType != null and sortItem != null and createTime !=null">
-            order by ${sortItem} ${sortType},${createTime} ${sortType}
+        <if test="queryCtrl != null">
+            <if test="queryCtrl.sortItem != null and queryCtrl.sortItem != '' and queryCtrl.sortType != null and queryCtrl.sortType != ''">
+                order by ${queryCtrl.sortItem} ${queryCtrl.sortType},${queryCtrl.createTime} ${queryCtrl.sortType}
+            </if>
+            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
+                limit #{queryCtrl.limit} offset #{queryCtrl.offset}
+            </if>
         </if>
-        limit #{limit} offset #{offset}
-    </select>
-    <select id="countTotalAppForUser" resultType="java.lang.Integer"
-            parameterType="java.util.Map">
-        select count(*) from app_table where userid = #{userId}
     </select>
 
     <select id="countTotal" resultType="java.lang.Integer"
