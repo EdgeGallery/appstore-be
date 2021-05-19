@@ -45,7 +45,7 @@ public class QueryAppByIdTest extends AppTest {
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
 
 }

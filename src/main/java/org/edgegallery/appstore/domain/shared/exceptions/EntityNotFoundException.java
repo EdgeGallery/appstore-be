@@ -25,16 +25,28 @@ public class EntityNotFoundException extends DomainException {
 
     private ErrorMessage errMsg;
 
+    /**
+     * construct with message.
+     *
+     */
     public EntityNotFoundException(String message) {
         super(message);
     }
 
+    /**
+     * construct with message and ret.
+     *
+     */
     public EntityNotFoundException(String message, int ret) {
         super(message);
         ErrorMessage errorMessage = new ErrorMessage(ret, null);
         errMsg = errorMessage;
     }
 
+    /**
+     * construct with class, id and ret.
+     *
+     */
     public <T extends Entity> EntityNotFoundException(Class<T> entityClass, String id, int ret) {
         super("cannot find the " + entityClass.getSimpleName().toLowerCase() + " with id " + id);
         ErrorMessage errorMessage = new ErrorMessage(ret, null);

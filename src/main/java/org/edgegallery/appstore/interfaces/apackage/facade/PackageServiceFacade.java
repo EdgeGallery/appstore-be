@@ -111,7 +111,6 @@ public class PackageServiceFacade {
      *
      * @param appId app id.
      * @param packageId package id.
-     * @return
      */
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
         throws FileNotFoundException {
@@ -123,11 +122,19 @@ public class PackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
+    /**
+     * publish package.
+     *
+     */
     public ResponseEntity<String> publishPackage(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
         return ResponseEntity.ok("Publish Success");
     }
 
+    /**
+     * publish package v2.
+     *
+     */
     public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -140,7 +147,6 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      * @param packageDto packageDto.
-     * @return
      */
     public ResponseEntity<PackageDto> updateAppById(String appId, String packageId, MultipartFile iconFile,
         MultipartFile demoVideo, PackageDto packageDto) {
