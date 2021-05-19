@@ -147,9 +147,10 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = EntityNotFoundException.class)
     @ResponseBody
     public RestReturn entityNotFoundException(HttpServletRequest request, EntityNotFoundException e) {
-        return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
-            .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
     }
 
     /**

@@ -122,7 +122,7 @@ public class AppRepositoryImpl implements AppRepository {
     @Override
     public Page<Release> findAllWithPagination(PageCriteria pageCriteria) {
         if (!appMapper.findByAppId(pageCriteria.getAppId()).isPresent()) {
-            throw new EntityNotFoundException(App.class, pageCriteria.getAppId());
+            throw new EntityNotFoundException(App.class, pageCriteria.getAppId(), ResponseConst.RET_APP_NOT_FOUND);
         }
         long total = packageMapper.countTotalForReleases(pageCriteria).longValue();
         List<Release> releases = packageMapper.findAllWithPagination(pageCriteria).stream()

@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.Comment;
@@ -49,7 +50,8 @@ public class AppCommentService {
      * @throws EntityNotFoundException throw EntityNotFoundException.
      */
     public void comment(User user, String appId, String comments, double score) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (user.getUserId().equals(app.getUser().getUserId())) {
             LOGGER.info("User {} can not comment own app {}.", user.getUserId(), appId);
             throw new RedundantCommentsException(user.getUserId(), appId);

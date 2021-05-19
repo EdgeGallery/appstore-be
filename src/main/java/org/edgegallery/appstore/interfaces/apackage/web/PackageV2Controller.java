@@ -28,6 +28,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -52,6 +54,8 @@ public class PackageV2Controller {
     private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     private static final String ACCESS_TOKEN = "access_token";
+
+    private static final String REG_APP_ID = "[0-9a-f]{32}";
 
     @Autowired
     private PackageServiceFacade packageServiceFacade;
@@ -90,6 +94,20 @@ public class PackageV2Controller {
         return ResponseEntity.ok(packageServiceFacade
             .getPackageByUserIdV2(userId, limit, offset, appName, sortItem, sortType,
                 (String) request.getAttribute(ACCESS_TOKEN)));
+    }
+
+    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/publish", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "publish the package.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<ResponseObject> publishPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        return packageServiceFacade.publishPackageV2(appId, packageId);
     }
 
     @GetMapping(value = "/packages/pushable", produces = MediaType.APPLICATION_JSON)

@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.persistence.message;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
@@ -96,7 +97,8 @@ public class MessageRepository {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
             LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
-            throw new DomainException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId));
+            throw new EntityNotFoundException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId),
+                ResponseConst.RET_MESSAGE_NOT_FOUND);
         }
         return messagePo.toDomainModel();
     }
@@ -110,7 +112,8 @@ public class MessageRepository {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
             LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
-            throw new EntityNotFoundException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId));
+            throw new EntityNotFoundException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId),
+                ResponseConst.RET_MESSAGE_NOT_FOUND);
         }
         messageMapper.deleteOneMessage(messageId);
     }
@@ -124,7 +127,8 @@ public class MessageRepository {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
         if (messagePo == null) {
             LOGGER.error(MESSAGE_NOT_EXISTED, messageId);
-            throw new EntityNotFoundException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId));
+            throw new EntityNotFoundException(String.format(MESSAGE_NOT_EXISTED_FORMAT, messageId),
+                ResponseConst.RET_MESSAGE_NOT_FOUND);
         }
         messagePo.setReaded(true);
         messageMapper.update(messagePo);
