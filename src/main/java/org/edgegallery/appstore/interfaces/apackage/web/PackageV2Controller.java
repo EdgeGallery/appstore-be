@@ -127,21 +127,6 @@ public class PackageV2Controller {
         return packageServiceFacade.queryPackageByIdV2(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
-    @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
-    @ApiOperation(value = "download the package by package id.", response = File.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
-    })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<ResponseObject> downloadPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-        throws FileNotFoundException {
-        return packageServiceFacade.downloadPackageV2(appId, packageId);
-    }
-
     @GetMapping(value = "/packages/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
         responseContainer = "List")

@@ -130,34 +130,13 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
         throws FileNotFoundException {
         Release release = appService.download(appId, packageId);
+        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
-    }
-
-    /**
-     * download package by package id.
-     *
-     * @param appId app id.
-     * @param packageId package id.
-     */
-    public ResponseEntity<ResponseObject> downloadPackageV2(String appId, String packageId) {
-        try {
-            Release release = appService.download(appId, packageId);
-            StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
-            fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
-            InputStream ins = fileService.get(release.getPackageFile());
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", "application/octet-stream");
-            headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
-            ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-            return ResponseEntity.ok().headers(headers)
-                .body(new ResponseObject(new InputStreamResource(ins), errMsg, "download package success."));
-        } catch (FileNotFoundException e) {
-            throw new EntityNotFoundException(e.getMessage(), ResponseConst.RET_PACKAGE_FILE_NOT_FOUND);
-        }
     }
 
     /**

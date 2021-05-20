@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -121,10 +122,12 @@ public class PushablePackageServiceFacade {
         // add message log for this action
         recordLog(packageDto, targetAppstore);
         Release release = appService.download(packageDto.getAppId(), packageId);
+        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
