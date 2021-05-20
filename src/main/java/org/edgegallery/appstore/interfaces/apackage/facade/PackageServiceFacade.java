@@ -28,13 +28,16 @@ import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -108,7 +111,6 @@ public class PackageServiceFacade {
      *
      * @param appId app id.
      * @param packageId package id.
-     * @return
      */
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
         throws FileNotFoundException {
@@ -120,9 +122,23 @@ public class PackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
+    /**
+     * publish package.
+     *
+     */
     public ResponseEntity<String> publishPackage(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
         return ResponseEntity.ok("Publish Success");
+    }
+
+    /**
+     * publish package v2.
+     *
+     */
+    public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId) {
+        packageService.publishPackage(appId, packageId);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject("Publish Success", errMsg, "Publish Success."));
     }
 
     /**
@@ -131,7 +147,6 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      * @param packageDto packageDto.
-     * @return
      */
     public ResponseEntity<PackageDto> updateAppById(String appId, String packageId, MultipartFile iconFile,
         MultipartFile demoVideo, PackageDto packageDto) {

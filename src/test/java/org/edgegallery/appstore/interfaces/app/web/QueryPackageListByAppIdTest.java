@@ -69,6 +69,6 @@ public class QueryPackageListByAppIdTest extends AppTest {
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
 
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 }

@@ -301,8 +301,10 @@ public class AppServiceFacade {
      * @return file
      */
     public ResponseEntity<InputStreamResource> downloadApp(String appId) throws FileNotFoundException {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        Release release = app.findLastRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        Release release = app.findLastRelease()
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         app.downLoad();
         appRepository.store(app);
         InputStream ins = fileService.get(release.getPackageFile());
@@ -319,8 +321,10 @@ public class AppServiceFacade {
      * @return file
      */
     public ResponseEntity<InputStreamResource> downloadIcon(String appId) throws FileNotFoundException {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        Release release = app.findLatestRelease()
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
         headers.add(CONTENT_TYPE, "application/octet-stream");
@@ -335,8 +339,10 @@ public class AppServiceFacade {
      * @return video entity
      */
     public ResponseEntity<byte[]> downloadDemoVideo(String appId) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
-        Release release = app.findLatestRelease().orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        Release release = app.findLatestRelease()
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         byte[] image = new byte[0];
         HttpHeaders headers = new HttpHeaders();
         headers.add(CONTENT_TYPE, "video/mp4");
@@ -353,7 +359,8 @@ public class AppServiceFacade {
     }
 
     public App queryByAppId(String appId) {
-        return appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        return appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
     }
 
     /**
@@ -363,7 +370,8 @@ public class AppServiceFacade {
      * @param user User object.
      */
     public void unPublishApp(String appId, User user, String authorities) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
             appService.unPublish(app);
         } else {

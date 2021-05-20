@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.comment.facade;
 
 import java.util.List;
 import org.edgegallery.appstore.application.inner.AppCommentService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.Comment;
@@ -59,7 +60,8 @@ public class CommentServiceFacade {
      * get commentsV2 by app id and page parameters.
      */
     public ResponseEntity<Page<Comment>> getCommentsV2(String appId, int limit, long offset) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         return ResponseEntity
             .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId(), null, null)));
     }
@@ -68,7 +70,8 @@ public class CommentServiceFacade {
      * get comments by app id and page parameters.
      */
     public ResponseEntity<List<Comment>> getComments(String appId, int limit, long offset) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         return ResponseEntity
             .ok(commentRepository.findAllWithPagination(new PageCriteria(limit, offset, app.getAppId(), null, null))
                 .getResults());

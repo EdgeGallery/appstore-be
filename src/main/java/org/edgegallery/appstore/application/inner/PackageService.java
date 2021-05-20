@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
@@ -32,6 +33,7 @@ import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
@@ -74,9 +76,10 @@ public class PackageService {
         Release release = packageRepository.findReleaseById(appId, packageId);
         if (release.getStatus() != EnumPackageStatus.Test_success) {
             LOGGER.error("Test status is {}, publish failed", release.getStatus());
-            throw new OperateAvailableException("Test status is not success, publish failed");
+            throw new AppException("Test status is not success, publish failed", ResponseConst.RET_PUBLISH_NO_TESTED);
         }
-        appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId))
+        appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND))
             .checkReleases(release);
         release.setStatus(EnumPackageStatus.Published);
         publishAppAndPackage(appId, release);
@@ -90,7 +93,8 @@ public class PackageService {
      */
     @Transactional
     public void publishAppAndPackage(String appId, Release release) {
-        App app = appRepository.find(appId).orElseThrow(() -> new EntityNotFoundException(App.class, appId));
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (app.getStatus() != EnumAppStatus.Published) {
             app.setStatus(EnumAppStatus.Published);
             appRepository.store(app);

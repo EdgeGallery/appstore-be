@@ -48,6 +48,6 @@ public class DownloadIconTest extends AppTest {
         MvcResult mvcResult = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/icon", appId)).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
 }

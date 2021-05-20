@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.edgegallery.appstore.config.ApplicationContext;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
@@ -98,7 +99,8 @@ public class PushablePackageRepository {
      */
     public PushablePackageDto getPushablePackages(String packageId) {
         PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
-            .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId));
+            .orElseThrow(() -> new EntityNotFoundException(PushablePackageDto.class, packageId,
+                ResponseConst.RET_PACKAGE_NOT_FOUND));
         LOGGER.warn("sourcePlatform is:", appReleasePo.getSourcePlatform());
         return new PushablePackageDto(appReleasePo, context.atpReportUrl);
     }

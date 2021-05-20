@@ -152,7 +152,42 @@ public interface ResponseConst {
     public static final int RET_GET_TEST_STATUS_FAILED = 10026;
 
     /**
+     * app not found with id.
+     */
+    public static final int RET_APP_NOT_FOUND = 10027;
+
+    /**
+     * package base error code.
+     */
+    public static final int RET_PACKAGE_BASE = 11000;
+
+    /**
      * Application package not found.
      */
-    public static final int RET_PACKAGE_NOT_FOUND = 10027;
+    public static final int RET_PACKAGE_NOT_FOUND = 110001;
+
+    /**
+     * The application can be published only after testing successfully.
+     */
+    public static final int RET_PUBLISH_NO_TESTED = 110002;
+
+    /**
+     * comment base error code.
+     */
+    public static final int RET_COMMENT_BASE = 120000;
+
+    /**
+     * appstore base error code.
+     */
+    public static final int RET_APPSTORE_BASE = 130000;
+
+    /**
+     * message base error code.
+     */
+    public static final int RET_MESSAGE_BASE = 140000;
+
+    /**
+     * message not found.
+     */
+    public static final int RET_MESSAGE_NOT_FOUND = 14001;
 }
