@@ -379,7 +379,7 @@ public class AppServiceFacade {
      */
     public ResponseEntity<Page<AppDto>> queryAppsByCondV2(QueryAppReqDto queryAppReqDto) {
         Map<String, Object> params = new HashMap<String, Object>();
-        if (queryAppReqDto.getUserId() == null) {
+        if (StringUtils.isEmpty(queryAppReqDto.getUserId())) {
             params.put("status", EnumAppStatus.Published.toString());
             params.put("showType", "private");
         }
