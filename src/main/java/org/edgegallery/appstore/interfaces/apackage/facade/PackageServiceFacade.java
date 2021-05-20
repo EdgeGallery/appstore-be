@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,7 @@ import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -84,6 +86,19 @@ public class PackageServiceFacade {
     }
 
     /**
+     * Query package by package id.
+     *
+     * @param appId app id.
+     * @param packageId package id.
+     * @return PackageDto object.
+     */
+    public ResponseEntity<ResponseObject> queryPackageByIdV2(String appId, String packageId, String token) {
+        PackageDto dto = queryPackageById(appId, packageId, token);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "querey package by packageId success."));
+    }
+
+    /**
      * Get Csar file content by package id and file path.
      *
      * @param packageId package id.
@@ -115,10 +130,12 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
         throws FileNotFoundException {
         Release release = appService.download(appId, packageId);
+        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 

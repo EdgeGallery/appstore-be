@@ -164,30 +164,50 @@ public interface ResponseConst {
     /**
      * Application package not found.
      */
-    public static final int RET_PACKAGE_NOT_FOUND = 110001;
+    public static final int RET_PACKAGE_NOT_FOUND = 11001;
 
     /**
      * The application can be published only after testing successfully.
      */
-    public static final int RET_PUBLISH_NO_TESTED = 110002;
+    public static final int RET_PUBLISH_NO_TESTED = 11002;
+
+    /**
+     * Application package file not found.
+     */
+    public static final int RET_PACKAGE_FILE_NOT_FOUND = 11003;
 
     /**
      * comment base error code.
      */
-    public static final int RET_COMMENT_BASE = 120000;
+    public static final int RET_COMMENT_BASE = 12000;
 
     /**
      * appstore base error code.
      */
-    public static final int RET_APPSTORE_BASE = 130000;
+    public static final int RET_APPSTORE_BASE = 13000;
 
     /**
      * message base error code.
      */
-    public static final int RET_MESSAGE_BASE = 140000;
+    public static final int RET_MESSAGE_BASE = 14000;
 
     /**
      * message not found.
      */
     public static final int RET_MESSAGE_NOT_FOUND = 14001;
+
+    /**
+     * message has existed.
+     */
+    public static final int RET_MESSAGE_EXISTED = 14002;
+
+    /**
+     * general base error code.
+     */
+    public static final int RET_GENERAL_BASE = 19000;
+
+    /**
+     * Database operation failed.
+     */
+    public static final int RET_DB_ERROR = 19001;
 }

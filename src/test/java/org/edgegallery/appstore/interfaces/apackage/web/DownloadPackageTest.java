@@ -57,6 +57,6 @@ public class DownloadPackageTest extends AppTest {
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download", appId, packageId))
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 }

@@ -21,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.inner.MessageService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,5 +104,17 @@ public class MessageServiceFacade {
     public ResponseEntity<String> updateMessageReaded(String messageId) {
         messageService.updateMessageReaded(messageId);
         return ResponseEntity.ok("success");
+    }
+
+    /**
+     * add a message.
+     *
+     * @param dto dto
+     * @return ok
+     */
+    public ResponseEntity<ResponseObject> addMessageV2(MessageReqDto dto) {
+        String result = messageService.addMessage(dto);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(result, errMsg, "add message success."));
     }
 }

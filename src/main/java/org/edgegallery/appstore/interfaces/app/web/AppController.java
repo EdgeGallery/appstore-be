@@ -197,20 +197,6 @@ public class AppController {
         return appServiceFacade.queryAppsByCond(name, provider, type, affinity, userId, 100, 0);
     }
 
-    @GetMapping(value = "/apps/{appId}/action/download", produces = "application/octet-stream")
-    @ApiOperation(value = "download the latest version of package.", response = File.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<InputStreamResource> download(
-        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-        throws FileNotFoundException {
-        return appServiceFacade.downloadApp(appId);
-    }
-
     @GetMapping(value = "/apps/{appId}/icon", produces = "application/octet-stream")
     @ApiOperation(value = "get app icon by appId.", response = File.class)
     @ApiResponses(value = {

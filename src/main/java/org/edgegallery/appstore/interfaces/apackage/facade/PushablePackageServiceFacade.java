@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -26,6 +27,7 @@ import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
@@ -91,7 +93,7 @@ public class PushablePackageServiceFacade {
     public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
         PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
         if (dto == null) {
-            throw new UnknownReleaseExecption(packageId);
+            throw new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND);
         }
         return ResponseEntity.ok(dto);
     }
@@ -120,10 +122,12 @@ public class PushablePackageServiceFacade {
         // add message log for this action
         recordLog(packageDto, targetAppstore);
         Release release = appService.download(packageDto.getAppId(), packageId);
+        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + release.getPackageFile().getOriginalFileName());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 

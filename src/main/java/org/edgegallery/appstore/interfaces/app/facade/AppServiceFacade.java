@@ -295,26 +295,6 @@ public class AppServiceFacade {
     }
 
     /**
-     * download APP.
-     *
-     * @param appId download package by app id, return latest version.
-     * @return file
-     */
-    public ResponseEntity<InputStreamResource> downloadApp(String appId) throws FileNotFoundException {
-        App app = appRepository.find(appId)
-            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        Release release = app.findLastRelease()
-            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        app.downLoad();
-        appRepository.store(app);
-        InputStream ins = fileService.get(release.getPackageFile());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(CONTENT_TYPE, "application/octet-stream");
-        headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getPackageFile().getOriginalFileName());
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
-    }
-
-    /**
      * download icon by app id.
      *
      * @param appId app id.
@@ -358,9 +338,23 @@ public class AppServiceFacade {
         return ResponseEntity.ok().headers(headers).body(image);
     }
 
+    /**
+     * query app by id.
+     *
+     */
     public App queryByAppId(String appId) {
         return appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+    }
+
+    /**
+     * query app by id.
+     *
+     */
+    public ResponseEntity<ResponseObject> queryByAppIdV2(String appId) {
+        AppDto dto = AppDto.of(queryByAppId(appId));
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "get app by appId success."));
     }
 
     /**
