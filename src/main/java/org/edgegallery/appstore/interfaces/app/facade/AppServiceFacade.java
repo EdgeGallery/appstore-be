@@ -343,6 +343,12 @@ public class AppServiceFacade {
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
     }
 
+    public ResponseEntity<ResponseObject> queryByAppIdV2(String appId) {
+        AppDto dto = AppDto.of(queryByAppId(appId));
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "get app by appId success."));
+    }
+
     /**
      * delete app by app id and user.
      *

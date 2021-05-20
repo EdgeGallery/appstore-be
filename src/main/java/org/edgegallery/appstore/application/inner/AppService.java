@@ -208,7 +208,8 @@ public class AppService {
     public Release getRelease(String appId, String packageId) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        return app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        return app.findByPackageId(packageId)
+            .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
     }
 
     /**
@@ -636,7 +637,8 @@ public class AppService {
     public void unPublishPackage(String appId, String packageId, User user) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        Release release = app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        Release release = app.findByPackageId(packageId)
+            .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
         release.checkPermission(user.getUserId());
 
         app.unPublish(release);
@@ -663,7 +665,8 @@ public class AppService {
     public Release download(String appId, String packageId) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        Release release = app.findByPackageId(packageId).orElseThrow(() -> new UnknownReleaseExecption(packageId));
+        Release release = app.findByPackageId(packageId)
+            .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
         app.downLoad();
         appRepository.store(app);
         return release;

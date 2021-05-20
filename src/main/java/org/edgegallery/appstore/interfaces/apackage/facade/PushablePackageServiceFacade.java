@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.application.inner.PushablePackageService;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
@@ -91,7 +92,7 @@ public class PushablePackageServiceFacade {
     public ResponseEntity<PushablePackageDto> getPushablePackage(String packageId) {
         PushablePackageDto dto = pushablePackageService.getPushablePackage(packageId);
         if (dto == null) {
-            throw new UnknownReleaseExecption(packageId);
+            throw new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND);
         }
         return ResponseEntity.ok(dto);
     }

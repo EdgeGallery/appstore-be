@@ -138,4 +138,17 @@ public class AppV2Controller {
                 new AppParam(type, shortDesc, showType, affinity, industry),
                 icon, demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
+
+    @GetMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get app detail app id.", response = AppDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<ResponseObject> queryAppByIdV2(
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        return appServiceFacade.queryByAppIdV2(appId);
+    }
 }
