@@ -72,7 +72,7 @@
     </delete>
 
 
-<select id="countTotalV2" resultType="java.lang.Integer"
+    <select id="countTotalV2" resultType="java.lang.Integer"
             parameterType="java.util.Map">
         select count(*) from app_table
         <where>
@@ -116,7 +116,7 @@
     </select>
 
 
-<select id="findAllWithAppPaginationV2"
+    <select id="findAllWithAppPaginationV2"
             resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo"
             parameterType="java.util.Map">
         select * from app_table
@@ -167,6 +167,11 @@
                 limit #{queryCtrl.limit} offset #{queryCtrl.offset}
             </if>
         </if>
+    </select>
+
+    <select id="countTotalAppForUser" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) from app_table where userid = #{userId}
     </select>
 
     <select id="countTotal" resultType="java.lang.Integer"

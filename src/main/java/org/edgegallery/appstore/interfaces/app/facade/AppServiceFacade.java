@@ -338,11 +338,19 @@ public class AppServiceFacade {
         return ResponseEntity.ok().headers(headers).body(image);
     }
 
+    /**
+     * query app by id.
+     *
+     */
     public App queryByAppId(String appId) {
         return appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
     }
 
+    /**
+     * query app by id.
+     *
+     */
     public ResponseEntity<ResponseObject> queryByAppIdV2(String appId) {
         AppDto dto = AppDto.of(queryByAppId(appId));
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
