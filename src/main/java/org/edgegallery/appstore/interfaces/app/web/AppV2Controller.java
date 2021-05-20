@@ -71,7 +71,7 @@ public class AppV2Controller {
     @Autowired
     private AppServiceFacade appServiceFacade;
 
-    @PostMapping(value = "/appsV2", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/query/apps", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
         + "else will return all apps.", response = AppDto.class, responseContainer = "List")
     @ApiResponses(value = {

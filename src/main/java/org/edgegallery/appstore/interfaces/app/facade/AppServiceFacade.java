@@ -379,6 +379,10 @@ public class AppServiceFacade {
      */
     public ResponseEntity<Page<AppDto>> queryAppsByCondV2(QueryAppReqDto queryAppReqDto) {
         Map<String, Object> params = new HashMap<String, Object>();
+        if (queryAppReqDto.getUserId() == null) {
+            params.put("status", EnumAppStatus.Published.toString());
+            params.put("showType", "private");
+        }
         params.put("industry", queryAppReqDto.getIndustry());
         params.put("affinity", queryAppReqDto.getAffinity());
         params.put("workloadType", queryAppReqDto.getWorkloadType());
@@ -386,9 +390,7 @@ public class AppServiceFacade {
         params.put("type", queryAppReqDto.getTypes());
         params.put("limit", queryAppReqDto.getQueryCtrl().getLimit());
         params.put("offset", queryAppReqDto.getQueryCtrl().getOffset());
-        params.put("status", EnumAppStatus.Published.toString());
         params.put("appName", queryAppReqDto.getAppName());
-        params.put("showType", "private");
         Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
             .stream();
         int total = appMapper.countTotalV2(params);

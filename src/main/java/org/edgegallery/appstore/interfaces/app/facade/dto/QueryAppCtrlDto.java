@@ -34,11 +34,11 @@ public class QueryAppCtrlDto {
 
     private String createTime;
 
-    @Min(value = -1)
+    @Min(value = 0)
     private int offset;
 
-    @Min(value = 0)
-    @Max(value = 100)
+    @Min(value = 1)
+    @Max(value = 500)
     private int limit;
 
     @ApiModelProperty(example = "userName")
