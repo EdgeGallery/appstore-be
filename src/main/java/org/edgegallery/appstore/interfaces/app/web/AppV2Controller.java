@@ -37,6 +37,7 @@ import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -69,7 +71,7 @@ public class AppV2Controller {
     @Autowired
     private AppServiceFacade appServiceFacade;
 
-    @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/query/apps", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
         + "else will return all apps.", response = AppDto.class, responseContainer = "List")
     @ApiResponses(value = {
@@ -78,15 +80,9 @@ public class AppV2Controller {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
-    public ResponseEntity<Page<AppDto>> queryAppsByCond(
-        @ApiParam(value = "app Name") @RequestParam("appName") String name,
-        @ApiParam(value = "userId") @RequestParam("userId") String userId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
-            int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
-            int offset, @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
-        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem) {
-        return appServiceFacade.queryAppsByCondV2(name, null, null, null, userId, limit, offset, sortType, sortItem);
+    public ResponseEntity<Page<AppDto>> queryAppsByCondV2(
+        @ApiParam(value = "QueryAppReqDto", required = true) @RequestBody QueryAppReqDto queryAppReqDto) {
+        return appServiceFacade.queryAppsByCondV2(queryAppReqDto);
     }
 
     /**
