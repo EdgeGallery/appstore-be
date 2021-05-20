@@ -383,6 +383,7 @@ public class AppServiceFacade {
             params.put("status", EnumAppStatus.Published.toString());
             params.put("showType", "private");
         }
+        params.put("userId", queryAppReqDto.getUserId());
         params.put("industry", queryAppReqDto.getIndustry());
         params.put("affinity", queryAppReqDto.getAffinity());
         params.put("workloadType", queryAppReqDto.getWorkloadType());
