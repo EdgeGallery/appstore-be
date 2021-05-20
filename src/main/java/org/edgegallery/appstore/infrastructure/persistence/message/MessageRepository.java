@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.message.Message;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -49,12 +50,13 @@ public class MessageRepository {
             MessagePo messagePo = messageMapper.getOneMessage(message.getMessageId());
             if (messagePo != null) {
                 LOGGER.error("message {} has existed", message.getMessageId());
-                throw new DomainException(String.format("message %s has existed", message.getMessageId()));
+                throw new AppException(String.format("message %s has existed", message.getMessageId()),
+                    ResponseConst.RET_MESSAGE_EXISTED);
             }
             messageMapper.insert(MessagePo.of(message));
         } catch (Exception e) {
             LOGGER.error("add message to db error: {}", e.getMessage());
-            throw new DomainException("db operate error");
+            throw new AppException("db operate error", ResponseConst.RET_DB_ERROR);
         }
 
     }

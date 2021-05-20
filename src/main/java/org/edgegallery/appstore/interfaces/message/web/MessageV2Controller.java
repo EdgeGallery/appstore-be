@@ -26,7 +26,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
+import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -64,4 +68,15 @@ public class MessageV2Controller {
             .ok(messageServiceFacade.getAllMessagesV2(messageType, appName, limit, offset, sortType, sortItem));
     }
 
+    /**
+     * add a message.
+     */
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "add a message", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    public ResponseEntity<ResponseObject> addMessageV2(@RequestBody MessageReqDto dto) {
+        return messageServiceFacade.addMessageV2(dto);
+    }
 }

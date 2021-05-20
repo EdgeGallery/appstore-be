@@ -190,4 +190,19 @@ public interface ResponseConst {
      * message not found.
      */
     public static final int RET_MESSAGE_NOT_FOUND = 14001;
+
+    /**
+     * message has existed.
+     */
+    public static final int RET_MESSAGE_EXISTED = 14002;
+
+    /**
+     * general base error code.
+     */
+    public static final int RET_GENERAL_BASE = 190000;
+
+    /**
+     * DB operate failed.
+     */
+    public static final int RET_DB_ERROR = 190001;
 }
