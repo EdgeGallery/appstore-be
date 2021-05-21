@@ -123,6 +123,7 @@ public class PushablePackageServiceFacade {
         recordLog(packageDto, targetAppstore);
         Release release = appService.download(packageDto.getAppId(), packageId);
         StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(".");
         fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();

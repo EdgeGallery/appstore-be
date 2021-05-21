@@ -131,6 +131,7 @@ public class PackageServiceFacade {
         throws FileNotFoundException {
         Release release = appService.download(appId, packageId);
         StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(".");
         fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
