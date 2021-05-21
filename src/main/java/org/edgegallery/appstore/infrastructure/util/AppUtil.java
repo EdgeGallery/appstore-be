@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
+import com.google.common.io.Files;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +25,8 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.springframework.stereotype.Service;
 
@@ -57,5 +60,18 @@ public class AppUtil {
             throw new AppException("failed to get app class.", ResponseConst.RET_GET_APP_CLASS_FAILED);
         }
         return null;
+    }
+
+    /**
+     * get file name by release.
+     * @param release app package
+     * @param file original file
+     * @return file name
+     */
+    public String getFileName(Release release, AFile file) {
+        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
+        fileName.append(".");
+        fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
+        return fileName.toString();
     }
 }

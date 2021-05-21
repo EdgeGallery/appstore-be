@@ -15,7 +15,6 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
-import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -38,6 +37,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -64,6 +64,9 @@ public class PushablePackageServiceFacade {
 
     @Autowired
     private PullablePackageService pullablePackageService;
+
+    @Autowired
+    private AppUtil appUtil;
 
     /**
      * query all pushable packages.
@@ -122,13 +125,11 @@ public class PushablePackageServiceFacade {
         // add message log for this action
         recordLog(packageDto, targetAppstore);
         Release release = appService.download(packageDto.getAppId(), packageId);
-        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
-        fileName.append(".");
-        fileName.append(Files.getFileExtension(release.getPackageFile().getOriginalFileName().toLowerCase()));
+        String fileName = appUtil.getFileName(release, release.getPackageFile());
         InputStream ins = fileService.get(release.getPackageFile());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -166,13 +167,11 @@ public class PushablePackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadIcon(String packageId) throws FileNotFoundException {
         PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
         Release release = appService.download(packageDto.getAppId(), packageId);
-        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
-        fileName.append(".");
-        fileName.append(Files.getFileExtension(release.getIcon().getOriginalFileName().toLowerCase()));
+        String fileName = appUtil.getFileName(release, release.getIcon());
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + fileName.toString());
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
