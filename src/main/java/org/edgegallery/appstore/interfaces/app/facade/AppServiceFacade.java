@@ -69,7 +69,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -305,10 +304,11 @@ public class AppServiceFacade {
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findLatestRelease()
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        String fileName = appUtil.getFileName(release, release.getIcon());
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
         headers.add(CONTENT_TYPE, "application/octet-stream");
-        headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getIcon().getOriginalFileName());
+        headers.add(CONTENT_DISPOSITION, HEADER_VALUE + fileName);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -332,8 +332,9 @@ public class AppServiceFacade {
             } catch (IOException e) {
                 LOGGER.error("get download video error: {}", e.getMessage());
             }
+            String fileName = appUtil.getFileName(release, release.getDemoVideo());
             headers.setContentLength(image.length);
-            headers.add(CONTENT_DISPOSITION, HEADER_VALUE + release.getDemoVideo().getOriginalFileName());
+            headers.add(CONTENT_DISPOSITION, HEADER_VALUE + fileName);
         }
         return ResponseEntity.ok().headers(headers).body(image);
     }
