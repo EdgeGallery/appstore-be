@@ -143,7 +143,7 @@
             <if test="type != null and type.size()>0">
                 or applicationtype in
                 <foreach collection="type" item="type" index="index" open="(" close=")" separator=",">
-                    #{types}
+                    #{type}
                 </foreach>
             </if>
             <if test="appName != null and appName != ''">
