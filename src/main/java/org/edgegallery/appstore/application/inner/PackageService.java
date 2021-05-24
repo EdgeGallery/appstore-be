@@ -158,6 +158,8 @@ public class PackageService {
     public void updateAppById(String appId, String packageId, MultipartFile iconFile, MultipartFile demoVideo,
         PackageDto packageDto) {
         Release release = packageRepository.findReleaseById(appId, packageId);
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         if (iconFile != null) {
             AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
@@ -169,18 +171,26 @@ public class PackageService {
         }
         if (packageDto.getIndustry() != null) {
             release.setIndustry(packageDto.getIndustry());
+            app.setIndustry(packageDto.getIndustry());
         }
         if (packageDto.getType() != null) {
             release.setApplicationType(packageDto.getType());
+            app.setApplicationType(packageDto.getType());
         }
         if (packageDto.getAffinity() != null) {
             release.setAffinity(packageDto.getAffinity());
+            app.setAffinity(packageDto.getAffinity());
         }
         if (packageDto.getShortDesc() != null) {
             release.setShortDesc(packageDto.getShortDesc());
+            app.setShortDesc(packageDto.getShortDesc());
         }
         if (packageDto.getShowType() != null) {
             release.setShowType(packageDto.getShowType());
+            app.setShowType(packageDto.getShowType());
+        }
+        if (app.getStatus() != EnumAppStatus.Published) {
+            appRepository.store(app);
         }
         packageRepository.updateRelease(release);
     }
