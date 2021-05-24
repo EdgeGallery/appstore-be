@@ -198,14 +198,8 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
         String sortType, String sortItem, String appName, String userId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("appName", appName);
-        params.put("status", EnumAppStatus.Published.toString());
-        long total = pullablePackageService.getAllPushablePackagesCount(params);
-        List<PushablePackageDto> list = pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
+        return  pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
             sortType, sortItem, appName, userId);
-        return ResponseEntity
-            .ok(new Page<PushablePackageDto>(list, limit, offset, total));
     }
 
     /**
