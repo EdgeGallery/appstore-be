@@ -120,18 +120,23 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackagesV2(String platformId, int limit, long offset, String sortType,
-        String sortItem, String appName, String userId) {
+    public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
+        String sortType, String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
-            return Collections.emptyList();
+            return ResponseEntity.ok(new Page<PushablePackageDto>(Collections.emptyList(), limit, offset,
+                Collections.emptyList().size()));
         }
         String url = appStore.getUrl() + PULLABLE_API_V2 + "?limit=" + limit + "&offset=" + offset + "&appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
+        String countUrl = appStore.getUrl() + PULLABLE_API;
+        List<PushablePackageDto> countPackages = filterPullabelPackages(commonPackage(url, appStore), userId);
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
-        return filterPullabelPackages(packages, userId);
+        return ResponseEntity.ok(new Page<PushablePackageDto>(filterPullabelPackages(packages, userId), limit, offset,
+            countPackages.size()));
+
     }
 
     /**
