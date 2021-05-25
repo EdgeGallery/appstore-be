@@ -78,11 +78,8 @@ public class PackageChecker extends FileChecker {
             .append(File.separator).append(file.getOriginalFilename()).toString();
         try {
             createFile(tempFileAddress);
-            try (FileOutputStream fos = new FileOutputStream(tempFileAddress)) {
-                byte[] bytes = file.getBytes();
-                fos.write(bytes);
-            }
             result = new File(tempFileAddress);
+            file.transferTo(result);
             unzip(tempFileAddress);
         } catch (IOException e) {
             LOGGER.error("create temp file failed: {}", e.getMessage());
