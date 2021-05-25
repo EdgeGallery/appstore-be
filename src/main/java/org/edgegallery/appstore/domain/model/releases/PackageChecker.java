@@ -158,7 +158,6 @@ public class PackageChecker extends FileChecker {
      *
      * @param entry entry of next element.
      * @param f File
-     * @return
      */
     private boolean isDir(ZipEntry entry, File f) {
         if (entry.isDirectory()) {
