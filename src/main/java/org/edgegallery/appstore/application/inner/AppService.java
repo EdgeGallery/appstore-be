@@ -466,7 +466,7 @@ public class AppService {
                 Thread.currentThread().interrupt();
                 throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
                     imageInfo.getSwImage());
-            } catch (NotFoundException | InternalServerErrorException e) {
+            } catch (Exception e) {
                 LOGGER.error("failed to download image {}, image not found in repository, {}", imageInfo.getSwImage(),
                         e.getMessage());
                 throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
@@ -500,17 +500,17 @@ public class AppService {
                         .append(APPSTORE_URL).append(dockerImageNames[0]).toString();
             }
 
-            String id = dockerClient.inspectImageCmd(imageInfo.getSwImage()).exec().getId();
-            dockerClient.tagImageCmd(id, uploadImgName, imageInfo.getVersion()).withForce().exec();
-
-            LOGGER.info("Upload tagged docker image: {}", uploadImgName);
             try {
+                String id = dockerClient.inspectImageCmd(imageInfo.getSwImage()).exec().getId();
+                dockerClient.tagImageCmd(id, uploadImgName, imageInfo.getVersion()).withForce().exec();
+
+                LOGGER.info("Upload tagged docker image: {}", uploadImgName);
                 dockerClient.pushImageCmd(uploadImgName)
                         .exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
-            } catch (NotFoundException | InternalServerErrorException e) {
+            } catch (Exception e) {
                 LOGGER.error("failed to push image {}, image not found in repository, {}", uploadImgName,
                         e.getMessage());
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);

@@ -50,6 +50,8 @@ public class RestReturn {
     // error message params
     private List<String> params;
 
+    private Object data;
+
     public Date getTimestamp() {
         return new Date(timestamp.getTime());
     }

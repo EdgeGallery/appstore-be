@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
@@ -55,7 +56,7 @@ public class GlobalExceptionConvert {
         }
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
-            .path(request.getRequestURI()).build();
+            .path(request.getRequestURI()).retCode(ResponseConst.RET_FAIL).params(null).build();
     }
 
     private RestReturn badRequestResponse(HttpServletRequest request, Exception e) {
