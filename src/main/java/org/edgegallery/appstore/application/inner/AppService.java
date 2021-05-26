@@ -501,18 +501,16 @@ public class AppService {
             }
 
             try {
+                LOGGER.info("Upload tagged docker image: {}", uploadImgName);
                 String id = dockerClient.inspectImageCmd(imageInfo.getSwImage()).exec().getId();
                 dockerClient.tagImageCmd(id, uploadImgName, imageInfo.getVersion()).withForce().exec();
-
-                LOGGER.info("Upload tagged docker image: {}", uploadImgName);
                 dockerClient.pushImageCmd(uploadImgName)
                         .exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             } catch (Exception e) {
-                LOGGER.error("failed to push image {}, image not found in repository, {}", uploadImgName,
-                        e.getMessage());
+                LOGGER.error("failed to push image {}, errormsg: {}", uploadImgName, e.getMessage());
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             }
         }
