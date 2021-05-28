@@ -47,6 +47,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -150,5 +151,21 @@ public class AppV2Controller {
     public ResponseEntity<ResponseObject> queryAppByIdV2(
         @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         return appServiceFacade.queryByAppIdV2(appId);
+    }
+
+    /**
+     * set hot apps.
+     */
+    @PutMapping(value = "/apps/hotapps", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "set hot apps.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<String> setHotApps(
+        @ApiParam(value = "appIds", required = false) @RequestBody String[] appIds) {
+        return appServiceFacade.setHotApps(appIds);
     }
 }

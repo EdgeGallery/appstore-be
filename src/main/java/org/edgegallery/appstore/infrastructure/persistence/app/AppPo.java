@@ -90,6 +90,9 @@ public class AppPo implements PersistenceObject<App> {
     @Column(name = "DEPLOYMODE")
     private String deployMode;
 
+    @Column(name = "isHotApp")
+    private boolean isHotApp;
+
     public AppPo() {
         // empty construct
     }
@@ -114,6 +117,7 @@ public class AppPo implements PersistenceObject<App> {
         po.score = app.getScore();
         po.status = app.getStatus();
         po.deployMode = app.getDeployMode();
+        po.isHotApp = app.isHotApp();
         return po;
     }
 

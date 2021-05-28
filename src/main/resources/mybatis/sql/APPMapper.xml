@@ -48,7 +48,8 @@
             userid          = #{userId},
             username        = #{userName},
             score           = #{score},
-            status          = #{status}
+            status          = #{status},
+            ishotapp        = #{isHotApp}
         WHERE appid = #{appId}
     </update>
 
@@ -57,11 +58,11 @@
         insert into app_table
         (appid, createtime, modifytime, shortdesc, showtype, provider, appname, applicationType, deployMode,
          appIntroduction,
-         downloadcount, affinity, industry, contact, userid, username, score, status)
+         downloadcount, affinity, industry, contact, userid, username, score, status, ishotapp)
         VALUES (#{appId}, (select now()), (select now()), #{shortDesc}, #{showType}, #{provider}, #{appName},
                 #{applicationType}, #{deployMode},
                 #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry}, #{contact}, #{userId}, #{userName}, 5.0,
-                #{status})
+                #{status}, #{isHotApp})
     </insert>
 
     <delete id="remove" parameterType="String">
@@ -107,7 +108,10 @@
                 and status = #{status}
             </if>
             <if test="showType != null and showType != '' ">
-                and showtype != #{showType}
+                and showType in
+                <foreach collection="showType" item="showType" index="index" open="(" close=")" separator=",">
+                    #{showType}
+                </foreach>
             </if>
             <if test="userId != null and userId != '' ">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
@@ -153,7 +157,10 @@
                 and status = #{status}
             </if>
             <if test="showType != null and showType != '' ">
-                and showtype != #{showType}
+                and showType in
+                <foreach collection="showType" item="showType" index="index" open="(" close=")" separator=",">
+                    #{showType}
+                </foreach>
             </if>
             <if test="userId != null  and userId != ''">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})

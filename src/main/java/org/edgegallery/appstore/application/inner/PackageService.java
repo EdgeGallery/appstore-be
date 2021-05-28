@@ -189,9 +189,7 @@ public class PackageService {
             release.setShowType(packageDto.getShowType());
             app.setShowType(packageDto.getShowType());
         }
-        if (app.getStatus() != EnumAppStatus.Published) {
-            appRepository.store(app);
-        }
+        appRepository.store(app);
         packageRepository.updateRelease(release);
     }
 
