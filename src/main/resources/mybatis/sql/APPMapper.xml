@@ -58,11 +58,11 @@
         insert into app_table
         (appid, createtime, modifytime, shortdesc, showtype, provider, appname, applicationType, deployMode,
          appIntroduction,
-         downloadcount, affinity, industry, contact, userid, username, score, status, ishotapp)
+         downloadcount, affinity, industry, contact, userid, username, score, status)
         VALUES (#{appId}, (select now()), (select now()), #{shortDesc}, #{showType}, #{provider}, #{appName},
                 #{applicationType}, #{deployMode},
                 #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry}, #{contact}, #{userId}, #{userName}, 5.0,
-                #{status}, #{isHotApp})
+                #{status})
     </insert>
 
     <delete id="remove" parameterType="String">
