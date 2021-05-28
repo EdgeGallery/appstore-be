@@ -88,7 +88,7 @@ public class AppRegisterTest extends AppTest {
     public void should_fail_with_no_image() {
         try {
             MvcResult mvcResult = registerApp(LOGO_PNG, NEW_CSAR, userId, userName);
-            Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+            Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
         } catch (Exception e) {
             Assert.assertNull(e);
         }
