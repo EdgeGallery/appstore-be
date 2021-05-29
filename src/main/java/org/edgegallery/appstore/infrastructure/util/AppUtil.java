@@ -211,6 +211,10 @@ public class AppUtil {
         boolean isExistImage = false;
         try {
             File file = new File(fileParent);
+            if (!file.exists() && !file.createNewFile()) {
+                LOGGER.error("package file not exist error");
+                throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_FILE_NOT_FOUND);
+            }
             File[] files = file.listFiles();
             for (File fl : files) {
                 if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
@@ -240,15 +244,17 @@ public class AppUtil {
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
+        List<SwImgDesc> imgDecsList = null;
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
         try {
-            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            imgDecsList = AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
         }
+        return imgDecsList;
 
     }
 
