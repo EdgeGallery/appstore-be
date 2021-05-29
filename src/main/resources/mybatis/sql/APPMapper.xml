@@ -156,7 +156,7 @@
             <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
-            <if test="showType != null and showType != '' ">
+            <if test="showType != null and showType.size()>0 ">
                 and showType in
                 <foreach collection="showType" item="showType" index="index" open="(" close=")" separator=",">
                     #{showType}
