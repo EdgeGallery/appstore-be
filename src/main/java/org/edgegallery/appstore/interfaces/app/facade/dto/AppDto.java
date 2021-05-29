@@ -60,6 +60,8 @@ public class AppDto {
 
     private String deployMode;
 
+    private boolean isHotApp;
+
     public AppDto() {
         // empty construct
     }
@@ -89,6 +91,7 @@ public class AppDto {
         dto.userName = app.getUser().getUserName();
         dto.status = app.getStatus();
         dto.deployMode = app.getDeployMode();
+        dto.isHotApp = app.isHotApp();
         return dto;
     }
 
