@@ -29,7 +29,7 @@ public class QueryAppReqDto {
 
     private List types;
 
-    private String[] showType;
+    private List showType;
 
     private List affinity;
 
