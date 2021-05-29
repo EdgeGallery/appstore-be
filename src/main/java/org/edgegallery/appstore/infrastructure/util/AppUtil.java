@@ -216,23 +216,28 @@ public class AppUtil {
             if (files != null && files.length > 0) {
                 for (File fl : files) {
                     if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                        String[] filezipArrays = fl.list();
-                        boolean presentZip = Arrays.asList(filezipArrays).stream()
-                            .filter(m1 -> m1.contains(ZIP_EXTENSION)).findAny().isPresent();
-                        if (!presentZip) {
-                            List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                            if (!CollectionUtils.isEmpty(imgDecsList)) {
-                                for (SwImgDesc imageDescr : imgDecsList) {
-                                    isExistImage = getImageStatusFromFileSystem(imageDescr.getId(),
-                                        atpMetadata.getToken());
-                                }
-                                if (!isExistImage) {
+                        File[] filezipArrays = fl.listFiles();
+                        if (filezipArrays != null && filezipArrays.length > 0) {
+                            boolean presentZip = Arrays.asList(filezipArrays).stream()
+                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                            if (!presentZip) {
+                                List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+                                if (!CollectionUtils.isEmpty(imgDecsList)) {
+                                    for (SwImgDesc imageDescr : imgDecsList) {
+                                        isExistImage = getImageStatusFromFileSystem(imageDescr.getId(),
+                                            atpMetadata.getToken());
+                                    }
+                                    if (!isExistImage) {
+                                        throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
+                                            ResponseConst.RET_LOAD_YAML_FAILED);
+                                    }
+                                } else {
                                     throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
                                 }
-                            } else {
-                                throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
-                            }
 
+                            }
+                        } else {
+                            throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
                         }
 
                     }
@@ -322,7 +327,7 @@ public class AppUtil {
      */
     public String compressAppPackage(String intendedDir) {
         final Path srcDir = Paths.get(intendedDir);
-        String zipFileName = intendedDir.concat(".zip");
+        String zipFileName = intendedDir.concat(ZIP_EXTENSION);
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             java.nio.file.Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
                 @Override
