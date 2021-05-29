@@ -81,10 +81,10 @@ public class AppUtil {
 
     private static final String IMAGE = "Image";
 
-    @Value("${fileStore.urls.query-image}")
+    @Value("${atp.urls.query-image}")
     private String queryImageUrl;
 
-    @Value("${fileStore.urls.download-image}")
+    @Value("${atp.urls.download-image}")
     private String downloadImageUrl;
 
     @Autowired
