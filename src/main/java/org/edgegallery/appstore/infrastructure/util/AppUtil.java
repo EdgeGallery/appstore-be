@@ -329,7 +329,7 @@ public class AppUtil {
         final Path srcDir = Paths.get(intendedDir);
         String zipFileName = intendedDir.concat(ZIP_EXTENSION);
         File tempFile = new File(zipFileName);
-        if (tempFile.exists() ) {
+        if (tempFile.exists()) {
             FileUtils.forceDelete(tempFile);
         }
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
