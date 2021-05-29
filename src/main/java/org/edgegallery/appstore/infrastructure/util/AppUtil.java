@@ -325,9 +325,13 @@ public class AppUtil {
      *
      * @param intendedDir application package ID
      */
-    public String compressAppPackage(String intendedDir) {
+    public String compressAppPackage(String intendedDir) throws IOException {
         final Path srcDir = Paths.get(intendedDir);
         String zipFileName = intendedDir.concat(ZIP_EXTENSION);
+        File tempFile = new File(zipFileName);
+        if (tempFile.exists() ) {
+            FileUtils.forceDelete(tempFile);
+        }
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             java.nio.file.Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
                 @Override

@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -116,9 +115,9 @@ public class PackageController {
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
         @ApiParam(value = "isDownloadImage") @RequestParam("isDownloadImage") boolean isDownloadImage,
-        HttpServletRequest request)
-        throws FileNotFoundException {
-        return packageServiceFacade.downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
+        HttpServletRequest request) throws IOException {
+        return packageServiceFacade
+            .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)

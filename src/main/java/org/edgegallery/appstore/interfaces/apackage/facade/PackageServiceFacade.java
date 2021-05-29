@@ -131,7 +131,7 @@ public class PackageServiceFacade {
      * @param packageId package id.
      */
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
-        String token) throws FileNotFoundException {
+        String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getPackageFile());
         InputStream ins;
