@@ -59,6 +59,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -211,32 +212,33 @@ public class AppUtil {
         boolean isExistImage = false;
         try {
             File file = new File(fileParent);
-            if (!file.exists() && !file.createNewFile()) {
-                LOGGER.error("package file not exist error");
-                throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_FILE_NOT_FOUND);
-            }
             File[] files = file.listFiles();
-            for (File fl : files) {
-                if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                    String[] filezipArrays = fl.list();
-                    if (filezipArrays != null || filezipArrays.length > 0) {
+            if (files != null && files.length > 0) {
+                for (File fl : files) {
+                    if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
+                        String[] filezipArrays = fl.list();
                         boolean presentZip = Arrays.asList(filezipArrays).stream()
                             .filter(m1 -> m1.contains(ZIP_EXTENSION)).findAny().isPresent();
                         if (!presentZip) {
                             List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                            for (SwImgDesc imageDescr : imgDecsList) {
-                                isExistImage = getImageStatusFromFileSystem(imageDescr.getId(), atpMetadata.getToken());
-                            }
-                            if (!isExistImage) {
+                            if (!CollectionUtils.isEmpty(imgDecsList)) {
+                                for (SwImgDesc imageDescr : imgDecsList) {
+                                    isExistImage = getImageStatusFromFileSystem(imageDescr.getId(),
+                                        atpMetadata.getToken());
+                                }
+                                if (!isExistImage) {
+                                    throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
+                                }
+                            } else {
                                 throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
                             }
-                        }
-                    } else {
-                        throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_FILE_NOT_FOUND);
-                    }
 
+                        }
+
+                    }
                 }
             }
+
         } catch (Exception e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
@@ -244,17 +246,15 @@ public class AppUtil {
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
-        List<SwImgDesc> imgDecsList = null;
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
         try {
-            imgDecsList = AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
         }
-        return imgDecsList;
 
     }
 
@@ -270,41 +270,44 @@ public class AppUtil {
 
             File file = new File(fileParent);
             File[] files = file.listFiles();
-            for (File f : files) {
-                if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                    String outPath = f.getCanonicalPath();
-                    List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
-                    for (SwImgDesc imageDescr : imgDecsLists) {
-                        byte[] result = downloadImageFromFileSystem(token, imageDescr.getId());
-                        String imageName = imageDescr.getName();
-                        imageName = imageName.substring(0, imageName.lastIndexOf(":"));
-                        LOGGER.info("output image path:{}", outPath);
-                        File imageDir = new File(outPath);
-                        if (!imageDir.exists()) {
-                            boolean isMk = imageDir.mkdirs();
-                            if (!isMk) {
-                                LOGGER.error("create upload path failed");
-                                return false;
+            if (files != null && files.length > 0) {
+                for (File f : files) {
+                    if (f.isDirectory() && f.getName().equals(IMAGE)) {
+                        String outPath = f.getCanonicalPath();
+                        List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
+                        for (SwImgDesc imageDescr : imgDecsLists) {
+                            byte[] result = downloadImageFromFileSystem(token, imageDescr.getId());
+                            String imageName = imageDescr.getName();
+                            imageName = imageName.substring(0, imageName.lastIndexOf(":"));
+                            LOGGER.info("output image path:{}", outPath);
+                            File imageDir = new File(outPath);
+                            if (!imageDir.exists()) {
+                                boolean isMk = imageDir.mkdirs();
+                                if (!isMk) {
+                                    LOGGER.error("create upload path failed");
+                                    return false;
+                                }
+                            }
+                            File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+                            if (!fileImage.exists() && !fileImage.createNewFile()) {
+                                LOGGER.error("create download file error");
+                                throw new AppException("create download file error");
+                            }
+                            try (InputStream inputStream = new ByteArrayInputStream(result);
+                                 OutputStream outputStream = new FileOutputStream(fileImage)) {
+                                int len = 0;
+                                byte[] buf = new byte[1024];
+                                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                                    outputStream.write(buf, 0, len);
+                                }
+                                outputStream.flush();
                             }
                         }
-                        File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-                        if (!fileImage.exists() && !fileImage.createNewFile()) {
-                            LOGGER.error("create download file error");
-                            throw new AppException("create download file error");
-                        }
-                        try (InputStream inputStream = new ByteArrayInputStream(result);
-                             OutputStream outputStream = new FileOutputStream(fileImage)) {
-                            int len = 0;
-                            byte[] buf = new byte[1024];
-                            while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                                outputStream.write(buf, 0, len);
-                            }
-                            outputStream.flush();
-                        }
-                    }
 
+                    }
                 }
             }
+
         } catch (IOException e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
