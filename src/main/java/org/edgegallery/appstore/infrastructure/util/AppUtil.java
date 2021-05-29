@@ -220,10 +220,8 @@ public class AppUtil {
                     boolean presentZip = Arrays.asList(filezipArrays).stream().filter(m1 -> m1.contains(ZIP_EXTENSION))
                         .findAny().isPresent();
                     if (!presentZip) {
-                        //解析swImageDesc.json文件，获取里面的镜像id，查询文件系统确认是否已经上传镜像�?
                         List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
                         for (SwImgDesc imageDescr : imgDecsList) {
-                            //调用文件系统确认是否用户已经上传镜像
                             isExistImage = getImageStatusFromFileSystem(imageDescr.getId(), atpMetadata.getToken());
                         }
                         if (!isExistImage) {
@@ -265,15 +263,10 @@ public class AppUtil {
             File[] files = file.listFiles();
             for (File f : files) {
                 if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                    //定义Image目录的绝对路�?
                     String outPath = f.getCanonicalPath();
-                    //解析swImageDesc.json文件，获取里面的镜像id，查询文件系统确认是否已经上传镜像�?
                     List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
                     for (SwImgDesc imageDescr : imgDecsLists) {
-                        //调用文件系统确认是否用户已经上传镜像
                         byte[] result = downloadImageFromFileSystem(token, imageDescr.getId());
-                        //添加zip到Image目录下面
-                        //找到镜像名字
                         String imageName = imageDescr.getName();
                         imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                         LOGGER.info("output image path:{}", outPath);
