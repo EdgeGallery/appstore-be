@@ -67,7 +67,7 @@ import org.springframework.web.client.RestTemplate;
 @Service("AppUtil")
 public class AppUtil {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(AppServiceFacade.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(AppUtil.class);
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
