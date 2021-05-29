@@ -84,6 +84,11 @@ atp:
     create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
     query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
 
+fileStore:
+  urls:
+    query-image: http://119.8.63.144:9527/imagemanagement/v1/image?imageId=%s
+    download-image: http://119.8.63.144:9527/imagemanagement/v1/download?imageId=%s
+
 ### appShare feature config ###
 appShare:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}

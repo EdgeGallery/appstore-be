@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,11 +130,21 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      */
-    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId)
-        throws FileNotFoundException {
+    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
+        String token) throws FileNotFoundException {
         Release release = appService.download(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getPackageFile());
-        InputStream ins = fileService.get(release.getPackageFile());
+        InputStream ins;
+        String storageAddress = release.getPackageFile().getStorageAddress();
+        if (isDownloadImage) {
+            appUtil.loadZipIntoCsar(storageAddress, token);
+            String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(File.separator));
+            String fileAddress = appUtil.compressAppPackage(fileParent);
+
+            ins = fileService.get(fileAddress);
+        } else {
+            ins = fileService.get(release.getPackageFile());
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + fileName);

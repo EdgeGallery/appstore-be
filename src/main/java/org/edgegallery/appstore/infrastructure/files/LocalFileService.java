@@ -123,6 +123,10 @@ public class LocalFileService implements FileService {
         return new BufferedInputStream(new FileInputStream(afile.getStorageAddress()));
     }
 
+    public InputStream get(String afile) throws FileNotFoundException {
+        return new BufferedInputStream(new FileInputStream(afile));
+    }
+
     @Override
     public String get(String fileAddress, String filePath) throws IOException {
         return getCsarFileContentByName(fileAddress, filePath);

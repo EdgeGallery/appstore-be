@@ -113,10 +113,12 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<InputStreamResource> downloadPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "isDownloadImage") @RequestParam("isDownloadImage") boolean isDownloadImage,
+        HttpServletRequest request)
         throws FileNotFoundException {
-        return packageServiceFacade.downloadPackage(appId, packageId);
+        return packageServiceFacade.downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)
