@@ -45,10 +45,8 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
-import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,17 +215,22 @@ public class AppUtil {
             for (File fl : files) {
                 if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
                     String[] filezipArrays = fl.list();
-                    boolean presentZip = Arrays.asList(filezipArrays).stream().filter(m1 -> m1.contains(ZIP_EXTENSION))
-                        .findAny().isPresent();
-                    if (!presentZip) {
-                        List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                        for (SwImgDesc imageDescr : imgDecsList) {
-                            isExistImage = getImageStatusFromFileSystem(imageDescr.getId(), atpMetadata.getToken());
+                    if (filezipArrays != null || filezipArrays.length > 0) {
+                        boolean presentZip = Arrays.asList(filezipArrays).stream()
+                            .filter(m1 -> m1.contains(ZIP_EXTENSION)).findAny().isPresent();
+                        if (!presentZip) {
+                            List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+                            for (SwImgDesc imageDescr : imgDecsList) {
+                                isExistImage = getImageStatusFromFileSystem(imageDescr.getId(), atpMetadata.getToken());
+                            }
+                            if (!isExistImage) {
+                                throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
+                            }
                         }
-                        if (!isExistImage) {
-                            throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
-                        }
+                    } else {
+                        throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_FILE_NOT_FOUND);
                     }
+
                 }
             }
         } catch (Exception e1) {
