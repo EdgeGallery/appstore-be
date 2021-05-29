@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 
 @Controller
 @RestSchema(schemaId = "v2package")
@@ -87,14 +88,14 @@ public class PackageV2Controller {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PackageDto>> getPackageByUserIdV2(
         @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
-            int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
-            int offset, @ApiParam(value = "app Name") @RequestParam("appName") String appName,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
+        @ApiParam(value = "app Name") @RequestParam("appName") String appName,
+        @ApiParam(value = "app status") @RequestPart(value = "status", required = false) String status,
         @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
         @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
         return ResponseEntity.ok(packageServiceFacade
-            .getPackageByUserIdV2(userId, limit, offset, appName, sortItem, sortType,
+            .getPackageByUserIdV2(userId, limit, offset, appName, status, sortItem, sortType,
                 (String) request.getAttribute(ACCESS_TOKEN)));
     }
 

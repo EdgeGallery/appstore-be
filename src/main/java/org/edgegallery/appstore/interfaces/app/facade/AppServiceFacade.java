@@ -382,10 +382,8 @@ public class AppServiceFacade {
      */
     public ResponseEntity<Page<AppDto>> queryAppsByCondV2(QueryAppReqDto queryAppReqDto) {
         Map<String, Object> params = new HashMap<String, Object>();
-        if (StringUtils.isEmpty(queryAppReqDto.getUserId())) {
-            params.put("status", EnumAppStatus.Published.toString());
-            params.put("showType", "private");
-        }
+        params.put("showType", queryAppReqDto.getShowType());
+        params.put("status", queryAppReqDto.getStatus());
         params.put("userId", queryAppReqDto.getUserId());
         params.put("industry", queryAppReqDto.getIndustry());
         params.put("affinity", queryAppReqDto.getAffinity());
@@ -403,6 +401,19 @@ public class AppServiceFacade {
                 queryAppReqDto.getQueryCtrl().getOffset(), total));
     }
 
+    /**
+     * set hot apps.
+     */
+    public ResponseEntity<String> setHotApps(String[] appIds) {
+        for (int i = 0; i < appIds.length; i++) {
+            String appId = appIds[i];
+            App app = appRepository.find(appId)
+                .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+            app.setHotApp(!app.isHotApp());
+            appRepository.store(app);
+        }
+        return ResponseEntity.ok("set hot apps success.");
+    }
 
     /**
      * Query app list by parameters follows.

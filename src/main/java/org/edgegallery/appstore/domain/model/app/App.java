@@ -88,6 +88,8 @@ public class App implements Entity {
 
     private String deployMode;
 
+    private boolean isHotApp;
+
     /**
      * Constructor of App.
      *

@@ -51,6 +51,7 @@ DROP TABLE IF EXISTS message_table;
         SCORE                    NUMERIC(2,1)       NULL,
         STATUS                   VARCHAR(50)       NULL,
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
+        ISHOTAPP                 boolean            DEFAULT false,
         CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
@@ -115,8 +116,8 @@ DROP TABLE IF EXISTS message_table;
     );
 
 INSERT INTO app_table(
-    appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS)
-    VALUES ('appid-test-0001', 'app-001', 'game', 'shortdesc', 'provider', 'appintroduction', 5, 'affinity', 'industry', 'contactcontact', 'test-userid-0001', 'test-username-0001', now(), now(), 3.2, 'Published');
+    appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS, ISHOTAPP)
+    VALUES ('appid-test-0001', 'app-001', 'game', 'shortdesc', 'provider', 'appintroduction', 5, 'affinity', 'industry', 'contactcontact', 'test-userid-0001', 'test-username-0001', now(), now(), 3.2, 'Published', false );
 
 INSERT INTO catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,

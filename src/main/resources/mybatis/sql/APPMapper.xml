@@ -48,7 +48,8 @@
             userid          = #{userId},
             username        = #{userName},
             score           = #{score},
-            status          = #{status}
+            status          = #{status},
+            ishotapp        = #{isHotApp}
         WHERE appid = #{appId}
     </update>
 
@@ -107,7 +108,10 @@
                 and status = #{status}
             </if>
             <if test="showType != null and showType != '' ">
-                and showtype != #{showType}
+                and showType in
+                <foreach collection="showType" item="showType" index="index" open="(" close=")" separator=",">
+                    #{showType}
+                </foreach>
             </if>
             <if test="userId != null and userId != '' ">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})
@@ -152,8 +156,11 @@
             <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
-            <if test="showType != null and showType != '' ">
-                and showtype != #{showType}
+            <if test="showType != null and showType.size()>0 ">
+                and showType in
+                <foreach collection="showType" item="showType" index="index" open="(" close=")" separator=",">
+                    #{showType}
+                </foreach>
             </if>
             <if test="userId != null  and userId != ''">
                 and appId in ( select appId from catalog_package_table where catalog_package_table.userId = #{userId})

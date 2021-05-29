@@ -113,6 +113,9 @@
             <if test="appName != null">
                 and appname like '%' || #{appName} || '%'
             </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
         </where>
         <if test="sortType != null and sortItem != null">
             order by ${sortItem} ${sortType},${createTime} ${sortType}

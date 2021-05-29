@@ -107,6 +107,9 @@ public class AppReleasePo {
     @Column(name = "DEPLOYMODE")
     private String deployMode;
 
+    @Column(name = "ISHOTAPP")
+    private boolean isHotApp;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
