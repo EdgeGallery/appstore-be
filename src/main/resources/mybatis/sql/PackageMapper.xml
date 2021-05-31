@@ -107,11 +107,12 @@
             parameterType="java.util.Map">
         select * from catalog_package_table
         <where>
-            <if test="userId != null">
+            <if test="userId != null  and userId != ''">
+
                 userid = #{userId}
             </if>
-            <if test="appName != null">
-                and appname like '%' || #{appName} || '%'
+            <if test="appName != null and appName != ''">
+                and appname ilike '%' || #{appName} || '%'
             </if>
         </where>
         <if test="sortType != null and sortItem != null">
@@ -134,7 +135,7 @@
                 userid = #{userId}
             </if>
             <if test="appName != null">
-                and appname like '%' || #{appName} || '%'
+                and appname ilike '%' || #{appName} || '%'
             </if>
         </where>
     </select>

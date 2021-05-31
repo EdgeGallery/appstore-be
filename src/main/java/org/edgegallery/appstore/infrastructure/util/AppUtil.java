@@ -138,18 +138,18 @@ public class AppUtil {
     }
 
     /**
-     * split image path
+     * split image path.
      *
      * @param string split string.
      * @param n index.
-     * @return
+     * @return index number.
      */
     public static int getCharacterPosition(String string, int n) {
         Matcher slashMatcher = Pattern.compile("/").matcher(string);
-        int mIdx = INDEX_NUMBER;
+        int idx = INDEX_NUMBER;
         while (slashMatcher.find()) {
-            mIdx++;
-            if (mIdx == n) {
+            idx++;
+            if (idx == n) {
                 break;
             }
         }
@@ -157,7 +157,7 @@ public class AppUtil {
     }
 
     /**
-     * append image path
+     * append image path.
      *
      * @param str append args list.
      * @return StringBuilder.
