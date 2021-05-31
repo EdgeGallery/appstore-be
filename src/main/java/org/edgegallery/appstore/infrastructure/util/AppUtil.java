@@ -91,6 +91,12 @@ public class AppUtil {
 
     private static final int INDEX_NUMBER = 1;
 
+    private static final String DOWNLOAD_PATH = "download?imageId=";
+
+    private static final String QUERY_PATH = "image?imageId=";
+
+    private static final String SEPARATOR_PATH = "/";
+
     @Autowired
     private AppService appService;
 
@@ -267,10 +273,12 @@ public class AppUtil {
                                 if (!CollectionUtils.isEmpty(imgDecsList)) {
                                     for (SwImgDesc imageDescr : imgDecsList) {
                                         String pathname = imageDescr.getSwImage();
+                                        String imageId = imageDescr.getId();
                                         int s = getCharacterPosition(pathname, INDEX_IMAGE);
                                         String url = pathname.substring(0, s);
-                                        // String backpath = pathname.substring(s);
-                                        isExistImage = getImageStatusFromFileSystem(url, atpMetadata.getToken());
+                                        StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, QUERY_PATH, imageId);
+                                        isExistImage = getImageStatusFromFileSystem(newUrl.toString(),
+                                            atpMetadata.getToken());
                                     }
                                     if (!isExistImage) {
                                         throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
@@ -327,8 +335,10 @@ public class AppUtil {
                         String outPath = f.getCanonicalPath();
                         for (SwImgDesc imageDescr : imgDecsLists) {
                             String pathname = imageDescr.getSwImage();
+                            String imageId = imageDescr.getId();
                             int s = getCharacterPosition(pathname, INDEX_IMAGE);
                             String url = pathname.substring(0, s);
+                            StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, DOWNLOAD_PATH, imageId);
                             byte[] result = downloadImageFromFileSystem(token, url);
                             String imageName = imageDescr.getName();
                             if (imageName.contains(COLON)) {
