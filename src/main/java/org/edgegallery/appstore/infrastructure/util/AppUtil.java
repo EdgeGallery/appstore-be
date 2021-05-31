@@ -89,6 +89,8 @@ public class AppUtil {
 
     private static final int INDEX_IMAGE = 6;
 
+    private static final int INDEX_NUMBER = 1;
+
     @Autowired
     private AppService appService;
 
@@ -135,9 +137,16 @@ public class AppUtil {
         return fileName.toString();
     }
 
+    /**
+     * split image path
+     *
+     * @param string split string.
+     * @param n index.
+     * @return
+     */
     public static int getCharacterPosition(String string, int n) {
         Matcher slashMatcher = Pattern.compile("/").matcher(string);
-        int mIdx = 0;
+        int mIdx = INDEX_NUMBER;
         while (slashMatcher.find()) {
             mIdx++;
             if (mIdx == n) {
@@ -147,6 +156,12 @@ public class AppUtil {
         return slashMatcher.start();
     }
 
+    /**
+     * append image path
+     *
+     * @param str append args list.
+     * @return StringBuilder.
+     */
     public static StringBuilder stringBuilder(String... str) {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -314,7 +329,6 @@ public class AppUtil {
                             String pathname = imageDescr.getSwImage();
                             int s = getCharacterPosition(pathname, INDEX_IMAGE);
                             String url = pathname.substring(0, s);
-                            String backpath = pathname.substring(s);
                             byte[] result = downloadImageFromFileSystem(token, url);
                             String imageName = imageDescr.getName();
                             if (imageName.contains(COLON)) {
@@ -344,6 +358,7 @@ public class AppUtil {
                                 }
                                 outputStream.flush();
                             }
+                            String backpath = pathname.substring(s);
                             StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION,
                                 File.separator, imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION, backpath);
                             imageDescr.setSwImage(newpathname.toString());
