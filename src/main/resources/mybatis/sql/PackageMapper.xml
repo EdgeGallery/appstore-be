@@ -108,13 +108,12 @@
         select * from catalog_package_table
         <where>
             <if test="userId != null  and userId != ''">
-
                 userid = #{userId}
             </if>
             <if test="appName != null and appName != ''">
                 and appname ilike '%' || #{appName} || '%'
             </if>
-            <if test="status != null">
+            <if test="status != null and status != ''">
                 and status = #{status}
             </if>
         </where>
