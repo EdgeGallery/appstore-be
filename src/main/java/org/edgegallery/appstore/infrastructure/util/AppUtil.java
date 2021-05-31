@@ -35,8 +35,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -75,7 +73,7 @@ public class AppUtil {
 
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
-    private static final String ZIP_PACKAGE_ERR_UPLOAD = "failed to get application package image";
+    private static final String ZIP_PACKAGE_ERR_GET = "failed to get application package image";
 
     private static final String ZIP_EXTENSION = ".zip";
 
@@ -86,10 +84,6 @@ public class AppUtil {
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
-
-    private static final int INDEX_IMAGE = 6;
-
-    private static final int INDEX_NUMBER = 1;
 
     private static final String QUERY_PATH = "image?imageId=";
 
@@ -139,25 +133,6 @@ public class AppUtil {
         fileName.append(".");
         fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
         return fileName.toString();
-    }
-
-    /**
-     * split image path.
-     *
-     * @param string split string.
-     * @param n index.
-     * @return index number.
-     */
-    public static int getCharacterPosition(String string, int n) {
-        Matcher slashMatcher = Pattern.compile(SEPARATOR_PATH).matcher(string);
-        int idx = INDEX_NUMBER;
-        while (slashMatcher.find()) {
-            idx++;
-            if (idx == n) {
-                break;
-            }
-        }
-        return slashMatcher.start();
     }
 
     /**
@@ -254,7 +229,6 @@ public class AppUtil {
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             AppService.unzipApplicationPacakge(fileAddress, fileParent);
         }
-        boolean isExistImage = false;
         try {
             File file = new File(fileParent);
             File[] files = file.listFiles();
@@ -271,23 +245,23 @@ public class AppUtil {
                                     for (SwImgDesc imageDescr : imgDecsList) {
                                         String pathname = imageDescr.getSwImage();
                                         String imageId = imageDescr.getId();
-                                        int s = getCharacterPosition(pathname, INDEX_IMAGE);
-                                        String url = pathname.substring(0, s);
-                                        StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, QUERY_PATH, imageId);
-                                        isExistImage = checkImageExist(newUrl.toString(), atpMetadata.getToken());
-                                        if (!isExistImage) {
-                                            throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
-                                                ResponseConst.RET_LOAD_YAML_FAILED);
+                                        pathname = pathname.substring(0, pathname.lastIndexOf(SEPARATOR_PATH));
+                                        StringBuilder newUrl = stringBuilder(pathname, SEPARATOR_PATH, QUERY_PATH,
+                                            imageId);
+                                        if (!checkImageExist(newUrl.toString(), atpMetadata.getToken())) {
+                                            throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                                ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                                         }
                                     }
 
                                 } else {
-                                    throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
+                                    throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                        ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                                 }
 
                             }
                         } else {
-                            throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
+                            throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                         }
 
                     }
@@ -341,8 +315,7 @@ public class AppUtil {
                             LOGGER.info("output image path:{}", outPath);
                             File imageDir = new File(outPath);
                             if (!imageDir.exists()) {
-                                boolean isMk = imageDir.mkdirs();
-                                if (!isMk) {
+                                if (!imageDir.mkdirs()) {
                                     LOGGER.error("create upload path failed");
                                     return false;
                                 }
@@ -395,7 +368,7 @@ public class AppUtil {
             FileUtils.writeStringToFile(swImageDescr, imgDecsLists.toString(), StandardCharsets.UTF_8.name());
         } catch (IOException e) {
             LOGGER.error("wrire object error", e.getMessage());
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_PARSE_FILE_EXCEPTION);
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_UPDATE_IMAGE_FAILED);
         }
     }
 
