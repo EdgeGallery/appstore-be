@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -50,7 +52,6 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -70,21 +71,23 @@ public class AppUtil {
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    private static final String SWIMAGE_PATH_EXTENSION = ".qcow2";
+
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
     private static final String ZIP_PACKAGE_ERR_UPLOAD = "failed to get application package image";
 
     private static final String ZIP_EXTENSION = ".zip";
 
+    private static final String JSON_EXTENSION = "Image/SwImageDesc.json";
+
     private static final String VM = "vm";
+
+    private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
 
-    @Value("${atp.urls.query-image}")
-    private String queryImageUrl;
-
-    @Value("${atp.urls.download-image}")
-    private String downloadImageUrl;
+    private static final int INDEX_IMAGE = 6;
 
     @Autowired
     private AppService appService;
@@ -132,26 +135,50 @@ public class AppUtil {
         return fileName.toString();
     }
 
+    public static int getCharacterPosition(String string, int n) {
+        Matcher slashMatcher = Pattern.compile("/").matcher(string);
+        int mIdx = 0;
+        while (slashMatcher.find()) {
+            mIdx++;
+            if (mIdx == n) {
+                break;
+            }
+        }
+        return slashMatcher.start();
+    }
+
+    public static StringBuilder stringBuilder(String... str) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        if (str == null || str.length <= 0) {
+            return stringBuilder;
+        }
+
+        for (int i = 0; i < str.length; i++) {
+            stringBuilder.append(str[i]);
+        }
+
+        return stringBuilder;
+    }
+
     /**
      * get image status by imageUrl from fileSystem.
      *
-     * @param imageId imageId
+     * @param url download url
      * @param token token
      * @return boolean
      */
-    public boolean getImageStatusFromFileSystem(String imageId, String token) {
+    public boolean getImageStatusFromFileSystem(String url, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
-
-        String url = String.format(queryImageUrl, imageId);
         LOGGER.info("get images status from fileSystem, url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("res: {}", response);
             return HttpStatus.OK.equals(response.getStatusCode());
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("image not exist from fileSystem which imageUrl is {} exception {}", imageId, e.getMessage());
+            LOGGER.error("image not exist from fileSystem which imageUrl is {} exception {}", url, e.getMessage());
         }
         return true;
     }
@@ -159,12 +186,11 @@ public class AppUtil {
     /**
      * download image by imageUrl from fileSystem.
      *
-     * @param imageId imageId
+     * @param url image url
      * @param token token
      * @return boolean
      */
-    public byte[] downloadImageFromFileSystem(String token, String imageId) {
-        String url = String.format(downloadImageUrl, imageId);
+    public byte[] downloadImageFromFileSystem(String token, String url) {
         LOGGER.info("download images status from fileSystem, url: {}", url);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
@@ -192,12 +218,13 @@ public class AppUtil {
 
         } catch (RestClientException e) {
 
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", url, e.getMessage());
             return null;
         }
 
         return result;
     }
+
 
     /**
      * load file and analyse file list.
@@ -224,8 +251,11 @@ public class AppUtil {
                                 List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
                                 if (!CollectionUtils.isEmpty(imgDecsList)) {
                                     for (SwImgDesc imageDescr : imgDecsList) {
-                                        isExistImage = getImageStatusFromFileSystem(imageDescr.getId(),
-                                            atpMetadata.getToken());
+                                        String pathname = imageDescr.getSwImage();
+                                        int s = getCharacterPosition(pathname, INDEX_IMAGE);
+                                        String url = pathname.substring(0, s);
+                                        // String backpath = pathname.substring(s);
+                                        isExistImage = getImageStatusFromFileSystem(url, atpMetadata.getToken());
                                     }
                                     if (!isExistImage) {
                                         throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
@@ -249,13 +279,14 @@ public class AppUtil {
         }
     }
 
+
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
         try {
-            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return appService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -272,18 +303,24 @@ public class AppUtil {
     public boolean loadZipIntoCsar(String fileAddress, String token) {
         String fileParent = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         try {
-
+            List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
                         String outPath = f.getCanonicalPath();
-                        List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
                         for (SwImgDesc imageDescr : imgDecsLists) {
-                            byte[] result = downloadImageFromFileSystem(token, imageDescr.getId());
+                            String pathname = imageDescr.getSwImage();
+                            int s = getCharacterPosition(pathname, INDEX_IMAGE);
+                            String url = pathname.substring(0, s);
+                            String backpath = pathname.substring(s);
+                            byte[] result = downloadImageFromFileSystem(token, url);
                             String imageName = imageDescr.getName();
-                            imageName = imageName.substring(0, imageName.lastIndexOf(":"));
+                            if (imageName.contains(COLON)) {
+                                imageName = imageName.substring(0, imageName.lastIndexOf(":"));
+                            }
+
                             LOGGER.info("output image path:{}", outPath);
                             File imageDir = new File(outPath);
                             if (!imageDir.exists()) {
@@ -307,6 +344,20 @@ public class AppUtil {
                                 }
                                 outputStream.flush();
                             }
+                            StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION,
+                                File.separator, imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION, backpath);
+                            imageDescr.setSwImage(newpathname.toString());
+                            String jsonFile = fileParent + File.separator + JSON_EXTENSION;
+                            File swImageDescr = new File(jsonFile);
+                            try {
+
+                                FileUtils.writeStringToFile(swImageDescr, imgDecsLists.toString(),
+                                    StandardCharsets.UTF_8.name());
+
+                            } catch (IOException e) {
+                                LOGGER.error("wrire object error", e.getMessage());
+                            }
+
                         }
 
                     }
