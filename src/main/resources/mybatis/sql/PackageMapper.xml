@@ -139,6 +139,9 @@
             <if test="appName != null">
                 and appname ilike '%' || #{appName} || '%'
             </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
         </where>
     </select>
 
