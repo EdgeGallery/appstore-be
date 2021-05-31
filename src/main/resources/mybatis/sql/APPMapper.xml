@@ -153,7 +153,7 @@
             <if test="appName != null and appName != ''">
                 and appname like '%' || #{appName} || '%'
             </if>
-            <if test="status != null and status != '' ">
+            <if test="status != null and status != ''">
                 and status = #{status}
             </if>
             <if test="showType != null and showType.size()>0 ">
