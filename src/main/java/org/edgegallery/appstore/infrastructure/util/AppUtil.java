@@ -246,7 +246,6 @@ public class AppUtil {
         return result;
     }
 
-
     /**
      * load file and analyse file list.
      *
@@ -369,19 +368,7 @@ public class AppUtil {
                                 outputStream.flush();
                             }
                             String backpath = pathname.substring(s);
-                            StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION,
-                                File.separator, imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION, backpath);
-                            imageDescr.setSwImage(newpathname.toString());
-                            String jsonFile = fileParent + File.separator + JSON_EXTENSION;
-                            File swImageDescr = new File(jsonFile);
-                            try {
-
-                                FileUtils.writeStringToFile(swImageDescr, imgDecsLists.toString(),
-                                    StandardCharsets.UTF_8.name());
-
-                            } catch (IOException e) {
-                                LOGGER.error("wrire object error", e.getMessage());
-                            }
+                            updateJsonFile(imageDescr, imgDecsLists, fileParent, backpath, imageName);
 
                         }
 
@@ -394,6 +381,30 @@ public class AppUtil {
         }
 
         return false;
+    }
+
+    /**
+     * update json file.
+     *
+     * @param imageDescr imageDescr.
+     * @param imgDecsLists imgDecsLists.
+     * @param fileParent fileParent.
+     * @param backpath backpath.
+     * @param  imageName imageName.
+     */
+    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent, String backpath,
+        String imageName) {
+        StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
+            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION, backpath);
+        imageDescr.setSwImage(newpathname.toString());
+        String jsonFile = fileParent + File.separator + JSON_EXTENSION;
+        File swImageDescr = new File(jsonFile);
+        try {
+            FileUtils.writeStringToFile(swImageDescr, imgDecsLists.toString(), StandardCharsets.UTF_8.name());
+        } catch (IOException e) {
+            LOGGER.error("wrire object error", e.getMessage());
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_PARSE_FILE_EXCEPTION);
+        }
     }
 
     /**
