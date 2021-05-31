@@ -189,7 +189,7 @@ public class AppUtil {
      * @param token token
      * @return boolean
      */
-    public boolean getImageStatusFromFileSystem(String url, String token) {
+    public boolean checkImageExist(String url, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -276,7 +276,7 @@ public class AppUtil {
                                         int s = getCharacterPosition(pathname, INDEX_IMAGE);
                                         String url = pathname.substring(0, s);
                                         StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, QUERY_PATH, imageId);
-                                        isExistImage = getImageStatusFromFileSystem(newUrl.toString(),
+                                        isExistImage = checkImageExist(newUrl.toString(),
                                             atpMetadata.getToken());
                                     }
                                     if (!isExistImage) {
