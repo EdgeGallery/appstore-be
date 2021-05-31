@@ -108,7 +108,6 @@
         select * from catalog_package_table
         <where>
             <if test="userId != null  and userId != ''">
-
                 userid = #{userId}
             </if>
             <if test="appName != null and appName != ''">
