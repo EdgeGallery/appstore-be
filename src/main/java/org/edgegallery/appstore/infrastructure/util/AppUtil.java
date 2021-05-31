@@ -91,8 +91,6 @@ public class AppUtil {
 
     private static final int INDEX_NUMBER = 1;
 
-    private static final String DOWNLOAD_PATH = "download?imageId=";
-
     private static final String QUERY_PATH = "image?imageId=";
 
     private static final String SEPARATOR_PATH = "/";
@@ -276,8 +274,7 @@ public class AppUtil {
                                         int s = getCharacterPosition(pathname, INDEX_IMAGE);
                                         String url = pathname.substring(0, s);
                                         StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, QUERY_PATH, imageId);
-                                        isExistImage = checkImageExist(newUrl.toString(),
-                                            atpMetadata.getToken());
+                                        isExistImage = checkImageExist(newUrl.toString(), atpMetadata.getToken());
                                     }
                                     if (!isExistImage) {
                                         throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
@@ -334,11 +331,7 @@ public class AppUtil {
                         String outPath = f.getCanonicalPath();
                         for (SwImgDesc imageDescr : imgDecsLists) {
                             String pathname = imageDescr.getSwImage();
-                            String imageId = imageDescr.getId();
-                            int s = getCharacterPosition(pathname, INDEX_IMAGE);
-                            String url = pathname.substring(0, s);
-                            StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, DOWNLOAD_PATH, imageId);
-                            byte[] result = downloadImageFromFileSystem(token, url);
+                            byte[] result = downloadImageFromFileSystem(token, pathname);
                             String imageName = imageDescr.getName();
                             if (imageName.contains(COLON)) {
                                 imageName = imageName.substring(0, imageName.lastIndexOf(":"));
@@ -367,8 +360,7 @@ public class AppUtil {
                                 }
                                 outputStream.flush();
                             }
-                            String backpath = pathname.substring(s);
-                            updateJsonFile(imageDescr, imgDecsLists, fileParent, backpath, imageName);
+                            updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
 
                         }
 
@@ -389,13 +381,12 @@ public class AppUtil {
      * @param imageDescr imageDescr.
      * @param imgDecsLists imgDecsLists.
      * @param fileParent fileParent.
-     * @param backpath backpath.
-     * @param  imageName imageName.
+     * @param imageName imageName.
      */
-    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent, String backpath,
+    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
         String imageName) {
         StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
-            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION, backpath);
+            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
         imageDescr.setSwImage(newpathname.toString());
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDescr = new File(jsonFile);
