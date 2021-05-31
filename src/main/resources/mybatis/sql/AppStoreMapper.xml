@@ -78,7 +78,7 @@
         appdtransid, addedtime, modifiedtime, description from app_store_table
         <where>
             <if test="appStoreName != null and appStoreName != ''">
-                appstorename like '%' || #{appStoreName} || '%'
+                appstorename ilike '%' || #{appStoreName} || '%'
             </if>
         </where>
         order by addedtime desc
@@ -90,7 +90,7 @@
         select count(*) from app_store_table
         <where>
             <if test="appStoreName != null and appStoreName != ''">
-                and appstorename like '%' || #{appStoreName} || '%'
+                and appstorename ilike '%' || #{appStoreName} || '%'
             </if>
         </where>
     </select>
@@ -102,10 +102,10 @@
         appdtransid, addedtime, modifiedtime, description from app_store_table
         <where>
             <if test="appStoreName != null and appStoreName != ''">
-                and appstorename like #{appStoreName}
+                and appstorename ilike #{appStoreName}
             </if>
             <if test="company != null and company != ''">
-                and company like #{company}
+                and company ilike #{company}
             </if>
         </where>
     </select>

@@ -27,7 +27,7 @@
                 a.STATUS = #{status}
             </if>
             <if test="appName != null">
-                and a.appname like '%' || #{appName} || '%'
+                and a.appname ilike '%' || #{appName} || '%'
             </if>
                 and a.SHOWTYPE ='public'
         </where>
@@ -55,7 +55,7 @@
                 a.STATUS = #{status}
             </if>
             <if test="appName != null">
-                and a.appname like '%' || #{appName} || '%'
+                and a.appname ilike '%' || #{appName} || '%'
             </if>
             and a.SHOWTYPE ='public'
         </where>

@@ -102,7 +102,7 @@
                 </foreach>
             </if>
             <if test="appName != null and appName != ''">
-                and appname like '%' || #{appName} || '%'
+                and appname ilike '%' || #{appName} || '%'
             </if>
             <if test="status != null and status != '' ">
                 and status = #{status}
@@ -151,7 +151,7 @@
                 </foreach>
             </if>
             <if test="appName != null and appName != ''">
-                and appname like '%' || #{appName} || '%'
+                and appname ilike '%' || #{appName} || '%'
             </if>
             <if test="status != null and status != ''">
                 and status = #{status}
