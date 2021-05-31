@@ -149,7 +149,7 @@ public class AppUtil {
      * @return index number.
      */
     public static int getCharacterPosition(String string, int n) {
-        Matcher slashMatcher = Pattern.compile("/").matcher(string);
+        Matcher slashMatcher = Pattern.compile(SEPARATOR_PATH).matcher(string);
         int idx = INDEX_NUMBER;
         while (slashMatcher.find()) {
             idx++;
@@ -275,11 +275,12 @@ public class AppUtil {
                                         String url = pathname.substring(0, s);
                                         StringBuilder newUrl = stringBuilder(url, SEPARATOR_PATH, QUERY_PATH, imageId);
                                         isExistImage = checkImageExist(newUrl.toString(), atpMetadata.getToken());
+                                        if (!isExistImage) {
+                                            throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
+                                                ResponseConst.RET_LOAD_YAML_FAILED);
+                                        }
                                     }
-                                    if (!isExistImage) {
-                                        throw new AppException(ZIP_PACKAGE_ERR_UPLOAD,
-                                            ResponseConst.RET_LOAD_YAML_FAILED);
-                                    }
+
                                 } else {
                                     throw new AppException(ZIP_PACKAGE_ERR_UPLOAD, ResponseConst.RET_LOAD_YAML_FAILED);
                                 }
