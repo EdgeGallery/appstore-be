@@ -81,8 +81,8 @@ public class MessageService {
         return messageRepository.getAllMessages();
     }
 
-    public long getAllMessageCount() {
-        return messageRepository.getAllMessageCount();
+    public long getAllMessageCount(Map<String, Object> param) {
+        return messageRepository.getAllMessageCount(param);
     }
 
     public Message getMessageById(String messageId) {
