@@ -297,13 +297,13 @@ public class AppUtil {
     public boolean loadZipIntoCsar(String fileAddress, String token) {
         String fileParent = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         try {
-            List<SwImgDesc> imgDecsLists = getPkgFile(fileParent);
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
                         String outPath = f.getCanonicalPath();
+                        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
                         for (SwImgDesc imageDescr : imgDecsLists) {
                             String pathname = imageDescr.getSwImage();
                             byte[] result = downloadImageFromFileSystem(token, pathname);
@@ -311,7 +311,6 @@ public class AppUtil {
                             if (imageName.contains(COLON)) {
                                 imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                             }
-
                             LOGGER.info("output image path:{}", outPath);
                             File imageDir = new File(outPath);
                             if (!imageDir.exists()) {

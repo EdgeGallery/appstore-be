@@ -35,7 +35,7 @@
         select * from message_table
         <where>
             <if test="appName != null and appName != ''">
-                and appname ilike '%' || #{appName} || '%'
+                and name ilike '%' || #{appName} || '%'
             </if>
         </where>
         <if test="sortType != null and sortItem != null">
@@ -60,8 +60,8 @@
             resultType="java.lang.Integer">
         select count(*) from message_table
         <where>
-            <if test="appName != null">
-                and appname = ilike '%' || #{appName} || '%'
+            <if test="appName != null and appName != ''">
+                and name = ilike '%' || #{appName} || '%'
             </if>
         </where>
     </select>

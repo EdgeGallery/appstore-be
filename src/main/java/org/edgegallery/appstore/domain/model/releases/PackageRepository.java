@@ -33,6 +33,6 @@ public interface PackageRepository {
 
     List<Release> findReleaseByUserId(String userId);
 
-    Integer countTotalForUserId(PageCriteria pageCriteria);
+    Integer countTotalForUserId(Map<String, Object> params);
 
 }

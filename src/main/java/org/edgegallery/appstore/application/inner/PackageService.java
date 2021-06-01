@@ -141,11 +141,11 @@ public class PackageService {
     /**
      * query all the packages total by user id.
      *
-     * @param pageCriteria search condition
+     * @param params search condition
      * @return releases
      */
-    public Integer countTotalForUserId(PageCriteria pageCriteria) {
-        return packageRepository.countTotalForUserId(pageCriteria);
+    public Integer countTotalForUserId(Map<String, Object> params) {
+        return packageRepository.countTotalForUserId(params);
     }
 
     /**

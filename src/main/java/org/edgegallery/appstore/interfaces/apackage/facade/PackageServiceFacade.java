@@ -57,6 +57,8 @@ public class PackageServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageServiceFacade.class);
 
+    private static final String ZIP_EXTENSION = ".zip";
+
     @Autowired
     private AppService appService;
 
@@ -134,6 +136,7 @@ public class PackageServiceFacade {
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getPackageFile());
+        fileName = fileName.substring(0, fileName.indexOf(".")) + ZIP_EXTENSION;
         InputStream ins;
         String storageAddress = release.getPackageFile().getStorageAddress();
         if (isDownloadImage) {
@@ -218,13 +221,12 @@ public class PackageServiceFacade {
         params.put("appName", appName);
         params.put("status", status);
         params.put("sortType", sortType);
-        params.put("PageCriteria", new PageCriteria(limit, offset, null, userId, appName));
 
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
                 s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
                     new AtpMetadata(s.getTestTaskId(), token)));
-        long total = packageService.countTotalForUserId(new PageCriteria(limit, offset, null, userId, appName));
+        long total = packageService.countTotalForUserId(params);
         return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()), limit,
             offset, total);
