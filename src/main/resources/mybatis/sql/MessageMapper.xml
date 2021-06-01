@@ -60,7 +60,7 @@
             resultType="java.lang.Integer">
         select count(*) from message_table
         <where>
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and name = ilike '%' || #{appName} || '%'
             </if>
         </where>
