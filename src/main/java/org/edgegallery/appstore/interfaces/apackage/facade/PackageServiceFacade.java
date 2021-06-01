@@ -57,6 +57,8 @@ public class PackageServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageServiceFacade.class);
 
+    private static final String ZIP_EXTENSION = ".zip";
+
     @Autowired
     private AppService appService;
 
@@ -134,6 +136,7 @@ public class PackageServiceFacade {
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getPackageFile());
+        fileName = fileName.substring(0, fileName.indexOf(".")) + ZIP_EXTENSION;
         InputStream ins;
         String storageAddress = release.getPackageFile().getStorageAddress();
         if (isDownloadImage) {
