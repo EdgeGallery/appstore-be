@@ -90,7 +90,7 @@ public class PackageRepositoryImpl implements PackageRepository {
     }
 
     @Override
-    public Integer countTotalForUserId(PageCriteria pageCriteria) {
-        return packageMapper.countTotalForUserId(pageCriteria);
+    public Integer countTotalForUserId(Map<String, Object> params) {
+        return packageMapper.countTotalForUserId(params);
     }
 }

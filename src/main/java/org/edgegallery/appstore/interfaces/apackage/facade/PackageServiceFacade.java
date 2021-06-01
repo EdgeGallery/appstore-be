@@ -218,13 +218,12 @@ public class PackageServiceFacade {
         params.put("appName", appName);
         params.put("status", status);
         params.put("sortType", sortType);
-        params.put("PageCriteria", new PageCriteria(limit, offset, null, userId, appName));
 
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
                 s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
                     new AtpMetadata(s.getTestTaskId(), token)));
-        long total = packageService.countTotalForUserId(new PageCriteria(limit, offset, null, userId, appName));
+        long total = packageService.countTotalForUserId(params);
         return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()), limit,
             offset, total);
