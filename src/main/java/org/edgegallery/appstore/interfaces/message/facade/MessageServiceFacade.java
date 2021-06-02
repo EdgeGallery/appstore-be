@@ -67,7 +67,7 @@ public class MessageServiceFacade {
         params.put("sortType", sortType);
 
         List<Message> messages = messageService.getAllMessagesV2(params);
-        long total = messageService.getAllMessageCount();
+        long total = messageService.getAllMessageCount(params);
         return new Page<>(
             messages.stream().filter(m -> messageType == null ? m != null : m.getMessageType() == messageType)
                 .map(MessageRespDto::of).collect(Collectors.toList()), limit, offset, total);

@@ -85,8 +85,8 @@ public class MessageRepository {
      *
      * @return long
      */
-    public long getAllMessageCount() {
-        return messageMapper.getAllMessageCount();
+    public long getAllMessageCount(Map<String, Object> param) {
+        return messageMapper.getAllMessageCount(param);
     }
 
     /**

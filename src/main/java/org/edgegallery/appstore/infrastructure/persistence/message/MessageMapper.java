@@ -36,5 +36,5 @@ public interface MessageMapper {
 
     List<MessagePo> getAllMessages();
 
-    Integer getAllMessageCount();
+    Integer getAllMessageCount(Map<String, Object> param);
 }
