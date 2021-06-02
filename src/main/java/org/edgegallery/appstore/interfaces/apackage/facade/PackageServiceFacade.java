@@ -215,7 +215,7 @@ public class PackageServiceFacade {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("createTime", "createTime");
         params.put("sortItem", sortItem);
-        params.put("userid", userId);
+        params.put("userId", userId);
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
