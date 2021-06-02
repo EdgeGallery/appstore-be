@@ -114,7 +114,8 @@ public class PackageController {
     public ResponseEntity<InputStreamResource> downloadPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "isDownloadImage") @RequestParam("isDownloadImage") boolean isDownloadImage,
+        @ApiParam(value = "isDownloadImage")
+        @RequestParam(value = "isDownloadImage", required = false, defaultValue = "false") boolean isDownloadImage,
         HttpServletRequest request) throws IOException {
         return packageServiceFacade
             .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
