@@ -26,7 +26,7 @@ servicecomb:
     registry:
       address: ${SC_ADDRESS}
   rest:
-    address: ${LISTEN_IP:}:8099
+    address: 127.0.0.1:8099
     servlet:
       urlPattern: /cse/*
   uploads:
@@ -60,6 +60,9 @@ spring:
     multipart:
       max-file-size: 5120MB
       max-request-size: 5120MB
+  devtools:
+    restart:
+      enabled:true
 security:
   oauth2:
     resource:
