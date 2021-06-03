@@ -62,7 +62,7 @@ public class GlobalExceptionConvert {
     private RestReturn badRequestResponse(HttpServletRequest request, Exception e) {
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
             .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+            .retCode(ResponseConst.RET_FAIL).params(null).build();
     }
 
     /**
