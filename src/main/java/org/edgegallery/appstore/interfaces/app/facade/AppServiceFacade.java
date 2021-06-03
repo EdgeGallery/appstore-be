@@ -55,6 +55,7 @@ import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.app.AppMapper;
@@ -123,7 +124,7 @@ public class AppServiceFacade {
 
             if (file == null) {
                 LOGGER.error("can not find any needed file");
-                return ResponseEntity.badRequest().build();
+                throw new IllegalRequestException("can not find any needed file", ResponseConst.RET_PARAM_INVALID);
             }
             File uploadDirTmp = new File(filePathTemp);
             checkDir(uploadDirTmp);
@@ -288,7 +289,7 @@ public class AppServiceFacade {
             }
         } catch (FileNotFoundException ex) {
             throw new AppException(ex.getMessage(), ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
 

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.Builder;
 import lombok.Data;
-import org.edgegallery.appstore.domain.shared.ErrorMessage;
 
 @Data
 @Builder
