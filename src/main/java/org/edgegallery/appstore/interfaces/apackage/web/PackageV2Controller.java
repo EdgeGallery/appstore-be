@@ -54,8 +54,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 @Validated
 public class PackageV2Controller {
 
-    private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
     private static final String ACCESS_TOKEN = "access_token";
 
     private static final String REG_APP_ID = "[0-9a-f]{32}";
@@ -87,7 +85,7 @@ public class PackageV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PackageDto>> getPackageByUserIdV2(
-        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+        @ApiParam(value = "userId", required = false) @RequestParam("userId") String userId,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
         @ApiParam(value = "app Name") @RequestParam("appName") String appName,
