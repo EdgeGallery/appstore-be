@@ -289,7 +289,7 @@ public class AppServiceFacade {
             }
         } catch (FileNotFoundException ex) {
             throw new AppException(ex.getMessage(), ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             LOGGER.debug("failed to delete csar package {}", ex.getMessage());
         }
 
