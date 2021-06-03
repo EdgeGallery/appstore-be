@@ -87,8 +87,6 @@ public class AppUtil {
 
     private static final String QUERY_PATH = "image?imageId=";
 
-    private static final String SEPARATOR_PATH = "/";
-
     @Autowired
     private AppService appService;
 
@@ -245,8 +243,8 @@ public class AppUtil {
                                     for (SwImgDesc imageDescr : imgDecsList) {
                                         String pathname = imageDescr.getSwImage();
                                         String imageId = imageDescr.getId();
-                                        pathname = pathname.substring(0, pathname.lastIndexOf(SEPARATOR_PATH));
-                                        StringBuilder newUrl = stringBuilder(pathname, SEPARATOR_PATH, QUERY_PATH,
+                                        pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
+                                        StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
                                             imageId);
                                         if (!checkImageExist(newUrl.toString(), atpMetadata.getToken())) {
                                             throw new AppException(ZIP_PACKAGE_ERR_GET,

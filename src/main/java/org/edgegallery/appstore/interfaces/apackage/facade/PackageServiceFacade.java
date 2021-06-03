@@ -135,8 +135,7 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
-        String fileName = appUtil.getFileName(release, release.getPackageFile());
-        fileName = fileName.substring(0, fileName.indexOf(".")) + ZIP_EXTENSION;
+        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         InputStream ins;
         String storageAddress = release.getPackageFile().getStorageAddress();
         if (isDownloadImage) {

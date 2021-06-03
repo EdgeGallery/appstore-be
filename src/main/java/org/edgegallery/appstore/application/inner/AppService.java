@@ -164,7 +164,8 @@ public class AppService {
                 if (!entry.isDirectory()) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         if (inputStream.available() > TOO_BIG) {
-                            throw new IllegalStateException("file being unzipped is too big");
+                            throw new AppException("file being unzipped is too big",
+                                ResponseConst.RET_FILE_TOO_BIG, TOO_BIG);
                         }
                         FileUtils.copyInputStreamToFile(inputStream, new File(fileName));
                         LOGGER.info("unzip package... {}", entry.getName());
