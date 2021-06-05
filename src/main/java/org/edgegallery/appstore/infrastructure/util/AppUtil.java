@@ -301,6 +301,7 @@ public class AppUtil {
      * @return
      */
     public boolean loadZipIntoCsar(String fileAddress, String token) {
+        //get unzip  temp folder under csar folder
         String fileParent = fileAddress.substring(0, fileAddress.indexOf("."));
         try {
             File file = new File(fileParent);
@@ -309,45 +310,46 @@ public class AppUtil {
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
                         File[] filezipArrays = f.listFiles();
-                        boolean presentZip = Arrays.asList(filezipArrays).stream()
-                            .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
-                        if (!presentZip) {
-                            String outPath = f.getCanonicalPath();
-                            List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
-                            for (SwImgDesc imageDescr : imgDecsLists) {
-                                String pathname = imageDescr.getSwImage();
-                                byte[] result = downloadImageFromFileSystem(token, pathname);
-                                String imageName = imageDescr.getName();
-                                if (imageName.contains(COLON)) {
-                                    imageName = imageName.substring(0, imageName.lastIndexOf(":"));
-                                }
-                                LOGGER.info("output image path:{}", outPath);
-                                File imageDir = new File(outPath);
-                                if (!imageDir.exists()) {
-                                    if (!imageDir.mkdirs()) {
-                                        LOGGER.error("create upload path failed");
-                                        return false;
+                        if (filezipArrays != null && filezipArrays.length > 0) {
+                            boolean presentZip = Arrays.asList(filezipArrays).stream()
+                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                            if (!presentZip) {
+                                String outPath = f.getCanonicalPath();
+                                List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+                                for (SwImgDesc imageDescr : imgDecsLists) {
+                                    String pathname = imageDescr.getSwImage();
+                                    byte[] result = downloadImageFromFileSystem(token, pathname);
+                                    String imageName = imageDescr.getName();
+                                    if (imageName.contains(COLON)) {
+                                        imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                                     }
-                                }
-                                File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-                                if (!fileImage.exists() && !fileImage.createNewFile()) {
-                                    LOGGER.error("create download file error");
-                                    throw new AppException("create download file error");
-                                }
-                                try (InputStream inputStream = new ByteArrayInputStream(result);
-                                     OutputStream outputStream = new FileOutputStream(fileImage)) {
-                                    int len = 0;
-                                    byte[] buf = new byte[1024];
-                                    while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                                        outputStream.write(buf, 0, len);
+                                    LOGGER.info("output image path:{}", outPath);
+                                    File imageDir = new File(outPath);
+                                    if (!imageDir.exists()) {
+                                        if (!imageDir.mkdirs()) {
+                                            LOGGER.error("create upload path failed");
+                                            return false;
+                                        }
                                     }
-                                    outputStream.flush();
+                                    File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+                                    if (!fileImage.exists() && !fileImage.createNewFile()) {
+                                        LOGGER.error("create download file error");
+                                        throw new AppException("create download file error");
+                                    }
+                                    try (InputStream inputStream = new ByteArrayInputStream(result);
+                                         OutputStream outputStream = new FileOutputStream(fileImage)) {
+                                        int len = 0;
+                                        byte[] buf = new byte[1024];
+                                        while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                                            outputStream.write(buf, 0, len);
+                                        }
+                                        outputStream.flush();
+                                    }
+                                    updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
                                 }
-                                updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
-
+                            } else {
+                                return true;
                             }
-                        } else {
-                            return true;
                         }
 
                     }
