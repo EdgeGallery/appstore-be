@@ -17,7 +17,9 @@
 package org.edgegallery.appstore.infrastructure.util;
 
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
@@ -71,6 +75,8 @@ public class AppUtil {
 
     private static final String SWIMAGE_PATH_EXTENSION = ".qcow2";
 
+    private static final Gson gson = new Gson();
+
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
     private static final String ZIP_PACKAGE_ERR_GET = "failed to get application package image";
@@ -86,6 +92,8 @@ public class AppUtil {
     private static final String IMAGE = "Image";
 
     private static final String QUERY_PATH = "image?imageId=";
+
+    private static final String SEPARATOR_PATH = "/";
 
     @Autowired
     private AppService appService;
@@ -243,8 +251,8 @@ public class AppUtil {
                                     for (SwImgDesc imageDescr : imgDecsList) {
                                         String pathname = imageDescr.getSwImage();
                                         String imageId = imageDescr.getId();
-                                        pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                        StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
+                                        pathname = pathname.substring(0, pathname.lastIndexOf(SEPARATOR_PATH));
+                                        StringBuilder newUrl = stringBuilder(pathname, SEPARATOR_PATH, QUERY_PATH,
                                             imageId);
                                         if (!checkImageExist(newUrl.toString(), atpMetadata.getToken())) {
                                             throw new AppException(ZIP_PACKAGE_ERR_GET,
@@ -273,7 +281,7 @@ public class AppUtil {
 
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
-        File swImageDesc = appService.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
+        File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
@@ -293,46 +301,53 @@ public class AppUtil {
      * @return
      */
     public boolean loadZipIntoCsar(String fileAddress, String token) {
-        String fileParent = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
+        String fileParent = fileAddress.substring(0, fileAddress.indexOf("."));
         try {
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                        String outPath = f.getCanonicalPath();
-                        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
-                        for (SwImgDesc imageDescr : imgDecsLists) {
-                            String pathname = imageDescr.getSwImage();
-                            byte[] result = downloadImageFromFileSystem(token, pathname);
-                            String imageName = imageDescr.getName();
-                            if (imageName.contains(COLON)) {
-                                imageName = imageName.substring(0, imageName.lastIndexOf(":"));
-                            }
-                            LOGGER.info("output image path:{}", outPath);
-                            File imageDir = new File(outPath);
-                            if (!imageDir.exists()) {
-                                if (!imageDir.mkdirs()) {
-                                    LOGGER.error("create upload path failed");
-                                    return false;
+                        File[] filezipArrays = f.listFiles();
+                        boolean presentZip = Arrays.asList(filezipArrays).stream()
+                            .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                        if (!presentZip) {
+                            String outPath = f.getCanonicalPath();
+                            List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+                            for (SwImgDesc imageDescr : imgDecsLists) {
+                                String pathname = imageDescr.getSwImage();
+                                byte[] result = downloadImageFromFileSystem(token, pathname);
+                                String imageName = imageDescr.getName();
+                                if (imageName.contains(COLON)) {
+                                    imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                                 }
-                            }
-                            File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-                            if (!fileImage.exists() && !fileImage.createNewFile()) {
-                                LOGGER.error("create download file error");
-                                throw new AppException("create download file error");
-                            }
-                            try (InputStream inputStream = new ByteArrayInputStream(result);
-                                 OutputStream outputStream = new FileOutputStream(fileImage)) {
-                                int len = 0;
-                                byte[] buf = new byte[1024];
-                                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                                    outputStream.write(buf, 0, len);
+                                LOGGER.info("output image path:{}", outPath);
+                                File imageDir = new File(outPath);
+                                if (!imageDir.exists()) {
+                                    if (!imageDir.mkdirs()) {
+                                        LOGGER.error("create upload path failed");
+                                        return false;
+                                    }
                                 }
-                                outputStream.flush();
-                            }
-                            updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
+                                File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+                                if (!fileImage.exists() && !fileImage.createNewFile()) {
+                                    LOGGER.error("create download file error");
+                                    throw new AppException("create download file error");
+                                }
+                                try (InputStream inputStream = new ByteArrayInputStream(result);
+                                     OutputStream outputStream = new FileOutputStream(fileImage)) {
+                                    int len = 0;
+                                    byte[] buf = new byte[1024];
+                                    while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                                        outputStream.write(buf, 0, len);
+                                    }
+                                    outputStream.flush();
+                                }
+                                updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
 
+                            }
+                        } else {
+                            return true;
                         }
 
                     }
@@ -361,11 +376,24 @@ public class AppUtil {
         imageDescr.setSwImage(newpathname.toString());
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDescr = new File(jsonFile);
+        writeFile(swImageDescr, gson.toJson(imgDecsLists));
+
+    }
+
+    /**
+     * write json file.
+     *
+     * @param file file.
+     * @param content content.
+     */
+    private void writeFile(File file, String content) {
         try {
-            FileUtils.writeStringToFile(swImageDescr, imgDecsLists.toString(), StandardCharsets.UTF_8.name());
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
         } catch (IOException e) {
-            LOGGER.error("wrire object error", e.getMessage());
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_UPDATE_IMAGE_FAILED);
+            LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
 

@@ -16,8 +16,6 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -37,7 +35,6 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
-import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
@@ -135,12 +132,13 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
-        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
+        String fileName = appUtil.getFileName(release, release.getPackageFile());
+        fileName = fileName.substring(0, fileName.indexOf(".")) + ZIP_EXTENSION;
         InputStream ins;
         String storageAddress = release.getPackageFile().getStorageAddress();
         if (isDownloadImage) {
             appUtil.loadZipIntoCsar(storageAddress, token);
-            String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(File.separator));
+            String fileParent = storageAddress.substring(0, storageAddress.indexOf("."));
             String fileAddress = appUtil.compressAppPackage(fileParent);
 
             ins = fileService.get(fileAddress);
