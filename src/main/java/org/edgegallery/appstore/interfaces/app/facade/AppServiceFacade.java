@@ -196,10 +196,10 @@ public class AppServiceFacade {
         String appClass = appUtil.getAppClass(fileStoreageAddress);
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
+            appUtil.checkImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
         } else {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
         }
-        appUtil.loadImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
         packageAFile.setFileSize(packageFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
@@ -240,10 +240,10 @@ public class AppServiceFacade {
         String appClass = appUtil.getAppClass(fileAddress);
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
+            appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
         }
-        appUtil.loadImage(fileAddress, atpMetadata, fileParent, appClass);
         packageAFile.setFileSize(multipartFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
