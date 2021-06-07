@@ -166,7 +166,7 @@ public class AppUtil {
      * @param token token
      * @return boolean
      */
-    public boolean checkImageExist(String url, String token) {
+    public boolean isImageExist(String url, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -227,9 +227,8 @@ public class AppUtil {
      * load file and analyse file list.
      *
      * @param fileAddress file storage path.
-     * @return
      */
-    public void loadImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
+    public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             AppService.unzipApplicationPacakge(fileAddress, fileParent);
         }
@@ -245,24 +244,17 @@ public class AppUtil {
                                 .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
                             if (!presentZip) {
                                 List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                                if (!CollectionUtils.isEmpty(imgDecsList)) {
-                                    for (SwImgDesc imageDescr : imgDecsList) {
-                                        String pathname = imageDescr.getSwImage();
-                                        String imageId = imageDescr.getId();
-                                        pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                        StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
-                                            imageId);
-                                        if (!checkImageExist(newUrl.toString(), atpMetadata.getToken())) {
-                                            throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                                ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-                                        }
+                                for (SwImgDesc imageDescr : imgDecsList) {
+                                    String pathname = imageDescr.getSwImage();
+                                    String imageId = imageDescr.getId();
+                                    pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
+                                    StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
+                                        imageId);
+                                    if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
+                                        throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                            ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                                     }
-
-                                } else {
-                                    throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                        ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                                 }
-
                             }
                         } else {
                             throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -271,7 +263,6 @@ public class AppUtil {
                     }
                 }
             }
-
         } catch (Exception e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
@@ -296,7 +287,6 @@ public class AppUtil {
      * load file and analyse file list.
      *
      * @param fileAddress file storage object url.
-     * @return
      */
     public boolean loadZipIntoCsar(String fileAddress, String token) {
         //get unzip  temp folder under csar folder

@@ -199,7 +199,7 @@ public class AppServiceFacade {
         } else {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
         }
-        appUtil.loadImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
+        appUtil.checkImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
         packageAFile.setFileSize(packageFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
@@ -243,7 +243,7 @@ public class AppServiceFacade {
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
         }
-        appUtil.loadImage(fileAddress, atpMetadata, fileParent, appClass);
+        appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
         packageAFile.setFileSize(multipartFile.getSize());
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
