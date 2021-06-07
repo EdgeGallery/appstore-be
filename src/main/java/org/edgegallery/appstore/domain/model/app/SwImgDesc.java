@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.domain.model.app;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,4 +43,10 @@ public class SwImgDesc {
     private String swImage;
     private String operatingSystem;
     private String supportedVirtualisationEnvironment;
+
+    @SerializedName("hw_scsi_model")
+    private String hwScsiModel;
+
+    @SerializedName("hw_disk_bus")
+    private String hwDiskBus;
 }

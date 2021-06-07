@@ -139,8 +139,8 @@ public class PackageServiceFacade {
         InputStream ins;
         if (isDownloadImage) {
             String storageAddress = release.getPackageFile().getStorageAddress();
-            appUtil.loadZipIntoCsar(storageAddress, token);
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
+            appUtil.loadZipIntoCsar(storageAddress, token, fileParent);
             String fileAddress = appUtil.compressAppPackage(fileParent);
 
             ins = fileService.get(fileAddress);
