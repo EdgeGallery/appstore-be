@@ -276,7 +276,7 @@ public class AppUtil {
             return Collections.emptyList();
         }
         try {
-            return appService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -333,7 +333,7 @@ public class AppUtil {
                 throw new AppException("create download file error");
             }
         }
-        appService.unzipApplicationPacakge(fileAddress, fileParent);
+        AppService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
         try {
             File file = new File(fileParent);
