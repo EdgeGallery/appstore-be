@@ -253,7 +253,7 @@ public class AppUtil {
                                     StringBuilder newUrl = stringBuilder(pathName, File.separator, QUERY_PATH, imageId);
                                     if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
                                         throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                            ResponseConst.RET_IMAGE_NOT_EXIST, pathname);
+                                            ResponseConst.RET_IMAGE_NOT_EXIST, pathName);
                                     }
                                 }
                             }
