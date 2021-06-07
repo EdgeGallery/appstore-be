@@ -43,6 +43,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -227,47 +228,49 @@ public class AppUtil {
      * @param fileAddress file storage path.
      */
     public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
-        // AppService.unzipApplicationPacakge(fileAddress, fileParent);
-        try {
-            File file = new File(fileParent);
-            File[] files = file.listFiles();
-            if (files != null && files.length > 0) {
-                for (File fl : files) {
-                    if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                        File[] filezipArrays = fl.listFiles();
-                        if (filezipArrays != null && filezipArrays.length > 0) {
-                            boolean presentZip = Arrays.asList(filezipArrays).stream()
-                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
-                            if (!presentZip) {
-                                List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                                for (SwImgDesc imageDescr : imgDecsList) {
-                                    String pathname = imageDescr.getSwImage();
-                                    String imageId = imageDescr.getId();
-                                    pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                    StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
-                                        imageId);
-                                    if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
-                                        throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                            ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
+            try {
+                File file = new File(fileParent);
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    for (File fl : files) {
+                        if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
+                            File[] filezipArrays = fl.listFiles();
+                            if (filezipArrays != null && filezipArrays.length > 0) {
+                                boolean presentZip = Arrays.asList(filezipArrays).stream()
+                                    .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                                if (!presentZip) {
+                                    List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+                                    for (SwImgDesc imageDescr : imgDecsList) {
+                                        String pathname = imageDescr.getSwImage();
+                                        String imageId = imageDescr.getId();
+                                        pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
+                                        StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
+                                            imageId);
+                                        if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
+                                            throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                                ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+                                        }
                                     }
                                 }
+                            } else {
+                                throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                             }
-                        } else {
-                            throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-                        }
 
+                        }
                     }
                 }
+            } catch (Exception e1) {
+                LOGGER.error("judge package type error {} ", e1.getMessage());
             }
-        } catch (Exception e1) {
-            LOGGER.error("judge package type error {} ", e1.getMessage());
+        } else {
+            return;
         }
-    }
 
+    }
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
-        LOGGER.info("failed to get sw image descriptor file {}",parentDir);
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
@@ -280,7 +283,6 @@ public class AppUtil {
 
     }
 
-
     /**
      * update json file.
      *
@@ -291,13 +293,14 @@ public class AppUtil {
      */
     public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
         String imageName) {
+        int index = imgDecsLists.indexOf(imageDescr);
         StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
             imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
         imageDescr.setSwImage(newpathname.toString());
+        imgDecsLists.set(index, imageDescr);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDescr = new File(jsonFile);
         writeFile(swImageDescr, gson.toJson(imgDecsLists));
-
     }
 
     /**
@@ -317,14 +320,12 @@ public class AppUtil {
         }
     }
 
-
     /**
      * load file and analyse file list.
      *
      * @param fileAddress file storage object url.
      */
     public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
-
         File tempFolder = new File(fileParent);
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
