@@ -227,7 +227,7 @@ public class AppUtil {
      * @param fileAddress file storage path.
      */
     public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
-        AppService.unzipApplicationPacakge(fileAddress, fileParent);
+        // AppService.unzipApplicationPacakge(fileAddress, fileParent);
         try {
             File file = new File(fileParent);
             File[] files = file.listFiles();
@@ -267,6 +267,7 @@ public class AppUtil {
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
+        LOGGER.info("failed to get sw image descriptor file {}", parentDir);
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
@@ -322,15 +323,6 @@ public class AppUtil {
      * @param fileAddress file storage object url.
      */
     public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
-
-        File tempFolder = new File(fileParent);
-        if (!tempFolder.exists()) {
-            if (!tempFolder.mkdirs()) {
-                LOGGER.error("create upload path failed");
-                throw new AppException("create download file error");
-            }
-        }
-        AppService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
         try {
             File file = new File(fileParent);
