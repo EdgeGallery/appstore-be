@@ -98,6 +98,26 @@ public class AppUtil {
     private AppService appService;
 
     /**
+     * append image path.
+     *
+     * @param str append args list.
+     * @return StringBuilder.
+     */
+    public static StringBuilder stringBuilder(String... str) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        if (str == null || str.length <= 0) {
+            return stringBuilder;
+        }
+
+        for (int i = 0; i < str.length; i++) {
+            stringBuilder.append(str[i]);
+        }
+
+        return stringBuilder;
+    }
+
+    /**
      * get app_class.
      *
      * @param filePath filePath
@@ -129,6 +149,7 @@ public class AppUtil {
 
     /**
      * get file name by release.
+     *
      * @param release app package
      * @param file original file
      * @return file name
@@ -138,26 +159,6 @@ public class AppUtil {
         fileName.append(".");
         fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
         return fileName.toString();
-    }
-
-    /**
-     * append image path.
-     *
-     * @param str append args list.
-     * @return StringBuilder.
-     */
-    public static StringBuilder stringBuilder(String... str) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        if (str == null || str.length <= 0) {
-            return stringBuilder;
-        }
-
-        for (int i = 0; i < str.length; i++) {
-            stringBuilder.append(str[i]);
-        }
-
-        return stringBuilder;
     }
 
     /**
@@ -275,7 +276,7 @@ public class AppUtil {
             return Collections.emptyList();
         }
         try {
-            return appService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -291,8 +292,7 @@ public class AppUtil {
      * @param fileParent fileParent.
      * @param imageName imageName.
      */
-    public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent,
-        String imageName) {
+    public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent, String imageName) {
         int index = imgDecsLists.indexOf(imageDesc);
         StringBuilder newPathName = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
             imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);

@@ -148,7 +148,7 @@ public class AppService {
      * @param localFilePath CSAR file path
      * @param intendedDir   intended directory
      */
-    public static void unzipApplicationPacakge(String localFilePath, String intendedDir) {
+    public void unzipApplicationPacakge(String localFilePath, String intendedDir) {
 
         try (ZipFile zipFile = new ZipFile(localFilePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
