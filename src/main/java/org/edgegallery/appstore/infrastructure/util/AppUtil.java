@@ -43,7 +43,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -62,7 +61,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -394,9 +392,6 @@ public class AppUtil {
         final Path srcDir = Paths.get(intendedDir);
         String zipFileName = intendedDir.concat(ZIP_EXTENSION);
         File tempFile = new File(zipFileName);
-        if (tempFile.exists()) {
-            FileUtils.forceDelete(tempFile);
-        }
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             java.nio.file.Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
                 @Override
