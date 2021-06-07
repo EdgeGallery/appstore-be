@@ -333,7 +333,7 @@ public class AppUtil {
                 throw new AppException("create download file error");
             }
         }
-        AppService.unzipApplicationPacakge(fileAddress, fileParent);
+        appService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
         try {
             File file = new File(fileParent);
