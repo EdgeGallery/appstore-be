@@ -228,43 +228,41 @@ public class AppUtil {
      * @param fileAddress file storage path.
      */
     public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
-        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
-            try {
-                File file = new File(fileParent);
-                File[] files = file.listFiles();
-                if (files != null && files.length > 0) {
-                    for (File fl : files) {
-                        if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                            File[] filezipArrays = fl.listFiles();
-                            if (filezipArrays != null && filezipArrays.length > 0) {
-                                boolean presentZip = Arrays.asList(filezipArrays).stream()
-                                    .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
-                                if (!presentZip) {
-                                    List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                                    for (SwImgDesc imageDescr : imgDecsList) {
-                                        String pathname = imageDescr.getSwImage();
-                                        String imageId = imageDescr.getId();
-                                        pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                        StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
-                                            imageId);
-                                        if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
-                                            throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                                ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-                                        }
+        if (StringUtils.isEmpty(appClass) && !appClass.equals(VM)) {
+            return;
+        }
+        try {
+            File file = new File(fileParent);
+            File[] files = file.listFiles();
+            if (files != null && files.length > 0) {
+                for (File fl : files) {
+                    if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
+                        File[] filezipArrays = fl.listFiles();
+                        if (filezipArrays != null && filezipArrays.length > 0) {
+                            boolean presentZip = Arrays.asList(filezipArrays).stream()
+                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                            if (!presentZip) {
+                                List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+                                for (SwImgDesc imageDescr : imgDecsList) {
+                                    String pathname = imageDescr.getSwImage();
+                                    String imageId = imageDescr.getId();
+                                    pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
+                                    StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH, imageId);
+                                    if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
+                                        throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                            ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                                     }
                                 }
-                            } else {
-                                throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                             }
-
+                        } else {
+                            throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                         }
+
                     }
                 }
-            } catch (Exception e1) {
-                LOGGER.error("judge package type error {} ", e1.getMessage());
             }
-        } else {
-            return;
+        } catch (Exception e1) {
+            LOGGER.error("judge package type error {} ", e1.getMessage());
         }
 
     }

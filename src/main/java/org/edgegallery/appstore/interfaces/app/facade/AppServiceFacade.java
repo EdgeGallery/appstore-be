@@ -241,7 +241,6 @@ public class AppServiceFacade {
         String appClass = appUtil.getAppClass(fileAddress);
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
-            appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
         }
