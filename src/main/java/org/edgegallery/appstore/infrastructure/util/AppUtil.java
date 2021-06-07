@@ -43,6 +43,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -85,6 +86,8 @@ public class AppUtil {
 
     private static final String VM = "vm";
 
+    private static final String CONTAINER = "container";
+
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
@@ -93,6 +96,26 @@ public class AppUtil {
 
     @Autowired
     private AppService appService;
+
+    /**
+     * append image path.
+     *
+     * @param str append args list.
+     * @return StringBuilder.
+     */
+    public static StringBuilder stringBuilder(String... str) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        if (str == null || str.length <= 0) {
+            return stringBuilder;
+        }
+
+        for (int i = 0; i < str.length; i++) {
+            stringBuilder.append(str[i]);
+        }
+
+        return stringBuilder;
+    }
 
     /**
      * get app_class.
@@ -126,6 +149,7 @@ public class AppUtil {
 
     /**
      * get file name by release.
+     *
      * @param release app package
      * @param file original file
      * @return file name
@@ -135,26 +159,6 @@ public class AppUtil {
         fileName.append(".");
         fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
         return fileName.toString();
-    }
-
-    /**
-     * append image path.
-     *
-     * @param str append args list.
-     * @return StringBuilder.
-     */
-    public static StringBuilder stringBuilder(String... str) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        if (str == null || str.length <= 0) {
-            return stringBuilder;
-        }
-
-        for (int i = 0; i < str.length; i++) {
-            stringBuilder.append(str[i]);
-        }
-
-        return stringBuilder;
     }
 
     /**
@@ -227,7 +231,9 @@ public class AppUtil {
      * @param fileAddress file storage path.
      */
     public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
-        AppService.unzipApplicationPacakge(fileAddress, fileParent);
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
+            return;
+        }
         try {
             File file = new File(fileParent);
             File[] files = file.listFiles();
@@ -240,12 +246,11 @@ public class AppUtil {
                                 .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
                             if (!presentZip) {
                                 List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                                for (SwImgDesc imageDescr : imgDecsList) {
-                                    String pathname = imageDescr.getSwImage();
-                                    String imageId = imageDescr.getId();
-                                    pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                    StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH,
-                                        imageId);
+                                for (SwImgDesc imageDesc : imgDecsList) {
+                                    String pathName = imageDesc.getSwImage();
+                                    String imageId = imageDesc.getId();
+                                    pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));
+                                    StringBuilder newUrl = stringBuilder(pathName, File.separator, QUERY_PATH, imageId);
                                     if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
                                         throw new AppException(ZIP_PACKAGE_ERR_GET,
                                             ResponseConst.RET_IMAGE_NOT_EXIST, pathname);
@@ -262,8 +267,8 @@ public class AppUtil {
         } catch (Exception e1) {
             LOGGER.error("judge package type error {} ", e1.getMessage());
         }
-    }
 
+    }
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
@@ -271,7 +276,7 @@ public class AppUtil {
             return Collections.emptyList();
         }
         try {
-            return appService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -279,24 +284,23 @@ public class AppUtil {
 
     }
 
-
     /**
      * update json file.
      *
-     * @param imageDescr imageDescr.
+     * @param imageDesc imageDesc.
      * @param imgDecsLists imgDecsLists.
      * @param fileParent fileParent.
      * @param imageName imageName.
      */
-    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
-        String imageName) {
-        StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
+    public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent, String imageName) {
+        int index = imgDecsLists.indexOf(imageDesc);
+        StringBuilder newPathName = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
             imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
-        imageDescr.setSwImage(newpathname.toString());
+        imageDesc.setSwImage(newPathName.toString());
+        imgDecsLists.set(index, imageDesc);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
-        File swImageDescr = new File(jsonFile);
-        writeFile(swImageDescr, gson.toJson(imgDecsLists));
-
+        File swImageDesc = new File(jsonFile);
+        writeFile(swImageDesc, gson.toJson(imgDecsLists));
     }
 
     /**
@@ -322,7 +326,6 @@ public class AppUtil {
      * @param fileAddress file storage object url.
      */
     public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
-
         File tempFolder = new File(fileParent);
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
@@ -345,10 +348,10 @@ public class AppUtil {
                             if (!presentZip) {
                                 String outPath = f.getCanonicalPath();
                                 List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
-                                for (SwImgDesc imageDescr : imgDecsLists) {
-                                    String pathname = imageDescr.getSwImage();
+                                for (SwImgDesc imageDesc : imgDecsLists) {
+                                    String pathname = imageDesc.getSwImage();
                                     byte[] result = downloadImageFromFileSystem(token, pathname);
-                                    String imageName = imageDescr.getName();
+                                    String imageName = imageDesc.getName();
                                     if (imageName.contains(COLON)) {
                                         imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                                     }
@@ -374,7 +377,7 @@ public class AppUtil {
                                         }
                                         outputStream.flush();
                                     }
-                                    updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
+                                    updateJsonFile(imageDesc, imgDecsLists, fileParent, imageName);
                                 }
                             } else {
                                 return true;

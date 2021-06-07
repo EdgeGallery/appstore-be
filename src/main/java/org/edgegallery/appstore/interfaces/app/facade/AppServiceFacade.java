@@ -196,7 +196,7 @@ public class AppServiceFacade {
         String appClass = appUtil.getAppClass(fileStoreageAddress);
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
-            appUtil.checkImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
+
         } else {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
         }
@@ -208,6 +208,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
+        appUtil.checkImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -240,7 +241,6 @@ public class AppServiceFacade {
         String appClass = appUtil.getAppClass(fileAddress);
         if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
-            appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
         }
@@ -252,6 +252,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
+        appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
