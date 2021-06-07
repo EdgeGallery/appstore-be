@@ -246,10 +246,10 @@ public class AppUtil {
                             if (!presentZip) {
                                 List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
                                 for (SwImgDesc imageDescr : imgDecsList) {
-                                    String pathname = imageDescr.getSwImage();
+                                    String pathName = imageDescr.getSwImage();
                                     String imageId = imageDescr.getId();
-                                    pathname = pathname.substring(0, pathname.lastIndexOf(File.separator));
-                                    StringBuilder newUrl = stringBuilder(pathname, File.separator, QUERY_PATH, imageId);
+                                    pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));
+                                    StringBuilder newUrl = stringBuilder(pathName, File.separator, QUERY_PATH, imageId);
                                     if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
                                         throw new AppException(ZIP_PACKAGE_ERR_GET,
                                             ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -294,13 +294,13 @@ public class AppUtil {
     public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
         String imageName) {
         int index = imgDecsLists.indexOf(imageDescr);
-        StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
+        StringBuilder newPathMame = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
             imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
-        imageDescr.setSwImage(newpathname.toString());
+        imageDescr.setSwImage(newPathMame.toString());
         imgDecsLists.set(index, imageDescr);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
-        File swImageDescr = new File(jsonFile);
-        writeFile(swImageDescr, gson.toJson(imgDecsLists));
+        File swImageDesc = new File(jsonFile);
+        writeFile(swImageDesc, gson.toJson(imgDecsLists));
     }
 
     /**
@@ -348,10 +348,10 @@ public class AppUtil {
                             if (!presentZip) {
                                 String outPath = f.getCanonicalPath();
                                 List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
-                                for (SwImgDesc imageDescr : imgDecsLists) {
-                                    String pathname = imageDescr.getSwImage();
+                                for (SwImgDesc imageDesc : imgDecsLists) {
+                                    String pathname = imageDesc.getSwImage();
                                     byte[] result = downloadImageFromFileSystem(token, pathname);
-                                    String imageName = imageDescr.getName();
+                                    String imageName = imageDesc.getName();
                                     if (imageName.contains(COLON)) {
                                         imageName = imageName.substring(0, imageName.lastIndexOf(":"));
                                     }
@@ -377,7 +377,7 @@ public class AppUtil {
                                         }
                                         outputStream.flush();
                                     }
-                                    updateJsonFile(imageDescr, imgDecsLists, fileParent, imageName);
+                                    updateJsonFile(imageDesc, imgDecsLists, fileParent, imageName);
                                 }
                             } else {
                                 return true;
