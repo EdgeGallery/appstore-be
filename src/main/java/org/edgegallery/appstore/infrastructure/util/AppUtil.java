@@ -86,6 +86,8 @@ public class AppUtil {
 
     private static final String VM = "vm";
 
+    private static final String CONTAINER = "container";
+
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
@@ -228,7 +230,7 @@ public class AppUtil {
      * @param fileAddress file storage path.
      */
     public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
-        if (StringUtils.isEmpty(appClass) && !appClass.equals(VM)) {
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
             return;
         }
         try {
