@@ -327,13 +327,13 @@ public class AppUtil {
      */
     public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) throws IOException {
         File tempFolder = new File(fileParent);
+        FileUtils.deleteDirectory(tempFolder);
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
                 LOGGER.error("create upload path failed");
                 throw new AppException("create download file error");
             }
         }
-        FileUtils.deleteDirectory(tempFolder);
         AppService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
         try {
