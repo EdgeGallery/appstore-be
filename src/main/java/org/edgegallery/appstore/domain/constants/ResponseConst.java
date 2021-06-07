@@ -157,6 +157,11 @@ public interface ResponseConst {
     public static final int RET_APP_NOT_FOUND = 10027;
 
     /**
+     * the image of application is not exist.
+     */
+    public static final int RET_IMAGE_NOT_EXIST = 10028;
+
+    /**
      * package base error code.
      */
     public static final int RET_PACKAGE_BASE = 11000;

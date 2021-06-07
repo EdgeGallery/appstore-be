@@ -81,8 +81,8 @@ appstore-be:
 ### atp config ###
 atp:
   urls:
-    create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
-    query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
+    create-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073/edgegallery/atp/v1/tasks
+    query-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
 
 
 ### appShare feature config ###
