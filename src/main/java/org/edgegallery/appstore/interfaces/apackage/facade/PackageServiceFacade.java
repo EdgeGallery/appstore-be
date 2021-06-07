@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -132,13 +133,12 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
-        String fileName = appUtil.getFileName(release, release.getPackageFile());
-        fileName = fileName.substring(0, fileName.indexOf(".")) + ZIP_EXTENSION;
+        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         InputStream ins;
-        String storageAddress = release.getPackageFile().getStorageAddress();
         if (isDownloadImage) {
+            String storageAddress = release.getPackageFile().getStorageAddress();
             appUtil.loadZipIntoCsar(storageAddress, token);
-            String fileParent = storageAddress.substring(0, storageAddress.indexOf("."));
+            String fileParent = storageAddress.substring(0, storageAddress.indexOf(File.separator));
             String fileAddress = appUtil.compressAppPackage(fileParent);
 
             ins = fileService.get(fileAddress);
