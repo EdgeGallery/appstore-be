@@ -325,7 +325,7 @@ public class AppUtil {
      *
      * @param fileAddress file storage object url.
      */
-    public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
+    public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) throws IOException {
         File tempFolder = new File(fileParent);
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
@@ -333,6 +333,7 @@ public class AppUtil {
                 throw new AppException("create download file error");
             }
         }
+        FileUtils.deleteDirectory(tempFolder);
         AppService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
         try {
