@@ -57,6 +57,8 @@ public class PackageServiceFacade {
 
     private static final String ZIP_EXTENSION = ".zip";
 
+    private static final String ZIP_POINT = ".";
+
     @Autowired
     private AppService appService;
 
@@ -138,7 +140,7 @@ public class PackageServiceFacade {
         if (isDownloadImage) {
             String storageAddress = release.getPackageFile().getStorageAddress();
             appUtil.loadZipIntoCsar(storageAddress, token);
-            String fileParent = storageAddress.substring(0, storageAddress.indexOf(File.separator));
+            String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
             String fileAddress = appUtil.compressAppPackage(fileParent);
 
             ins = fileService.get(fileAddress);
