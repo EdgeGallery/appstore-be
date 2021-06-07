@@ -43,7 +43,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -62,7 +61,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -281,14 +279,59 @@ public class AppUtil {
 
     }
 
+
+    /**
+     * update json file.
+     *
+     * @param imageDescr imageDescr.
+     * @param imgDecsLists imgDecsLists.
+     * @param fileParent fileParent.
+     * @param imageName imageName.
+     */
+    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
+        String imageName) {
+        StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
+            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
+        imageDescr.setSwImage(newpathname.toString());
+        String jsonFile = fileParent + File.separator + JSON_EXTENSION;
+        File swImageDescr = new File(jsonFile);
+        writeFile(swImageDescr, gson.toJson(imgDecsLists));
+
+    }
+
+    /**
+     * write json file.
+     *
+     * @param file file.
+     * @param content content.
+     */
+    private void writeFile(File file, String content) {
+        try {
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
+        }
+    }
+
     /**
      * load file and analyse file list.
      *
      * @param fileAddress file storage object url.
      */
-    public boolean loadZipIntoCsar(String fileAddress, String token) {
+    public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
+
+        File tempFolder = new File(fileParent);
+        if (!tempFolder.exists()) {
+            if (!tempFolder.mkdirs()) {
+                LOGGER.error("create upload path failed");
+                throw new AppException("create download file error");
+            }
+        }
+        AppService.unzipApplicationPacakge(fileAddress, fileParent);
         //get unzip  temp folder under csar folder
-        String fileParent = fileAddress.substring(0, fileAddress.indexOf("."));
         try {
             File file = new File(fileParent);
             File[] files = file.listFiles();
@@ -350,42 +393,6 @@ public class AppUtil {
     }
 
     /**
-     * update json file.
-     *
-     * @param imageDescr imageDescr.
-     * @param imgDecsLists imgDecsLists.
-     * @param fileParent fileParent.
-     * @param imageName imageName.
-     */
-    public void updateJsonFile(SwImgDesc imageDescr, List<SwImgDesc> imgDecsLists, String fileParent,
-        String imageName) {
-        StringBuilder newpathname = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
-            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
-        imageDescr.setSwImage(newpathname.toString());
-        String jsonFile = fileParent + File.separator + JSON_EXTENSION;
-        File swImageDescr = new File(jsonFile);
-        writeFile(swImageDescr, gson.toJson(imgDecsLists));
-
-    }
-
-    /**
-     * write json file.
-     *
-     * @param file file.
-     * @param content content.
-     */
-    private void writeFile(File file, String content) {
-        try {
-            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        } catch (IOException e) {
-            LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
-        }
-    }
-
-    /**
      * ZIP application package.
      *
      * @param intendedDir application package ID
@@ -393,10 +400,6 @@ public class AppUtil {
     public String compressAppPackage(String intendedDir) throws IOException {
         final Path srcDir = Paths.get(intendedDir);
         String zipFileName = intendedDir.concat(ZIP_EXTENSION);
-        File tempFile = new File(zipFileName);
-        if (tempFile.exists()) {
-            FileUtils.forceDelete(tempFile);
-        }
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             java.nio.file.Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
                 @Override
