@@ -155,7 +155,7 @@ public class AppUtil {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("get image from file system status: {}", response.getStatusCode());
             return HttpStatus.OK.equals(response.getStatusCode());
-        } catch (Exception e) {
+        } catch (RestClientException  e) {
             LOGGER.error("get image from file system exception, Url is {}, exception {}", url, e.getMessage());
             throw new AppException("get image from file system exception.", ResponseConst.RET_IMAGE_NOT_EXIST, url);
         }
