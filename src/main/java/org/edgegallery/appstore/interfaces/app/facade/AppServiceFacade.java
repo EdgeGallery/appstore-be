@@ -42,6 +42,7 @@ import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.IconChecker;
@@ -286,6 +287,9 @@ public class AppServiceFacade {
                 FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
+                // update hash value of Image/SwImageDesc.json
+                File mfFile = appUtil.getFile(fileParent, ".mf");
+                new BasicInfo().rewriteManifestWithImage(mfFile, "");
                 fileAddress = appService.compressAppPackage(fileParent);
             }
         } catch (FileNotFoundException ex) {
