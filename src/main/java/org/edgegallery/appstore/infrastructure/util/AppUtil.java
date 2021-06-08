@@ -156,9 +156,8 @@ public class AppUtil {
      * @return file name
      */
     public String getFileName(Release release, AFile file) {
-        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
-        fileName.append(".");
-        fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
+        StringBuilder fileName = new StringBuilder().append(release.getAppBasicInfo().getAppName());
+        fileName.append(".").append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
         return fileName.toString();
     }
 
@@ -350,11 +349,9 @@ public class AppUtil {
      * @param content content.
      */
     private void writeFile(File file, String content) {
-        try {
-            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw);
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
-            bw.close();
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }

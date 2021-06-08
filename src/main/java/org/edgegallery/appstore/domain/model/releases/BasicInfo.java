@@ -443,11 +443,9 @@ public class BasicInfo {
     }
 
     private void writeFile(File file, String content) {
-        try {
-            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw);
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
-            bw.close();
         } catch (IOException e) {
             LOGGER.error("write manifest file error.");
         }
