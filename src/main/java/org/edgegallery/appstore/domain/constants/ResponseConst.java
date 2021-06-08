@@ -147,7 +147,7 @@ public interface ResponseConst {
     public static final int RET_RELEASE_EXIST = 10025;
 
     /**
-     * get task status from atp reponse failed.
+     * get task status from atp response failed.
      */
     public static final int RET_GET_TEST_STATUS_FAILED = 10026;
 
