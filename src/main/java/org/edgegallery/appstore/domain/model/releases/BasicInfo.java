@@ -122,7 +122,7 @@ public class BasicInfo {
 
     private String appDesc;
 
-    private List<String> sources;
+    private List<String> sources = new ArrayList<>();
 
     private String hashAlgorithm;
 
