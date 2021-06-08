@@ -85,38 +85,16 @@ public class AppUtil {
 
     private static final String JSON_EXTENSION = "Image/SwImageDesc.json";
 
-    private static final String VM = "vm";
-
     private static final String CONTAINER = "container";
 
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
 
-    private static final String QUERY_PATH = "image?imageId=";
+    private static final String DOWNLOAD_IMAGE_TAG = "/action/download";
 
     @Autowired
     private AppService appService;
-
-    /**
-     * append image path.
-     *
-     * @param str append args list.
-     * @return StringBuilder.
-     */
-    public static StringBuilder stringBuilder(String... str) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        if (str == null || str.length <= 0) {
-            return stringBuilder;
-        }
-
-        for (int i = 0; i < str.length; i++) {
-            stringBuilder.append(str[i]);
-        }
-
-        return stringBuilder;
-    }
 
     /**
      * get app_class.
@@ -247,13 +225,11 @@ public class AppUtil {
                             if (!presentZip) {
                                 List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
                                 for (SwImgDesc imageDesc : imgDecsList) {
-                                    String pathName = imageDesc.getSwImage();
-                                    String imageId = imageDesc.getId();
-                                    pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));
-                                    StringBuilder newUrl = stringBuilder(pathName, File.separator, QUERY_PATH, imageId);
-                                    if (!isImageExist(newUrl.toString(), atpMetadata.getToken())) {
+                                    String pathUrl = imageDesc.getSwImage();
+                                    pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
+                                    if (!isImageExist(pathUrl, atpMetadata.getToken())) {
                                         throw new AppException(ZIP_PACKAGE_ERR_GET,
-                                            ResponseConst.RET_IMAGE_NOT_EXIST, pathName);
+                                            ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
                                     }
                                 }
                             }
@@ -294,8 +270,9 @@ public class AppUtil {
      */
     public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent, String imageName) {
         int index = imgDecsLists.indexOf(imageDesc);
-        StringBuilder newPathName = stringBuilder(IMAGE, File.separator, imageName, ZIP_EXTENSION, File.separator,
-            imageName, File.separator, imageName, SWIMAGE_PATH_EXTENSION);
+        StringBuilder newPathName = new StringBuilder().append(IMAGE).append(File.separator).append(imageName)
+            .append(ZIP_EXTENSION).append(File.separator).append(imageName).append(File.separator)
+            .append(imageName).append(SWIMAGE_PATH_EXTENSION);
         imageDesc.setSwImage(newPathName.toString());
         imgDecsLists.set(index, imageDesc);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
