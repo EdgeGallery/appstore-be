@@ -357,9 +357,9 @@ public class AppUtil {
                 String imgZipPath = null;
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                        File[] filezipArrays = f.listFiles();
-                        if (filezipArrays != null && filezipArrays.length > 0) {
-                            boolean presentZip = Arrays.stream(filezipArrays)
+                        File[] zipFileArrays = f.listFiles();
+                        if (zipFileArrays != null && zipFileArrays.length > 0) {
+                            boolean presentZip = Arrays.stream(zipFileArrays)
                                 .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
                             if (!presentZip) {
                                 String outPath = f.getCanonicalPath();
@@ -402,7 +402,7 @@ public class AppUtil {
                 }
                 addImageFileInfo(fileParent, imgZipPath);
             }
-        } catch (Exception e) {
+        }  catch (IOException e) {
             LOGGER.error("judge package type error {} ", e.getMessage());
             throw new AppException("failed to add image zip to package.", ResponseConst.RET_COMPRESS_FAILED);
         }
