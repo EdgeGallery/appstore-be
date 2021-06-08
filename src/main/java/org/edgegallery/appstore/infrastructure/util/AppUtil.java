@@ -79,7 +79,7 @@ public class AppUtil {
 
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
-    private static final String ZIP_PACKAGE_ERR_GET = "failed to get application package image";
+    private static final String DOWNLOAD_IMAGE_FAIL = "failed download image from file system";
 
     private static final String ZIP_EXTENSION = ".zip";
 
@@ -153,12 +153,12 @@ public class AppUtil {
         LOGGER.info("get images status from fileSystem, url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-            LOGGER.info("res: {}", response);
+            LOGGER.info("get image from file system status: {}", response.getStatusCode());
             return HttpStatus.OK.equals(response.getStatusCode());
-        } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("image not exist from fileSystem which imageUrl is {} exception {}", url, e.getMessage());
+        } catch (RestClientException  e) {
+            LOGGER.error("get image from file system exception, Url is {}, exception {}", url, e.getMessage());
+            throw new AppException("get image from file system exception.", ResponseConst.RET_IMAGE_NOT_EXIST, url);
         }
-        return true;
     }
 
     /**
@@ -181,23 +181,20 @@ public class AppUtil {
         byte[] result = null;
         ResponseEntity<byte[]> response;
         try {
-
             response = restObject.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
-                throw new AppException("download file exception", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
             }
             result = response.getBody();
-
             if (result == null) {
-                LOGGER.error("download file error, response is {}", response.getBody());
-                throw new AppException("download file exception", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+                LOGGER.error("download file error, response is null");
+                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
             }
 
         } catch (RestClientException e) {
-
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", url, e.getMessage());
-            return null;
+            LOGGER.error("Failed to get image status which imageId exception {}", e.getMessage());
+            throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
         }
 
         return result;
@@ -206,9 +203,8 @@ public class AppUtil {
     /**
      * load file and analyse file list.
      *
-     * @param fileAddress file storage path.
      */
-    public void checkImage(String fileAddress, AtpMetadata atpMetadata, String fileParent, String appClass) {
+    public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass) {
         if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
             return;
         }
@@ -228,22 +224,24 @@ public class AppUtil {
                                     String pathUrl = imageDesc.getSwImage();
                                     pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
                                     if (!isImageExist(pathUrl, atpMetadata.getToken())) {
-                                        throw new AppException(ZIP_PACKAGE_ERR_GET,
+                                        throw new AppException("the image of this application does not exist.",
                                             ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
                                     }
                                 }
                             }
                         } else {
-                            throw new AppException(ZIP_PACKAGE_ERR_GET, ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+                            throw new AppException("there is no file in path /Image",
+                                ResponseConst.RET_FILE_NOT_FOUND, "/Image");
                         }
 
                     }
                 }
             }
         } catch (Exception e1) {
-            LOGGER.error("judge package type error {} ", e1.getMessage());
+            LOGGER.error("check image of this application exception {} ", e1.getMessage());
+            throw new AppException("check image of this application exception.",
+                ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
         }
-
     }
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
@@ -298,6 +296,8 @@ public class AppUtil {
                 }
             } catch (Exception e) {
                 LOGGER.error("add image file info to package failed {}", e.getMessage());
+                throw new AppException("failed to add image info to package.",
+                    ResponseConst.RET_PARSE_FILE_EXCEPTION, ".mf or TOSCA-Metadata/TOSCA.meta");
             }
         }
     }
@@ -339,7 +339,7 @@ public class AppUtil {
      *
      * @param fileAddress file storage object url.
      */
-    public boolean loadZipIntoCsar(String fileAddress, String token, String fileParent) {
+    public void loadZipIntoPackage(String fileAddress, String token, String fileParent) {
         //get unzip  temp folder under csar folder
         try {
             File tempFolder = new File(fileParent);
@@ -357,9 +357,9 @@ public class AppUtil {
                 String imgZipPath = null;
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                        File[] filezipArrays = f.listFiles();
-                        if (filezipArrays != null && filezipArrays.length > 0) {
-                            boolean presentZip = Arrays.stream(filezipArrays)
+                        File[] zipFileArrays = f.listFiles();
+                        if (zipFileArrays != null && zipFileArrays.length > 0) {
+                            boolean presentZip = Arrays.stream(zipFileArrays)
                                 .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
                             if (!presentZip) {
                                 String outPath = f.getCanonicalPath();
@@ -376,13 +376,13 @@ public class AppUtil {
                                     if (!imageDir.exists()) {
                                         if (!imageDir.mkdirs()) {
                                             LOGGER.error("create upload path failed");
-                                            return false;
+                                            throw new IOException("create folder failed");
                                         }
                                     }
                                     File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
                                     if (!fileImage.exists() && !fileImage.createNewFile()) {
                                         LOGGER.error("create download file error");
-                                        throw new AppException("create download file error");
+                                        throw new IOException("create file failed");
                                     }
                                     try (InputStream inputStream = new ByteArrayInputStream(result);
                                          OutputStream outputStream = new FileOutputStream(fileImage)) {
@@ -396,21 +396,16 @@ public class AppUtil {
                                     imgZipPath = fileImage.getCanonicalPath();
                                     updateJsonFile(imageDesc, imgDecsLists, fileParent, imageName);
                                 }
-                            } else {
-                                return true;
                             }
                         }
-
                     }
                 }
                 addImageFileInfo(fileParent, imgZipPath);
             }
-
-        } catch (IOException e1) {
-            LOGGER.error("judge package type error {} ", e1.getMessage());
+        }  catch (IOException e) {
+            LOGGER.error("judge package type error {} ", e.getMessage());
+            throw new AppException("failed to add image zip to package.", ResponseConst.RET_COMPRESS_FAILED);
         }
-
-        return false;
     }
 
     /**

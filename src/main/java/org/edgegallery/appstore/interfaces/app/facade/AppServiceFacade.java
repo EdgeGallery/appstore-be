@@ -209,7 +209,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(fileStoreageAddress, atpMetadata, fileParent, appClass);
+        appUtil.checkImage(atpMetadata, fileParent, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -253,7 +253,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(fileAddress, atpMetadata, fileParent, appClass);
+        appUtil.checkImage(atpMetadata, fileParent, appClass);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
