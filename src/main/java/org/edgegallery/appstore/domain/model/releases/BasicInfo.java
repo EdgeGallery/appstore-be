@@ -19,11 +19,15 @@ package org.edgegallery.appstore.domain.model.releases;
 import com.google.gson.Gson;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -35,10 +39,14 @@ import java.util.Enumeration;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BoundedInputStream;
+import org.apache.commons.lang.StringUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +62,31 @@ public class BasicInfo {
 
     public static final String MARKDOWN = ".md";
 
+    public static final String MF_META = "metadata:";
+
     public static final String MF_VERSION_META = "app_package_version";
 
     public static final String MF_PRODUCT_NAME = "app_product_name";
 
     public static final String MF_PROVIDER_META = "app_provider_id";
+
+    public static final String MF_TIME_META = "app_release_data_time";
+
+    public static final String MF_TYPE_META = "app_type";
+
+    public static final String MF_CLASS_META = "app_class";
+
+    public static final String MF_DESC_META = "app_package_description";
+
+    public static final String MF_SOURCE_CHECK = "Source";
+
+    public static final String MF_ALGORITHM_CHECK = "Algorithm";
+
+    public static final String MF_HASH_CHECK = "Hash";
+
+    public static final String MF_SEPARATOR = ": ";
+
+    public static final String MF_NEWLINE = "\n";
 
     public static final String MF_APP_CONTACT = "app_contact";
 
@@ -85,6 +113,18 @@ public class BasicInfo {
     private String contact;
 
     private String version;
+
+    private String appReleaseTime;
+
+    private String appType;
+
+    private String appClass;
+
+    private String appDesc;
+
+    private List<String> sources;
+
+    private String hashAlgorithm;
 
     private String fileType;
 
@@ -180,7 +220,6 @@ public class BasicInfo {
      * load file and analyse file list.
      *
      * @param fileAddress file storage path.
-     * @return
      */
     public BasicInfo load(String fileAddress) {
         String unzipDir = getUnzipDir(fileAddress);
@@ -291,6 +330,36 @@ public class BasicInfo {
                 int count = tempString.indexOf(':') + 1;
                 version = tempString.substring(count).trim();
             }
+            // Check for package release time
+            if (meta.equalsIgnoreCase(MF_TIME_META)) {
+                int count = tempString.indexOf(':') + 1;
+                appReleaseTime = tempString.substring(count).trim();
+            }
+            // Check for package type
+            if (meta.equalsIgnoreCase(MF_TYPE_META)) {
+                int count = tempString.indexOf(':') + 1;
+                appType = tempString.substring(count).trim();
+            }
+            // Check for package class
+            if (meta.equalsIgnoreCase(MF_CLASS_META)) {
+                int count = tempString.indexOf(':') + 1;
+                appClass = tempString.substring(count).trim();
+            }
+            // Check for package description
+            if (meta.equalsIgnoreCase(MF_DESC_META)) {
+                int count = tempString.indexOf(':') + 1;
+                appDesc = tempString.substring(count).trim();
+            }
+            // Check for package source file
+            if (meta.equalsIgnoreCase(MF_SOURCE_CHECK)) {
+                int count = tempString.indexOf(':') + 1;
+                sources.add(tempString.substring(count).trim());
+            }
+            // Check for package hash algorithm
+            if (meta.equalsIgnoreCase(MF_ALGORITHM_CHECK)) {
+                int count = tempString.indexOf(':') + 1;
+                hashAlgorithm = tempString.substring(count).trim();
+            }
             // Check for package contact
             if (meta.equalsIgnoreCase(MF_APP_CONTACT)) {
                 int count = tempString.indexOf(':') + 1;
@@ -317,6 +386,68 @@ public class BasicInfo {
             }
         } catch (IOException e) {
             LOGGER.error("Exception while parsing manifest file: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * rewrite manifest file with image zip file.
+     *
+     */
+    public void rewriteManifestWithImage(File mfFile, String imgZipPath) {
+        try {
+            readManifest(mfFile);
+            String mfFilePath = mfFile.getCanonicalPath();
+            String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
+            String content = buildManifestContent(parentDir, imgZipPath);
+            writeFile(mfFile, content);
+        } catch (Exception e) {
+            LOGGER.error("Exception while parse manifest file: {}", e.getMessage());
+        }
+    }
+
+    private String buildManifestContent(String parentDir, String imageFullPath) {
+        StringBuilder content = new StringBuilder().append(MF_META).append(MF_NEWLINE);
+        content.append(MF_PRODUCT_NAME).append(MF_SEPARATOR).append(appName).append(MF_NEWLINE)
+            .append(MF_PROVIDER_META).append(MF_SEPARATOR).append(provider).append(MF_NEWLINE)
+            .append(MF_VERSION_META).append(MF_SEPARATOR).append(version).append(MF_NEWLINE)
+            .append(MF_TIME_META).append(MF_SEPARATOR).append(appReleaseTime).append(MF_NEWLINE)
+            .append(MF_TYPE_META).append(MF_SEPARATOR).append(appType).append(MF_NEWLINE)
+            .append(MF_CLASS_META).append(MF_SEPARATOR).append(appClass).append(MF_NEWLINE)
+            .append(MF_DESC_META).append(MF_SEPARATOR).append(appDesc).append(MF_NEWLINE)
+            .append(MF_NEWLINE);
+        for (String source : sources) {
+            String sourceFilePath = parentDir + File.separator + source;
+            content.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(source).append(MF_NEWLINE)
+                .append(MF_ALGORITHM_CHECK).append(MF_SEPARATOR).append(hashAlgorithm).append(MF_NEWLINE)
+                .append(MF_HASH_CHECK).append(MF_SEPARATOR).append(getHashValue(sourceFilePath)).append(MF_NEWLINE)
+                .append(MF_NEWLINE);
+        }
+        if (!StringUtils.isEmpty(imageFullPath)) {
+            String imageSourceFile = imageFullPath.substring(imageFullPath.indexOf(parentDir) + 1);
+            if (!sources.contains(imageSourceFile)) {
+                content.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(imageSourceFile).append(MF_NEWLINE)
+                    .append(MF_ALGORITHM_CHECK).append(MF_SEPARATOR).append(hashAlgorithm).append(MF_NEWLINE)
+                    .append(MF_HASH_CHECK).append(MF_SEPARATOR).append(getHashValue(imageFullPath)).append(MF_NEWLINE)
+                    .append(MF_NEWLINE);
+            }
+        }
+        return content.toString();
+    }
+
+    private String getHashValue(String sourceFilePath) {
+        try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
+            return DigestUtils.sha256Hex(fis);
+        } catch (IOException e) {
+            throw new AppException("get hash value of source file failed", ResponseConst.RET_PARSE_FILE_EXCEPTION);
+        }
+    }
+
+    private void writeFile(File file, String content) {
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write(content);
+        } catch (IOException e) {
+            LOGGER.error("write manifest file error.");
         }
     }
 

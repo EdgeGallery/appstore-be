@@ -49,6 +49,7 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
@@ -155,9 +156,8 @@ public class AppUtil {
      * @return file name
      */
     public String getFileName(Release release, AFile file) {
-        StringBuffer fileName = new StringBuffer(release.getAppBasicInfo().getAppName());
-        fileName.append(".");
-        fileName.append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
+        StringBuilder fileName = new StringBuilder().append(release.getAppBasicInfo().getAppName());
+        fileName.append(".").append(Files.getFileExtension(file.getOriginalFileName().toLowerCase()));
         return fileName.toString();
     }
 
@@ -303,6 +303,45 @@ public class AppUtil {
         writeFile(swImageDesc, gson.toJson(imgDecsLists));
     }
 
+    private void addImageFileInfo(String parentDir, String imgZipPath) {
+        if (!StringUtils.isEmpty(imgZipPath)) {
+            try {
+                // add image zip to mf file
+                File mfFile = getFile(parentDir, ".mf");
+                new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath);
+
+                // add image zip to TOSCA.meta file
+                String toscaMeta = parentDir + "/TOSCA-Metadata/TOSCA.meta";
+                File metaFile = new File(toscaMeta);
+                String hashFile = imgZipPath.substring(imgZipPath.indexOf(parentDir) + 1);
+                String contentName = "Name: " + hashFile + "\n";
+                if (!FileUtils.readFileToString(metaFile, StandardCharsets.UTF_8).contains(contentName)) {
+                    FileUtils.writeStringToFile(metaFile, contentName, StandardCharsets.UTF_8, true);
+                    FileUtils.writeStringToFile(metaFile, "Content-Type: image\n", StandardCharsets.UTF_8, true);
+                }
+            } catch (Exception e) {
+                LOGGER.error("add image file info to package failed {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * get file by parent directory and file extension.
+     */
+    public File getFile(String parentDir, String fileExtension) {
+        try {
+            List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
+            for (File fileEntry : files) {
+                if (Files.getFileExtension(fileEntry.getName().toLowerCase()).equals(fileExtension)) {
+                    return fileEntry;
+                }
+            }
+        } catch (Exception e) {
+            throw new AppException(e.getMessage(), ResponseConst.RET_FILE_NOT_FOUND);
+        }
+        return null;
+    }
+
     /**
      * write json file.
      *
@@ -310,11 +349,9 @@ public class AppUtil {
      * @param content content.
      */
     private void writeFile(File file, String content) {
-        try {
-            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw);
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
-            bw.close();
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
@@ -340,12 +377,13 @@ public class AppUtil {
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
+                String imgZipPath = null;
                 for (File f : files) {
                     if (f.isDirectory() && f.getName().equals(IMAGE)) {
                         File[] filezipArrays = f.listFiles();
                         if (filezipArrays != null && filezipArrays.length > 0) {
-                            boolean presentZip = Arrays.asList(filezipArrays).stream()
-                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+                            boolean presentZip = Arrays.stream(filezipArrays)
+                                .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
                             if (!presentZip) {
                                 String outPath = f.getCanonicalPath();
                                 List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
@@ -378,6 +416,7 @@ public class AppUtil {
                                         }
                                         outputStream.flush();
                                     }
+                                    imgZipPath = fileImage.getCanonicalPath();
                                     updateJsonFile(imageDesc, imgDecsLists, fileParent, imageName);
                                 }
                             } else {
@@ -387,6 +426,7 @@ public class AppUtil {
 
                     }
                 }
+                addImageFileInfo(fileParent, imgZipPath);
             }
 
         } catch (IOException e1) {
