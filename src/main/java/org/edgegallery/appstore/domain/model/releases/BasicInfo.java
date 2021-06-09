@@ -398,10 +398,13 @@ public class BasicInfo {
             readManifest(mfFile);
             String mfFilePath = mfFile.getCanonicalPath();
             String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
+            LOGGER.info("rewirte manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
             String content = buildManifestContent(parentDir, imgZipPath);
             writeFile(mfFile, content);
-        } catch (Exception e) {
-            LOGGER.error("Exception while parse manifest file: {}", e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Exception while rewrite manifest file: {}", e.getMessage());
+            throw new AppException("Exception while rewrite manifest file.",
+                ResponseConst.RET_PARSE_FILE_EXCEPTION, mfFile.getName());
         }
     }
 
@@ -423,7 +426,7 @@ public class BasicInfo {
                 .append(MF_NEWLINE);
         }
         if (!StringUtils.isEmpty(imageFullPath)) {
-            String imageSourceFile = imageFullPath.substring(imageFullPath.indexOf(parentDir) + 1);
+            String imageSourceFile = imageFullPath.substring(parentDir.length() + 1);
             if (!sources.contains(imageSourceFile)) {
                 content.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(imageSourceFile).append(MF_NEWLINE)
                     .append(MF_ALGORITHM_CHECK).append(MF_SEPARATOR).append(hashAlgorithm).append(MF_NEWLINE)
@@ -438,7 +441,8 @@ public class BasicInfo {
         try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
             return DigestUtils.sha256Hex(fis);
         } catch (IOException e) {
-            throw new AppException("get hash value of source file failed", ResponseConst.RET_PARSE_FILE_EXCEPTION);
+            throw new AppException("get hash value of source file failed",
+                ResponseConst.RET_PARSE_FILE_EXCEPTION, sourceFilePath);
         }
     }
 

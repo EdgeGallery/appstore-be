@@ -282,7 +282,7 @@ public class AppUtil {
         if (!StringUtils.isEmpty(imgZipPath)) {
             try {
                 // add image zip to mf file
-                File mfFile = getFile(parentDir, ".mf");
+                File mfFile = getFile(parentDir, "mf");
                 new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath);
 
                 // add image zip to TOSCA.meta file

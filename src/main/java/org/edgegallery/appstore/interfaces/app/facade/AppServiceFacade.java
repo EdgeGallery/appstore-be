@@ -288,7 +288,7 @@ public class AppServiceFacade {
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
                 // update hash value of Image/SwImageDesc.json
-                File mfFile = appUtil.getFile(fileParent, ".mf");
+                File mfFile = appUtil.getFile(fileParent, "mf");
                 new BasicInfo().rewriteManifestWithImage(mfFile, "");
                 fileAddress = appService.compressAppPackage(fileParent);
             }
