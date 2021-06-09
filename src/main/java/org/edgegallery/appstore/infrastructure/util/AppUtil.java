@@ -288,8 +288,8 @@ public class AppUtil {
                 // add image zip to TOSCA.meta file
                 String toscaMeta = parentDir + "/TOSCA-Metadata/TOSCA.meta";
                 File metaFile = new File(toscaMeta);
-                String hashFile = imgZipPath.substring(imgZipPath.indexOf(parentDir) + 1);
-                String contentName = "Name: " + hashFile + "\n";
+                String contentFile = imgZipPath.substring(parentDir.length() + 1);
+                String contentName = "Name: " + contentFile + "\n";
                 if (!FileUtils.readFileToString(metaFile, StandardCharsets.UTF_8).contains(contentName)) {
                     FileUtils.writeStringToFile(metaFile, contentName, StandardCharsets.UTF_8, true);
                     FileUtils.writeStringToFile(metaFile, "Content-Type: image\n", StandardCharsets.UTF_8, true);
