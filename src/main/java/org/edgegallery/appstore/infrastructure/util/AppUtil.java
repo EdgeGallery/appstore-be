@@ -93,6 +93,8 @@ public class AppUtil {
 
     private static final String DOWNLOAD_IMAGE_TAG = "/action/download";
 
+    private static final String DOWNLOAD_ZIP_IMAGE = "?isZip=true";
+
     @Autowired
     private AppService appService;
 
@@ -306,15 +308,11 @@ public class AppUtil {
      * get file by parent directory and file extension.
      */
     public File getFile(String parentDir, String fileExtension) {
-        try {
-            List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
-            for (File fileEntry : files) {
-                if (Files.getFileExtension(fileEntry.getName().toLowerCase()).equals(fileExtension)) {
-                    return fileEntry;
-                }
+        List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
+        for (File fileEntry : files) {
+            if (Files.getFileExtension(fileEntry.getName().toLowerCase()).equals(fileExtension)) {
+                return fileEntry;
             }
-        } catch (Exception e) {
-            throw new AppException(e.getMessage(), ResponseConst.RET_FILE_NOT_FOUND);
         }
         return null;
     }
@@ -365,7 +363,7 @@ public class AppUtil {
                                 String outPath = f.getCanonicalPath();
                                 List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
                                 for (SwImgDesc imageDesc : imgDecsLists) {
-                                    String pathname = imageDesc.getSwImage();
+                                    String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
                                     byte[] result = downloadImageFromFileSystem(token, pathname);
                                     String imageName = imageDesc.getName();
                                     if (imageName.contains(COLON)) {
