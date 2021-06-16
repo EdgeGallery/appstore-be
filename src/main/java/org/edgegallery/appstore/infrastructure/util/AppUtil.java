@@ -266,14 +266,26 @@ public class AppUtil {
      * @param imageDesc imageDesc.
      * @param imgDecsLists imgDecsLists.
      * @param fileParent fileParent.
-     * @param imageName imageName.
+     * @param imgPath imgZipPath.
      */
-    public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent, String imageName) {
+    public void updateJsonFile(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent, String imgPath) {
         int index = imgDecsLists.indexOf(imageDesc);
-        StringBuilder newPathName = new StringBuilder().append(IMAGE).append(File.separator).append(imageName)
-            .append(ZIP_EXTENSION).append(File.separator).append(imageName).append(File.separator)
-            .append(imageName).append(SWIMAGE_PATH_EXTENSION);
-        imageDesc.setSwImage(newPathName.toString());
+        String newPathName = "";
+        try (ZipFile zipFile = new ZipFile(imgPath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                newPathName = "/Image/" + imgPath.substring(imgPath.lastIndexOf(File.separator) + 1)
+                    + File.separator + entry.getName();
+            }
+        } catch (IOException e) {
+            throw new AppException("failed to get image path from image file.",
+                ResponseConst.RET_PARSE_FILE_EXCEPTION);
+        }
+        imageDesc.setSwImage(newPathName);
         imgDecsLists.set(index, imageDesc);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDesc = new File(jsonFile);
@@ -392,7 +404,7 @@ public class AppUtil {
                                         outputStream.flush();
                                     }
                                     imgZipPath = fileImage.getCanonicalPath();
-                                    updateJsonFile(imageDesc, imgDecsLists, fileParent, imageName);
+                                    updateJsonFile(imageDesc, imgDecsLists, fileParent, imgZipPath);
                                 }
                             }
                         }
