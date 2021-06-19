@@ -54,7 +54,7 @@ public class AppStoreTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void add_appstore_should_success() throws Exception {
         MvcResult result = addAppstore();
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     public MvcResult addAppstore() throws Exception {
