@@ -122,7 +122,7 @@ public class AtpUtil {
             }
 
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage())
+            LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());
         }
         return status;
     }
