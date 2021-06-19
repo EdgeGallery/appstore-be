@@ -74,8 +74,6 @@ public class AppUtil {
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String SWIMAGE_PATH_EXTENSION = ".qcow2";
-
     private static final Gson gson = new Gson();
 
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";

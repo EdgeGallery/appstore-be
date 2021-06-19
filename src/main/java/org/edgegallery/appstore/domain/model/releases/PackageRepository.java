@@ -17,7 +17,6 @@ package org.edgegallery.appstore.domain.model.releases;
 
 import java.util.List;
 import java.util.Map;
-import org.edgegallery.appstore.domain.shared.PageCriteria;
 
 public interface PackageRepository {
 
