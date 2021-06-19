@@ -107,8 +107,8 @@ public class AtpUtil {
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Get task status from atp response failed, the taskId is {}, The status code is {}", taskId,
-                    response.getStatusCode());
+                LOGGER.error("Get task status from atp response failed, the taskId is {}, The status code is {}",
+                    taskId, response.getStatusCode());
                 throw new AppException("Get task status from atp response failed.",
                     ResponseConst.RET_GET_TEST_STATUS_FAILED);
             }
