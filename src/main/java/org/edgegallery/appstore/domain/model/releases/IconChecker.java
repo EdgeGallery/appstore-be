@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
 public class IconChecker extends FileChecker {
@@ -50,9 +51,8 @@ public class IconChecker extends FileChecker {
         File result = null;
         super.check(file);
         String originalFileName = file.getOriginalFilename();
-
         if (originalFileName == null) {
-            throw new IllegalArgumentException("Icon File Name is null.");
+            throw new IllegalRequestException("Icon File name is null.", ResponseConst.RET_FILE_NAME_NULL);
         }
 
         String tempFileAddress = new StringBuilder().append(getDir()).append(File.separator).append("temp")

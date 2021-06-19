@@ -21,9 +21,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
 import org.edgegallery.appstore.domain.model.appstore.AppStoreRepository;
 import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +49,16 @@ public class AppStoreServiceFacade {
      * add app store.
      */
     public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto, HttpServletRequest request) {
-        if (appStoreDto.getUrl().indexOf(request.getRemoteAddr()) != -1) {
-            LOGGER.error("can not add itself appstore : {}", appStoreDto);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(appStoreDto);
+        String[] reqAddress = request.getRemoteAddr().split(":");
+        if (appStoreDto.getUrl().indexOf(reqAddress[0]) != -1) {
+            LOGGER.error("can not add local appstore, url: {}", appStoreDto.getUrl());
+            throw new AppException("can not add local appstore.", ResponseConst.RET_ADD_SELF_APPSTORE);
         }
         String uuid = appStoreRepository.addAppStore(AppStore.of(appStoreDto));
         AppStore appStore = appStoreRepository.queryAppStoreById(uuid);
         if (appStore == null) {
             LOGGER.error("failed to add app store : {}", appStoreDto);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(appStoreDto);
+            throw new AppException("failed to add appstore.", ResponseConst.RET_ADD_APPSTORE_FAILED);
         }
         return ResponseEntity.ok(appStore.toAppStoreDto());
     }
@@ -74,7 +77,7 @@ public class AppStoreServiceFacade {
     public ResponseEntity<AppStoreDto> editAppStore(AppStoreDto appStoreDto) {
         if (appStoreRepository.updateAppStoreById(AppStore.of(appStoreDto)) != 1) {
             LOGGER.error("failed to edit app store : {}", appStoreDto);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            throw new AppException("failed to edit app store.", ResponseConst.RET_UPDATE_APPSTORE_FAILED);
         }
         AppStore appStore = appStoreRepository.queryAppStoreById(appStoreDto.getAppStoreId());
         return ResponseEntity.ok(appStore.toAppStoreDto());

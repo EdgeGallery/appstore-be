@@ -133,8 +133,7 @@ public class PackageController {
         @ApiParam(value = "package Id", required = true) @PathVariable("packageId")
         @Pattern(regexp = REG_APP_ID) String packageId,
         @Length(max = MAX_PATH_STRING_LENGTH) @FormParam("filePath") String filePath,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
-        throws IOException {
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
         String fileContent = packageServiceFacade.getCsarFileByName(appId, packageId, filePath);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);
     }

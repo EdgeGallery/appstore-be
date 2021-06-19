@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

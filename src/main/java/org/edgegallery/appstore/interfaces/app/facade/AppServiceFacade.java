@@ -56,10 +56,10 @@ import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
-import org.edgegallery.appstore.infrastructure.persistence.app.AppMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
@@ -103,9 +103,6 @@ public class AppServiceFacade {
     @Autowired
     private AppUtil appUtil;
 
-    @Autowired
-    private AppMapper appMapper;
-
     @Value("${appstore-be.package-path}")
     private String dir;
 
@@ -119,7 +116,7 @@ public class AppServiceFacade {
     /**
      * upload image.
      */
-    public ResponseEntity<String> uploadImage(boolean isMultipart, Chunk chunk) throws IOException {
+    public ResponseEntity<String> uploadImage(boolean isMultipart, Chunk chunk) {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
 
@@ -137,6 +134,8 @@ public class AppServiceFacade {
             File outFile = new File(filePathTemp + File.separator + chunk.getIdentifier(), chunkNumber + ".part");
             try (InputStream inputStream = file.getInputStream()) {
                 FileUtils.copyInputStreamToFile(inputStream, outFile);
+            } catch (IOException e) {
+                throw new FileOperateException("can not copy part to file", ResponseConst.RET_COPY_FILE_FAILED);
             }
         }
 
@@ -146,37 +145,41 @@ public class AppServiceFacade {
     /**
      * merge image.
      */
-    public ResponseEntity merge(String fileName, String guid) throws IOException {
+    public ResponseEntity merge(String fileName, String guid) {
         File uploadDir = new File(dir);
         checkDir(uploadDir);
         File file = new File(filePathTemp + File.separator + guid);
         String randomPath = "";
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files != null && files.length > 0) {
-                String temp = UUID.randomUUID().toString().replace("-", "");
-                String newFileAddress = dir + File.separator + temp;
-                File partFiles = new File(newFileAddress);
-                checkDir(partFiles);
-                randomPath = temp + File.separator + fileName;
-                String newFileName = partFiles + File.separator + fileName;
-                File partFile = new File(newFileName);
-                for (int i = 1; i <= files.length; i++) {
-                    File s = new File(filePathTemp + File.separator + guid, i + ".part");
-                    FileOutputStream destTempfos = new FileOutputStream(partFile, true);
-                    FileUtils.copyFile(s, destTempfos);
-                    destTempfos.close();
+        try {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    String temp = UUID.randomUUID().toString().replace("-", "");
+                    String newFileAddress = dir + File.separator + temp;
+                    File partFiles = new File(newFileAddress);
+                    checkDir(partFiles);
+                    randomPath = temp + File.separator + fileName;
+                    String newFileName = partFiles + File.separator + fileName;
+                    File partFile = new File(newFileName);
+                    for (int i = 1; i <= files.length; i++) {
+                        File s = new File(filePathTemp + File.separator + guid, i + ".part");
+                        FileOutputStream destTempfos = new FileOutputStream(partFile, true);
+                        FileUtils.copyFile(s, destTempfos);
+                        destTempfos.close();
+                    }
+                    FileUtils.deleteDirectory(file);
                 }
-                FileUtils.deleteDirectory(file);
             }
+        } catch (IOException e) {
+            throw new FileOperateException("can not merge parts to file", ResponseConst.RET_COPY_FILE_FAILED);
         }
 
         return ResponseEntity.ok(randomPath);
     }
 
-    private void checkDir(File fileDir) throws IOException {
+    private void checkDir(File fileDir) {
         if (!fileDir.exists() && !fileDir.mkdirs()) {
-            throw new IOException("create folder failed");
+            throw new FileOperateException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
         }
     }
 
@@ -221,22 +224,27 @@ public class AppServiceFacade {
      * appRegistering big file.
      */
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
-        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) throws IOException {
+        MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
         if (!appParam.checkValidParam(appParam)) {
             throw new AppException("app param is invalid!");
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
         fileAddress =  dir + File.separator + fileAddress;
-        File packageFile  = new File(fileAddress);
-        FileInputStream fileInputStream = new FileInputStream(packageFile);
-        MultipartFile multipartFile = new MockMultipartFile("file", packageFile.getName(), "text/plain",
-            IOUtils.toByteArray(fileInputStream));
-        FileChecker fileChecker = new PackageChecker(fileParent);
-        File file = fileChecker.check(multipartFile);
-        if (!file.exists()) {
-            LOGGER.error("Package File  is Illegal.");
-            throw new IllegalArgumentException("Package File name is Illegal.");
+        MultipartFile multipartFile = null;
+        try {
+            File packageFile  = new File(fileAddress);
+            FileInputStream fileInputStream = new FileInputStream(packageFile);
+            multipartFile = new MockMultipartFile("file", packageFile.getName(),
+                "text/plain", IOUtils.toByteArray(fileInputStream));
+            FileChecker fileChecker = new PackageChecker(fileParent);
+            File file = fileChecker.check(multipartFile);
+            if (!file.exists()) {
+                LOGGER.error("Package File is Illegal.");
+                throw new IllegalRequestException("Package File name is Illegal.", ResponseConst.RET_PARAM_INVALID);
+            }
+        } catch (IOException e) {
+            throw new AppException("Package File name is Illegal.", ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
@@ -378,7 +386,8 @@ public class AppServiceFacade {
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
             appService.unPublish(app);
         } else {
-            throw new PermissionNotAllowedException("can not delete app");
+            throw new PermissionNotAllowedException("can not delete app",
+                ResponseConst.RET_NO_ACCESS_DELETE_APP, user.getUserName());
         }
     }
 
@@ -403,7 +412,7 @@ public class AppServiceFacade {
         params.put("appName", queryAppReqDto.getAppName());
         Stream<AppDto> appStream = appRepository.queryV2(params).stream().map(AppDto::of).collect(Collectors.toList())
             .stream();
-        int total = appMapper.countTotalV2(params);
+        long total = appRepository.countTotalV2(params);
         return ResponseEntity
             .ok(new Page<>(appStream.collect(Collectors.toList()), queryAppReqDto.getQueryCtrl().getLimit(),
                 queryAppReqDto.getQueryCtrl().getOffset(), total));

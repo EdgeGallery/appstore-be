@@ -18,8 +18,6 @@ package org.edgegallery.appstore.application.external.atp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Objects;
-import javax.ws.rs.core.Response;
-import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
@@ -88,7 +86,7 @@ public class AtpUtil {
             LOGGER.error("Failed to create instance from atp,  exception {}", e.getMessage());
         }
 
-        throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "Create instance from atp failed.");
+        throw new AppException("Create instance from atp failed.", ResponseConst.RET_CREATE_TEST_TASK_FAILED);
     }
 
     /**
@@ -111,7 +109,7 @@ public class AtpUtil {
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}", taskId,
                     response.getStatusCode());
-                throw new AppException("Get task status from atp reponse failed.",
+                throw new AppException("Get task status from atp response failed.",
                     ResponseConst.RET_GET_TEST_STATUS_FAILED);
             }
 
@@ -120,11 +118,14 @@ public class AtpUtil {
                 status = jsonResp.get(ATP_STATUS).getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
-                LOGGER.error("Get task status failed.");
+                throw new AppException("Get task status from atp response failed.",
+                    ResponseConst.RET_GET_TEST_STATUS_FAILED);
             }
 
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());
+            throw new AppException("Failed to get task status from atp exception",
+                ResponseConst.RET_GET_TEST_STATUS_FAILED);
         }
         return status;
     }

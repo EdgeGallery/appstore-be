@@ -22,13 +22,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.model.message.Message;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
@@ -107,7 +108,8 @@ public class MessageService {
         if (packageDownloadUrl == null || iconDownloadUrl == null) {
             LOGGER.error("download url null: package download url is {}, icon download url is {}", packageDownloadUrl,
                 iconDownloadUrl);
-            throw new DomainException("download url is null");
+            throw new AppException("download url is null.",
+                ResponseConst.RET_MESSAGE_DOWNLOAD_URL_NULL, packageDownloadUrl, iconDownloadUrl);
         }
         try {
             String parentPath = dir + File.separator + UUID.randomUUID().toString();
@@ -134,7 +136,7 @@ public class MessageService {
             addDownloadMessage(message);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());
-            throw new DomainException("file download exception");
+            throw new AppException("download file from message.", ResponseConst.RET_DOWNLOAD_FROM_MESSAGE_FAILED);
         }
     }
 

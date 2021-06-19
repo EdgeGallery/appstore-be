@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -37,7 +36,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -100,7 +99,7 @@ public class PackageServiceFacade {
     public ResponseEntity<ResponseObject> queryPackageByIdV2(String appId, String packageId, String token) {
         PackageDto dto = queryPackageById(appId, packageId, token);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "querey package by packageId success."));
+        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "query package by packageId success."));
     }
 
     /**
@@ -109,7 +108,7 @@ public class PackageServiceFacade {
      * @param packageId package id.
      * @param filePath file path.
      */
-    public String getCsarFileByName(String appId, String packageId, String filePath) throws IOException {
+    public String getCsarFileByName(String appId, String packageId, String filePath) {
         Release release = appService.getRelease(appId, packageId);
         filePath = FileChecker.checkByPath(filePath);
         return fileService.get(release.getPackageFile().getStorageAddress(), filePath);
@@ -198,7 +197,8 @@ public class PackageServiceFacade {
         Release release = appService.getRelease(appId, packageId);
         if (!EnumPackageStatus.testAllowed(release.getStatus())) {
             LOGGER.error("The package status {} is not allowed to test again.", release.getStatus());
-            throw new OperateAvailableException("The package status is not allowed to test again.");
+            throw new AppException("The package status is not allowed to test again.",
+                ResponseConst.RET_NOT_ALLOWED_TO_TEST, release.getStatus());
         }
         return ResponseEntity.ok(packageService.testPackage(release, token));
     }

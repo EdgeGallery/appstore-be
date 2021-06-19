@@ -182,14 +182,69 @@ public interface ResponseConst {
     public static final int RET_PACKAGE_FILE_NOT_FOUND = 11003;
 
     /**
+     * get csar package file failed.
+     */
+    public static final int RET_GET_PACKAGE_FILE_FAILED = 11004;
+
+    /**
+     * The package status is not allowed to test again.
+     */
+    public static final int RET_NOT_ALLOWED_TO_TEST = 11005;
+
+    /**
+     * create test package task failed.
+     */
+    public static final int RET_CREATE_TEST_TASK_FAILED = 11006;
+
+    /**
+     * add image zip to package failed.
+     */
+    public static final int RET_IMAGE_TO_PACKAGE_FAILED = 11007;
+
+    /**
+     * download image from file system failed.
+     */
+    public static final int RET_DOWNLOAD_IMAGE_FAILED = 11008;
+
+    /**
+     * add image info to file failed.
+     */
+    public static final int RET_ADD_IMAGE_INFO_FAILED = 11009;
+
+    /**
+     * pull package exception.
+     */
+    public static final int RET_PULL_PACKAGE_FAILED = 11010;
+
+    /**
      * comment base error code.
      */
     public static final int RET_COMMENT_BASE = 12000;
 
     /**
+     * user can not comment own app.
+     */
+    public static final int RET_COMMENT_OWN_APP = 12001;
+
+    /**
      * appstore base error code.
      */
     public static final int RET_APPSTORE_BASE = 13000;
+
+    /**
+     * can not add local appstore.
+     */
+    public static final int RET_ADD_SELF_APPSTORE = 13001;
+
+    /**
+     * add appstore failed.
+     */
+    public static final int RET_ADD_APPSTORE_FAILED = 13002;
+
+    /**
+     * update appstore failed.
+     */
+    public static final int RET_UPDATE_APPSTORE_FAILED = 13003;
 
     /**
      * message base error code.
@@ -207,6 +262,32 @@ public interface ResponseConst {
     public static final int RET_MESSAGE_EXISTED = 14002;
 
     /**
+     * the download url of package or icon is null.
+     */
+    public static final int RET_MESSAGE_DOWNLOAD_URL_NULL = 14003;
+
+    /**
+     * download file from message failed.
+     */
+    public static final int RET_DOWNLOAD_FROM_MESSAGE_FAILED = 14004;
+
+    /**
+     * download file from source appstore failed.
+     */
+    public static final int RET_DOWNLOAD_FROM_APPSTORE_FAILED = 14005;
+
+
+    /**
+     * right base error code.
+     */
+    public static final int RET_RIGHT_BASE = 18000;
+
+    /**
+     * Permission not allowed to delete app.
+     */
+    public static final int RET_NO_ACCESS_DELETE_APP = 18001;
+
+    /**
      * general base error code.
      */
     public static final int RET_GENERAL_BASE = 19000;
@@ -215,4 +296,30 @@ public interface ResponseConst {
      * Database operation failed.
      */
     public static final int RET_DB_ERROR = 19001;
+
+    /**
+     * make directory failed.
+     */
+    public static final int RET_MAKE_DIR_FAILED = 19002;
+
+    /**
+     * create file failed.
+     */
+    public static final int RET_CREATE_FILE_FAILED = 19003;
+
+    /**
+     * copy file failed.
+     */
+    public static final int RET_COPY_FILE_FAILED = 19004;
+
+    /**
+     * File is outside extraction target directory.
+     */
+    public static final int RET_FILE_OUT_TARGET = 19005;
+
+    /**
+     * the file path is invalid.
+     */
+    public static final int RET_FILE_PATH_INVALID = 19006;
+
 }
