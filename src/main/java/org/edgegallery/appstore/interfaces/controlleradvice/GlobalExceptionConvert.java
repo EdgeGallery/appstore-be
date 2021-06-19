@@ -26,9 +26,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
-import org.edgegallery.appstore.domain.shared.exceptions.OperateAvailableException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
-import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -84,7 +82,7 @@ public class GlobalExceptionConvert {
     public RestReturn accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
         return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+            .retCode(ResponseConst.RET_FAIL).params(null).build();
     }
 
     /**
@@ -96,7 +94,7 @@ public class GlobalExceptionConvert {
     public RestReturn runtimeException(HttpServletRequest request, RuntimeException e) {
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
-            .path(request.getRequestURI()).build();
+            .path(request.getRequestURI()).retCode(ResponseConst.RET_FAIL).params(null).build();
     }
 
     /**
@@ -163,8 +161,7 @@ public class GlobalExceptionConvert {
     public RestReturn fileNotFoundException(HttpServletRequest request, FileNotFoundException e) {
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
-
+            .retCode(ResponseConst.RET_FAIL).params(null).build();
     }
 
     /**
@@ -173,21 +170,11 @@ public class GlobalExceptionConvert {
      */
     @ExceptionHandler(value = UnknownReleaseExecption.class)
     @ResponseBody
-    public RestReturn unknownReleaseExecption(HttpServletRequest request, UnknownReleaseExecption e) {
+    public RestReturn unknownReleaseException(HttpServletRequest request, UnknownReleaseExecption e) {
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
-    }
-
-    /**
-     * Handle RedundantCommentsException.
-     *
-     */
-    @ExceptionHandler(value = RedundantCommentsException.class)
-    @ResponseBody
-    public RestReturn redundantCommentsException(HttpServletRequest request, RedundantCommentsException e) {
-        return badRequestResponse(request, e);
     }
 
     /**
@@ -199,7 +186,7 @@ public class GlobalExceptionConvert {
     public RestReturn permissionNotAccessException(HttpServletRequest request, PermissionNotAllowedException e) {
         return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+            .retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams()).build();
     }
 
     /**
@@ -213,18 +200,6 @@ public class GlobalExceptionConvert {
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
-    }
-
-    /**
-     * Handle OperateAvailableException.
-     *
-     */
-    @ExceptionHandler(value = OperateAvailableException.class)
-    @ResponseBody
-    public RestReturn operateAvailableException(HttpServletRequest request, OperateAvailableException e) {
-        return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
-            .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
     }
 
     /**

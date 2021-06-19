@@ -68,9 +68,7 @@ public class PackageChecker extends FileChecker {
     public File check(MultipartFile file) {
         File result = null;
         super.check(file);
-        String originalFileName = file.getOriginalFilename();
-
-        if (originalFileName == null) {
+        if (file.getOriginalFilename() == null) {
             throw new IllegalRequestException("Package File name is null.", ResponseConst.RET_FILE_NAME_NULL);
         }
 
@@ -103,7 +101,8 @@ public class PackageChecker extends FileChecker {
         if (canonicalPath.startsWith(canonicalID)) {
             return canonicalPath;
         } else {
-            throw new IllegalStateException("File is outside extraction target directory.");
+            throw new FileOperateException("File is outside extraction target directory.",
+                ResponseConst.RET_FILE_OUT_TARGET);
         }
     }
 
@@ -140,14 +139,16 @@ public class PackageChecker extends FileChecker {
                 }
                 entries++;
                 if (entries > TOOMANY) {
-                    throw new IllegalStateException("Too many files to unzip.");
+                    throw new IllegalRequestException("Too many files to unzip.",
+                        ResponseConst.RET_UNZIP_TOO_MANY_FILES, TOOMANY);
                 }
                 if (total > TOOBIG) {
-                    throw new IllegalStateException("File being unzipped is too big.");
+                    throw new IllegalRequestException("File being unzipped is too big",
+                        ResponseConst.RET_FILE_TOO_BIG, entry.getName(), TOOBIG);
                 }
             }
         } catch (IOException e) {
-            throw new IllegalArgumentException("unzip csar with exception.");
+            throw new IllegalRequestException("unzip csar with exception.", ResponseConst.RET_DECOMPRESS_FAILED);
         } finally {
             deleteTempFiles(tempFiles);
         }

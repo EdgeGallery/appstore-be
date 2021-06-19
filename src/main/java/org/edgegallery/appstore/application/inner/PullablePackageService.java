@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.edgegallery.appstore.config.ApplicationContext;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.appstore.AppStore;
@@ -40,7 +41,7 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
@@ -206,7 +207,7 @@ public class PullablePackageService {
     public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
-            LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
+            LOGGER.error("appstore is not exist, appstoreId is {}", platformId);
             return Collections.emptyList();
         }
         String url = appStore.getUrl() + PULLABLE_API;
@@ -256,7 +257,7 @@ public class PullablePackageService {
             addPullMessage(packagePo);
         } catch (IOException e) {
             LOGGER.error("IOException: {}", e.getMessage());
-            throw new DomainException("pull package exception");
+            throw new AppException("pull package exception.", ResponseConst.RET_PULL_PACKAGE_FAILED);
         }
         return true;
     }

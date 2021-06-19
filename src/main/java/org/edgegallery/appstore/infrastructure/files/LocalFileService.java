@@ -40,7 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.service.FileService;
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.slf4j.Logger;
@@ -77,7 +77,8 @@ public class LocalFileService implements FileService {
         if (canonicalPath.startsWith(canonicalID)) {
             return canonicalPath;
         } else {
-            throw new IllegalStateException("file is outside extraction target directory.");
+            throw new FileOperateException("file is outside extraction target directory.",
+                ResponseConst.RET_FILE_OUT_TARGET);
         }
     }
 
@@ -94,7 +95,7 @@ public class LocalFileService implements FileService {
             result = tempFile.getParentFile().mkdirs();
         }
         if (!tempFile.exists() && !tempFile.isDirectory() && !tempFile.createNewFile() && !result) {
-            throw new IllegalArgumentException("create temp file failed");
+            throw new FileOperateException("create temp file failed.", ResponseConst.RET_CREATE_FILE_FAILED);
         }
     }
 
@@ -128,7 +129,7 @@ public class LocalFileService implements FileService {
     }
 
     @Override
-    public String get(String fileAddress, String filePath) throws IOException {
+    public String get(String fileAddress, String filePath) {
         return getCsarFileContentByName(fileAddress, filePath);
     }
 
@@ -148,8 +149,12 @@ public class LocalFileService implements FileService {
      * @param file file path in package.
      * @return file content
      */
-    public static String getCsarFileContentByName(String filePath, String file) throws IOException {
-        return readFileContent(filePath, file);
+    public static String getCsarFileContentByName(String filePath, String file) {
+        try {
+            return readFileContent(filePath, file);
+        } catch (IOException e) {
+            throw new AppException("get file content by name failed", ResponseConst.RET_GET_PACKAGE_FILE_FAILED);
+        }
     }
 
     private static String readFileContent(String filePath, String target) throws IOException {
@@ -165,7 +170,7 @@ public class LocalFileService implements FileService {
                 }
             }
             if (result == null) {
-                throw new FileNotFoundException(target + " not found");
+                throw new AppException(target + " not found", ResponseConst.RET_PACKAGE_FILE_NOT_FOUND);
             }
             inputStream = zipFile.getInputStream(result);
             StringWriter writer = new StringWriter();
@@ -212,7 +217,7 @@ public class LocalFileService implements FileService {
     public File downloadFile(String url, String parentPath, String targetAppstore) {
         if (!createParent(parentPath)) {
             LOGGER.error("create file parent fail");
-            throw new DomainException("create file parent fail");
+            throw new FileOperateException("create file parent path failed.", ResponseConst.RET_MAKE_DIR_FAILED);
         }
         RestTemplate restTemplate = new RestTemplate();
 
@@ -227,20 +232,23 @@ public class LocalFileService implements FileService {
                     byte[].class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
-                throw new DomainException("download file exception");
+                throw new AppException("download file from source appstore failed.",
+                    ResponseConst.RET_DOWNLOAD_FROM_APPSTORE_FAILED);
             }
 
             byte[] result = response.getBody();
             if (result == null) {
-                throw new DomainException("download response is null");
+                throw new AppException("download file from source appstore null.",
+                    ResponseConst.RET_DOWNLOAD_FROM_APPSTORE_FAILED);
             }
             String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
-                .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
+                .orElseThrow(() -> new AppException("response header Content-Disposition is null",
+                    ResponseConst.RET_DOWNLOAD_FROM_APPSTORE_FAILED)).get(0)
                 .replace("attachment; filename=", "");
             File file = new File(parentPath + File.separator + fileName);
             if (!file.exists() && !file.createNewFile()) {
                 LOGGER.error("create download file error");
-                throw new DomainException("create download file error");
+                throw new FileOperateException("create download file error.", ResponseConst.RET_CREATE_FILE_FAILED);
             }
 
             try (InputStream inputStream = new ByteArrayInputStream(result);
@@ -256,7 +264,7 @@ public class LocalFileService implements FileService {
             return file;
         } catch (RuntimeException | IOException e1) {
             LOGGER.error("download file error: {}", e1.getMessage());
-            throw new DomainException("download file error");
+            throw new AppException("download file failed.", ResponseConst.RET_DOWNLOAD_FROM_MESSAGE_FAILED);
         }
     }
 

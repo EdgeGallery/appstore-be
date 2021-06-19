@@ -52,6 +52,7 @@ import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,17 +187,17 @@ public class AppUtil {
             response = restObject.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
-                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
+                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
             }
             result = response.getBody();
             if (result == null) {
                 LOGGER.error("download file error, response is null");
-                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
+                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
             }
 
         } catch (RestClientException e) {
             LOGGER.error("Failed to get image status which imageId exception {}", e.getMessage());
-            throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_PULL_IMAGE_FAILED, url);
+            throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
         }
 
         return result;
@@ -311,7 +312,7 @@ public class AppUtil {
             } catch (Exception e) {
                 LOGGER.error("add image file info to package failed {}", e.getMessage());
                 throw new AppException("failed to add image info to package.",
-                    ResponseConst.RET_PARSE_FILE_EXCEPTION, ".mf or TOSCA-Metadata/TOSCA.meta");
+                    ResponseConst.RET_ADD_IMAGE_INFO_FAILED, ".mf or TOSCA-Metadata/TOSCA.meta");
             }
         }
     }
@@ -357,7 +358,7 @@ public class AppUtil {
             if (!tempFolder.exists()) {
                 if (!tempFolder.mkdirs()) {
                     LOGGER.error("create upload path failed");
-                    throw new AppException("create download file error");
+                    throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
                 }
             }
             AppService.unzipApplicationPacakge(fileAddress, fileParent);
@@ -386,13 +387,15 @@ public class AppUtil {
                                     if (!imageDir.exists()) {
                                         if (!imageDir.mkdirs()) {
                                             LOGGER.error("create upload path failed");
-                                            throw new IOException("create folder failed");
+                                            throw new AppException("create folder failed",
+                                                ResponseConst.RET_MAKE_DIR_FAILED);
                                         }
                                     }
                                     File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
                                     if (!fileImage.exists() && !fileImage.createNewFile()) {
                                         LOGGER.error("create download file error");
-                                        throw new IOException("create file failed");
+                                        throw new FileOperateException("create file failed",
+                                            ResponseConst.RET_CREATE_FILE_FAILED);
                                     }
                                     try (InputStream inputStream = new ByteArrayInputStream(result);
                                          OutputStream outputStream = new FileOutputStream(fileImage)) {
@@ -413,8 +416,8 @@ public class AppUtil {
                 addImageFileInfo(fileParent, imgZipPath);
             }
         }  catch (IOException e) {
-            LOGGER.error("judge package type error {} ", e.getMessage());
-            throw new AppException("failed to add image zip to package.", ResponseConst.RET_COMPRESS_FAILED);
+            LOGGER.error("failed to add image zip to package {} ", e.getMessage());
+            throw new AppException("failed to add image zip to package.", ResponseConst.RET_IMAGE_TO_PACKAGE_FAILED);
         }
     }
 

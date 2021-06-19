@@ -22,8 +22,8 @@ import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.domain.shared.exceptions.RedundantCommentsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class AppCommentService {
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (user.getUserId().equals(app.getUser().getUserId())) {
             LOGGER.info("User {} can not comment own app {}.", user.getUserId(), appId);
-            throw new RedundantCommentsException(user.getUserId(), appId);
+            throw new AppException("user can not comment own app.", ResponseConst.RET_COMMENT_OWN_APP);
         }
         Comment comment = new Comment(user, app.getAppId(), comments, score);
         commentRepository.store(comment);
@@ -62,5 +62,4 @@ public class AppCommentService {
         app.comment(comment);
         appRepository.store(app);
     }
-
 }

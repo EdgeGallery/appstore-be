@@ -76,24 +76,28 @@ public abstract class FileChecker {
         filePath = Normalizer.normalize(filePath, Normalizer.Form.NFKC);
 
         if (StringUtils.isEmpty(filePath)) {
-            throw new IllegalArgumentException(filePath + " :filepath is empty");
+            throw new IllegalRequestException(filePath + " :filepath is empty",
+                ResponseConst.RET_FILE_PATH_INVALID);
         }
 
         // file name should not contains blank.
         if (filePath.split(BLANK_REG).length > 1) {
-            throw new IllegalArgumentException(filePath + " :filepath contain blank");
+            throw new IllegalRequestException(filePath + " :filepath contain blank",
+                ResponseConst.RET_FILE_PATH_INVALID);
         }
 
         String name = filePath.toLowerCase();
         if (!extensions.contains(name.substring(name.lastIndexOf(".")))) {
-            throw new IllegalArgumentException();
+            throw new IllegalRequestException(filePath + " :filepath doesn't have file extension",
+                ResponseConst.RET_FILE_PATH_INVALID);
         }
 
         String[] dirs = filePath.split(":");
         for (String dir : dirs) {
             Matcher matcher = Pattern.compile(FileChecker.REG).matcher(dir);
             if (!matcher.matches()) {
-                throw new IllegalArgumentException();
+                throw new IllegalRequestException(filePath + " :filepath isn't regular",
+                    ResponseConst.RET_FILE_PATH_INVALID);
             }
         }
         return filePath.replace(":", File.separator);
