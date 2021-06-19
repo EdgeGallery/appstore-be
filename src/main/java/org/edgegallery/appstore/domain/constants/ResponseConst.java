@@ -1,6 +1,6 @@
 package org.edgegallery.appstore.domain.constants;
 
-public interface ResponseConst {
+public class ResponseConst {
     /**
      * the success code.
      */

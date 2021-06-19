@@ -15,8 +15,6 @@
 
 package org.edgegallery.appstore.domain.shared.exceptions;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 
 public class FileOperateException extends DomainException {
