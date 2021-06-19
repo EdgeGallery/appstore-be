@@ -19,7 +19,6 @@ package org.edgegallery.appstore.interfaces.app.facade.dto;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,15 +26,15 @@ import lombok.Setter;
 @Getter
 public class QueryAppReqDto {
 
-    private List types;
+    private List<String> types;
 
-    private List showType;
+    private List<String> showType;
 
-    private List affinity;
+    private List<String> affinity;
 
-    private List industry;
+    private List<String> industry;
 
-    private List workloadType;
+    private List<String> workloadType;
 
     private String userId;
 

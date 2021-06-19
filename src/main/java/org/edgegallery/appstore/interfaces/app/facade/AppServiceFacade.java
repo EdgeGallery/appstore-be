@@ -145,7 +145,7 @@ public class AppServiceFacade {
     /**
      * merge image.
      */
-    public ResponseEntity merge(String fileName, String guid) {
+    public ResponseEntity<String> merge(String fileName, String guid) {
         File uploadDir = new File(dir);
         checkDir(uploadDir);
         File file = new File(filePathTemp + File.separator + guid);

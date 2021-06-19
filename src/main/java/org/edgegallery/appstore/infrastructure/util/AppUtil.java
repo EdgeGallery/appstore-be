@@ -355,11 +355,9 @@ public class AppUtil {
         try {
             File tempFolder = new File(fileParent);
             FileUtils.deleteDirectory(tempFolder);
-            if (!tempFolder.exists()) {
-                if (!tempFolder.mkdirs()) {
-                    LOGGER.error("create upload path failed");
-                    throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
-                }
+            if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+                LOGGER.error("create upload path failed");
+                throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
             }
             AppService.unzipApplicationPacakge(fileAddress, fileParent);
             File file = new File(fileParent);
@@ -384,12 +382,10 @@ public class AppUtil {
                                     }
                                     LOGGER.info("output image path:{}", outPath);
                                     File imageDir = new File(outPath);
-                                    if (!imageDir.exists()) {
-                                        if (!imageDir.mkdirs()) {
-                                            LOGGER.error("create upload path failed");
-                                            throw new AppException("create folder failed",
-                                                ResponseConst.RET_MAKE_DIR_FAILED);
-                                        }
+                                    if (!imageDir.exists() && !imageDir.mkdirs()) {
+                                        LOGGER.error("create upload path failed");
+                                        throw new AppException("create folder failed",
+                                            ResponseConst.RET_MAKE_DIR_FAILED);
                                     }
                                     File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
                                     if (!fileImage.exists() && !fileImage.createNewFile()) {
