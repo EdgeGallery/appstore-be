@@ -22,6 +22,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ValueObject;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
@@ -114,11 +115,13 @@ public class Release implements ValueObject<Release> {
     /**
      * check operator permission.
      *
-     * @param operatorId operator id
+     * @param user the user info of delete package.
      */
-    public void checkPermission(String operatorId) {
-        if (!this.getUser().getUserId().equals(operatorId)) {
-            throw new PermissionNotAllowedException("operator do not have permission");
+    public void checkPermission(User user) {
+        if (!this.getUser().getUserId().equals(user.getUserId())) {
+            throw new PermissionNotAllowedException("operator do not have permission",
+                ResponseConst.RET_NO_ACCESS_DELETE_PACKAGE, user.getUserName());
+
         }
     }
 

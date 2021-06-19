@@ -31,13 +31,13 @@ public class PermissionNotAllowedException extends DomainException {
     }
 
     /**
-     * Constructor to create AppException with retCode and params.
+     * Constructor to create PermissionNotAllowedException with retCode and params.
      *
      * @param ret retCode
      * @param args params of error message
      */
     public PermissionNotAllowedException(String msg, int ret, Object... args) {
-        super(msg);
+        super("Permission not allowed: " + msg);
         List<String> params = new ArrayList<>();
         int length = args == null ? 0 : args.length;
         for (int i = 0; i < length; i++) {
