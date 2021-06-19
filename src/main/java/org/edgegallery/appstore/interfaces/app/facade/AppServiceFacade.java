@@ -226,7 +226,7 @@ public class AppServiceFacade {
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
         MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
         if (!appParam.checkValidParam(appParam)) {
-            throw new AppException("app param is invalid!");
+            throw new AppException("app param is invalid!", ResponseConst.RET_PARAM_INVALID);
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;

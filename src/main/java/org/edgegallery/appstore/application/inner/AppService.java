@@ -638,7 +638,7 @@ public class AppService {
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
             .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
-        release.checkPermission(user.getUserId());
+        release.checkPermission(user);
 
         app.unPublish(release);
         if (app.getReleases().isEmpty()) {

@@ -288,6 +288,11 @@ public interface ResponseConst {
     public static final int RET_NO_ACCESS_DELETE_APP = 18001;
 
     /**
+     * Permission not allowed to delete application package.
+     */
+    public static final int RET_NO_ACCESS_DELETE_PACKAGE = 18002;
+
+    /**
      * general base error code.
      */
     public static final int RET_GENERAL_BASE = 19000;
