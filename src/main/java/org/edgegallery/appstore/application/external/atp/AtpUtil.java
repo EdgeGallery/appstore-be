@@ -107,7 +107,7 @@ public class AtpUtil {
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}", taskId,
+                LOGGER.error("Get task status from atp response failed, the taskId is {}, The status code is {}", taskId,
                     response.getStatusCode());
                 throw new AppException("Get task status from atp response failed.",
                     ResponseConst.RET_GET_TEST_STATUS_FAILED);
@@ -118,14 +118,11 @@ public class AtpUtil {
                 status = jsonResp.get(ATP_STATUS).getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
-                throw new AppException("Get task status from atp response failed.",
-                    ResponseConst.RET_GET_TEST_STATUS_FAILED);
+                LOGGER.error("Get task status failed, response does not have status info.");
             }
 
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage());
-            throw new AppException("Failed to get task status from atp exception",
-                ResponseConst.RET_GET_TEST_STATUS_FAILED);
+            LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e.getMessage())
         }
         return status;
     }

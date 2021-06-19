@@ -50,6 +50,7 @@ public class AppStoreServiceFacade {
      */
     public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto, HttpServletRequest request) {
         String[] reqAddress = request.getRemoteAddr().split(":");
+        LOGGER.info("request remote addr {}, ip {}", request.getRemoteAddr(), reqAddress[0]);
         if (appStoreDto.getUrl().indexOf(reqAddress[0]) != -1) {
             LOGGER.error("can not add local appstore, url: {}", appStoreDto.getUrl());
             throw new AppException("can not add local appstore.", ResponseConst.RET_ADD_SELF_APPSTORE);
