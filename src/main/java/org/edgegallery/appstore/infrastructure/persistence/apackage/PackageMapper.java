@@ -47,4 +47,6 @@ public interface PackageMapper {
 
     Integer countTotalForUserId(Map<String, Object> params);
 
+    void updateAppInstanceApp(AppReleasePo releasePo);
+
 }

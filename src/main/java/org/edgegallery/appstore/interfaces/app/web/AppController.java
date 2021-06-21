@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -89,9 +90,9 @@ public class AppController {
     })
     @RequestMapping(value = "/apps/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> uploadImage(HttpServletRequest request, Chunk chunk) {
+    public ResponseEntity<String> uploadImage(HttpServletRequest request, Chunk chunk) throws Exception {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        return appServiceFacade.uploadImage(isMultipart,chunk);
+        return appServiceFacade.uploadImage(isMultipart, chunk);
     }
 
     /**
@@ -105,8 +106,8 @@ public class AppController {
     @RequestMapping(value = "/apps/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> merge(@RequestParam(value = "fileName") String fileName,
-        @RequestParam(value = "guid") String guid) {
-        return appServiceFacade.merge(fileName,guid);
+        @RequestParam(value = "guid") String guid) throws Exception {
+        return appServiceFacade.merge(fileName, guid);
     }
 
     /**
@@ -136,9 +137,10 @@ public class AppController {
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
-        HttpServletRequest request) {
+        @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
+            String experienceAble, HttpServletRequest request) {
         return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-            new AppParam(type, shortDesc, showType, affinity, industry), icon, demoVideo,
+            new AppParam(type, shortDesc, showType, affinity, industry, experienceAble), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
     }
 
@@ -171,10 +173,11 @@ public class AppController {
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
-        HttpServletRequest request) {
-        return appServiceFacade
-            .appRegister(new User(userId, userName), new AppParam(type, shortDesc, showType, affinity, industry), icon,
-                demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)), fileAddress);
+        @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
+            String experienceAble, HttpServletRequest request) throws IOException {
+        return appServiceFacade.appRegister(new User(userId, userName),
+            new AppParam(type, shortDesc, showType, affinity, industry, experienceAble), icon, demoVideo,
+            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)), fileAddress);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)

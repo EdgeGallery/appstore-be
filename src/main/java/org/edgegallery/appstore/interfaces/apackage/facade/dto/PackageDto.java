@@ -72,6 +72,8 @@ public class PackageDto {
 
     private String deployMode;
 
+    private Boolean experienceAble;
+
     public PackageDto() {
         // empty construct function
     }

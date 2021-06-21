@@ -110,6 +110,18 @@ public class AppReleasePo {
     @Column(name = "ISHOTAPP")
     private boolean isHotApp;
 
+    @Column(name = "APPINSTANCEID")
+    private String appInstanceId;
+
+    @Column(name = "INSTANCETENENTID")
+    private String instanceTenentId;
+
+    @Column(name = "INSTANCEPACKAGEID")
+    private String instancePackageId;
+
+    @Column(name = "EXPERIENCEABLE")
+    private String experienceAble;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
@@ -156,6 +168,10 @@ public class AppReleasePo {
         po.status = pack.getStatus().toString();
         po.provider = pack.getAppBasicInfo().getProvider();
         po.deployMode = pack.getDeployMode();
+        po.appInstanceId = pack.getAppInstanceId();
+        po.instanceTenentId = pack.getInstanceTenentId();
+        po.instancePackageId = pack.getInstancePackageId();
+        po.experienceAble = pack.getExperienceAble();
         return po;
     }
 
@@ -193,7 +209,14 @@ public class AppReleasePo {
         release.setStatus(EnumPackageStatus.valueOf(status));
         release.setTestTaskId(testTaskId);
         release.setDeployMode(deployMode);
+        release.setAppInstanceId(appInstanceId);
         return release;
     }
+
+    public void initialConfig() {
+        this.appInstanceId = null;
+        this.instanceTenentId = null;
+    }
+
 }
 

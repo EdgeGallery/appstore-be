@@ -40,6 +40,8 @@ public class AppParam {
 
     private String industry;
 
+    private String experienceAble;
+
     private static Set<String> typeSet = new HashSet<>();
 
     private static Set<String> industrySet = new HashSet<>();
@@ -96,4 +98,5 @@ public class AppParam {
         return typeSet.contains(appparam.getApplicationType()) && industrySet.contains(appparam.getIndustry())
             && architectureSet.contains(appparam.getAffinity()) && showTypeSet.contains(appparam.getShowType());
     }
+
 }

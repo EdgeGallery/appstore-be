@@ -105,15 +105,15 @@ public class AppTest {
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId, "public");
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId, "public", "false");
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName) throws Exception {
-        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", null, "public");
+        return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", null, "public", "false");
     }
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String type,
-        String shortDesc, String affinity, String industry, String testTaskId, String showType) throws Exception {
+        String shortDesc, String affinity, String industry, String testTaskId, String showType, String experienceAble) throws Exception {
         File iconFile = Resources.getResourceAsFile(iconAddr);
         File csarFile = Resources.getResourceAsFile(csarAddr);
         byte[] taskBytes = testTaskId == null ? null : testTaskId.getBytes();
@@ -127,6 +127,7 @@ public class AppTest {
             .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, affinity.getBytes()))
             .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE, industry.getBytes()))
             .file(new MockMultipartFile("testTaskId", "", MediaType.TEXT_PLAIN_VALUE, taskBytes))
+            .file(new MockMultipartFile("experienceAble", "", MediaType.TEXT_PLAIN_VALUE, experienceAble.getBytes()))
             .file(new MockMultipartFile("showType", "", MediaType.TEXT_PLAIN_VALUE, showType.getBytes())).with(csrf())
             .param("userId", userId).param("userName", userName));
         return resultActions.andReturn();
