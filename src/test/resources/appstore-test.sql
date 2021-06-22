@@ -135,7 +135,8 @@ CREATE TABLE IF NOT EXISTS tbl_service_host (
   protocol varchar(20)  DEFAULT NULL,
   delete int DEFAULT NULL,
   user_name varchar(100)  DEFAULT NULL,
-  password varchar(255)  DEFAULT NULL
+  password varchar(255)  DEFAULT NULL,
+  mec_host varchar(100)  DEFAULT NULL
 )
 ;
 
@@ -202,3 +203,7 @@ MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 
 
 MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '127.0.0.1', 'Ubuntu', 30000, 32767, 30201, 'http', null);
+
+MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
+MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
+
