@@ -32,7 +32,6 @@ import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MepHostLog;
-import org.edgegallery.appstore.domain.model.system.lcm.OpenMepCapabilityGroup;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
@@ -186,88 +185,6 @@ public class SystemController {
         return ResponseDataUtil.buildResponse(either);
     }
 
-    /**
-     * create capability group by group.
-     *
-     * @return
-     */
-    @ApiOperation(value = "create one EdgeGalleryCapabilityGroup", response = OpenMepCapabilityGroup.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/capability", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OpenMepCapabilityGroup> createGroup(
-        @ApiParam(value = "EdgeGalleryCapabilityGroup", required = true) @RequestBody OpenMepCapabilityGroup group) {
-        Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.createCapabilityGroup(group);
-        return ResponseDataUtil.buildResponse(either);
-    }
 
-    /**
-     * delete capability by userId and groupId.
-     *
-     * @return
-     */
-    @ApiOperation(value = "delete one EdgeGalleryCapability by userId and groupId", response = Boolean.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/capability", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> deleteCapabilityByUserIdAndGroupId(
-        @ApiParam(value = "groupId", required = true) @RequestParam("groupId")
-        @Pattern(regexp = REG_UUID, message = "groupId must be in UUID format") String groupId) {
-        Either<FormatRespDto, Boolean> either = systemService.deleteCapabilityByUserIdAndGroupId(groupId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * get all EdgeGallery capability.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get all EdgeGalleryCapability", response = OpenMepCapabilityGroup.class,
-        responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/capability", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<Page<OpenMepCapabilityGroup>> getAllCapability(
-        @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId,
-        @ApiParam(value = "twoLevelName", required = false) @RequestParam(value = "twoLevelName", required = false)
-            String twoLevelName,
-        @ApiParam(value = "twoLevelNameEn", required = false) @RequestParam(value = "twoLevelNameEn", required = false)
-            String twoLevelNameEn,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity
-            .ok(systemService.getAllCapabilityGroups(userId, twoLevelName, twoLevelNameEn, limit, offset));
-    }
-
-    /**
-     * get EdgeGalleryCapability detail.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get EdgeGalleryCapability detail", response = OpenMepCapabilityGroup.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/capability/{groupId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<OpenMepCapabilityGroup> getCapalitiesByGroupId(
-        @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
-        @Pattern(regexp = REG_UUID) String groupId) {
-        Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.getCapabilityByGroupId(groupId);
-        return ResponseDataUtil.buildResponse(either);
-    }
 
 }

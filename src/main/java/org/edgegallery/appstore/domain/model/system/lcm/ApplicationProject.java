@@ -70,8 +70,6 @@ public class ApplicationProject {
     // Online or Deploying or Deployed or Testing or Tested
     private EnumProjectStatus status;
 
-    private List<OpenMepCapabilityGroup> capabilityList;
-
     private String lastTestId;
 
     private String userId;

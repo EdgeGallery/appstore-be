@@ -136,31 +136,5 @@ public class ProjectController {
         return projectService.getNodeStatus(packageId, userId, name, ip, token);
     }
 
-    /**
-     * deploy app to host env.
-     */
-    // @ApiOperation(value = "deploy app to host env", response = OpenMepCapabilityGroup.class)
-    // @ApiResponses(value = {
-    //     @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
-    //     @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    // })
-    // @RequestMapping(value = "/action/deployApp", method = RequestMethod.POST,
-    //     consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    // @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    // public ResponseEntity<Boolean> deployAppToHost(
-    //     @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
-    //     @ApiParam(value = "packageId", required = true) @PathVariable("packageId") String packageId,
-    //     @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-    //     @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-    //     @ApiParam(value = "filePath", required = true) @RequestParam("filePath") String filePath,
-    //     @ApiParam(value = "port", required = true) @RequestParam("port") int port,
-    //     @ApiParam(value = "lcmIp", required = true) @RequestParam("lcmIp") String lcmIp,
-    //     @ApiParam(value = "mecHost", required = true) @RequestParam("mecHost") String mecHost,
-    //     @ApiParam(value = "protocol", required = true) @RequestParam("protocol") String protocol,
-    //     HttpServletRequest request) {
-    //     boolean result = projectService.deployTestConfigToAppLcm(filePath,
-    //         packageId, userId, lcmIp, mecHost, protocol,port, (String) request.getAttribute(ACCESS_TOKEN));
-    //     return ResponseDataUtil.buildResponse(Either.right(result));
-    // }
 
 }

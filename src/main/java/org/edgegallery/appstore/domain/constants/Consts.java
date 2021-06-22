@@ -57,33 +57,11 @@ public final class Consts {
 
     public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v1/configuration";
 
-    public static final String APP_LCM_GET_DEPLOY_STATUS_URL = "/lcmcontroller/v1/hosts/hostIp/packages/packageId";
-
     public static final long MINUTE = 60000;
 
     public static final int TEMP_FILE_TIMEOUT = 30;
 
-    public static final String FILE_ENCODING = "utf-8";
-
     public static final String ACCESS_TOKEN_STR = "access_token";
-
-    public static final String CHUNK_NUM = "chunk_num";
-
-    public static final String RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR = "Internal exception.";
-
-    public static final String RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT = "Can not find project.";
-
-    public static final String PATTERN = "[\n`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~_！@#￥%……&*（）——+|{}【】‘；：”“’。， 、？]";
-
-    public static final int QUERY_APPLICATIONS_TIMES = 20;
-
-    public static final int QUERY_APPLICATIONS_PERIOD = 30000;
-
-    public static final String CREATE_TASK_FROM_ATP = "/edgegallery/atp/v1/tasks";
-
-    public static final String GET_TASK_FROM_ATP = "/edgegallery/atp/v1/tasks/%s";
-
-    public static final String DEV_CLEAN_ENV_URL = "%s/mec/developer/v1/projects/%s/action/clean?userId=%s";
 
     public static final String SYSTEM_IMAGE_UPLOAD_URL = "/imagemanagement/v1/upload";
 

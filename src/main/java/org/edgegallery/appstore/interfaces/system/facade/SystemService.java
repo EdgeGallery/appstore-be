@@ -21,9 +21,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
@@ -34,14 +31,11 @@ import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.model.system.lcm.MepHostLog;
-import org.edgegallery.appstore.domain.model.system.lcm.OpenMepCapabilityDetail;
-import org.edgegallery.appstore.domain.model.system.lcm.OpenMepCapabilityGroup;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostLogMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
-import org.edgegallery.appstore.infrastructure.persistence.system.OpenMepCapabilityMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
 import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
@@ -58,7 +52,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -78,9 +71,6 @@ public class SystemService {
 
     @Autowired
     private HostLogMapper hostLogMapper;
-
-    @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -250,130 +240,6 @@ public class SystemService {
         List<MepHostLog> hostLogList = hostLogMapper.getHostLogByHostId(hostId);
         LOGGER.info("Get host logs success.");
         return Either.right(hostLogList);
-    }
-
-    /**
-     * createCapabilityGroup.
-     *
-     * @param capabilityGroup capabilityGroup
-     * @return
-     */
-    @Transactional
-    public Either<FormatRespDto, OpenMepCapabilityGroup> createCapabilityGroup(OpenMepCapabilityGroup capabilityGroup) {
-        capabilityGroup.setGroupId(UUID.randomUUID().toString());
-        if (StringUtils.isEmpty(capabilityGroup.getDescriptionEn())) {
-            capabilityGroup.setDescriptionEn(capabilityGroup.getDescription());
-        }
-
-        if (StringUtils.isEmpty(capabilityGroup.getOneLevelNameEn())) {
-            capabilityGroup.setOneLevelNameEn(capabilityGroup.getOneLevelName());
-        }
-        if (StringUtils.isEmpty(capabilityGroup.getTwoLevelNameEn())) {
-            capabilityGroup.setTwoLevelNameEn(capabilityGroup.getTwoLevelName());
-        }
-
-        int ret = openMepCapabilityMapper.saveGroup(capabilityGroup);
-        if (ret <= 0) {
-            LOGGER.error("save group {} failed!", capabilityGroup.getGroupId());
-            return Either
-                .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save capability-group failed"));
-        }
-
-        for (OpenMepCapabilityDetail capability : capabilityGroup.getCapabilityDetailList()) {
-            if (StringUtils.isBlank(capability.getApiFileId())) {
-                LOGGER.error("Create {} detail failed, api file id is null", capabilityGroup.getGroupId());
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Api file id is wrong"));
-            }
-            if (StringUtils.isBlank(capability.getGuideFileId())) {
-                LOGGER.error("Create {} detail failed, guide file id is null", capabilityGroup.getGroupId());
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "guide file id is wrong"));
-            }
-            capability.setGroupId(capabilityGroup.getGroupId());
-            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            capability.setUploadTime(time.format(new Date()));
-            capability.setDetailId(UUID.randomUUID().toString());
-            int result = openMepCapabilityMapper.saveCapability(capability);
-            if (result > 0) {
-                LOGGER.info("Create {} detail success", capabilityGroup.getGroupId());
-                // update api file to un temp
-                int api = uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
-                int guide = uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
-                int guideEn = uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
-                if (api <= 0 || guide <= 0 || guideEn <= 0) {
-                    String msg = "update api or guide or guide-en file status occur db error";
-                    LOGGER.error(msg);
-                    return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
-                }
-            } else {
-                LOGGER.error("save capability {} failed!", capability.getDetailId());
-                return Either
-                    .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save capability-detail failed"));
-            }
-        }
-        LOGGER.info("Create capability group {} success", capabilityGroup.getGroupId());
-        return Either.right(capabilityGroup);
-
-    }
-
-    /**
-     * deleteCapabilityByUserIdAndGroupId.
-     */
-    public Either<FormatRespDto, Boolean> deleteCapabilityByUserIdAndGroupId(String groupId) {
-        List<OpenMepCapabilityDetail> capabilityDetailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-        if (!CollectionUtils.isEmpty(capabilityDetailList)) {
-            for (OpenMepCapabilityDetail capabilityDetail : capabilityDetailList) {
-                int res = openMepCapabilityMapper.deleteCapability(capabilityDetail.getDetailId());
-                if (res < 1) {
-                    LOGGER.info("{} can not find", capabilityDetail.getDetailId());
-                } else {
-                    uploadedFileMapper.updateFileStatus(capabilityDetail.getApiFileId(), true);
-                    uploadedFileMapper.updateFileStatus(capabilityDetail.getGuideFileId(), true);
-                    uploadedFileMapper.updateFileStatus(capabilityDetail.getGuideFileIdEn(), true);
-                    LOGGER.info("Delete capability detail {} success", capabilityDetail.getDetailId());
-                }
-            }
-        }
-        int res = openMepCapabilityMapper.deleteGroup(groupId);
-        if (res < 1) {
-            LOGGER.info("{} can not find", groupId);
-        } else {
-            LOGGER.info("Delete group {} success", groupId);
-        }
-        return Either.right(true);
-    }
-
-    /**
-     * getAllCapabilityGroups.
-     */
-    public Page<OpenMepCapabilityGroup> getAllCapabilityGroups(String userId, String twoLevelName,
-        String twoLevelNameEn, int limit, int offset) {
-        PageHelper.offsetPage(offset, limit);
-        PageInfo pageInfo = new PageInfo<OpenMepCapabilityGroup>(
-            openMepCapabilityMapper.getOpenMepListByCondition(userId, twoLevelName, twoLevelNameEn));
-        LOGGER.info("Get all capability groups success.");
-        return new Page<OpenMepCapabilityGroup>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
-    }
-
-    /**
-     * getCapabilityByGroupId.
-     */
-    public Either<FormatRespDto, OpenMepCapabilityGroup> getCapabilityByGroupId(String groupId) {
-        OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
-        if (group != null) {
-            List<OpenMepCapabilityDetail> details = group.getCapabilityDetailList();
-            if (details != null) {
-                Iterator<OpenMepCapabilityDetail> iterator = details.iterator();
-                while (iterator.hasNext()) {
-                    if (iterator.next().getDetailId() == null) {
-                        iterator.remove();
-                    }
-                }
-            }
-            LOGGER.info("Get capability by {} success", groupId);
-            return Either.right(group);
-        }
-        LOGGER.error("Can not get capability by {}", groupId);
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get capabilities by group failed"));
     }
 
     private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {

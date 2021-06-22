@@ -45,6 +45,4 @@ public class ServiceDetail {
     private String apiMd;
 
     private List<String> dnsRulesList;
-
-    private List<String> trafficRulesList;
 }
