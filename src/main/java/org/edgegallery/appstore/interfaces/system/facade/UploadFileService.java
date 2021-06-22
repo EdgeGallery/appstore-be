@@ -29,7 +29,7 @@ import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
 import org.edgegallery.appstore.infrastructure.util.BusinessConfigUtil;
-import org.edgegallery.appstore.infrastructure.util.DeveloperFileUtils;
+import org.edgegallery.appstore.infrastructure.util.AppStoreFileUtils;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -139,7 +139,7 @@ public class UploadFileService {
             String realPath = InitConfigUtil.getWorkSpaceBaseDir() + tempFile.getFilePath();
             File temp = new File(realPath);
             if (temp.exists()) {
-                DeveloperFileUtils.deleteTempFile(temp);
+                AppStoreFileUtils.deleteTempFile(temp);
                 uploadedFileMapper.deleteFile(tempId);
                 LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
             }

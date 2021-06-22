@@ -31,13 +31,13 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class DeveloperFileUtils {
+public final class AppStoreFileUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeveloperFileUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreFileUtils.class);
 
     private static final int BUFFER_LENGTH = 8192;
 
-    private DeveloperFileUtils() {
+    private AppStoreFileUtils() {
     }
 
     /**
