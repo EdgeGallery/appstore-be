@@ -314,10 +314,12 @@ public class ProjectService {
                 return ResponseEntity.ok(new ResponseObject(null, errMsg, "get app nodeport url failed."));
             }
         }
-        String serviceName = getServiceName(workStatus);
-        String nodePort = String.valueOf(getNodePort(workStatus));
-        String mecHost = mapHosts.get(0).getMecHost();
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        if (!StringUtils.isEmpty(workStatus)) {
+            String serviceName = getServiceName(workStatus);
+            String nodePort = String.valueOf(getNodePort(workStatus));
+            String mecHost = mapHosts.get(0).getMecHost();
+            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        }
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 
@@ -336,6 +338,7 @@ public class ProjectService {
         String workStatus = "";
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
+        mapHosts = null;
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
@@ -348,10 +351,12 @@ public class ProjectService {
             }
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
         }
-        String serviceName = getServiceName(workStatus);
-        String nodePort = String.valueOf(getNodePort(workStatus));
-        String mecHost = mapHosts.get(0).getMecHost();
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        if (!StringUtils.isEmpty(workStatus)) {
+            String serviceName = getServiceName(workStatus);
+            String nodePort = String.valueOf(getNodePort(workStatus));
+            String mecHost = mapHosts.get(0).getMecHost();
+            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        }
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 
