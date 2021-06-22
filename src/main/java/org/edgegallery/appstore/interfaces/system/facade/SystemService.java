@@ -39,6 +39,7 @@ import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
 import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
+import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,13 +170,13 @@ public class SystemService {
     @Transactional
     public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
         //health check
-        // String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
-        // if (healRes == null) {
-        //     String msg = "health check faild,current ip or port cann't be used!";
-        //     LOGGER.error(msg);
-        //     FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-        //     return Either.left(dto);
-        // }
+        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
         // add mechost to lcm
         boolean addMecHostRes = addMecHostToLcm(host);
         if (!addMecHostRes) {
