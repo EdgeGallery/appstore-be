@@ -100,7 +100,7 @@ public class SystemController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
+        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, MepHost> either = systemService.getHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -140,7 +140,7 @@ public class SystemController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
+        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, Boolean> either = systemService.deleteHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -184,7 +184,5 @@ public class SystemController {
         Either<FormatRespDto, List<MepHostLog>> either = systemService.getHostLogByHostId(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
-
-
 
 }

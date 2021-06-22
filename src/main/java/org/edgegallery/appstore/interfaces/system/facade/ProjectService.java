@@ -209,6 +209,15 @@ public class ProjectService {
         return Either.right(true);
     }
 
+    /**
+     * get WorkStatus.
+     *
+     * @param packageId packageId.
+     * @param userId userId.
+     * @param host host.
+     * @param token token.
+     * @return
+     */
     public String getWorkStatus(String packageId, String userId, MepHost host, String token) {
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), packageId, userId, token);
@@ -252,14 +261,24 @@ public class ProjectService {
         return true;
     }
 
+    /**
+     * deploy App By Id.
+     *
+     * @param packageId packageId.
+     * @param userId userId.
+     * @param name name.
+     * @param ip ip.
+     * @param token token.
+     * @return
+     */
     public ResponseEntity<ResponseObject> deployAppById(String packageId, String userId, String name, String ip,
-        String token) throws ParseException {
+        String token) {
         String workStatus = "";
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
-            return ResponseEntity.ok(new ResponseObject(showInfo, null, "please register host."));
+            return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
             String instanceTenentId = userId;
@@ -312,25 +331,20 @@ public class ProjectService {
      * @param ip ip.
      * @param token token.
      * @return
-     * @throws ParseException
      */
     public ResponseEntity<ResponseObject> getNodeStatus(String packageId, String userId, String name, String ip,
-        String token) throws ParseException {
+        String token) {
         String workStatus = "";
         String showInfo = "";
-        //获取host，检查是否已经注册沙箱
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-
-        //判断沙箱是否注册
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
-            //返回注册沙箱应用
-            return ResponseEntity.ok(new ResponseObject(null, null, "please register host."));
+            return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
             AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
             String appInstanceId = appReleasePo.getAppInstanceId();
             if (StringUtils.isEmpty(appInstanceId)) {
-                ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url failed."));
             }
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
@@ -339,7 +353,6 @@ public class ProjectService {
         String nodePort = String.valueOf(getNodePort(workStatus));
         String mecHost = mapHosts.get(0).getMecHost();
         showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 

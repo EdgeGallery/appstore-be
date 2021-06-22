@@ -68,7 +68,6 @@ public class ProjectController {
      * @param ip mecHost.
      * @param request request.
      * @return
-     * @throws ParseException
      */
     @GetMapping(value = "/apps/show", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app detail app id.", response = AppDto.class)
@@ -82,7 +81,7 @@ public class ProjectController {
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
         @ApiParam(value = "user id") @RequestParam("userId") String userId,
         @ApiParam(value = "name") @RequestParam("name") String name,
-        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) throws ParseException {
+        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         return projectService.deployAppById(packageId, userId, name, ip, token);
     }
@@ -131,7 +130,7 @@ public class ProjectController {
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
         @ApiParam(value = "user id") @RequestParam("userId") String userId,
         @ApiParam(value = "name") @RequestParam("name") String name,
-        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) throws ParseException {
+        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         return projectService.getNodeStatus(packageId, userId, name, ip, token);
     }
