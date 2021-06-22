@@ -22,6 +22,10 @@
         STATUS                   VARCHAR(100)       NULL,
         PROVIDER                 VARCHAR(100)       NULL,
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
+        APPINSTANCEID            VARCHAR(100)       NULL,
+        INSTANCETENENTID         VARCHAR(100)       NULL,
+        INSTANCEPACKAGEID        VARCHAR(255)       NULL,
+        EXPERIENCEABLE           VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
