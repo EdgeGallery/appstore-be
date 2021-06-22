@@ -46,17 +46,11 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.system.LcmLog;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
-import org.edgegallery.appstore.domain.model.system.vm.PodEvents;
-import org.edgegallery.appstore.domain.model.system.vm.PodEventsRes;
-import org.edgegallery.appstore.domain.model.system.vm.PodStatusInfo;
-import org.edgegallery.appstore.domain.model.system.vm.PodStatusInfos;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
-import org.edgegallery.appstore.infrastructure.persistence.system.VmConfigMapper;
-import org.edgegallery.appstore.infrastructure.persistence.system.WebSshService;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.slf4j.Logger;
@@ -85,9 +79,6 @@ public class ProjectService {
 
     @Autowired
     private PackageMapper packageMapper;
-
-    @Autowired
-    private WebSshService webSshService;
 
     @Autowired
     private HostMapper hostMapper;
@@ -229,31 +220,7 @@ public class ProjectService {
             LOGGER.error("get pod workStatus {} error.");
             return workStatus;
         }
-        String pods = mergeStatusAndEvents(workStatus, workEvents);
         return workStatus;
-    }
-
-    private String mergeStatusAndEvents(String workStatus, String workEvents) {
-        Gson gson = new Gson();
-        Type type = new TypeToken<PodStatusInfos>() { }.getType();
-        PodStatusInfos status = gson.fromJson(workStatus, type);
-
-        Type typeEvents = new TypeToken<PodEventsRes>() { }.getType();
-        PodEventsRes events = gson.fromJson(workEvents, typeEvents);
-        String pods = "";
-        if (!CollectionUtils.isEmpty(status.getPods()) && !CollectionUtils.isEmpty(events.getPods())) {
-            List<PodStatusInfo> statusInfos = status.getPods();
-            List<PodEvents> eventsInfos = events.getPods();
-            for (int i = 0; i < statusInfos.size(); i++) {
-                for (int j = 0; j < eventsInfos.size(); j++) {
-                    if (statusInfos.get(i).getPodname().equals(eventsInfos.get(i).getPodName())) {
-                        statusInfos.get(i).setPodEventsInfo(eventsInfos.get(i).getPodEventsInfo());
-                    }
-                }
-            }
-            pods = gson.toJson(status);
-        }
-        return pods;
     }
 
     /**
