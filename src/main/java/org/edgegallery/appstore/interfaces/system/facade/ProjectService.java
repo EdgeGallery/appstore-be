@@ -90,9 +90,6 @@ public class ProjectService {
     private WebSshService webSshService;
 
     @Autowired
-    private VmConfigMapper vmConfigMapper;
-
-    @Autowired
     private HostMapper hostMapper;
 
     private static String getXsrf() {
