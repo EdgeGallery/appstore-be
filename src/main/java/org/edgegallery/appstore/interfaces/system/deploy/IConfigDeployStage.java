@@ -27,7 +27,4 @@ public interface IConfigDeployStage {
 
     boolean execute(Map<String, String> hostMap) throws InterruptedException;
 
-    // boolean destroy();
-
-    // boolean immediateExecute(ProjectTestConfig config);
 }

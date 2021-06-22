@@ -40,11 +40,6 @@ public class ProjectTestConfig {
     private String projectId;
 
     /**
-     * the platform where deploy.
-     */
-    private EnumDeployPlatform platform;
-
-    /**
      * the id of deploy file.
      */
     private String deployFileId;

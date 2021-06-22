@@ -57,19 +57,12 @@ public class StageWorkStatus implements IConfigDeployStage {
     @Override
     public boolean execute(Map<String, String> hostMap) throws InterruptedException {
         boolean processStatus = false;
-        EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
-
-        // ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = hostMap.get("userId");
         String protocol = hostMap.get("protocol");
         int port = Integer.parseInt((hostMap.get("port")));
         String lcmIp = hostMap.get("lcmIp");
         String token = hostMap.get("token");
         String packageId = hostMap.get("packageId");
-
-        // Type type = new TypeToken<List<MepHost>>() { }.getType();
-        // List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
-        // MepHost host = hosts.get(0);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -113,13 +106,4 @@ public class StageWorkStatus implements IConfigDeployStage {
         return pods;
     }
 
-    // @Override
-    // public boolean destroy() {
-    //     return true;
-    // }
-
-    // @Override
-    // public boolean immediateExecute(ProjectTestConfig config) {
-    //     return true;
-    // }
 }
