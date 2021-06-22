@@ -59,7 +59,10 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public AtpTestDto sendCreatTask2Atp(String filePath, String token) {
+    public AtpTestDto sendCreateTask2Atp(String filePath, String token) {
+        if (filePath == null || token == null) {
+            LOGGER.error("Failed to validate input parameters of ATP task creation");
+        }
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -78,15 +81,15 @@ public class AtpUtil {
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
                 String id = jsonObject.get("id").getAsString();
                 String status = jsonObject.get(ATP_STATUS).getAsString();
-                LOGGER.info("Create test task {} success, status is {}", id, status);
+                LOGGER.info("Successfully created test task {}, status is {}", id, status);
                 return new AtpTestDto(id, status);
             }
-            LOGGER.error("Create instance from atp failed,  status is {}", response.getStatusCode());
+            LOGGER.error("Failed to create instance from atp,  status is {}", response.getStatusCode());
         } catch (RestClientException e) {
             LOGGER.error("Failed to create instance from atp,  exception {}", e.getMessage());
         }
 
-        throw new AppException("Create instance from atp failed.", ResponseConst.RET_CREATE_TEST_TASK_FAILED);
+        throw new AppException("Failed to create instance from atp.", ResponseConst.RET_CREATE_TEST_TASK_FAILED);
     }
 
     /**
@@ -97,19 +100,22 @@ public class AtpUtil {
      * @return task status
      */
     public String getTaskStatusFromAtp(String taskId, String token) {
+        if (taskId == null || token == null) {
+            LOGGER.error("Failed to validate input parameters for task status");
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         String url = String.format(queryTaskUrl, taskId);
-        LOGGER.info("get task status frm atp, url: {}", url);
+        LOGGER.info("Get task status frm atp, url: {}", url);
         String status = null;
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Get task status from atp response failed, the taskId is {}, The status code is {}",
+                LOGGER.error("Failed to get task status from atp response, the taskId is {}, The status code is {}",
                     taskId, response.getStatusCode());
-                throw new AppException("Get task status from atp response failed.",
+                throw new AppException("Failed to get task status from atp response.",
                     ResponseConst.RET_GET_TEST_STATUS_FAILED);
             }
 
@@ -118,7 +124,7 @@ public class AtpUtil {
                 status = jsonResp.get(ATP_STATUS).getAsString();
                 LOGGER.info("Get task status: {}", status);
             } else {
-                LOGGER.error("Get task status failed, response does not have status info.");
+                LOGGER.error("Failed to get task status, response does not have status info.");
             }
 
         } catch (RestClientException | NullPointerException e) {
