@@ -327,14 +327,8 @@ public class ProjectService {
             return ResponseEntity.ok(new ResponseObject(null, null, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
-            String instanceTenentId = userId;
-            //获取filePath
             AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
-            String filePath = appReleasePo.getPackageAddress();
-            // TODO 文件路径是否可以是appstore里面存储的文件路径上环境测试
-            //首先判断是否已经部署了还没有释放掉
             String appInstanceId = appReleasePo.getAppInstanceId();
-            // 判斷是否存在
             if (StringUtils.isEmpty(appInstanceId)) {
                 ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url failed."));

@@ -119,8 +119,6 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String ss = Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
-        String aa = getUrlPrefix(protocol, ip, port);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
