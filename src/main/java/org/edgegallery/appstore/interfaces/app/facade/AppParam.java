@@ -40,7 +40,7 @@ public class AppParam {
 
     private String industry;
 
-    private String experienceAble;
+    private boolean experienceAble;
 
     private static Set<String> typeSet = new HashSet<>();
 

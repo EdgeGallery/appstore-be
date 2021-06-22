@@ -137,7 +137,7 @@ public class AppV2Controller {
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) {
         return appServiceFacade.appV2Registering(new User(userId, userName), file,
-            new AppParam(type, shortDesc, showType, affinity, industry, experienceAble), icon, demoVideo,
+            new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
 

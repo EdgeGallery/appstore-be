@@ -120,7 +120,7 @@ public class AppReleasePo {
     private String instancePackageId;
 
     @Column(name = "EXPERIENCEABLE")
-    private String experienceAble;
+    private boolean experienceAble;
 
     public AppReleasePo() {
         // empty constructor of AppReleasePO
@@ -171,7 +171,7 @@ public class AppReleasePo {
         po.appInstanceId = pack.getAppInstanceId();
         po.instanceTenentId = pack.getInstanceTenentId();
         po.instancePackageId = pack.getInstancePackageId();
-        po.experienceAble = pack.getExperienceAble();
+        po.experienceAble = pack.isExperienceAble();
         return po;
     }
 

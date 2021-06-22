@@ -47,7 +47,7 @@ public class Release implements ValueObject<Release> {
 
     private String showType;
 
-    private String experienceAble;
+    private boolean experienceAble;
 
     private String affinity;
 
@@ -91,7 +91,7 @@ public class Release implements ValueObject<Release> {
         this.affinity = appParam.getAffinity();
         this.status = EnumPackageStatus.Upload;
         this.deployMode = appClass;
-        this.experienceAble = appParam.getExperienceAble();
+        this.experienceAble = appParam.isExperienceAble();
         appBasicInfo = new BasicInfo().load(packageFile.getStorageAddress());
     }
 

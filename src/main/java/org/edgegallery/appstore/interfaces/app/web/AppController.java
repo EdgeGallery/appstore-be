@@ -140,7 +140,7 @@ public class AppController {
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) {
         return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-            new AppParam(type, shortDesc, showType, affinity, industry, experienceAble), icon, demoVideo,
+            new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
     }
 
@@ -176,7 +176,7 @@ public class AppController {
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) throws IOException {
         return appServiceFacade.appRegister(new User(userId, userName),
-            new AppParam(type, shortDesc, showType, affinity, industry, experienceAble), icon, demoVideo,
+            new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)), fileAddress);
     }
 

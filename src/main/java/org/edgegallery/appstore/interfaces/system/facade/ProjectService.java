@@ -190,7 +190,6 @@ public class ProjectService {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         String instanceTenentId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
-        //TODO 增加这个字段在package表里面在分发成功后。
         String pkgId = appReleasePo.getInstancePackageId();
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
 

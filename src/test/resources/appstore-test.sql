@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS message_table;
         STATUS                   VARCHAR(100)       NULL,
         PROVIDER                 VARCHAR(100)       NULL,
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
-        EXPERIENCEABLE           VARCHAR(100)       NULL,
+        EXPERIENCEABLE           boolean            DEFAULT false,
         INSTANCEPACKAGEID        VARCHAR(255)       NULL,
         INSTANCETENENTID         VARCHAR(100)       NULL,
         APPINSTANCEID            VARCHAR(100)       NULL,

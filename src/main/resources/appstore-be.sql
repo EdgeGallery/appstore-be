@@ -25,7 +25,7 @@
         APPINSTANCEID            VARCHAR(100)       NULL,
         INSTANCETENENTID         VARCHAR(100)       NULL,
         INSTANCEPACKAGEID        VARCHAR(255)       NULL,
-        EXPERIENCEABLE           VARCHAR(100)       NULL,
+        EXPERIENCEABLE           boolean            DEFAULT false,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -185,4 +185,4 @@
 
     alter table catalog_package_table add column IF NOT EXISTS INSTANCEPACKAGEID VARCHAR(255) DEFAULT NULL;
 
-    alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLE  VARCHAR(100) DEFAULT NULL;
+    alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLE boolean DEFAULT false;
