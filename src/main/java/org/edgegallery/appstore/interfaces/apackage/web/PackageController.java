@@ -198,7 +198,7 @@ public class PackageController {
         @ApiParam(value = "app industry") @RequestPart(value = "industry", required = false) String industry,
         @ApiParam(value = "app type") @RequestPart(value = "type", required = false) String type,
         @ApiParam(value = "app icon") @RequestPart(value = "icon", required = false) MultipartFile icon,
-        @ApiParam(value = "app vedeo") @RequestPart(value = "vedeo", required = false) MultipartFile vedeo,
+        @ApiParam(value = "app video") @RequestPart(value = "video", required = false) MultipartFile video,
         @ApiParam(value = "app affinity") @RequestPart(value = "affinity", required = false) String affinity,
         @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = false) String shortDesc,
         @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType) {
@@ -210,6 +210,6 @@ public class PackageController {
         packageDto.setAffinity(affinity);
         packageDto.setShortDesc(shortDesc);
         packageDto.setShowType(showType);
-        return packageServiceFacade.updateAppById(appId, packageId, icon, vedeo, packageDto);
+        return packageServiceFacade.updateAppById(appId, packageId, icon, video, packageDto);
     }
 }
