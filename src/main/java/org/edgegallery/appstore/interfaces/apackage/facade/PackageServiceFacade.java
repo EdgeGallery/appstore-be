@@ -220,7 +220,6 @@ public class PackageServiceFacade {
         params.put("appName", appName);
         params.put("status", status);
         params.put("sortType", sortType);
-
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
                 s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),

@@ -15,34 +15,11 @@
 
 package org.edgegallery.appstore.domain.shared.exceptions;
 
-import org.edgegallery.appstore.domain.shared.ErrorMessage;
+public class OperateAvailableException extends DomainException {
 
-public class FileOperateException extends DomainException {
+    private static final long serialVersionUID = 1223444285623052477L;
 
-    private static final long serialVersionUID = 1224743617068936039L;
-
-    private ErrorMessage errMsg;
-
-    public FileOperateException(String message) {
+    public OperateAvailableException(String message) {
         super(message);
-    }
-
-    /**
-     * Constructor to create FileOperateException with retCode and params.
-     *
-     * @param ret retCode
-     */
-    public FileOperateException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
     }
 }

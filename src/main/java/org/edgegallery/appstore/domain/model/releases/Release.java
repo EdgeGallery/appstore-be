@@ -47,6 +47,8 @@ public class Release implements ValueObject<Release> {
 
     private String showType;
 
+    private boolean experienceAble;
+
     private String affinity;
 
     private String industry;
@@ -64,6 +66,12 @@ public class Release implements ValueObject<Release> {
     private AFile demoVideo;
 
     private String deployMode;
+
+    private String appInstanceId;
+
+    private String instanceTenentId;
+
+    private String instancePackageId;
 
     /**
      * Constructor of Release.
@@ -83,6 +91,7 @@ public class Release implements ValueObject<Release> {
         this.affinity = appParam.getAffinity();
         this.status = EnumPackageStatus.Upload;
         this.deployMode = appClass;
+        this.experienceAble = appParam.isExperienceAble();
         appBasicInfo = new BasicInfo().load(packageFile.getStorageAddress());
     }
 

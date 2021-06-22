@@ -134,10 +134,12 @@ public class AppV2Controller {
         @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
-        HttpServletRequest request) {
+        @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
+            String experienceAble, HttpServletRequest request) {
         return appServiceFacade.appV2Registering(new User(userId, userName), file,
-                new AppParam(type, shortDesc, showType, affinity, industry),
-                icon, demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
+            new AppParam(type, shortDesc, showType, affinity, industry,
+                Boolean.parseBoolean(experienceAble)), icon, demoVideo,
+            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)));
     }
 
     @GetMapping(value = "/apps/{appId}", produces = MediaType.APPLICATION_JSON)

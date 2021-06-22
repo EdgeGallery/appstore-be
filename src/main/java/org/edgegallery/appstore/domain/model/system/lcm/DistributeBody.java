@@ -14,27 +14,33 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.domain.model.system.lcm;
 
-import lombok.Getter;
-import lombok.Setter;
+public class DistributeBody {
+    private String[] hostIp;
 
-@Getter
-@Setter
-public class Permissions {
-
-    private String platform;
-
-    private String role;
-
-    private String[] pageIds;
-
-    public String[] getPageIds() {
-        return pageIds.clone();
+    /**
+     * getHostIp.
+     *
+     * @return
+     */
+    public String[] getHostIp() {
+        if (hostIp != null) {
+            return hostIp.clone();
+        }
+        return new String[0];
     }
 
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
+    /**
+     * setHostIp.
+     *
+     * @param hostIp hostIp
+     */
+    public void setHostIp(String[] hostIp) {
+        if (hostIp != null) {
+            this.hostIp = hostIp.clone();
+        } else {
+            this.hostIp = null;
+        }
     }
-
 }

@@ -14,27 +14,23 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.infrastructure.persistence.system;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 
-@Getter
-@Setter
-public class Permissions {
+@Mapper
+public interface UploadedFileMapper {
 
-    private String platform;
+    UploadedFile getFileById(String fileId);
 
-    private String role;
+    int saveFile(UploadedFile file);
 
-    private String[] pageIds;
+    int updateFileStatus(String fileId, boolean isTemp);
 
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
+    int deleteFile(String fileId);
 
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
+    List<String> getAllTempFiles();
 
 }

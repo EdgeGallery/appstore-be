@@ -14,27 +14,17 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.domain.model.system.lcm;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Permissions {
+public class UploadResponse {
 
-    private String platform;
+    private String appId;
 
-    private String role;
-
-    private String[] pageIds;
-
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
-
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
+    private String packageId;
 
 }

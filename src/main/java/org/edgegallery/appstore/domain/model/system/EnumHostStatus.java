@@ -14,27 +14,10 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.domain.model.system;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class Permissions {
-
-    private String platform;
-
-    private String role;
-
-    private String[] pageIds;
-
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
-
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
-
+public enum EnumHostStatus {
+    NORMAL,
+    BUSY,
+    STOP
 }

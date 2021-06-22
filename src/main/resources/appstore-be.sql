@@ -22,6 +22,10 @@
         STATUS                   VARCHAR(100)       NULL,
         PROVIDER                 VARCHAR(100)       NULL,
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
+        APPINSTANCEID            VARCHAR(100)       NULL,
+        INSTANCETENENTID         VARCHAR(100)       NULL,
+        INSTANCEPACKAGEID        VARCHAR(255)       NULL,
+        EXPERIENCEABLE           boolean            DEFAULT false,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -108,6 +112,55 @@
         CONSTRAINT PUSHABLE_PACKAGE_TABLE_PKEY PRIMARY KEY (PACKAGEID)
     );
 
+    CREATE TABLE IF NOT EXISTS "tbl_service_host" (
+      "host_id" varchar(50) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
+      "user_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "name" varchar(100) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "address" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "architecture" varchar(100) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "status" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "protocol" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "lcm_ip" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "mec_host" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "os" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
+      "port_range_min" int DEFAULT '-1'::integer,
+      "port_range_max" int DEFAULT '-1'::integer,
+      "port" int4 DEFAULT '-1'::integer,
+      "user_name" varchar(50) DEFAULT NULL,
+      "password" varchar(50) DEFAULT NULL,
+      "vnc_port" int4 DEFAULT NULL,
+      "parameter" varchar(500) DEFAULT 22,
+      "delete" bool DEFAULT NULL
+    )
+
+    ;
+      CREATE TABLE IF NOT EXISTS "tbl_host_log" (
+      "log_id" varchar(50) NOT NULL,
+      "host_ip" varchar(50) NOT NULL,
+      "user_name" varchar(50) DEFAULT NULL,
+      "user_id" varchar(50) DEFAULT NULL,
+      "project_id" varchar(50) DEFAULT NULL,
+      "project_name" varchar(50) DEFAULT NULL,
+      "app_instances_id" varchar(50) DEFAULT NULL,
+      "deploy_time" varchar(50) DEFAULT NULL,
+      "status" varchar(50) DEFAULT NULL,
+      "operation" varchar(50) DEFAULT NULL,
+      "host_id" varchar(50) DEFAULT NULL
+    )
+    ;
+
+    CREATE TABLE IF NOT EXISTS "tbl_uploaded_file" (
+      "file_id" varchar(50) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL,
+      "file_name" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "is_temp" bool DEFAULT NULL,
+      "user_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "upload_date" timestamptz(6) DEFAULT NULL,
+      "file_path" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      CONSTRAINT "tbl_uploaded_file_pkey" PRIMARY KEY ("file_id")
+    )
+    ;
+
+
     alter table catalog_package_table add column IF NOT EXISTS DEMOVIDEOADDRESS VARCHAR(200) NULL;
 
     alter table message_table add column IF NOT EXISTS DEMOVIDEODOWNLOADURL VARCHAR(255) NULL;
@@ -125,3 +178,11 @@
     alter table app_table add column if NOT EXISTS SHOWTYPE varchar(100) NOT NULL DEFAULT 'public';
 
     alter table app_table add column if NOT EXISTS ISHOTAPP boolean DEFAULT false;
+
+    alter table catalog_package_table add column IF NOT EXISTS APPINSTANCEID VARCHAR(100) DEFAULT NULL;
+
+    alter table catalog_package_table add column IF NOT EXISTS INSTANCETENENTID VARCHAR(100) DEFAULT NULL;
+
+    alter table catalog_package_table add column IF NOT EXISTS INSTANCEPACKAGEID VARCHAR(255) DEFAULT NULL;
+
+    alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLE boolean DEFAULT false;

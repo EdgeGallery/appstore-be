@@ -72,6 +72,8 @@ public class PackageDto {
 
     private String deployMode;
 
+    private boolean experienceAble;
+
     public PackageDto() {
         // empty construct function
     }
@@ -115,6 +117,7 @@ public class PackageDto {
             dto.demoVideoName = release.getDemoVideo().getOriginalFileName();
         }
         dto.deployMode = release.getDeployMode();
+        dto.experienceAble = release.isExperienceAble();
         return dto;
     }
 }

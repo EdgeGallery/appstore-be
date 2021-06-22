@@ -14,27 +14,37 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.domain.model.system.lcm;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Permissions {
+public class MecHostBody {
+    private String address;
 
-    private String platform;
+    private String affinity;
 
-    private String role;
+    private String city;
 
-    private String[] pageIds;
+    private String configUploadStatus;
 
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
+    private String coordinates;
 
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
+    private List<String> hwcapabilities;
+
+    private String mechostIp;
+
+    private String mechostName;
+
+    private String userName;
+
+    private String vim;
+
+    private String origin;
+
+    private String zipCode;
 
 }

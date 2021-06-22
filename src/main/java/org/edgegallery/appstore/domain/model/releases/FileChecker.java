@@ -107,9 +107,8 @@ public abstract class FileChecker {
      * check if file name if it's invalid.
      *
      * @param fileName file name
-     *
      */
-    static boolean isValid(String fileName) {
+    public static boolean isValid(String fileName) {
         if (StringUtils.isEmpty(fileName) || fileName.length() > MAX_LENGTH_FILE_NAME) {
             return false;
         }

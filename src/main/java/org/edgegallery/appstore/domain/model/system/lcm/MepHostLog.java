@@ -14,27 +14,36 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.domain.model.user;
+package org.edgegallery.appstore.domain.model.system.lcm;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 
 @Getter
 @Setter
-public class Permissions {
+public class MepHostLog {
 
-    private String platform;
+    private String logId;
 
-    private String role;
+    private String hostIp;
 
-    private String[] pageIds;
+    private String userName;
 
-    public String[] getPageIds() {
-        return pageIds.clone();
-    }
+    private String userId;
 
-    public void setPageIds(String[] pageIds) {
-        this.pageIds = pageIds.clone();
-    }
+    private String projectId;
+
+    private String projectName;
+
+    private String appInstancesId;
+
+    private String deployTime;
+
+    private EnumHostStatus status;
+
+    private String operation;
+
+    private String hostId;
 
 }
