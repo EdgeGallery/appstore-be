@@ -92,7 +92,7 @@ public class SystemService {
         PageHelper.offsetPage(offset, limit);
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         PageInfo pageInfo = new PageInfo<MepHost>(mapHosts);
-        LOGGER.info("Get all hosts success.");
+        LOGGER.info("Get all hosts success.", mapHosts);
         return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
