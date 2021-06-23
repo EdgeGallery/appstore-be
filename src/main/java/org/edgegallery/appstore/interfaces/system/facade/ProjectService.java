@@ -262,7 +262,8 @@ public class ProjectService {
         String token) {
         String workStatus = "";
         String showInfo = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
+        String testUsetId = "";
+        List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUsetId, name, ip);
         LOGGER.info("Get all hosts success.", mapHosts);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
