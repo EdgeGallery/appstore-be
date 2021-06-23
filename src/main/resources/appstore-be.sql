@@ -49,6 +49,7 @@
         STATUS                   VARCHAR(50)        NULL,
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
         ISHOTAPP                 boolean            DEFAULT false,
+        EXPERIENCEABLE           boolean            DEFAULT false,
         CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 

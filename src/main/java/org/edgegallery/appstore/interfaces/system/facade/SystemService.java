@@ -103,14 +103,6 @@ public class SystemService {
      */
     @Transactional
     public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
-        if (StringUtils.isBlank(host.getUserName())) {
-            LOGGER.error("Create host failed, username is empty");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "username is empty"));
-        }
-        if (StringUtils.isBlank(host.getPassword())) {
-            LOGGER.error("Create host failed, password is empty");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "password is empty"));
-        }
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId is empty"));

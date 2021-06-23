@@ -187,6 +187,7 @@ public class PackageService {
             release.setShowType(packageDto.getShowType());
             app.setShowType(packageDto.getShowType());
         }
+        release.setExperienceAble(packageDto.isExperienceAble());
         appRepository.store(app);
         packageRepository.updateRelease(release);
     }

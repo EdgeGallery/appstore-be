@@ -198,14 +198,13 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
+        boolean cleanResult= deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
 
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
         LOGGER.info("Update project status to TESTED success");
-
         // LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
-        return Either.right(true);
+        return Either.right(cleanResult);
     }
 
     /**
@@ -273,9 +272,9 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> deployAppById(String packageId, String userId, String name, String ip,
         String token) {
         String workStatus = "";
-        String showInfo = "";
+        String showInfo = "ubuntu:127.0.0.1:8080";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
@@ -320,6 +319,7 @@ public class ProjectService {
             String mecHost = mapHosts.get(0).getMecHost();
             showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         }
+        errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 
@@ -339,7 +339,7 @@ public class ProjectService {
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         mapHosts = null;
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
@@ -357,6 +357,7 @@ public class ProjectService {
             String mecHost = mapHosts.get(0).getMecHost();
             showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         }
+        errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 

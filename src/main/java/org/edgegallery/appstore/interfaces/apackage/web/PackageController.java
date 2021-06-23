@@ -201,7 +201,9 @@ public class PackageController {
         @ApiParam(value = "app video") @RequestPart(value = "video", required = false) MultipartFile video,
         @ApiParam(value = "app affinity") @RequestPart(value = "affinity", required = false) String affinity,
         @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = false) String shortDesc,
-        @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType) {
+        @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType,
+        @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
+            String experienceAble) {
         PackageDto packageDto = new PackageDto();
         packageDto.setAppId(appId);
         packageDto.setPackageId(packageId);
@@ -210,6 +212,7 @@ public class PackageController {
         packageDto.setAffinity(affinity);
         packageDto.setShortDesc(shortDesc);
         packageDto.setShowType(showType);
+        packageDto.setExperienceAble(Boolean.parseBoolean(experienceAble));
         return packageServiceFacade.updateAppById(appId, packageId, icon, video, packageDto);
     }
 }
