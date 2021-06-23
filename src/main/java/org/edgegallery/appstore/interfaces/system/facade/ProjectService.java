@@ -263,6 +263,7 @@ public class ProjectService {
         String workStatus = "";
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
+        LOGGER.info("Get all hosts success.", mapHosts);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
