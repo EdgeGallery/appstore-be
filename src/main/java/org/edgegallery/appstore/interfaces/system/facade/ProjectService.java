@@ -220,14 +220,7 @@ public class ProjectService {
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), packageId, userId, token);
         LOGGER.info("pod workStatus: {}", workStatus);
-        String workEvents = HttpClientUtil
-            .getWorkloadEvents(host.getProtocol(), host.getLcmIp(), host.getPort(), packageId, userId, token);
-        LOGGER.info("pod workEvents: {}", workEvents);
-        if (workStatus == null || workEvents == null) {
-            LOGGER.error("get pod workStatus {} error.");
-            return workStatus;
-        }
-        return workStatus;
+        return "workStatus";
     }
 
     /**
@@ -350,8 +343,9 @@ public class ProjectService {
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url failed."));
             }
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+
         }
-        if (!StringUtils.isEmpty(workStatus)) {
+        if (StringUtils.isNotEmpty(workStatus)) {
             String serviceName = getServiceName(workStatus);
             String nodePort = String.valueOf(getNodePort(workStatus));
             String mecHost = mapHosts.get(0).getMecHost();
