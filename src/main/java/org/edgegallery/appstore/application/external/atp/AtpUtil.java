@@ -62,6 +62,7 @@ public class AtpUtil {
     public AtpTestDto sendCreateTask2Atp(String filePath, String token) {
         if (filePath == null || token == null) {
             LOGGER.error("Failed to validate input parameters of ATP task creation");
+            return new AtpTestDto();
         }
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
@@ -102,6 +103,7 @@ public class AtpUtil {
     public String getTaskStatusFromAtp(String taskId, String token) {
         if (taskId == null || token == null) {
             LOGGER.error("Failed to validate input parameters for task status");
+            return "";
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
