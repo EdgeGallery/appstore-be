@@ -197,15 +197,10 @@ public class ProjectService {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(true);
         }
-
-        deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
-
+        boolean cleanResult = deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
-        LOGGER.info("Update project status to TESTED success");
-
-        // LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
-        return Either.right(true);
+        return Either.right(cleanResult);
     }
 
     /**
@@ -221,13 +216,6 @@ public class ProjectService {
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), packageId, userId, token);
         LOGGER.info("pod workStatus: {}", workStatus);
-        String workEvents = HttpClientUtil
-            .getWorkloadEvents(host.getProtocol(), host.getLcmIp(), host.getPort(), packageId, userId, token);
-        LOGGER.info("pod workEvents: {}", workEvents);
-        if (workStatus == null || workEvents == null) {
-            LOGGER.error("get pod workStatus {} error.");
-            return workStatus;
-        }
         return workStatus;
     }
 
@@ -275,7 +263,7 @@ public class ProjectService {
         String workStatus = "";
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
@@ -290,7 +278,8 @@ public class ProjectService {
                     mapHosts.get(0), token);
                 if (!instantRes) {
                     LOGGER.error("instantiate application failed, response is null");
-                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "instantiate application failed."));
+                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,
+                        "instantiate application failed."));
                 }
                 AppReleasePo releasePo = new AppReleasePo();
                 releasePo.setPackageId(packageId);
@@ -311,13 +300,17 @@ public class ProjectService {
             }
             int to = getMinute(new Date());
             if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                return ResponseEntity.ok(new ResponseObject(null, errMsg, "get app nodeport url failed."));
+                return ResponseEntity.ok(new ResponseObject(null, errMsg,
+                    "get app nodeport url failed."));
             }
         }
-        String serviceName = getServiceName(workStatus);
-        String nodePort = String.valueOf(getNodePort(workStatus));
-        String mecHost = mapHosts.get(0).getMecHost();
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        if (!StringUtils.isEmpty(workStatus)) {
+            String serviceName = getServiceName(workStatus);
+            String nodePort = String.valueOf(getNodePort(workStatus));
+            String mecHost = mapHosts.get(0).getMecHost();
+            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        }
+        errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 
@@ -336,22 +329,26 @@ public class ProjectService {
         String workStatus = "";
         String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
             AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
             String appInstanceId = appReleasePo.getAppInstanceId();
-            if (StringUtils.isEmpty(appInstanceId)) {
+            if (StringUtils.isEmpty(appInstanceId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(token)) {
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url failed."));
             }
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+
         }
-        String serviceName = getServiceName(workStatus);
-        String nodePort = String.valueOf(getNodePort(workStatus));
-        String mecHost = mapHosts.get(0).getMecHost();
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        if (StringUtils.isNotEmpty(workStatus)) {
+            String serviceName = getServiceName(workStatus);
+            String nodePort = String.valueOf(getNodePort(workStatus));
+            String mecHost = mapHosts.get(0).getMecHost();
+            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+        }
+        errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
 

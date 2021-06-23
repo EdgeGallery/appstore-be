@@ -90,6 +90,8 @@ public class App implements Entity {
 
     private boolean isHotApp;
 
+    private boolean experienceAble;
+
     /**
      * Constructor of App.
      *
@@ -111,6 +113,8 @@ public class App implements Entity {
         this.status = EnumAppStatus.UnPublish;
         this.releases = Collections.singletonList(release);
         this.deployMode = release.getDeployMode();
+        this.experienceAble = release.isExperienceAble();
+
     }
 
     public String getUserId() {

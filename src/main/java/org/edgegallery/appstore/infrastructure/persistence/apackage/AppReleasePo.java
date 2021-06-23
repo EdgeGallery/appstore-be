@@ -210,6 +210,7 @@ public class AppReleasePo {
         release.setTestTaskId(testTaskId);
         release.setDeployMode(deployMode);
         release.setAppInstanceId(appInstanceId);
+        release.setExperienceAble(experienceAble);
         return release;
     }
 
