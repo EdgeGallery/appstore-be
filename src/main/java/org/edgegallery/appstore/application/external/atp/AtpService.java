@@ -33,7 +33,7 @@ public class AtpService implements AtpServiceInterface {
 
     @Override
     public AtpTestDto createTestTask(Release release, String token) {
-        return atpUtil.sendCreatTask2Atp(release.getPackageFile().getStorageAddress(), token);
+        return atpUtil.sendCreateTask2Atp(release.getPackageFile().getStorageAddress(), token);
     }
 
 }
