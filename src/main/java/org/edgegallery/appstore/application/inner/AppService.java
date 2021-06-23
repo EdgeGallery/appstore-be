@@ -146,7 +146,7 @@ public class AppService {
      * @param localFilePath CSAR file path
      * @param intendedDir   intended directory
      */
-    public static void unzipApplicationPacakge(String localFilePath, String intendedDir) {
+    public static void unzipApplicationPackage(String localFilePath, String intendedDir) {
 
         try (ZipFile zipFile = new ZipFile(localFilePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -184,20 +184,20 @@ public class AppService {
     /**
      * Returns list of image details.
      *
-     * @param swImageDescr software image descriptor file content
+     * @param swImageDesc software image descriptor file content
      * @return list of image details
      */
-    public static List<SwImgDesc> getSwImageDescrInfo(String swImageDescr) {
+    public static List<SwImgDesc> getSwImageDescInfo(String swImageDesc) {
 
-        List<SwImgDesc> swImgDescrs = new LinkedList<>();
-        JsonArray swImgDescrArray = new JsonParser().parse(swImageDescr).getAsJsonArray();
-        SwImgDesc swDescr;
-        for (JsonElement descr : swImgDescrArray) {
-            swDescr = new Gson().fromJson(descr.getAsJsonObject().toString(), SwImgDesc.class);
-            swImgDescrs.add(swDescr);
+        List<SwImgDesc> swImgDesc = new LinkedList<>();
+        JsonArray swImgDescArray = new JsonParser().parse(swImageDesc).getAsJsonArray();
+        SwImgDesc swDesc;
+        for (JsonElement desc : swImgDescArray) {
+            swDesc = new Gson().fromJson(desc.getAsJsonObject().toString(), SwImgDesc.class);
+            swImgDesc.add(swDesc);
         }
-        LOGGER.info("sw image descriptors: {}", swImgDescrs);
-        return swImgDescrs;
+        LOGGER.info("sw image descriptors: {}", swImgDesc);
+        return swImgDesc;
     }
 
     /**
@@ -247,7 +247,7 @@ public class AppService {
      * @return list of image info
      */
     public List<SwImgDesc> getAppImageInfo(String localFilePath, String parentDir) {
-        unzipApplicationPacakge(localFilePath, parentDir);
+        unzipApplicationPackage(localFilePath, parentDir);
 
         File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         if (swImageDesc == null) {
@@ -255,7 +255,7 @@ public class AppService {
         }
 
         try {
-            return getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return getSwImageDescInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -265,16 +265,16 @@ public class AppService {
     /**
      * Updates software image descriptor with docker repo info.
      *
-     * @param swImageDescr software image descriptor file content
+     * @param swImageDesc software image descriptor file content
      */
-    public void updateRepoInfoInSwImageDescr(File swImageDescr) {
+    public void updateRepoInfoInSwImageDesc(File swImageDesc) {
 
         try {
-            String descrStr = FileUtils.readFileToString(swImageDescr, StandardCharsets.UTF_8);
-            JsonArray swImgDescrArray = new JsonParser().parse(descrStr).getAsJsonArray();
+            String descStr = FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8);
+            JsonArray swImgDescArray = new JsonParser().parse(descStr).getAsJsonArray();
 
-            for (JsonElement descr : swImgDescrArray) {
-                JsonObject jsonObject = descr.getAsJsonObject();
+            for (JsonElement desc : swImgDescArray) {
+                JsonObject jsonObject = desc.getAsJsonObject();
                 String swImage = jsonObject.get(SWIMAGE).getAsString();
                 String[] image = swImage.split("/");
 
@@ -284,8 +284,8 @@ public class AppService {
                     jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[0]);
                 }
             }
-            FileUtils.writeStringToFile(swImageDescr, swImgDescrArray.toString(), StandardCharsets.UTF_8.name());
-            LOGGER.info("Updated swImages : {}", swImgDescrArray);
+            FileUtils.writeStringToFile(swImageDesc, swImgDescArray.toString(), StandardCharsets.UTF_8.name());
+            LOGGER.info("Updated swImages : {}", swImgDescArray);
         } catch (IOException e) {
             LOGGER.info("failed to update sw image descriptor");
             throw new AppException("Failed to update repo info to image descriptor file",
@@ -294,14 +294,14 @@ public class AppService {
     }
 
     /**
-     * Update application package with apstore repo info.
+     * Update application package with appstore repo info.
      *
      * @param parentDir        parent Dir
      */
     public void updateAppPackageWithRepoInfo(String parentDir) {
 
         File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
-        updateRepoInfoInSwImageDescr(swImageDesc);
+        updateRepoInfoInSwImageDesc(swImageDesc);
         String unZipPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
 
         File chartsTar = getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
@@ -313,7 +313,7 @@ public class AppService {
         try {
             File unZipPathDir = new File(unZipPath);
             if (!unZipPathDir.mkdirs()) {
-                LOGGER.info("unZip path existed.");
+                LOGGER.info("unZip path has already existed.");
             }
 
             String chartsTarStr = chartsTar.getCanonicalFile().toString();
@@ -327,18 +327,18 @@ public class AppService {
 
             //update values.yaml
             Map<String, Object> values = loadvaluesYaml(valuesYaml);
-            ImgLoc imageLocn = null;
+            ImgLoc imageLoc = null;
             for (String key : values.keySet()) {
                 if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
-                    imageLocn = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
-                    imageLocn.setDomainname(appstoreRepoEndpoint);
-                    imageLocn.setProject("appstore");
+                    imageLoc = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
+                    imageLoc.setDomainname(appstoreRepoEndpoint);
+                    imageLoc.setProject("appstore");
                     break;
                 }
             }
-            if (imageLocn != null) {
-                values.put(IMAGE_LOCATION, imageLocn);
+            if (imageLoc != null) {
+                values.put(IMAGE_LOCATION, imageLoc);
             } else {
                 LOGGER.error("missing image location parameters ");
                 throw new AppException("failed to update values yaml, missing image location parameters",

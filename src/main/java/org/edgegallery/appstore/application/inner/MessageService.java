@@ -68,10 +68,10 @@ public class MessageService {
      * @return result
      */
     public String addMessage(MessageReqDto dto) {
-        LOGGER.info("receive notice message from {}", dto.getSourceAppStore());
+        LOGGER.info("Receive notice message from {}", dto.getSourceAppStore());
         messageRepository.addMessage(dto.toMessage(EnumMessageType.NOTICE));
-        LOGGER.info("add a message success");
-        return "add a message success";
+        LOGGER.info("Successfully add a message");
+        return "Successfully add a message";
     }
 
     public List<Message> getAllMessagesV2(Map<String, Object> params) {

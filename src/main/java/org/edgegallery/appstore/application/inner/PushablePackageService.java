@@ -91,7 +91,7 @@ public class PushablePackageService {
 
         // to check the atp report
         if (!toCheckAndUpdateAtpReport(packagePo)) {
-            LOGGER.warn("atp test failed, can not be publish to other app store. package id: {}, atp task id: {}",
+            LOGGER.warn("atp test failed, can not publish to other app store. package id: {}, atp task id: {}",
                 packagePo.getPackageId(), packagePo.getAtpTestTaskId());
             final List<Boolean> results = new ArrayList<>();
             targetAppStore.getTargetPlatform().forEach(platformId -> results.add(false));
