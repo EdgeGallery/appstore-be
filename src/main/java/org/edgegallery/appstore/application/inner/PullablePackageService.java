@@ -125,7 +125,7 @@ public class PullablePackageService {
         String sortType, String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
-            LOGGER.error("appstrore is not exist, appstoreId is {}", platformId);
+            LOGGER.error("appstore is not exist, appstoreId is {}", platformId);
             return ResponseEntity.ok(new Page<PushablePackageDto>(Collections.emptyList(), limit, offset,
                 Collections.emptyList().size()));
         }
@@ -229,7 +229,7 @@ public class PullablePackageService {
         LOGGER.info("pullPackage sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
         AppStore appStore = appStoreRepository.queryAppStoreById(sourceStoreId);
         if (appStore == null) {
-            LOGGER.error("appstrore is not exist, appstoreId is {}", sourceStoreId);
+            LOGGER.error("appstore is not exist, appstoreId is {}", sourceStoreId);
             return false;
         }
         String baseUrl = appStore.getUrl();

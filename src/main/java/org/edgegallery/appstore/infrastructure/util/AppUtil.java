@@ -251,7 +251,7 @@ public class AppUtil {
             return Collections.emptyList();
         }
         try {
-            return AppService.getSwImageDescrInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
+            return AppService.getSwImageDescInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
@@ -357,7 +357,7 @@ public class AppUtil {
                 LOGGER.error("create upload path failed");
                 throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
             }
-            AppService.unzipApplicationPacakge(fileAddress, fileParent);
+            AppService.unzipApplicationPackage(fileAddress, fileParent);
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
