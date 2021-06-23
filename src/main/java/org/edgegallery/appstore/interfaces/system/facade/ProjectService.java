@@ -272,7 +272,7 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> deployAppById(String packageId, String userId, String name, String ip,
         String token) {
         String workStatus = "";
-        String showInfo = "ubuntu:127.0.0.1:8080";
+        String showInfo = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
