@@ -32,6 +32,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,6 +81,8 @@ public class AppUtil {
     private static final String DOWNLOAD_IMAGE_FAIL = "failed download image from file system";
 
     private static final String ZIP_EXTENSION = ".zip";
+
+    private static final String CSAR_EXTENSION = ".csar";
 
     private static final String JSON_EXTENSION = "Image/SwImageDesc.json";
 
@@ -418,7 +422,32 @@ public class AppUtil {
      *
      * @param intendedDir application package ID
      */
-    public void compressAppPackage(String intendedDir, String zipFileName) {
+    public String compressCsarAppPackage(String intendedDir) {
+        final Path srcDir = Paths.get(intendedDir);
+        String zipFileName = intendedDir.concat(CSAR_EXTENSION);
+        String[] fileName = zipFileName.split("/");
+        String fileStorageAdd = srcDir + "/" + fileName[fileName.length - 1];
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
+            createCompressedFile(out, new File(intendedDir), "");
+        } catch (IOException e) {
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+        }
+        try {
+            FileUtils.deleteDirectory(new File(intendedDir));
+            FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
+        } catch (IOException e) {
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+        }
+        return fileStorageAdd;
+    }
+
+    /**
+     * ZIP application package.
+     *
+     * @param intendedDir application package ID
+     */
+    public String compressZipAppPackage(String intendedDir) {
+        String zipFileName = intendedDir.concat(ZIP_EXTENSION);
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             createCompressedFile(out, new File(intendedDir), "");
         } catch (IOException e) {
@@ -429,6 +458,7 @@ public class AppUtil {
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
+        return zipFileName;
     }
 
     private void createCompressedFile(ZipOutputStream out, File file, String dir) throws IOException {
