@@ -62,6 +62,7 @@ public class ProjectController {
     /**
      * show application.
      *
+     * @param appId appId.
      * @param packageId packageId.
      * @param userId userId.
      * @param name hostname.
@@ -78,12 +79,13 @@ public class ProjectController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<ResponseObject> deployAppById(
+        @ApiParam(value = "app id") @RequestParam("appId") String appId,
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
         @ApiParam(value = "user id") @RequestParam("userId") String userId,
         @ApiParam(value = "name") @RequestParam("name") String name,
         @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return projectService.deployAppById(packageId, userId, name, ip, token);
+        return projectService.deployAppById(appId, packageId, userId, name, ip, token);
     }
 
     /**
