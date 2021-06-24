@@ -298,7 +298,7 @@ public class AppServiceFacade {
                 // update hash value of Image/SwImageDesc.json
                 File mfFile = appUtil.getFile(fileParent, "mf");
                 new BasicInfo().rewriteManifestWithImage(mfFile, "");
-                fileAddress = appService.compressAppPackage(fileParent);
+                fileAddress = appUtil.compressAppPackage(fileParent, ".csar");
             }
         } catch (FileNotFoundException ex) {
             throw new AppException(ex.getMessage(), ResponseConst.RET_FILE_NOT_FOUND, fileAddress);

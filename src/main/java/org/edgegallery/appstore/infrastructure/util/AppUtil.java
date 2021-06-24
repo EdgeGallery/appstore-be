@@ -22,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +32,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -420,30 +418,103 @@ public class AppUtil {
      *
      * @param intendedDir application package ID
      */
-    public String compressAppPackage(String intendedDir) throws IOException {
-        final Path srcDir = Paths.get(intendedDir);
-        String zipFileName = intendedDir.concat(ZIP_EXTENSION);
-        try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
-            java.nio.file.Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
-                    try {
-                        Path targetFile = srcDir.relativize(file);
-                        os.putNextEntry(new ZipEntry(targetFile.toString()));
-                        byte[] bytes = java.nio.file.Files.readAllBytes(file);
-                        os.write(bytes, 0, bytes.length);
-                        os.closeEntry();
-                    } catch (IOException e) {
-                        throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+    public String compressAppPackage(String intendedDir, String extension) {
+        String zipFileName = intendedDir.concat(extension);
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
+            createCompressedFile(out, new File(intendedDir), "");
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
-
+        try {
+            FileUtils.deleteDirectory(new File(intendedDir));
+        } catch (IOException e) {
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+        }
         return zipFileName;
     }
 
+    private void createCompressedFile(ZipOutputStream out, File file, String dir) throws IOException {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (!dir.equals("")) {
+                out.putNextEntry(new ZipEntry(dir + "/"));
+            }
+
+            dir = dir.length() == 0 ? "" : dir + "/";
+            if (files != null && files.length > 0) {
+                for (int i = 0; i < files.length; i++) {
+                    createCompressedFile(out, files[i], dir + files[i].getName());
+                }
+            }
+        } else {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                out.putNextEntry(new ZipEntry(dir));
+                int j = 0;
+                byte[] buffer = new byte[1024];
+                while ((j = fis.read(buffer)) > 0) {
+                    out.write(buffer, 0, j);
+                }
+            } catch (FileNotFoundException e) {
+                LOGGER.error("createCompressedFile: can not find param file, {}", e.getMessage());
+                throw new AppException("can not find file", ResponseConst.RET_COMPRESS_FAILED);
+            }
+        }
+    }
+
+    /**
+     * zip files.
+     * @param srcfile source file list
+     * @param zipfile to be zipped file
+     */
+    public void zipFiles(List<File> srcfile, File zipfile) {
+        List<String> entryPaths = new ArrayList<>();
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile));) {
+            for (File file : srcfile) {
+                if (file.isFile()) {
+                    addFileToZip(out, file, entryPaths);
+                } else if (file.isDirectory()) {
+                    entryPaths.add(file.getName());
+                    addFolderToZip(out, file, entryPaths);
+                    entryPaths.remove(entryPaths.size() - 1);
+                }
+            }
+        } catch (IOException e) {
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+        }
+    }
+
+    private static void addFolderToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
+        out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/"));
+        out.closeEntry();
+        File[] files = file.listFiles();
+        if (files == null || files.length == 0) {
+            return;
+        }
+        for (File subFile : files) {
+            if (subFile.isFile()) {
+                addFileToZip(out, subFile, entryPaths);
+            } else if (subFile.isDirectory()) {
+                entryPaths.add(subFile.getName());
+                addFolderToZip(out, subFile, entryPaths);
+                entryPaths.remove(entryPaths.size() - 1);
+            }
+        }
+    }
+
+    private static void addFileToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
+        byte[] buf = new byte[1024];
+        try (FileInputStream in = new FileInputStream(file)) {
+            if (entryPaths.size() > 0) {
+                out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/")
+                    + "/" + file.getName()));
+            } else {
+                out.putNextEntry(new ZipEntry(file.getName()));
+            }
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.closeEntry();
+        }
+    }
 }

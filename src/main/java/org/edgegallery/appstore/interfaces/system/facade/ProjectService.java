@@ -173,8 +173,8 @@ public class ProjectService {
         boolean distributeRes = HttpClientUtil
             .distributePkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), userId, token, pkgId,
                 mepHost.getMecHost(), lcmLog);
-
         if (!distributeRes) {
+            cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
         }
         LOGGER.info("distribute res {}", distributeRes);
