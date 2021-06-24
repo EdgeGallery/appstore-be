@@ -418,8 +418,7 @@ public class AppUtil {
      *
      * @param intendedDir application package ID
      */
-    public String compressAppPackage(String intendedDir, String extension) {
-        String zipFileName = intendedDir.concat(extension);
+    public void compressAppPackage(String intendedDir, String zipFileName) {
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             createCompressedFile(out, new File(intendedDir), "");
         } catch (IOException e) {
@@ -430,7 +429,6 @@ public class AppUtil {
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
-        return zipFileName;
     }
 
     private void createCompressedFile(ZipOutputStream out, File file, String dir) throws IOException {
