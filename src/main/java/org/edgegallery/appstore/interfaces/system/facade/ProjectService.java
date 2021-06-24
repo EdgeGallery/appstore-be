@@ -156,6 +156,7 @@ public class ProjectService {
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
+        LOGGER.info("upload res {}", uploadRes);
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
         UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
@@ -172,12 +173,23 @@ public class ProjectService {
         if (!distributeRes) {
             return false;
         }
+        LOGGER.info("distribute res {}", distributeRes);
         // instantiate application
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         boolean instantRes = HttpClientUtil
             .instantiateApplication(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), appInstanceId, userId,
                 token, lcmLog, pkgId, mepHost.getMecHost());
-
-        return instantRes;
+        if (!instantRes) {
+            cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
+            return false;
+        }
+        LOGGER.info("after instant {}", instantRes);
+        return true;
     }
 
     /**
