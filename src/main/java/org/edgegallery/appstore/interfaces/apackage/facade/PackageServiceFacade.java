@@ -140,9 +140,7 @@ public class PackageServiceFacade {
             String storageAddress = release.getPackageFile().getStorageAddress();
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
-            String fileAddress = fileParent.concat(ZIP_EXTENSION);
-            appUtil.compressAppPackage(fileParent, fileAddress);
-
+            String fileAddress = appUtil.compressZipAppPackage(fileParent);
             ins = fileService.get(fileAddress);
         } else {
             ins = fileService.get(release.getPackageFile());
