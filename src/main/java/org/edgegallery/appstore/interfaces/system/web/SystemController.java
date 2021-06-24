@@ -83,7 +83,6 @@ public class SystemController {
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         return ResponseEntity.ok(systemService.getAllHosts(userId, name, ip, limit, offset, token));
-
     }
 
     /**

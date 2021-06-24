@@ -35,12 +35,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -52,7 +46,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -100,8 +93,6 @@ public class AppService {
     private static final String APPSTORE_URL = "/appstore/";
 
     private static final String IMAGE_LOCATION = "imagelocation";
-
-    private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
     private static final String PULL_IMAGE_ERR_MESSAGES = "failed to pull image to edge repo";
 
@@ -372,44 +363,6 @@ public class AppService {
             throw new AppException("failed to load value yaml form charts", ResponseConst.RET_LOAD_YAML_FAILED);
         }
         return valuesYamlMap;
-    }
-
-    /**
-     * ZIP application package.
-     *
-     * @param intendedDir application package ID
-     */
-    public String compressAppPackage(String intendedDir) {
-        final Path srcDir = Paths.get(intendedDir);
-        String zipFileName = intendedDir.concat(".csar");
-        String[] fileName = zipFileName.split("/");
-        String fileStorageAdd = srcDir + "/" + fileName[fileName.length - 1];
-        try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(zipFileName))) {
-            Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
-                    try {
-                        Path targetFile = srcDir.relativize(file);
-                        os.putNextEntry(new ZipEntry(targetFile.toString()));
-                        byte[] bytes = Files.readAllBytes(file);
-                        os.write(bytes, 0, bytes.length);
-                        os.closeEntry();
-                    } catch (IOException e) {
-                        throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
-        }
-        try {
-            FileUtils.deleteDirectory(new File(intendedDir));
-            FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
-        } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
-        }
-        return fileStorageAdd;
     }
 
     /**
