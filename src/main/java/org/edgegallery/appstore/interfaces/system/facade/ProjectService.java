@@ -23,7 +23,6 @@ import com.spencerwi.either.Either;
 import java.lang.reflect.Type;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +42,8 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.releases.PackageRepository;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.LcmLog;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
@@ -82,6 +83,9 @@ public class ProjectService {
 
     @Autowired
     private HostMapper hostMapper;
+
+    @Autowired
+    private PackageRepository packageRepository;
 
     private static String getXsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
@@ -270,7 +274,8 @@ public class ProjectService {
      * @param token token.
      * @return
      */
-    public ResponseEntity<ResponseObject> deployAppById(String packageId, String userId, String name, String ip,
+    public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
+        String name, String ip,
         String token) {
         String workStatus = "";
         String showInfo = "";
@@ -284,7 +289,8 @@ public class ProjectService {
             LOGGER.info("Get all hosts success.");
             String instanceTenentId = userId;
             AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
-            String filePath = appReleasePo.getPackageAddress();
+            Release release = packageRepository.findReleaseById(appId, packageId);
+            String filePath = release.getPackageFile().getStorageAddress();
             String appInstanceId = appReleasePo.getAppInstanceId();
             if (StringUtils.isEmpty(appInstanceId)) {
                 appInstanceId = UUID.randomUUID().toString();
@@ -301,6 +307,8 @@ public class ProjectService {
                 releasePo.setInstanceTenentId(instanceTenentId);
                 packageMapper.updateAppInstanceApp(releasePo);
             }
+
+
             int from = getMinute(new Date());
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
             while (StringUtils.isEmpty(workStatus)) {
