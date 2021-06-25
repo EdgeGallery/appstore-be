@@ -207,6 +207,7 @@ public class ProjectService {
         String instanceTenentId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
+        userId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
 
         if (CollectionUtils.isEmpty(mapHosts)) {
