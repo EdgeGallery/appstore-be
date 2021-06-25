@@ -209,10 +209,9 @@ public class ProjectService {
         String pkgId = appReleasePo.getInstancePackageId();
         userId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-
         if (CollectionUtils.isEmpty(mapHosts)) {
             LOGGER.info("This project has no config, do not need to clean env.");
-            return Either.right(true);
+            return Either.right(false);
         }
         boolean cleanResult = deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
         appReleasePo.initialConfig();
@@ -351,6 +350,7 @@ public class ProjectService {
         String token) {
         String workStatus = "";
         String showInfo = "";
+        userId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
