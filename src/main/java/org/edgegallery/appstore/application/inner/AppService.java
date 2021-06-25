@@ -323,6 +323,7 @@ public class AppService {
                 if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
                     imageLoc = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
+                    LOGGER.info("image location domain{}, project {}", imageLoc.getDomainname(), imageLoc.getProject());
                     break;
                 }
             }
@@ -340,11 +341,10 @@ public class AppService {
             LOGGER.info("imageLocation updated in values yaml {}", json);
 
             compress(valuesYaml.getParent(), chartsTarStr);
-            String chartDir = valuesYaml.getParent();
-            LOGGER.info("Charts Parent path is {}, unZipPath {}", chartDir, unZipPath);
-            FileUtils.deleteDirectory(new File(chartDir.substring(0, chartDir.lastIndexOf(File.separator))));
-
-            FileUtils.deleteDirectory(new File(unZipPath));
+            FileUtils.deleteDirectory(unZipPathDir);
+            if (unZipPathDir.exists()) {
+                LOGGER.info("delete charts temp folder failed, {}", valuesYaml.getParent());
+            }
         } catch (IOException e) {
             LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
         }
