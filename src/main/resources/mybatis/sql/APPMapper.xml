@@ -133,19 +133,19 @@
                 </foreach>
             </if>
             <if test="affinity != null and affinity.size()>0">
-                or affinity in
+                and affinity in
                 <foreach collection="affinity" item="affinity" index="index" open="(" close=")" separator=",">
                     #{affinity}
                 </foreach>
             </if>
             <if test="workloadType != null and workloadType.size()>0">
-                or deploymode in
+                and deploymode in
                 <foreach collection="workloadType" item="workloadType" index="index" open="(" close=")" separator=",">
                     #{workloadType}
                 </foreach>
             </if>
             <if test="type != null and type.size()>0">
-                or applicationtype in
+                and applicationtype in
                 <foreach collection="type" item="type" index="index" open="(" close=")" separator=",">
                     #{type}
                 </foreach>

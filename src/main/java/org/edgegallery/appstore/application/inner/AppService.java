@@ -323,13 +323,13 @@ public class AppService {
                 if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
                     imageLoc = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
-                    imageLoc.setDomainname(appstoreRepoEndpoint);
-                    imageLoc.setProject("appstore");
                     break;
                 }
             }
             if (imageLoc != null) {
-                values.put(IMAGE_LOCATION, imageLoc);
+                FileUtils.writeStringToFile(valuesYaml, FileUtils.readFileToString(valuesYaml, StandardCharsets.UTF_8)
+                    .replace(imageLoc.getDomainname(), appstoreRepoEndpoint)
+                    .replace(imageLoc.getProject(), "appstore"), StandardCharsets.UTF_8, false);
             } else {
                 LOGGER.error("missing image location parameters ");
                 throw new AppException("failed to update values yaml, missing image location parameters",
@@ -340,7 +340,9 @@ public class AppService {
             LOGGER.info("imageLocation updated in values yaml {}", json);
 
             compress(valuesYaml.getParent(), chartsTarStr);
-            LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
+            String chartDir = valuesYaml.getParent();
+            LOGGER.info("Charts Parent path is {}, unZipPath {}", chartDir, unZipPath);
+            FileUtils.deleteDirectory(new File(chartDir.substring(0, chartDir.lastIndexOf(File.separator))));
 
             FileUtils.deleteDirectory(new File(unZipPath));
         } catch (IOException e) {
