@@ -113,51 +113,36 @@
         CONSTRAINT PUSHABLE_PACKAGE_TABLE_PKEY PRIMARY KEY (PACKAGEID)
     );
 
-    CREATE TABLE IF NOT EXISTS "tbl_service_host" (
-      "host_id" varchar(50) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "user_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "name" varchar(100) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "address" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "architecture" varchar(100) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "status" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "protocol" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "lcm_ip" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "mec_host" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "os" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "port_range_min" int DEFAULT '-1'::integer,
-      "port_range_max" int DEFAULT '-1'::integer,
-      "port" int4 DEFAULT '-1'::integer,
-      "user_name" varchar(50) DEFAULT NULL,
-      "password" varchar(50) DEFAULT NULL,
-      "vnc_port" int4 DEFAULT NULL,
-      "parameter" varchar(500) DEFAULT 22,
-      "delete" bool DEFAULT NULL
+    CREATE TABLE IF NOT EXISTS tbl_service_host (
+      host_id VARCHAR(50) NOT NULL,
+      user_id VARCHAR(50) DEFAULT NULL,
+      name VARCHAR(100) DEFAULT NULL,
+      address VARCHAR(255) DEFAULT NULL,
+      architecture VARCHAR(100) DEFAULT NULL,
+      status VARCHAR(20) DEFAULT NULL,
+      protocol VARCHAR(20) DEFAULT NULL,
+      lcm_ip VARCHAR(20) DEFAULT NULL,
+      mec_host VARCHAR(20) DEFAULT NULL,
+      os VARCHAR(255) DEFAULT NULL,
+      port_range_min INTEGER DEFAULT 0,
+      port_range_max INTEGER DEFAULT 0,
+      port INTEGER DEFAULT 0,
+      vnc_port INTEGER DEFAULT NULL,
+      parameter VARCHAR(500) DEFAULT 22,
+      delete boolean DEFAULT NULL
     )
 
     ;
-      CREATE TABLE IF NOT EXISTS "tbl_host_log" (
-      "log_id" varchar(50) NOT NULL,
-      "host_ip" varchar(50) NOT NULL,
-      "user_name" varchar(50) DEFAULT NULL,
-      "user_id" varchar(50) DEFAULT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "project_name" varchar(50) DEFAULT NULL,
-      "app_instances_id" varchar(50) DEFAULT NULL,
-      "deploy_time" varchar(50) DEFAULT NULL,
-      "status" varchar(50) DEFAULT NULL,
-      "operation" varchar(50) DEFAULT NULL,
-      "host_id" varchar(50) DEFAULT NULL
-    )
-    ;
 
-    CREATE TABLE IF NOT EXISTS "tbl_uploaded_file" (
-      "file_id" varchar(50) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL,
-      "file_name" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL,
-      "is_temp" bool DEFAULT NULL,
-      "user_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
-      "upload_date" timestamptz(6) DEFAULT NULL,
-      "file_path" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL,
-      CONSTRAINT "tbl_uploaded_file_pkey" PRIMARY KEY ("file_id")
+
+    CREATE TABLE IF NOT EXISTS tbl_uploaded_file (
+      file_id VARCHAR(50) NOT NULL DEFAULT NULL,
+      file_name VARCHAR(255) DEFAULT NULL,
+      is_temp bool DEFAULT NULL,
+      user_id VARCHAR(50) DEFAULT NULL,
+      upload_date timestamptz(6) DEFAULT NULL,
+      file_path VARCHAR(255) DEFAULT NULL,
+      CONSTRAINT tbl_uploaded_file_pkey PRIMARY KEY (file_id)
     )
     ;
 
