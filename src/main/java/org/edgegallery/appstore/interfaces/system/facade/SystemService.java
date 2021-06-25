@@ -30,11 +30,9 @@ import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
-import org.edgegallery.appstore.domain.model.system.lcm.MepHostLog;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
-import org.edgegallery.appstore.infrastructure.persistence.system.HostLogMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
 import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
@@ -69,9 +67,6 @@ public class SystemService {
 
     @Autowired
     private HostMapper hostMapper;
-
-    @Autowired
-    private HostLogMapper hostLogMapper;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -221,18 +216,6 @@ public class SystemService {
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Can not find the host.");
             return Either.left(error);
         }
-    }
-
-    /**
-     * getHostLogByHostId.
-     *
-     * @param hostId hostId
-     * @return
-     */
-    public Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId) {
-        List<MepHostLog> hostLogList = hostLogMapper.getHostLogByHostId(hostId);
-        LOGGER.info("Get host logs success.");
-        return Either.right(hostLogList);
     }
 
     private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {

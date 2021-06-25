@@ -63,11 +63,6 @@ public class MepHost {
 
     private String configId;
 
-    private String userName;
-
-    @JsonIgnore
-    private String password;
-
     private int vncPort;
 
     private String parameter;

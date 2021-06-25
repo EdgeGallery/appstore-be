@@ -17,12 +17,10 @@
 package org.edgegallery.appstore.interfaces.system.web;
 
 import com.spencerwi.either.Either;
-import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
-import org.edgegallery.appstore.domain.model.system.lcm.MepHostLog;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
@@ -80,7 +78,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        host.setUserName("hlfonnnn");
         Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -97,8 +94,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
         Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -115,8 +110,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
         host.setUserId(UUID.randomUUID().toString());
         Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
@@ -134,8 +127,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
         Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
@@ -168,8 +159,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
         Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
@@ -187,8 +176,6 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
         Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
@@ -209,13 +196,6 @@ public class SystemServiceTest {
         Assert.assertTrue(res.isRight());
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void testGetHostLogSuccess() {
-        Either<FormatRespDto, List<MepHostLog>> res = systemService
-            .getHostLogByHostId("d6bcf665-ba9c-4474-b7fb-25ff859563d3");
-        Assert.assertTrue(res.isRight());
-    }
 
 
 

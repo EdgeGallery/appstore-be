@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -31,7 +30,6 @@ import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
-import org.edgegallery.appstore.domain.model.system.lcm.MepHostLog;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
@@ -162,25 +160,6 @@ public class SystemController {
         @Validated @RequestBody MepCreateHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = systemService.updateHost(hostId, host, token);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * getHostLogByHostId.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get all server(build and test app)", response = MepHost.class, responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/hosts/{hostId}/log", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
-        @ApiParam(value = "hostId", required = true) @PathVariable String hostId) {
-        Either<FormatRespDto, List<MepHostLog>> either = systemService.getHostLogByHostId(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
 
