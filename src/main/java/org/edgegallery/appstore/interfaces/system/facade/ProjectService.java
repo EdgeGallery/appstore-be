@@ -350,8 +350,8 @@ public class ProjectService {
         String token) {
         String workStatus = "";
         String showInfo = "";
-        userId = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
+        String testUserId = "";
+        List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUserId, name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
@@ -360,7 +360,7 @@ public class ProjectService {
             AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
             String appInstanceId = appReleasePo.getAppInstanceId();
             if (StringUtils.isEmpty(appInstanceId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(token)) {
-                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url failed."));
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this pacakge not instantiate"));
             }
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
 
