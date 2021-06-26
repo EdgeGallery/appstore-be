@@ -336,9 +336,6 @@ public class AppService {
                 throw new AppException("failed to update values yaml, missing image location parameters",
                     ResponseConst.RET_MISS_IMAGE_LOCATION);
             }
-            String json = new Gson().toJson(values);
-            FileUtils.writeStringToFile(valuesYaml, json, StandardCharsets.UTF_8.name());
-            LOGGER.info("imageLocation updated in values yaml {}", json);
 
             compress(valuesYaml.getParent(), chartsTarStr);
             FileUtils.deleteDirectory(unZipPathDir);
