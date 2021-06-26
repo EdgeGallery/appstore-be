@@ -341,7 +341,7 @@ public class AppService {
             LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
-            LOGGER.info("Delete temporary unzip directory failed {}", e);
+            LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
         }
     }
 
@@ -474,7 +474,8 @@ public class AppService {
      */
     private void deCompress(String tarFile, File destFile) {
         try (FileInputStream fis = new FileInputStream(tarFile);
-             GZIPInputStream gzipInputStream = new GZIPInputStream(new BufferedInputStream(fis));
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             GZIPInputStream gzipInputStream = new GZIPInputStream(bis);
              TarArchiveInputStream tis = new TarArchiveInputStream(gzipInputStream);) {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tis.getNextTarEntry()) != null) {
@@ -499,8 +500,9 @@ public class AppService {
 
         File destination = new File(destPath);
         try (FileOutputStream destOutStream = new FileOutputStream(destination.getCanonicalPath());
-                GZIPOutputStream gipOutStream = new GZIPOutputStream(new BufferedOutputStream(destOutStream));
-                TarArchiveOutputStream outStream = new TarArchiveOutputStream(gipOutStream)) {
+             BufferedOutputStream bos = new BufferedOutputStream(destOutStream);
+             GZIPOutputStream gipOutStream = new GZIPOutputStream(bos);
+             TarArchiveOutputStream outStream = new TarArchiveOutputStream(gipOutStream)) {
 
             addFileToTar(sourceDir, "", outStream);
 
@@ -517,7 +519,8 @@ public class AppService {
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
-                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
+                try (FileInputStream fileInputStream =new FileInputStream(file);
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
                     tarArchive.closeArchiveEntry();
                 }
