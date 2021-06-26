@@ -341,7 +341,7 @@ public class AppService {
             LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
-            LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
+            LOGGER.info("Delete temporary unzip directory failed {}", e);
         }
     }
 
