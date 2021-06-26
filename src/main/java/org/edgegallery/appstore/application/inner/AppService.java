@@ -519,7 +519,7 @@ public class AppService {
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
-                try (FileInputStream fileInputStream =new FileInputStream(file);
+                try (FileInputStream fileInputStream = new FileInputStream(file);
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
                     tarArchive.closeArchiveEntry();
