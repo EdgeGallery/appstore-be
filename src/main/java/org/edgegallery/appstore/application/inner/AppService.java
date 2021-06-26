@@ -342,11 +342,6 @@ public class AppService {
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
             LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
-            try {
-                FileUtils.deleteDirectory(new File(unZipPath));
-            } catch (IOException e2) {
-                LOGGER.info("Delete temporary unzip directory failed again, {}", e2.getMessage());
-            }
         }
     }
 
@@ -481,7 +476,7 @@ public class AppService {
         try (FileInputStream fis = new FileInputStream(tarFile);
              BufferedInputStream bis = new BufferedInputStream(fis);
              GZIPInputStream gzipInputStream = new GZIPInputStream(bis);
-             TarArchiveInputStream tis = new TarArchiveInputStream(gzipInputStream);) {
+             TarArchiveInputStream tis = new TarArchiveInputStream(gzipInputStream)) {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tis.getNextTarEntry()) != null) {
                 if (!tarEntry.isDirectory()) {
@@ -489,7 +484,9 @@ public class AppService {
                     LOGGER.info("deCompressing... {}", outputFile.getName());
                     boolean result = outputFile.getParentFile().mkdirs();
                     LOGGER.debug("create directory result {}", result);
-                    IOUtils.copy(tis, new FileOutputStream(outputFile));
+                    FileOutputStream out = new FileOutputStream(outputFile);
+                    IOUtils.copy(tis, out);
+                    out.close();
                 }
             }
         } catch (IOException ex) {
@@ -527,6 +524,7 @@ public class AppService {
                 try (FileInputStream fileInputStream = new FileInputStream(file);
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
+                    bufferedInputStream.close();
                     tarArchive.closeArchiveEntry();
                 }
             } else if (file.isDirectory()) {
