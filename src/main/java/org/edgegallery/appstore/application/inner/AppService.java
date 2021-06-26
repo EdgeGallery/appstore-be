@@ -342,6 +342,11 @@ public class AppService {
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
             LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
+            try {
+                FileUtils.deleteDirectory(new File(unZipPath));
+            } catch (IOException e2) {
+                LOGGER.info("Delete temporary unzip directory failed again, {}", e2.getMessage());
+            }
         }
     }
 
