@@ -29,9 +29,13 @@ servicecomb:
     address: ${LISTEN_IP:}:8099
     servlet:
       urlPattern: /cse/*
+    server:
+      timeout: 1800000
   uploads:
     directory: /home/appstore
     maxSize: -1
+  request:
+    timeout: 1800000
 
 ### spring config ###
 server:
@@ -60,6 +64,9 @@ spring:
     multipart:
       max-file-size: 5120MB
       max-request-size: 5120MB
+  mvc:
+    async:
+      request-timeout: 1800000
 security:
   oauth2:
     resource:
