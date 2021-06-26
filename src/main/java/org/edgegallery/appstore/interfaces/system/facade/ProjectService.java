@@ -311,6 +311,7 @@ public class ProjectService {
 
             int from = getMinute(new Date());
             workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+            int to = 0;
             while (StringUtils.isEmpty(workStatus)) {
                 try {
                     Thread.sleep(3000);
@@ -319,11 +320,11 @@ public class ProjectService {
                     LOGGER.error("sleep fail! {}", e.getMessage());
                     Thread.currentThread().interrupt();
                 }
-            }
-            int to = getMinute(new Date());
-            if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                return ResponseEntity.ok(new ResponseObject(null, errMsg,
-                    "get app nodeport url failed."));
+                to = getMinute(new Date());
+                if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
+                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,
+                        "get app nodeport url failed."));
+                }
             }
         }
         if (!StringUtils.isEmpty(workStatus)) {
@@ -335,7 +336,7 @@ public class ProjectService {
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
-
+    
     /**
      * get nodeStatus.
      *
