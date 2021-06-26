@@ -341,7 +341,7 @@ public class AppService {
             LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
-            LOGGER.info("Delete temporary unzip directory failed {}", e);
+            LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
         }
     }
 
@@ -517,7 +517,8 @@ public class AppService {
         try {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
-                try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))) {
+                try (FileInputStream fileInputStream =new FileInputStream(file);
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
                     tarArchive.closeArchiveEntry();
                 }
