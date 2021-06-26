@@ -338,10 +338,8 @@ public class AppService {
             }
 
             compress(valuesYaml.getParent(), chartsTarStr);
+            LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
             FileUtils.deleteDirectory(unZipPathDir);
-            if (unZipPathDir.exists()) {
-                LOGGER.info("delete charts temp folder failed, {}", valuesYaml.getParent());
-            }
         } catch (IOException e) {
             LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
         }
@@ -475,16 +473,9 @@ public class AppService {
      * @param destFile destination folder
      */
     private void deCompress(String tarFile, File destFile) {
-        TarArchiveInputStream tis = null;
-        try (FileInputStream fis = new FileInputStream(tarFile)) {
-
-            if (tarFile.contains(".tar")) {
-                tis = new TarArchiveInputStream(new BufferedInputStream(fis));
-            } else {
-                GZIPInputStream gzipInputStream = new GZIPInputStream(new BufferedInputStream(fis));
-                tis = new TarArchiveInputStream(gzipInputStream);
-            }
-
+        try (FileInputStream fis = new FileInputStream(tarFile);
+             GZIPInputStream gzipInputStream = new GZIPInputStream(new BufferedInputStream(fis));
+             TarArchiveInputStream tis = new TarArchiveInputStream(gzipInputStream);) {
             TarArchiveEntry tarEntry;
             while ((tarEntry = tis.getNextTarEntry()) != null) {
                 if (!tarEntry.isDirectory()) {
@@ -498,14 +489,6 @@ public class AppService {
         } catch (IOException ex) {
             throw new AppException("failed to decompress, IO exception " + ex.getMessage(),
                 ResponseConst.RET_DECOMPRESS_FAILED);
-        } finally {
-            if (tis != null) {
-                try {
-                    tis.close();
-                } catch (IOException ex) {
-                    LOGGER.error("failed to close tar input stream {} ", ex.getMessage());
-                }
-            }
         }
     }
 
