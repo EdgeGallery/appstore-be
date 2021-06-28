@@ -54,7 +54,6 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
         }
     }
 
-    // inputStream 装换为 string
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = null;
         if (is != null) {
@@ -68,12 +67,12 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
                     sb.append(line);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("read input stream to string exception: {}", e.getMessage());
             } finally {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("close stream exception: {}", e.getMessage());
                 }
             }
         }
