@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
         }
     }
 
-    // inputStream 装换为 string
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = null;
         if (is != null) {
@@ -68,12 +66,12 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
                     sb.append(line);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("read input stream to string exception: {}", e.getMessage());
             } finally {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("close stream exception: {}", e.getMessage());
                 }
             }
         }

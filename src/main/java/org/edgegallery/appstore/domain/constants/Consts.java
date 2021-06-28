@@ -30,9 +30,6 @@ public final class Consts {
 
     public static final String APP_LCM_DELETE_APPPKG_URL = "/lcmcontroller/v1/tenants/tenantId/packages/packageId";
 
-    public static final String APP_LCM_INSTANTIATE_IMAGE_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images";
-
     public static final String APP_LCM_TERMINATE_APP_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
 
@@ -41,15 +38,6 @@ public final class Consts {
 
     public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/workload/events";
-
-    public static final String APP_LCM_GET_IMAGE_STATUS_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
-
-    public static final String APP_LCM_GET_IMAGE_DELETE_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
-
-    public static final String APP_LCM_GET_IMAGE_DOWNLOAD_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId/file";
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
@@ -62,8 +50,6 @@ public final class Consts {
     public static final int TEMP_FILE_TIMEOUT = 30;
 
     public static final String ACCESS_TOKEN_STR = "access_token";
-
-    public static final String SYSTEM_IMAGE_UPLOAD_URL = "/imagemanagement/v1/upload";
 
     private Consts() {
     }
