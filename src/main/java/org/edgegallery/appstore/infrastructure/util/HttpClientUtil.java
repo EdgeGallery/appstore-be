@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.LcmLog;
+import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 import org.edgegallery.appstore.domain.model.system.lcm.InstantRequest;
@@ -47,18 +48,27 @@ public final class HttpClientUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
+    private static final String APP_INSTANCE_ID = "appInstanceId";
+
+    private static final String TENANT_ID = "tenantId";
+
+    private static final String PACKAGE_ID = "packageId";
+
     private HttpClientUtil() {
 
     }
 
     /**
-     * instantiateApplication.
+     * instantiate Application.
      *
      * @return InstantiateAppResult
      */
-    public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
-        String userId, String token, LcmLog lcmLog, String pkgId, String mecHost) {
-        //before instantiate ,call distribute result interface
+    public static boolean instantiateApp(MepHost mepHost, String appInstanceId, String userId, String token,
+        LcmLog lcmLog, String pkgId) {
+        String protocol = mepHost.getProtocol();
+        String ip = mepHost.getLcmIp();
+        int port = mepHost.getPort();
+        //before instantiate, call distribute result interface
         String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
         if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
@@ -76,12 +86,12 @@ public final class HttpClientUtil {
         //set instantiate bodys
         InstantRequest ins = new InstantRequest();
         ins.setAppName(appName);
-        ins.setHostIp(mecHost);
+        ins.setHostIp(mepHost.getMecHost());
         ins.setPackageId(pkgId);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+            .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
@@ -119,7 +129,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replace(TENANT_ID, userId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -145,12 +155,11 @@ public final class HttpClientUtil {
     /**
      * distribute pkg.
      */
-    public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
-        String packageId, String mecHost, LcmLog lcmLog) {
+    public static boolean distributePkg(MepHost mepHost, String userId, String token, String packageId, LcmLog lcmLog) {
         //add body
         DistributeBody body = new DistributeBody();
         String[] bodys = new String[1];
-        bodys[0] = mecHost;
+        bodys[0] = mepHost.getMecHost();
         body.setHostIp(bodys);
         //add headers
         HttpHeaders headers = new HttpHeaders();
@@ -158,8 +167,8 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
-            .replaceAll("tenantId", userId).replaceAll("packageId", packageId);
+        String url = getUrlPrefix(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort())
+            + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replace(TENANT_ID, userId).replace(PACKAGE_ID, packageId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -191,8 +200,8 @@ public final class HttpClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_HOST_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", pkgId).replaceAll("hostIp", hostIp);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_HOST_URL.replace(TENANT_ID, userId)
+            .replace(PACKAGE_ID, pkgId).replace("hostIp", hostIp);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -216,8 +225,8 @@ public final class HttpClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_APPPKG_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", pkgId);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_APPPKG_URL.replace(TENANT_ID, userId)
+            .replace(PACKAGE_ID, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -243,7 +252,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
-            .replaceAll("tenantId", userId).replaceAll("packageId", pkgId);
+            .replace(TENANT_ID, userId).replace(PACKAGE_ID, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
@@ -267,7 +276,7 @@ public final class HttpClientUtil {
     public static boolean terminateAppInstance(String protocol, String ip, int port, String appInstanceId,
         String userId, String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_TERMINATE_APP_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+            .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -295,7 +304,7 @@ public final class HttpClientUtil {
     public static String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
         String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+            .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -323,7 +332,7 @@ public final class HttpClientUtil {
     public static String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
         String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+            .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
         LOGGER.info("work event url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

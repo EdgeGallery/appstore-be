@@ -75,6 +75,8 @@ public class PullablePackageService {
     private static final String PULLABLE_API = "/mec/appstore/v1/packages/pullable";
 
     private static final String PULLABLE_API_V2 = "/mec/appstore/v2/packages/pullable";
+
+    private static final String APPSTORE_NOT_EXIST = "appstore is not exist, appstoreId is {}";
     
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -125,7 +127,7 @@ public class PullablePackageService {
         String sortType, String sortItem, String appName, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
-            LOGGER.error("appstore is not exist, appstoreId is {}", platformId);
+            LOGGER.error(APPSTORE_NOT_EXIST, platformId);
             return ResponseEntity.ok(new Page<PushablePackageDto>(Collections.emptyList(), limit, offset,
                 Collections.emptyList().size()));
         }
@@ -207,7 +209,7 @@ public class PullablePackageService {
     public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
-            LOGGER.error("appstore is not exist, appstoreId is {}", platformId);
+            LOGGER.error(APPSTORE_NOT_EXIST, platformId);
             return Collections.emptyList();
         }
         String url = appStore.getUrl() + PULLABLE_API;
@@ -229,7 +231,7 @@ public class PullablePackageService {
         LOGGER.info("pullPackage sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
         AppStore appStore = appStoreRepository.queryAppStoreById(sourceStoreId);
         if (appStore == null) {
-            LOGGER.error("appstore is not exist, appstoreId is {}", sourceStoreId);
+            LOGGER.error(APPSTORE_NOT_EXIST, sourceStoreId);
             return false;
         }
         String baseUrl = appStore.getUrl();

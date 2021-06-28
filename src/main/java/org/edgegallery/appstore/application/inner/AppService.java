@@ -524,7 +524,6 @@ public class AppService {
                 try (FileInputStream fileInputStream = new FileInputStream(file);
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
-                    bufferedInputStream.close();
                     tarArchive.closeArchiveEntry();
                 }
             } else if (file.isDirectory()) {

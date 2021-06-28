@@ -68,15 +68,9 @@ public class ProjectService {
 
     private static final CookieStore cookieStore = new BasicCookieStore();
 
-    private static final Gson gson = new Gson();
-
-    private static final String INSTANTIATE_APPLICATION_FAIL = "instantiate application failed";
-
     private static final String COLON = ":";
 
     private static final int GET_WORKSTATUS_WAIT_TIME = 5;
-
-    Map<String, String> hostMap = new HashMap<>();
 
     @Autowired
     private PackageMapper packageMapper;
@@ -132,7 +126,6 @@ public class ProjectService {
      * @param appInstanceId appInstanceId。
      * @param userId userId.
      * @param token token.
-     * @return
      */
     public boolean deployTestConfigToAppLcm(String filePath, String packageId, String appInstanceId, String userId,
         MepHost mepHost, String token) {
@@ -153,8 +146,7 @@ public class ProjectService {
         packageMapper.updateAppInstanceApp(releasePo);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), userId, token, pkgId,
-                mepHost.getMecHost(), lcmLog);
+            .distributePkg(mepHost, userId, token, pkgId, lcmLog);
         if (!distributeRes) {
             cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -167,9 +159,7 @@ public class ProjectService {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        boolean instantRes = HttpClientUtil
-            .instantiateApplication(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), appInstanceId, userId,
-                token, lcmLog, pkgId, mepHost.getMecHost());
+        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId);
         if (!instantRes) {
             cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -181,7 +171,6 @@ public class ProjectService {
     /**
      * cleanTestEnv.
      *
-     * @return
      */
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String packageId, String name, String ip,
         String token) {
@@ -208,7 +197,6 @@ public class ProjectService {
      * @param userId userId.
      * @param host host.
      * @param token token.
-     * @return
      */
     public String getWorkStatus(String packageId, String userId, MepHost host, String token) {
         String workStatus = HttpClientUtil
@@ -220,7 +208,6 @@ public class ProjectService {
     /**
      * deleteDeployApp.
      *
-     * @return
      */
     private boolean deleteDeployApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
 
@@ -254,7 +241,6 @@ public class ProjectService {
      * @param name name.
      * @param ip ip.
      * @param token token.
-     * @return
      */
     public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
         String name, String ip,
@@ -327,7 +313,6 @@ public class ProjectService {
      * @param name name.
      * @param ip ip.
      * @param token token.
-     * @return
      */
     public ResponseEntity<ResponseObject> getNodeStatus(String packageId, String userId, String name, String ip,
         String token) {
@@ -362,7 +347,6 @@ public class ProjectService {
      * get nodePort.
      *
      * @param workStatus workStatus.
-     * @return
      */
     public int getNodePort(String workStatus) {
         int nodePort = new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
@@ -375,7 +359,6 @@ public class ProjectService {
      * get serviceName.
      *
      * @param workStatus workStatus.
-     * @return
      */
     public String getServiceName(String workStatus) {
         String serviceName = new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray()

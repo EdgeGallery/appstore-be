@@ -475,17 +475,21 @@ public class AppUtil {
                 }
             }
         } else {
-            try (FileInputStream fis = new FileInputStream(file)) {
-                out.putNextEntry(new ZipEntry(dir));
-                int j = 0;
-                byte[] buffer = new byte[1024];
-                while ((j = fis.read(buffer)) > 0) {
-                    out.write(buffer, 0, j);
-                }
-            } catch (FileNotFoundException e) {
-                LOGGER.error("createCompressedFile: can not find param file, {}", e.getMessage());
-                throw new AppException("can not find file", ResponseConst.RET_COMPRESS_FAILED);
+            compressFile(out, file, dir);
+        }
+    }
+
+    private void compressFile(ZipOutputStream out, File file, String dir) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            out.putNextEntry(new ZipEntry(dir));
+            int j = 0;
+            byte[] buffer = new byte[1024];
+            while ((j = fis.read(buffer)) > 0) {
+                out.write(buffer, 0, j);
             }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("createCompressedFile: can not find param file, {}", e.getMessage());
+            throw new AppException("can not find file", ResponseConst.RET_COMPRESS_FAILED);
         }
     }
 
@@ -532,7 +536,7 @@ public class AppUtil {
     private static void addFileToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
         byte[] buf = new byte[1024];
         try (FileInputStream in = new FileInputStream(file)) {
-            if (entryPaths.size() > 0) {
+            if (!entryPaths.isEmpty()) {
                 out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/")
                     + "/" + file.getName()));
             } else {
