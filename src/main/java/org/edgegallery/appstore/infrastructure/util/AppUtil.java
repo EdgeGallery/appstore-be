@@ -230,7 +230,7 @@ public class AppUtil {
 
     private void checkImageExist(AtpMetadata atpMetadata, String fileParent, File[] filezipArrays) {
         boolean presentZip = Arrays.asList(filezipArrays).stream()
-            .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+            .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
         if (!presentZip) {
             List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
             for (SwImgDesc imageDesc : imgDecsList) {
@@ -368,40 +368,7 @@ public class AppUtil {
                             boolean presentZip = Arrays.stream(zipFileArrays)
                                 .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
                             if (!presentZip) {
-                                String outPath = f.getCanonicalPath();
-                                List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
-                                for (SwImgDesc imageDesc : imgDecsLists) {
-                                    String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
-                                    byte[] result = downloadImageFromFileSystem(token, pathname);
-                                    String imageName = imageDesc.getName();
-                                    if (imageName.contains(COLON)) {
-                                        imageName = imageName.substring(0, imageName.lastIndexOf(":"));
-                                    }
-                                    LOGGER.info("output image path:{}", outPath);
-                                    File imageDir = new File(outPath);
-                                    if (!imageDir.exists() && !imageDir.mkdirs()) {
-                                        LOGGER.error("create upload path failed");
-                                        throw new AppException("create folder failed",
-                                            ResponseConst.RET_MAKE_DIR_FAILED);
-                                    }
-                                    File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-                                    if (!fileImage.exists() && !fileImage.createNewFile()) {
-                                        LOGGER.error("create download file error");
-                                        throw new FileOperateException("create file failed",
-                                            ResponseConst.RET_CREATE_FILE_FAILED);
-                                    }
-                                    try (InputStream inputStream = new ByteArrayInputStream(result);
-                                         OutputStream outputStream = new FileOutputStream(fileImage)) {
-                                        int len = 0;
-                                        byte[] buf = new byte[1024];
-                                        while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                                            outputStream.write(buf, 0, len);
-                                        }
-                                        outputStream.flush();
-                                    }
-                                    imgZipPath = fileImage.getCanonicalPath();
-                                    updateJsonFile(imageDesc, imgDecsLists, fileParent, imgZipPath);
-                                }
+                                imgZipPath = addImageFile(token, fileParent, imgZipPath, f);
                             }
                         }
                     }
@@ -412,6 +379,42 @@ public class AppUtil {
             LOGGER.error("failed to add image zip to package {} ", e.getMessage());
             throw new AppException("failed to add image zip to package.", ResponseConst.RET_IMAGE_TO_PACKAGE_FAILED);
         }
+    }
+
+    private String addImageFile(String token, String fileParent, String imgZipPath, File f) throws IOException {
+        String outPath = f.getCanonicalPath();
+        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+        for (SwImgDesc imageDesc : imgDecsLists) {
+            String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
+            byte[] result = downloadImageFromFileSystem(token, pathname);
+            String imageName = imageDesc.getName();
+            if (imageName.contains(COLON)) {
+                imageName = imageName.substring(0, imageName.lastIndexOf(":"));
+            }
+            LOGGER.info("output image path:{}", outPath);
+            File imageDir = new File(outPath);
+            if (!imageDir.exists() && !imageDir.mkdirs()) {
+                LOGGER.error("create upload path failed");
+                throw new AppException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
+            }
+            File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+            if (!fileImage.exists() && !fileImage.createNewFile()) {
+                LOGGER.error("create download file error");
+                throw new FileOperateException("create file failed", ResponseConst.RET_CREATE_FILE_FAILED);
+            }
+            try (InputStream inputStream = new ByteArrayInputStream(result);
+                 OutputStream outputStream = new FileOutputStream(fileImage)) {
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                    outputStream.write(buf, 0, len);
+                }
+                outputStream.flush();
+            }
+            imgZipPath = fileImage.getCanonicalPath();
+            updateJsonFile(imageDesc, imgDecsLists, fileParent, imgZipPath);
+        }
+        return imgZipPath;
     }
 
     /**
