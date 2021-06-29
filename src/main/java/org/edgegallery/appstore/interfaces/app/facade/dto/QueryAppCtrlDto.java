@@ -49,6 +49,13 @@ public class QueryAppCtrlDto {
     private String sortType;
 
     /**
+     * empty constructor.
+     *
+     */
+    public QueryAppCtrlDto() {
+    }
+
+    /**
      * constructor.
      *
      */
