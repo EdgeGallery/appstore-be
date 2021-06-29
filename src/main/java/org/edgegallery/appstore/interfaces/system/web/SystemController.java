@@ -75,8 +75,7 @@ public class SystemController {
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
         @ApiParam(value = "ip", required = false) @RequestParam(value = "ip", required = false) String ip,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
-        HttpServletRequest request) {
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
         return ResponseEntity.ok(systemService.getAllHosts(userId, name, ip, limit, offset));
     }
 

@@ -323,7 +323,7 @@ public class AppService {
                 if (key.equals(IMAGE_LOCATION)) {
                     ModelMapper mapper = new ModelMapper();
                     imageLoc = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
-                    LOGGER.info("image location domain {}, project {}", imageLoc.getDomainname(), imageLoc.getProject());
+                    LOGGER.info("imageLoc domain {}, project {}", imageLoc.getDomainname(), imageLoc.getProject());
                     break;
                 }
             }

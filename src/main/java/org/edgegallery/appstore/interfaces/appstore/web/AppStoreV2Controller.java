@@ -50,7 +50,6 @@ public class AppStoreV2Controller {
      * query appstore list.
      *
      * @param appStoreName appStoreName,
-     * @param company company.
      * @param limit limit.
      * @param offset offset.
      * @return page object.
