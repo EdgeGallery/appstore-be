@@ -48,6 +48,13 @@ public class QueryAppCtrlDto {
     @Pattern(regexp = "(?i)DESC|(?i)ASC")
     private String sortType;
 
+    public QueryAppCtrlDto(int limit, int offset, String sortItem, String sortType) {
+        this.limit = limit;
+        this.offset = offset;
+        this.sortItem = sortItem;
+        this.sortType = sortType;
+    }
+
     /**
      * check basic data by trim.
      */

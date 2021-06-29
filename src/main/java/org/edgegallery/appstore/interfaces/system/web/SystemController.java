@@ -55,8 +55,6 @@ public class SystemController {
 
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
-
     @Autowired
     private SystemService systemService;
 
@@ -79,8 +77,7 @@ public class SystemController {
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
         HttpServletRequest request) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return ResponseEntity.ok(systemService.getAllHosts(userId, name, ip, limit, offset, token));
+        return ResponseEntity.ok(systemService.getAllHosts(userId, name, ip, limit, offset));
     }
 
     /**

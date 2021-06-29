@@ -42,38 +42,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service("uploadFileService")
 public class UploadFileService {
 
-    public static final String REGEX_START = Pattern.quote("{{");
-
-    public static final String REGEX_END = Pattern.quote("}}");
-
-    public static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileService.class);
-
-    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private String sampleCodePath;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
-
-    @Value("${imagelocation.domainname:}")
-    private String devRepoEndpoint;
-
-    @Value("${imagelocation.username:}")
-    private String devRepoUsername;
-
-    @Value("${imagelocation.password:}")
-    private String devRepoPassword;
-
-    @Value("${imagelocation.project:}")
-    private String devRepoProject;
-
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
 
     /**
      * uploadFile.

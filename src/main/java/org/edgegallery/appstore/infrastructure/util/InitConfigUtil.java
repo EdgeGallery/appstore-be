@@ -28,7 +28,7 @@ public final class InitConfigUtil {
 
     private static final Properties PROPERTIES = new Properties();
 
-    private static final String osName = System.getProperty("os.name").toLowerCase();
+    private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
 
     static {
         try (InputStream inputStream = InitConfigUtil.class.getClassLoader()
@@ -48,19 +48,13 @@ public final class InitConfigUtil {
      * @return
      */
     public static String getWorkSpaceBaseDir() {
-        if (osName.contains("windows")) {
+        if (OS_NAME.contains("windows")) {
             return PROPERTIES.getProperty("workspace_base_dir_windows");
         } else {
             return PROPERTIES.getProperty("workspace_base_dir_linux");
         }
     }
 
-    // public static void main(String[] args) {
-    //     boolean ss = osName.contains("windows");
-    //     String aa = PROPERTIES.getProperty("workspace_base_dir_windows");
-    //     String f = "dd";
-    //
-    // }
     public static String getSampleCodeDir() {
         return PROPERTIES.getProperty("sample_code_dir");
     }

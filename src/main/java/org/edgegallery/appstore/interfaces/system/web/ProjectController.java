@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.text.ParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -51,8 +50,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = "Project")
 @Validated
 public class ProjectController {
-
-    private static final String ACCESS_TOKEN = "access_token";
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 

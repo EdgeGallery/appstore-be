@@ -83,7 +83,7 @@ public class SystemService {
      *
      * @return
      */
-    public Page<MepHost> getAllHosts(String userId, String name, String ip, int limit, int offset, String token) {
+    public Page<MepHost> getAllHosts(String userId, String name, String ip, int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         PageInfo pageInfo = new PageInfo<MepHost>(mapHosts);

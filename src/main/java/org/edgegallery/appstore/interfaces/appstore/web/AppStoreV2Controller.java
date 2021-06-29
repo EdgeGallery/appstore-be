@@ -65,12 +65,11 @@ public class AppStoreV2Controller {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<AppStoreDto>> queryAppStores(
         @ApiParam(value = "app store name") @RequestParam("appStoreName") String appStoreName,
-        @ApiParam(value = "app store company") @PathParam("company") String company,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit")
             int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset")
             int offset) {
-        return ResponseEntity.ok(appStoreServiceFacade.queryAppStoresV2(appStoreName, company, limit, offset));
+        return ResponseEntity.ok(appStoreServiceFacade.queryAppStoresV2(appStoreName, limit, offset));
     }
 
 }

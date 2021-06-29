@@ -33,6 +33,7 @@ import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -89,9 +90,9 @@ public class PackageV2Controller {
         @ApiParam(value = "app status", required = false) @RequestParam("status") String status,
         @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
         @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
+        QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(limit, offset, sortItem, sortType);
         return ResponseEntity.ok(packageServiceFacade
-            .getPackageByUserIdV2(userId, limit, offset, appName, status, sortItem, sortType,
-                (String) request.getAttribute(ACCESS_TOKEN)));
+            .getPackageByUserIdV2(userId, appName, status, queryCtrl, (String)request.getAttribute(ACCESS_TOKEN)));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/publish", produces = MediaType.APPLICATION_JSON)

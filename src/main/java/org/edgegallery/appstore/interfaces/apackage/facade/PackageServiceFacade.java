@@ -40,6 +40,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,24 +209,24 @@ public class PackageServiceFacade {
      * @param userId user id
      * @return packages
      */
-    public Page<PackageDto> getPackageByUserIdV2(String userId, int limit, long offset, String appName, String status,
-        String sortItem, String sortType, String token) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    public Page<PackageDto> getPackageByUserIdV2(String userId, String appName, String status,
+        QueryAppCtrlDto queryCtrl, String token) {
+        Map<String, Object> params = new HashMap<>();
         params.put("createTime", "createTime");
-        params.put("sortItem", sortItem);
+        params.put("sortItem", queryCtrl.getSortItem());
         params.put("userId", userId);
-        params.put("limit", limit);
-        params.put("offset", offset);
+        params.put("limit", queryCtrl.getLimit());
+        params.put("offset", queryCtrl.getOffset());
         params.put("appName", appName);
         params.put("status", status);
-        params.put("sortType", sortType);
+        params.put("sortType", queryCtrl.getSortType());
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
                 s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
                     new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(params);
         return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
-            .collect(Collectors.toList()), limit, offset, total);
+            .collect(Collectors.toList()), queryCtrl.getLimit(), queryCtrl.getOffset(), total);
     }
 
     /**
