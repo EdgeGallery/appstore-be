@@ -52,7 +52,7 @@ public class PushablePackageRepository {
      */
     public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
         String sortItem, String shareType) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);

@@ -231,9 +231,7 @@ public class ProjectService {
      * @param token token.
      */
     public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
-        String name, String ip,
-        String token) {
-        String workStatus = "";
+        String name, String ip, String token) {
         String showInfo = "";
         String testUsetId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUsetId, name, ip);
@@ -264,7 +262,7 @@ public class ProjectService {
         }
 
         int from = getMinute(new Date());
-        workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+        String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
         int to;
         while (StringUtils.isEmpty(workStatus)) {
             try {

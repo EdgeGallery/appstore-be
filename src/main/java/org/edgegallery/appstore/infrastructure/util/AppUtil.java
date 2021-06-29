@@ -211,39 +211,36 @@ public class AppUtil {
         if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
             return;
         }
-        try {
-            File file = new File(fileParent);
-            File[] files = file.listFiles();
-            if (files != null && files.length > 0) {
-                for (File fl : files) {
-                    if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                        File[] filezipArrays = fl.listFiles();
-                        if (filezipArrays != null && filezipArrays.length > 0) {
-                            boolean presentZip = Arrays.asList(filezipArrays).stream()
-                                .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
-                            if (!presentZip) {
-                                List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
-                                for (SwImgDesc imageDesc : imgDecsList) {
-                                    String pathUrl = imageDesc.getSwImage();
-                                    pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
-                                    if (!isImageExist(pathUrl, atpMetadata.getToken())) {
-                                        throw new AppException("the image of this application does not exist.",
-                                            ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
-                                    }
-                                }
-                            }
-                        } else {
-                            throw new AppException("there is no file in path /Image",
-                                ResponseConst.RET_FILE_NOT_FOUND, "/Image");
-                        }
-
+        File file = new File(fileParent);
+        File[] files = file.listFiles();
+        if (files != null && files.length > 0) {
+            for (File fl : files) {
+                if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
+                    File[] filezipArrays = fl.listFiles();
+                    if (filezipArrays != null && filezipArrays.length > 0) {
+                        checkImageExist(atpMetadata, fileParent, filezipArrays);
+                    } else {
+                        throw new AppException("there is no file in path /Image",
+                            ResponseConst.RET_FILE_NOT_FOUND, "/Image");
                     }
                 }
             }
-        } catch (Exception e1) {
-            LOGGER.error("check image of this application exception {} ", e1.getMessage());
-            throw new AppException("check image of this application exception.",
-                ResponseConst.RET_PACKAGE_CHECK_EXCEPTION);
+        }
+    }
+
+    private void checkImageExist(AtpMetadata atpMetadata, String fileParent, File[] filezipArrays) {
+        boolean presentZip = Arrays.asList(filezipArrays).stream()
+            .filter(m1 -> m1.toString().contains(ZIP_EXTENSION)).findAny().isPresent();
+        if (!presentZip) {
+            List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+            for (SwImgDesc imageDesc : imgDecsList) {
+                String pathUrl = imageDesc.getSwImage();
+                pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
+                if (!isImageExist(pathUrl, atpMetadata.getToken())) {
+                    throw new AppException("the image of this application does not exist.",
+                        ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
+                }
+            }
         }
     }
 
