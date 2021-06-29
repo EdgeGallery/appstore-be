@@ -48,7 +48,7 @@ public class AppStoreServiceFacade {
     /**
      * add app store.
      */
-    public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto, HttpServletRequest request) {
+    public ResponseEntity<AppStoreDto> addAppStore(AppStoreDto appStoreDto) {
         String uuid = appStoreRepository.addAppStore(AppStore.of(appStoreDto));
         AppStore appStore = appStoreRepository.queryAppStoreById(uuid);
         if (appStore == null) {
@@ -90,8 +90,8 @@ public class AppStoreServiceFacade {
     /**
      * query app storesV2 list.
      */
-    public Page<AppStoreDto> queryAppStoresV2(String name, String company, int limit, int offset) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    public Page<AppStoreDto> queryAppStoresV2(String name, int limit, int offset) {
+        Map<String, Object> params = new HashMap<>();
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appStoreName", name);

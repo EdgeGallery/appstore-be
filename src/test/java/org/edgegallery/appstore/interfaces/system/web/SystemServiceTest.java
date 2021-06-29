@@ -55,7 +55,7 @@ public class SystemServiceTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testGetAll() {
         Page<MepHost> res = systemService
-            .getAllHosts("e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "10.1.12.1", 1, 0, "");
+            .getAllHosts("e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "10.1.12.1", 1, 0);
         Assert.assertNotNull(res);
     }
 

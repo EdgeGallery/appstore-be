@@ -398,7 +398,7 @@ public class AppServiceFacade {
      * @return List<AppDto></AppDto>
      */
     public ResponseEntity<Page<AppDto>> queryAppsByCondV2(QueryAppReqDto queryAppReqDto) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("showType", queryAppReqDto.getShowType());
         params.put("status", queryAppReqDto.getStatus());
         params.put("userId", queryAppReqDto.getUserId());

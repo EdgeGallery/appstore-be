@@ -103,10 +103,10 @@ public class AppStoreController {
             @NotNull(message = "appdTransId should not be null.") String appdTransId,
             @ApiParam(value = "app store description", required = false)
             @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description, HttpServletRequest request) {
+            @Length(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
                 appPushIntf, appdTransId, description, null, null);
-        return appStoreServiceFacade.addAppStore(appStoreDto, request);
+        return appStoreServiceFacade.addAppStore(appStoreDto);
     }
 
     /**

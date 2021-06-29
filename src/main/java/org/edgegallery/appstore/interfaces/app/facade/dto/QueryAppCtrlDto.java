@@ -49,10 +49,19 @@ public class QueryAppCtrlDto {
     private String sortType;
 
     /**
+     * constructor.
+     *
+     */
+    public QueryAppCtrlDto(int limit, int offset, String sortItem, String sortType) {
+        this.limit = limit;
+        this.offset = offset;
+        this.sortItem = sortItem;
+        this.sortType = sortType;
+    }
+
+    /**
      * check basic data by trim.
      */
-
-
     public void stringTrim() {
         this.sortItem = StringUtils.trimWhitespace(this.sortItem);
         if (StringUtils.isEmpty(this.sortItem)) {
