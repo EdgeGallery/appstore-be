@@ -327,4 +327,8 @@ public class ResponseConst {
      */
     public static final int RET_FILE_PATH_INVALID = 19006;
 
+    private ResponseConst() {
+        throw new IllegalStateException("Utility class");
+    }
+
 }
