@@ -165,10 +165,10 @@ insert into catalog_package_table(
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER');
 
 insert into catalog_package_table(
-    packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,instancetenentid,
+    packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname, instancetenentid,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
     values ('packageid-0004', '/package/test/face.csar', '/user/test/icon.png', '', 10005, 'file-trees', now(),
-    'shortdesc', 'appname', ,'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER');
 
 insert into catalog_package_table(
