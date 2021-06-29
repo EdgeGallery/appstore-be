@@ -54,8 +54,6 @@ public class ProjectService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
-    private static final CookieStore cookieStore = new BasicCookieStore();
-
     private static final String COLON = ":";
 
     private static final int GET_WORKSTATUS_WAIT_TIME = 5;
@@ -68,15 +66,6 @@ public class ProjectService {
 
     @Autowired
     private PackageRepository packageRepository;
-
-    private static String getXsrf() {
-        for (Cookie cookie : cookieStore.getCookies()) {
-            if (cookie.getName().equals("XSRF-TOKEN")) {
-                return cookie.getValue();
-            }
-        }
-        return "";
-    }
 
     /**
      * processConfig.
@@ -136,7 +125,7 @@ public class ProjectService {
         boolean distributeRes = HttpClientUtil
             .distributePkg(mepHost, userId, token, pkgId, lcmLog);
         if (!distributeRes) {
-            cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
+            cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
         }
         LOGGER.info("distribute res {}", distributeRes);
@@ -149,7 +138,7 @@ public class ProjectService {
         }
         boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId);
         if (!instantRes) {
-            cleanTestEnv(userId, packageId, mepHost.getName(), mepHost.getLcmIp(), token);
+            cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
         }
         LOGGER.info("after instant {}", instantRes);
@@ -160,13 +149,12 @@ public class ProjectService {
      * cleanTestEnv.
      *
      */
-    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String packageId, String name, String ip,
-        String token) {
+    public Either<FormatRespDto, Boolean> cleanTestEnv(String packageId, String name, String ip, String token) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         String instanceTenentId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
-        userId = "";
+        String userId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
         if (CollectionUtils.isEmpty(mapHosts)) {
             LOGGER.info("This project has no config, do not need to clean env.");
@@ -212,10 +200,8 @@ public class ProjectService {
             }
         }
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            boolean terminateApp = HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
-                    token);
-            return terminateApp;
+            return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                appInstanceId, userId, token);
         }
 
         return true;
@@ -331,10 +317,8 @@ public class ProjectService {
      * @param workStatus workStatus.
      */
     public int getNodePort(String workStatus) {
-        int nodePort = new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
+        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
             .getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject().get("nodePort").getAsInt();
-        return nodePort;
-
     }
 
     /**
@@ -343,10 +327,8 @@ public class ProjectService {
      * @param workStatus workStatus.
      */
     public String getServiceName(String workStatus) {
-        String serviceName = new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray()
+        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray()
             .get(0).getAsJsonObject().get("serviceName").getAsString();
-        return serviceName;
-
     }
 
 }

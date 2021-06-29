@@ -217,12 +217,12 @@ public class AppUtil {
             for (File fl : files) {
                 if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
                     File[] filezipArrays = fl.listFiles();
-                    if (filezipArrays != null && filezipArrays.length > 0) {
-                        checkImageExist(atpMetadata, fileParent, filezipArrays);
-                    } else {
+                    if (filezipArrays == null || filezipArrays.length == 0) {
                         throw new AppException("there is no file in path /Image",
                             ResponseConst.RET_FILE_NOT_FOUND, "/Image");
+
                     }
+                    checkImageExist(atpMetadata, fileParent, filezipArrays);
                 }
             }
         }
@@ -360,19 +360,7 @@ public class AppUtil {
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
-                String imgZipPath = null;
-                for (File f : files) {
-                    if (f.isDirectory() && f.getName().equals(IMAGE)) {
-                        File[] zipFileArrays = f.listFiles();
-                        if (zipFileArrays != null && zipFileArrays.length > 0) {
-                            boolean presentZip = Arrays.stream(zipFileArrays)
-                                .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
-                            if (!presentZip) {
-                                imgZipPath = addImageFile(token, fileParent, imgZipPath, f);
-                            }
-                        }
-                    }
-                }
+                String imgZipPath = getImgZipPath(token, fileParent, files);
                 addImageFileInfo(fileParent, imgZipPath);
             }
         }  catch (IOException e) {
@@ -381,7 +369,25 @@ public class AppUtil {
         }
     }
 
-    private String addImageFile(String token, String fileParent, String imgZipPath, File f) throws IOException {
+    private String getImgZipPath(String token, String fileParent, File[] files) throws IOException {
+        String imgZipPath = null;
+        for (File f : files) {
+            if (f.isDirectory() && f.getName().equals(IMAGE)) {
+                File[] zipFileArrays = f.listFiles();
+                if (zipFileArrays != null && zipFileArrays.length > 0) {
+                    boolean presentZip = Arrays.stream(zipFileArrays)
+                        .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
+                    if (!presentZip) {
+                        imgZipPath = addImageFile(token, fileParent, f);
+                    }
+                }
+            }
+        }
+        return imgZipPath;
+    }
+
+    private String addImageFile(String token, String fileParent, File f) throws IOException {
+        String imgZipPath = null;
         String outPath = f.getCanonicalPath();
         List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {

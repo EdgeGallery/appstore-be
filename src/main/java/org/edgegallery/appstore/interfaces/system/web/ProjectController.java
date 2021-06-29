@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
@@ -51,8 +50,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Validated
 public class ProjectController {
 
-    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
     @Autowired
     private ProjectService projectService;
 
@@ -65,7 +62,6 @@ public class ProjectController {
      * @param name hostname.
      * @param ip mecHost.
      * @param request request.
-     * @return
      */
     @GetMapping(value = "/apps/show", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app detail app id.", response = AppDto.class)
@@ -89,11 +85,9 @@ public class ProjectController {
      * clean test env.
      *
      * @param packageId packageId.
-     * @param userId userId.
      * @param name hostName.
      * @param ip mecHost.
      * @param request request.
-     * @return
      */
     @PostMapping(value = "/apps/action/clean", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "add app store.", response = String.class)
@@ -105,11 +99,10 @@ public class ProjectController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(
         @ApiParam(value = "packageId", required = true) @RequestParam("packageId") String packageId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
-        @RequestParam("userId") String userId, @ApiParam(value = "name") @RequestParam("name") String name,
+        @ApiParam(value = "name") @RequestParam("name") String name,
         @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, packageId, name, ip, token);
+        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(packageId, name, ip, token);
 
         return ResponseDataUtil.buildResponse(either);
     }

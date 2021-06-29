@@ -137,9 +137,10 @@ public abstract class FileChecker {
 
         if (originalFilename != null && !isAllowedFileName(originalFilename)) {
             List<String> validExtensions = getFileExtensions();
-            String extensions = "[" + String.join(",", validExtensions) + "]";
+            StringBuilder param = new StringBuilder().append("[").append(String.join(",", validExtensions))
+                .append("]");
             throw new IllegalRequestException(originalFilename + " :fileName is Illegal",
-                ResponseConst.RET_FILE_NAME_POSTFIX_INVALID, originalFilename, extensions);
+                ResponseConst.RET_FILE_NAME_POSTFIX_INVALID, originalFilename, param.toString());
         }
 
         if (file.getSize() > getMaxFileSize()) {
