@@ -21,6 +21,8 @@
     <select id="getAllPushablePackagesV2"
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
+        select * from
+        (
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
             <if test="status != null">
@@ -31,6 +33,7 @@
             </if>
                 and a.SHOWTYPE ='public'
         </where>
+        ) AS foo
         <if test="sortType != null and sortItem != null and latestPushTime != null">
             order by ${sortItem} ${sortType}, ${latestPushTime} ${sortType}
         </if>

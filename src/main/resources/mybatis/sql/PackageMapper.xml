@@ -116,7 +116,7 @@
                 and status = #{status}
             </if>
         </where>
-        <if test="sortType != null and sortItem != null">
+        <if test="sortType != null  and sortType != '' and sortItem != '' and sortItem != null">
             order by ${sortItem} ${sortType},${createTime} ${sortType}
         </if>
         limit #{limit} offset #{offset}

@@ -225,8 +225,7 @@ public class PackageServiceFacade {
                     new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(params);
         return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
-            .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()), limit,
-            offset, total);
+            .collect(Collectors.toList()), limit, offset, total);
     }
 
     /**
