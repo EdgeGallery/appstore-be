@@ -19,7 +19,7 @@ import org.edgegallery.appstore.domain.shared.ErrorMessage;
 
 public class FileOperateException extends DomainException {
 
-    private static final long serialVersionUID = 1224743617068936039L;
+    private static final long serialVersionUID = 5398028790627399369L;
 
     private ErrorMessage errMsg;
 

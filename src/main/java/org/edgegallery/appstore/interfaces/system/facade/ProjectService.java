@@ -21,26 +21,14 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.lang.reflect.Type;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CookieStore;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -249,50 +237,46 @@ public class ProjectService {
         String showInfo = "";
         String testUsetId = "";
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUsetId, name, ip);
-        LOGGER.info("Get all hosts success.", mapHosts);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
-        } else {
-            LOGGER.info("Get all hosts success.");
-            String instanceTenentId = userId;
-            AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
-            Release release = packageRepository.findReleaseById(appId, packageId);
-            String filePath = release.getPackageFile().getStorageAddress();
-            String appInstanceId = appReleasePo.getAppInstanceId();
-            if (StringUtils.isEmpty(appInstanceId)) {
-                appInstanceId = UUID.randomUUID().toString();
-                boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId,
-                    mapHosts.get(0), token);
-                if (!instantRes) {
-                    LOGGER.error("instantiate application failed, response is null");
-                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,
-                        "instantiate application failed."));
-                }
-                AppReleasePo releasePo = new AppReleasePo();
-                releasePo.setPackageId(packageId);
-                releasePo.setAppInstanceId(appInstanceId);
-                releasePo.setInstanceTenentId(instanceTenentId);
-                packageMapper.updateAppInstanceApp(releasePo);
+        }
+
+        LOGGER.info("Get all hosts success.");
+        String instanceTenentId = userId;
+        AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
+        Release release = packageRepository.findReleaseById(appId, packageId);
+        String filePath = release.getPackageFile().getStorageAddress();
+        String appInstanceId = appReleasePo.getAppInstanceId();
+        if (StringUtils.isEmpty(appInstanceId)) {
+            appInstanceId = UUID.randomUUID().toString();
+            boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId,
+                mapHosts.get(0), token);
+            if (!instantRes) {
+                LOGGER.error("instantiate application failed, response is null");
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "instantiate application failed."));
             }
+            AppReleasePo releasePo = new AppReleasePo();
+            releasePo.setPackageId(packageId);
+            releasePo.setAppInstanceId(appInstanceId);
+            releasePo.setInstanceTenentId(instanceTenentId);
+            packageMapper.updateAppInstanceApp(releasePo);
+        }
 
-
-            int from = getMinute(new Date());
-            workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-            int to = 0;
-            while (StringUtils.isEmpty(workStatus)) {
-                try {
-                    Thread.sleep(3000);
-                    workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-                } catch (InterruptedException e) {
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-                to = getMinute(new Date());
-                if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,
-                        "get app nodeport url failed."));
-                }
+        int from = getMinute(new Date());
+        workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+        int to;
+        while (StringUtils.isEmpty(workStatus)) {
+            try {
+                Thread.sleep(3000);
+                workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+            } catch (InterruptedException e) {
+                LOGGER.error("sleep fail! {}", e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+            to = getMinute(new Date());
+            if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
             }
         }
         if (!StringUtils.isEmpty(workStatus)) {
