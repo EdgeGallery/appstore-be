@@ -151,8 +151,7 @@ public class ProjectService {
         String instanceTenentId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
-        String userId = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
+        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
         if (CollectionUtils.isEmpty(mapHosts)) {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(false);
@@ -216,8 +215,7 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
         String name, String ip, String token) {
         String showInfo = "";
-        String testUsetId = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUsetId, name, ip);
+        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
@@ -283,8 +281,7 @@ public class ProjectService {
         String token) {
         String workStatus = "";
         String showInfo = "";
-        String testUserId = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(testUserId, name, ip);
+        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));

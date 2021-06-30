@@ -90,7 +90,7 @@ public class PackageV2Controller {
         @ApiParam(value = "app status", required = false) @RequestParam("status") String status,
         @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
         @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
-        QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(limit, offset, sortItem, sortType);
+        QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(offset, limit, sortItem, sortType);
         return ResponseEntity.ok(packageServiceFacade
             .getPackageByUserIdV2(userId, appName, status, queryCtrl, (String)request.getAttribute(ACCESS_TOKEN)));
     }

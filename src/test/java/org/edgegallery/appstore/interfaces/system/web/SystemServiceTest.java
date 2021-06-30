@@ -17,11 +17,11 @@
 package org.edgegallery.appstore.interfaces.system.web;
 
 import com.spencerwi.either.Either;
+import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
-import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
 import org.junit.After;
@@ -54,8 +54,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testGetAll() {
-        Page<MepHost> res = systemService
-            .getAllHosts("e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "10.1.12.1", 1, 0);
+        List<MepHost> res = systemService.getAllHosts("host", "10.1.12.1");
         Assert.assertNotNull(res);
     }
 

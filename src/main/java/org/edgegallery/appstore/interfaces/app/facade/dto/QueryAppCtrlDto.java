@@ -20,18 +20,20 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class QueryAppCtrlDto {
     private static final String DEFAULT_SORTBY = "createTime";
 
-    private static final String DEFAULT_SORTORDER = "ASC";
-
-    private String createTime;
+    private static final String DEFAULT_SORTORDER = "DESC";
 
     @Min(value = 0)
     private int offset;
@@ -48,23 +50,6 @@ public class QueryAppCtrlDto {
     @Pattern(regexp = "(?i)DESC|(?i)ASC")
     private String sortType;
 
-    /**
-     * empty constructor.
-     *
-     */
-    public QueryAppCtrlDto() {
-    }
-
-    /**
-     * constructor.
-     *
-     */
-    public QueryAppCtrlDto(int limit, int offset, String sortItem, String sortType) {
-        this.limit = limit;
-        this.offset = offset;
-        this.sortItem = sortItem;
-        this.sortType = sortType;
-    }
 
     /**
      * check basic data by trim.
@@ -78,11 +63,6 @@ public class QueryAppCtrlDto {
         this.sortType = StringUtils.trimWhitespace(this.sortType);
         if (StringUtils.isEmpty(this.sortType)) {
             this.sortType = DEFAULT_SORTORDER;
-        }
-
-        this.createTime = StringUtils.trimWhitespace(this.createTime);
-        if (StringUtils.isEmpty(this.createTime)) {
-            this.createTime = DEFAULT_SORTBY;
         }
 
     }

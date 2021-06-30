@@ -63,7 +63,7 @@ public class ProjectController {
      * @param ip mecHost.
      * @param request request.
      */
-    @GetMapping(value = "/apps/show", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/experience/deploy", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app detail app id.", response = AppDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -89,7 +89,7 @@ public class ProjectController {
      * @param ip mecHost.
      * @param request request.
      */
-    @PostMapping(value = "/apps/action/clean", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/experience/clean", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "add app store.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -115,7 +115,7 @@ public class ProjectController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/query/container/workStatus", method = RequestMethod.GET,
+    @RequestMapping(value = "/experience/container/workStatus", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<ResponseObject> getNodeStatus(

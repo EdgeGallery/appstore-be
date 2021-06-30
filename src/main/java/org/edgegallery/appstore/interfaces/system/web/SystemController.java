@@ -22,15 +22,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
-import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RestSchema(schemaId = "system")
@@ -70,13 +72,10 @@ public class SystemController {
     })
     @RequestMapping(value = "/hosts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Page<MepHost>> getAllHosts(
-        @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId,
+    public ResponseEntity<List<MepHost>> getAllHosts(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
-        @ApiParam(value = "ip", required = false) @RequestParam(value = "ip", required = false) String ip,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(systemService.getAllHosts(userId, name, ip, limit, offset));
+        @ApiParam(value = "ip", required = false) @RequestParam(value = "ip", required = false) String ip) {
+        return ResponseEntity.ok(systemService.getAllHosts(name, ip));
     }
 
     /**
@@ -156,6 +155,25 @@ public class SystemController {
         @Validated @RequestBody MepCreateHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = systemService.updateHost(hostId, host, token);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * upload file.
+     */
+    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/host/files", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
+        @Pattern(regexp = REG_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        Either<FormatRespDto, UploadedFile> either = systemService.uploadFile(userId, uploadFile);
         return ResponseDataUtil.buildResponse(either);
     }
 

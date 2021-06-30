@@ -168,7 +168,7 @@
         </where>
         <if test="queryCtrl != null">
             <if test="queryCtrl.sortItem != null and queryCtrl.sortItem != '' and queryCtrl.sortType != null and queryCtrl.sortType != ''">
-                order by ${queryCtrl.sortItem} ${queryCtrl.sortType},${queryCtrl.createTime} ${queryCtrl.sortType}
+                order by ${queryCtrl.sortItem} ${queryCtrl.sortType},createTime ${queryCtrl.sortType}
             </if>
             <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
                 limit #{queryCtrl.limit} offset #{queryCtrl.offset}

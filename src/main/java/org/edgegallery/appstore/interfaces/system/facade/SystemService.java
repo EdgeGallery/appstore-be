@@ -16,25 +16,27 @@
 
 package org.edgegallery.appstore.interfaces.system.facade;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
+import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
-import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
+import org.edgegallery.appstore.infrastructure.util.AppStoreFileUtils;
+import org.edgegallery.appstore.infrastructure.util.BusinessConfigUtil;
 import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
@@ -55,6 +57,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("systemService")
 public class SystemService {
@@ -83,12 +86,9 @@ public class SystemService {
      *
      * @return
      */
-    public Page<MepHost> getAllHosts(String userId, String name, String ip, int limit, int offset) {
-        PageHelper.offsetPage(offset, limit);
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(userId, name, ip);
-        PageInfo pageInfo = new PageInfo<MepHost>(mapHosts);
-        LOGGER.info("Get all hosts success.", mapHosts);
-        return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+    public List<MepHost> getAllHosts(String name, String ip) {
+        LOGGER.info("Get all hosts success.");
+        return hostMapper.getHostsByCondition(name, ip);
     }
 
     /**
@@ -277,6 +277,77 @@ public class SystemService {
         }
         LOGGER.error("Failed add mec host to lcm");
         return false;
+    }
+
+    /**
+     * uploadFile.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
+        LOGGER.info("Begin upload file");
+        UploadedFile result = new UploadedFile();
+        String fileName = uploadFile.getOriginalFilename();
+        if (!FileChecker.isValid(fileName)) {
+            LOGGER.error("File Name is invalid.");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "File Name is invalid."));
+        }
+        String fileId = UUID.randomUUID().toString();
+        String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
+        String fileRealPath = upLoadDir + fileId;
+        File dir = new File(upLoadDir);
+        if (!dir.isDirectory()) {
+            boolean isSuccess = dir.mkdirs();
+            if (!isSuccess) {
+                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "make file dir failed"));
+            }
+        }
+
+        File newFile = new File(fileRealPath);
+        try {
+            uploadFile.transferTo(newFile);
+            result.setFileName(fileName);
+            result.setFileId(fileId);
+            result.setUserId(userId);
+            result.setUploadDate(new Date());
+            result.setTemp(true);
+            result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
+            uploadedFileMapper.saveFile(result);
+        } catch (IOException e) {
+            LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Failed to save file."));
+        }
+        LOGGER.info("upload file success {}", fileName);
+        //upload success
+        result.setFilePath("");
+        return Either.right(result);
+    }
+
+    /**
+     * delete template files. If uploaded files have not been used over 30min, should be deleted.
+     */
+    public void deleteTempFile() {
+        LOGGER.info("Begin delete temp file.");
+        Date now = new Date();
+        List<String> tempIds = uploadedFileMapper.getAllTempFiles();
+        if (tempIds == null) {
+            return;
+        }
+        for (String tempId : tempIds) {
+            UploadedFile tempFile = uploadedFileMapper.getFileById(tempId);
+            Date uploadDate = tempFile.getUploadDate();
+            if ((int) ((now.getTime() - uploadDate.getTime()) / Consts.MINUTE) < Consts.TEMP_FILE_TIMEOUT) {
+                continue;
+            }
+
+            String realPath = InitConfigUtil.getWorkSpaceBaseDir() + tempFile.getFilePath();
+            File temp = new File(realPath);
+            if (temp.exists()) {
+                AppStoreFileUtils.deleteTempFile(temp);
+                uploadedFileMapper.deleteFile(tempId);
+                LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
+            }
+        }
     }
 
 }
