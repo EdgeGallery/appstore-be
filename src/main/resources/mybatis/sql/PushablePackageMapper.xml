@@ -34,11 +34,23 @@
                 and a.SHOWTYPE ='public'
         </where>
         ) AS foo
-        <if test="sortType != null and sortItem != null and latestPushTime != null">
-            order by ${sortItem} ${sortType}, ${latestPushTime} ${sortType}
+        <if test="sortType != null and sortItem != null and latestPushTime != null and latestPushTime != ''" >
+
+            <if test="'desc'.toString() == sortType">
+                order by ${sortItem} ${sortType}  nulls last, ${latestPushTime} ${sortType}
+            </if>
+            <if test="'asc'.toString() == sortType">
+                order by ${sortItem} ${sortType}  nulls first, ${latestPushTime} ${sortType}
+            </if>
         </if>
-        <if test="sortType != null and sortItem != null and createTime != null">
-            order by ${sortItem} ${sortType}, ${createTime} ${sortType}
+        <if test="sortType != null and sortItem != null and createTime != null and createTime != ''" >
+
+            <if test="desc'.toString() == sortType">
+                order by ${sortItem} ${sortType}  nulls last, ${createTime} ${sortType}
+            </if>
+            <if test="'asc'.toString() == sortType">
+                order by ${sortItem} ${sortType}  nulls first, ${createTime} ${sortType}
+            </if>
         </if>
         limit #{limit} offset #{offset}
     </select>
