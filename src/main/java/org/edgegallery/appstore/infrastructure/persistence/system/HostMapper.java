@@ -32,12 +32,6 @@ public interface HostMapper {
 
     MepHost getHost(String hostId);
 
-    MepCreateHost getCreateHost(String hostId);
-
-    List<MepHost> getHostsByUserId(String userId);
-
-    List<MepHost> getHostsByStatus(EnumHostStatus status, String userId, String architecture, String os);
-
     List<MepHost> getHostsByCondition(@Param("name") String name,
         @Param("ip") String ip);
 
