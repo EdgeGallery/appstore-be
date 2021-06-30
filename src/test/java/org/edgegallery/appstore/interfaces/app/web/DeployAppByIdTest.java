@@ -51,7 +51,7 @@ public class DeployAppByIdTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed_no_appInstanceId() {
-        ResponseEntity<ResponseObject> res  = projectService.deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1", null, "access_token");
+        ResponseEntity<ResponseObject> res  = projectService.deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1", "", "access_token");
         Assert.assertEquals("instantiate application failed.", res.getBody().getMessage());
     }
 
