@@ -54,24 +54,6 @@
         tbl_service_host
     </select>
 
-    <select id="getHostsByUserId" resultMap="HostMap">
-        SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        user_id = #{userId}
-    </select>
-
-    <select id="getHostsByStatus" resultMap="HostMap">
-        SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
-    </select>
-
     <select id="getNormalHosts" resultMap="HostMap">
         SELECT
         *
@@ -82,15 +64,6 @@
     </select>
 
     <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
-        SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        host_id = #{hostId}
-    </select>
-
-    <select id="getCreateHost" parameterType="java.lang.String" resultMap="HostMap">
         SELECT
         *
         FROM
