@@ -170,6 +170,14 @@
         *
         FROM
         tbl_service_host
+        WHERE
+        1=1
+        <if test="ip != null  and ip != ''">
+            and mec_host = #{ip}
+        </if>
+        <if test="name != null  and name != ''">
+            and name like CONCAT('%',#{name},'%')
+        </if>
     </select>
 
 </mapper>
