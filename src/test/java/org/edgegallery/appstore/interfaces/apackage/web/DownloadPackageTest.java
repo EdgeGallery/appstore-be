@@ -62,4 +62,16 @@ public class DownloadPackageTest extends AppTest {
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_downloadPackage() throws Exception {
+        // String packageId = "c5758730b9044a588852221245699766";
+        String targetAppstore = "http://127.0.0.1:8080";
+        boolean isDownloadImage = true;
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/packages/%s/action/download-package?targetAppstore=%s", packageId, targetAppstore))
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
 }
