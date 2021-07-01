@@ -27,8 +27,11 @@ import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 import org.edgegallery.appstore.domain.model.system.lcm.InstantRequest;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -64,7 +67,7 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApp(MepHost mepHost, String appInstanceId, String userId, String token,
-        LcmLog lcmLog, String pkgId) {
+        AppReleasePo lcmLog, String pkgId) {
         String protocol = mepHost.getProtocol();
         String ip = mepHost.getLcmIp();
         int port = mepHost.getPort();
@@ -103,7 +106,7 @@ public final class HttpClientUtil {
             String errorLog = e.getBody();
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 errorLog);
-            lcmLog.setLog(errorLog);
+            lcmLog.setErrorLog(errorLog);
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
@@ -121,7 +124,7 @@ public final class HttpClientUtil {
      * upload pkg.
      */
     public static String uploadPkg(String protocol, String ip, int port, String filePath, String userId, String token,
-        LcmLog lcmLog) {
+        AppReleasePo lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("package", new FileSystemResource(filePath));
         HttpHeaders headers = new HttpHeaders();
@@ -139,7 +142,7 @@ public final class HttpClientUtil {
             e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed upload pkg exception {}", errorLog);
-            lcmLog.setLog(errorLog);
+            lcmLog.setErrorLog(errorLog.toString());
             return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed upload pkg exception {}", e.getMessage());
@@ -155,7 +158,8 @@ public final class HttpClientUtil {
     /**
      * distribute pkg.
      */
-    public static boolean distributePkg(MepHost mepHost, String userId, String token, String packageId, LcmLog lcmLog) {
+    public static boolean distributePkg(MepHost mepHost, String userId, String token, String packageId,
+        AppReleasePo lcmLog) {
         //add body
         DistributeBody body = new DistributeBody();
         String[] bodys = new String[1];
@@ -178,7 +182,7 @@ public final class HttpClientUtil {
             e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed distribute pkg packageId  {} exception {}", packageId, errorLog);
-            lcmLog.setLog(errorLog);
+            lcmLog.setErrorLog(errorLog);
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed distribute pkg packageId is {} exception {}", packageId, e.getMessage());

@@ -102,10 +102,10 @@ public class ProjectService {
      * @param token token.
      */
     public boolean deployTestConfigToAppLcm(String filePath, String packageId, String appInstanceId, String userId,
-        MepHost mepHost, String token) {
-        LcmLog lcmLog = new LcmLog();
+        MepHost mepHost, String token, AppReleasePo appReleasePo) {
         String uploadRes = HttpClientUtil
-            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), filePath, userId, token, lcmLog);
+            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(),
+                filePath, userId, token, appReleasePo);
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
@@ -114,13 +114,11 @@ public class ProjectService {
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
         UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
         String pkgId = uploadResponse.getPackageId();
-        AppReleasePo releasePo = new AppReleasePo();
-        releasePo.setInstancePackageId(pkgId);
-        releasePo.setPackageId(packageId);
-        packageMapper.updateAppInstanceApp(releasePo);
+        appReleasePo.setInstancePackageId(pkgId);
+        packageMapper.updateAppInstanceApp(appReleasePo);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(mepHost, userId, token, pkgId, lcmLog);
+            .distributePkg(mepHost, userId, token, pkgId, appReleasePo);
         if (!distributeRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -133,7 +131,7 @@ public class ProjectService {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId);
+        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, appReleasePo, pkgId);
         if (!instantRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -230,10 +228,11 @@ public class ProjectService {
         if (StringUtils.isEmpty(appInstanceId)) {
             appInstanceId = UUID.randomUUID().toString();
             boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId,
-                mapHosts.get(0), token);
+                mapHosts.get(0), token,appReleasePo);
             if (!instantRes) {
                 LOGGER.error("instantiate application failed, response is null");
-                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "instantiate application failed."));
+                String errorlog = appReleasePo.getErrorLog();
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,errorlog));
             }
             AppReleasePo releasePo = new AppReleasePo();
             releasePo.setPackageId(packageId);

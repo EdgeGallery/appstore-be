@@ -122,6 +122,8 @@ public class AppReleasePo {
     @Column(name = "EXPERIENCEABLE")
     private boolean experienceAble;
 
+    private String errorLog;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
@@ -172,6 +174,7 @@ public class AppReleasePo {
         po.instanceTenentId = pack.getInstanceTenentId();
         po.instancePackageId = pack.getInstancePackageId();
         po.experienceAble = pack.isExperienceAble();
+        po.errorLog = pack.getErrorLog();
         return po;
     }
 
