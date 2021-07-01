@@ -73,6 +73,8 @@ public class Release implements ValueObject<Release> {
 
     private String instancePackageId;
 
+    private String errorLog;
+
     /**
      * Constructor of Release.
      */

@@ -18,7 +18,6 @@ package org.edgegallery.appstore.infrastructure.persistence.system;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 

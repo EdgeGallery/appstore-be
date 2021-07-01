@@ -25,6 +25,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
+import org.edgegallery.appstore.application.inner.PullablePackageService;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -35,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,6 +60,10 @@ public class PullPackageTest {
     private WebApplicationContext webApplicationContext;
 
     private Gson gson = new Gson();
+
+
+    @Autowired
+    private PullablePackageService pullablePackageService;
 
     @Before
     public void setUp() throws Exception {
@@ -114,5 +121,15 @@ public class PullPackageTest {
         int result = mvcResult.getResponse().getStatus();
         assertEquals(200, result); // app is exist
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_getPullablePackagesV2() {
+        ResponseEntity<Page<PushablePackageDto>> res  = pullablePackageService.getPullablePackagesV2(
+            "appid-test-0001", 10, 0, "desc",
+            "appName", "testAppName","test-userid-0001");
+        assertTrue(res.getBody().getResults().isEmpty());
+    }
+
 
 }
