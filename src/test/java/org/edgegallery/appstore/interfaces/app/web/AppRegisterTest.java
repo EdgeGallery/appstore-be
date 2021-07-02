@@ -27,12 +27,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,6 +46,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 
 public class AppRegisterTest extends AppTest {
+
+    @Autowired
+    private AppServiceFacade appServiceFacade ;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -355,6 +361,14 @@ public class AppRegisterTest extends AppTest {
         } catch (Exception e) {
             Assert.assertNull(e);
         }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_merge() {
+        ResponseEntity<String> res  = appServiceFacade.merge("fileName","test_guid_01");
+        HttpStatus ss = res.getStatusCode();
+        Assert.assertEquals("200 OK", res.getStatusCode().toString());
     }
 
 }
