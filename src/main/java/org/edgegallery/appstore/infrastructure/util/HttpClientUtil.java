@@ -27,7 +27,6 @@ import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 import org.edgegallery.appstore.domain.model.system.lcm.InstantRequest;
 import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
