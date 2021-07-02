@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
+import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
@@ -39,6 +41,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,6 +56,9 @@ public class MessageTest {
 
     @Autowired
     protected MockMvc mvc;
+
+    @Autowired
+    MessageServiceFacade messageServiceFacade;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -96,5 +102,13 @@ public class MessageTest {
         Gson gson = new Gson();
         List<MessageRespDto>  appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
         Assert.assertEquals(0, appDtos.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_merge() {
+        Page<MessageRespDto> res  = messageServiceFacade.getAllMessagesV2(null,"test",
+            10,0,"desc","name");
+        Assert.assertEquals(true, res.getResults().isEmpty());
     }
 }
