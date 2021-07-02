@@ -25,16 +25,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
+import org.edgegallery.appstore.application.inner.PullablePackageService;
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +59,9 @@ public class PushPackageTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    private PullablePackageService pullablePackageService;
 
     private Gson gson = new Gson();
 
@@ -111,5 +119,15 @@ public class PushPackageTest {
         // but when the return code is 200, this test case is ok
         assertEquals("[false,false]", content);
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_getPullablePackagesV2() {
+        ResponseEntity<Page<PushablePackageDto>> res  = pullablePackageService.getPullablePackagesV2("platformId",
+            10,0,"desc","appName","appName","testuserId");
+        HttpStatus ss = res.getStatusCode();
+        Assert.assertEquals("200 OK", res.getStatusCode().toString());
+    }
+
 
 }

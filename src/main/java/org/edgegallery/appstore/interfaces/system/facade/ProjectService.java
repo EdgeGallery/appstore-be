@@ -30,6 +30,7 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.MepHost;
+import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
@@ -95,16 +96,16 @@ public class ProjectService {
     /**
      * deploy app to host.
      *
-     * @param filePath csarpath。
-     * @param appInstanceId appInstanceId。
+     * @param filePath csarpath.
+     * @param appInstanceId appInstanceId.
      * @param userId userId.
      * @param token token.
      */
     public boolean deployTestConfigToAppLcm(String filePath, String packageId, String appInstanceId, String userId,
-        MepHost mepHost, String token, AppReleasePo appReleasePo) {
+        MepHost mepHost, String token, AppReleasePo appReleasePo, LcmLog lcmLog) {
         String uploadRes = HttpClientUtil
             .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(),
-                filePath, userId, token, appReleasePo);
+                filePath, userId, token, lcmLog);
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
@@ -117,7 +118,7 @@ public class ProjectService {
         packageMapper.updateAppInstanceApp(appReleasePo);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(mepHost, userId, token, pkgId, appReleasePo);
+            .distributePkg(mepHost, userId, token, pkgId, lcmLog);
         if (!distributeRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -130,7 +131,7 @@ public class ProjectService {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, appReleasePo, pkgId);
+        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId);
         if (!instantRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -212,6 +213,7 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
         String name, String ip, String token) {
         String showInfo = "";
+        LcmLog lcmLog = new LcmLog();
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
@@ -227,10 +229,10 @@ public class ProjectService {
         if (StringUtils.isEmpty(appInstanceId)) {
             appInstanceId = UUID.randomUUID().toString();
             boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId,
-                mapHosts.get(0), token,appReleasePo);
+                mapHosts.get(0), token,appReleasePo,lcmLog);
             if (!instantRes) {
                 LOGGER.error("instantiate application failed, response is null");
-                String errorlog = appReleasePo.getErrorLog();
+                String errorlog = lcmLog.getLog();
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,errorlog));
             }
             AppReleasePo releasePo = new AppReleasePo();
