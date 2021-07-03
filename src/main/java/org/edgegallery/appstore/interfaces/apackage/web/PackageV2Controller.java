@@ -87,7 +87,7 @@ public class PackageV2Controller {
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
         @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "app status", required = false) @RequestParam("status") String status,
+        @ApiParam(value = "app status", required = false) @RequestParam("status") List<String> status,
         @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
         @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
         QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(offset, limit, sortItem, sortType);

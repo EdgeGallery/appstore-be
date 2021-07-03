@@ -209,7 +209,7 @@ public class PackageServiceFacade {
      * @param userId user id
      * @return packages
      */
-    public Page<PackageDto> getPackageByUserIdV2(String userId, String appName, String status,
+    public Page<PackageDto> getPackageByUserIdV2(String userId, String appName, List<String> status,
         QueryAppCtrlDto queryCtrl, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("createTime", "createTime");
