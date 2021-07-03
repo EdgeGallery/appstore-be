@@ -45,7 +45,7 @@
         </if>
         <if test="sortType != null and sortItem != null and createTime != null and createTime != ''" >
 
-            <if test="desc'.toString() == sortType">
+            <if test="'desc'.toString() == sortType">
                 order by ${sortItem} ${sortType}  nulls last, ${createTime} ${sortType}
             </if>
             <if test="'asc'.toString() == sortType">
