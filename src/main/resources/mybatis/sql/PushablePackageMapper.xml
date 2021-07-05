@@ -45,7 +45,7 @@
         </if>
         <if test="sortType != null and sortItem != null and createTime != null and createTime != ''" >
 
-            <if test="desc'.toString() == sortType">
+            <if test="'desc'.toString() == sortType">
                 order by ${sortItem} ${sortType}  nulls last, ${createTime} ${sortType}
             </if>
             <if test="'asc'.toString() == sortType">
@@ -66,10 +66,10 @@
             resultType="java.lang.Integer">
         select count(*) from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
-            <if test="status != null">
+            <if test="status != null and status != '' ">
                 a.STATUS = #{status}
             </if>
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
             and a.SHOWTYPE ='public'

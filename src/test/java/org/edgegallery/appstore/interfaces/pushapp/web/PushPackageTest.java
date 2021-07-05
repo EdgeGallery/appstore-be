@@ -120,14 +120,14 @@ public class PushPackageTest {
         assertEquals("[false,false]", content);
     }
 
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void test_getPullablePackagesV2() {
-        ResponseEntity<Page<PushablePackageDto>> res  = pullablePackageService.getPullablePackagesV2("platformId",
-            10,0,"desc","appName","appName","testuserId");
-        HttpStatus ss = res.getStatusCode();
-        Assert.assertEquals("200 OK", res.getStatusCode().toString());
-    }
+    // @Test
+    // @WithMockUser(roles = "APPSTORE_TENANT")
+    // public void test_getPullablePackagesV2() {
+    //     ResponseEntity<Page<PushablePackageDto>> res  = pullablePackageService.getPullablePackagesV2("platformId",
+    //         10,0,"desc","appName","appName","testuserId");
+    //     HttpStatus ss = res.getStatusCode();
+    //     Assert.assertEquals("200 OK", res.getStatusCode().toString());
+    // }
 
 
 }

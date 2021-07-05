@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -187,6 +188,23 @@ public class PushablePackageServiceFacade {
     }
 
     /**
+     * filter app list to user.
+     * @param limit limit.
+     * @param offset offset.
+     * @param list app list.
+     * @return
+     */
+    public List<PushablePackageDto> filterList(int limit, int offset, List<PushablePackageDto> list) {
+        List<PushablePackageDto> tempList = new ArrayList<>();
+        if (!list.isEmpty() && list.size() > offset + 1) {
+            for (int i = offset; i < offset + limit && i < list.size(); i++) {
+                tempList.add(list.get(i));
+            }
+        }
+        return tempList;
+    }
+
+    /**
      * get pullable packages by id.
      *
      * @param platformId appstore id
@@ -195,8 +213,10 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
         String sortType, String sortItem, String appName, String userId) {
-        return  pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
-            sortType, sortItem, appName, userId);
+        List<PushablePackageDto> allList = pullablePackageService.getPullablePackages(platformId, userId);
+        List<PushablePackageDto> packageList = filterList(limit, (int)offset, allList);
+        return   ResponseEntity.ok(new Page<PushablePackageDto>(packageList, limit, offset,
+            allList.size()));
     }
 
     /**

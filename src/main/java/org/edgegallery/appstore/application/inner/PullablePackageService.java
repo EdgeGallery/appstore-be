@@ -77,7 +77,7 @@ public class PullablePackageService {
     private static final String PULLABLE_API_V2 = "/mec/appstore/v2/packages/pullable";
 
     private static final String APPSTORE_NOT_EXIST = "appstore is not exist, appstoreId is {}";
-    
+
     @Value("${appstore-be.package-path}")
     private String dir;
 
@@ -117,39 +117,13 @@ public class PullablePackageService {
     }
 
     /**
-     * get pullable packages by id.
-     *
-     * @param platformId appstore id
-     * @param userId user id
-     * @return dto
-     */
-    public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
-        String sortType, String sortItem, String appName, String userId) {
-        AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
-        if (appStore == null) {
-            LOGGER.error(APPSTORE_NOT_EXIST, platformId);
-            return ResponseEntity.ok(new Page<PushablePackageDto>(Collections.emptyList(), limit, offset,
-                Collections.emptyList().size()));
-        }
-        String url = appStore.getUrl() + PULLABLE_API_V2 + "?limit=" + limit + "&offset=" + offset + "&appName="
-            + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
-        String countUrl = appStore.getUrl() + PULLABLE_API;
-        List<PushablePackageDto> countPackages = filterPullabelPackages(commonPackage(countUrl, appStore), userId);
-        LOGGER.info(url);
-        List<PushablePackageDto> packages = commonPackage(url, appStore);
-        return ResponseEntity.ok(new Page<PushablePackageDto>(filterPullabelPackages(packages, userId), limit, offset,
-            countPackages.size()));
-
-    }
-
-    /**
      * get pull package list.
      *
      * @param url appstore url.
      * @param appStore appStore.
      * @return PushablePackageDto list.
      */
-    public  List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
+    public List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
         List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -271,8 +245,9 @@ public class PullablePackageService {
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
-                releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published
-                    || userId.equals(r.getUser().getUserId())).forEach(r1 -> {
+                releases.stream()
+                    .filter(r -> r.getStatus() == EnumPackageStatus.Published || userId.equals(r.getUser().getUserId()))
+                    .forEach(r1 -> {
                         if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
                             bexist.set(true);
                             LOGGER.info("The same app has existed. packages name {}", dto.getName());
@@ -303,4 +278,5 @@ public class PullablePackageService {
         // store message to the db
         messageRepository.addMessage(message);
     }
+
 }
