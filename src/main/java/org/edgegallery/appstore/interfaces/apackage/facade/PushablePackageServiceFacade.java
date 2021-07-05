@@ -194,7 +194,7 @@ public class PushablePackageServiceFacade {
      * @param list app list.
      * @return
      */
-    public List<PushablePackageDto> filterList(int limit, int offset, List<PushablePackageDto> list) {
+    private List<PushablePackageDto> filterList(int limit, int offset, List<PushablePackageDto> list) {
         List<PushablePackageDto> tempList = new ArrayList<>();
         if (!list.isEmpty() && list.size() > offset + 1) {
             for (int i = offset; i < offset + limit && i < list.size(); i++) {
