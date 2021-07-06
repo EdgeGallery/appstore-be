@@ -77,7 +77,7 @@ public class PullablePackageService {
     private static final String PULLABLE_API_V2 = "/mec/appstore/v2/packages/pullable";
 
     private static final String APPSTORE_NOT_EXIST = "appstore is not exist, appstoreId is {}";
-    
+
     @Value("${appstore-be.package-path}")
     private String dir;
 
@@ -142,6 +142,7 @@ public class PullablePackageService {
 
     }
 
+
     /**
      * get pull package list.
      *
@@ -149,7 +150,7 @@ public class PullablePackageService {
      * @param appStore appStore.
      * @return PushablePackageDto list.
      */
-    public  List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
+    public List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
         List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -184,19 +185,10 @@ public class PullablePackageService {
      *
      * @return list
      */
-    public List<PushablePackageDto> queryAllPullablePackages() {
+    public List<PushablePackageDto> queryAllPullablePackages(String appName,
+        String sortType, String sortItem) {
         LOGGER.info("pullablePackageService queryAllPullablePackages come in");
-        return pushablePackageRepository.queryAllPushablePackages();
-    }
-
-    /**
-     * query push packege count.
-     *
-     * @param params params.
-     * @return count.
-     */
-    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
-        return pushablePackageRepository.getAllPushablePackagesCount(params);
+        return pushablePackageRepository.queryAllPushablePackages(appName, sortType, sortItem, "pull");
     }
 
     /**
@@ -206,13 +198,15 @@ public class PullablePackageService {
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackages(String platformId, String userId) {
+    public List<PushablePackageDto> getPullablePackages(String platformId, String userId, String sortType,
+        String sortItem, String appName) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error(APPSTORE_NOT_EXIST, platformId);
             return Collections.emptyList();
         }
-        String url = appStore.getUrl() + PULLABLE_API;
+        String url = appStore.getUrl() + PULLABLE_API + "?appName="
+            + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
         return filterPullabelPackages(packages, userId);
@@ -271,8 +265,9 @@ public class PullablePackageService {
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
-                releases.stream().filter(r -> r.getStatus() == EnumPackageStatus.Published
-                    || userId.equals(r.getUser().getUserId())).forEach(r1 -> {
+                releases.stream()
+                    .filter(r -> r.getStatus() == EnumPackageStatus.Published || userId.equals(r.getUser().getUserId()))
+                    .forEach(r1 -> {
                         if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
                             bexist.set(true);
                             LOGGER.info("The same app has existed. packages name {}", dto.getName());
@@ -303,4 +298,5 @@ public class PullablePackageService {
         // store message to the db
         messageRepository.addMessage(message);
     }
+
 }

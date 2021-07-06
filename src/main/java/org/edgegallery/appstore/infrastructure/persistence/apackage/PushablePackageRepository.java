@@ -56,7 +56,6 @@ public class PushablePackageRepository {
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        params.put("status", EnumAppStatus.Published.toString());
         if (shareType.equals("push")) {
             params.put("latestPushTime", "latestPushTime");
         } else {
@@ -76,21 +75,23 @@ public class PushablePackageRepository {
      *
      * @return
      */
-    public List<PushablePackageDto> queryAllPushablePackages() {
-        List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(0, 1000);
+    public List<PushablePackageDto> queryAllPushablePackages(String appName, String sortType,
+        String sortItem, String shareType) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("appName", appName);
+        if (shareType.equals("push")) {
+            params.put("latestPushTime", "latestPushTime");
+        } else {
+            params.put("createTime", "createTime");
+        }
+        params.put("sortItem", sortItem);
+        params.put("sortType", sortType);
+        List<PushablePackageAndAppVo> apps = pushablePackageMapper.getAllPushablePackages(params);
         List<PushablePackageDto> packages = new ArrayList<>();
         apps.forEach(app -> packages.add(new PushablePackageDto(app, context.atpReportUrl)));
         return packages;
     }
 
-    /**
-     * query all of the pushable packages count.
-     *
-     * @return
-     */
-    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
-        return pushablePackageMapper.getAllPushablePackagesCount(params);
-    }
 
     /**
      * find one package by id.
