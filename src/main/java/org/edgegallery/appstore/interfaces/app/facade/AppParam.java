@@ -63,6 +63,7 @@ public class AppParam {
         typeSet.add("API");
         typeSet.add("SDK");
         typeSet.add("MEP");
+        typeSet.add("Other");
     }
 
     static {
