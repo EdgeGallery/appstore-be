@@ -71,8 +71,8 @@ public class PushablePackageService {
         return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem, "push");
     }
 
-    public List<PushablePackageDto> queryAllPushablePackages() {
-        return pushablePackageRepository.queryAllPushablePackages();
+    public List<PushablePackageDto> queryAllPushablePackages(String appName, String sortType, String sortItem) {
+        return pushablePackageRepository.queryAllPushablePackages(appName, sortType, sortItem, "push");
     }
 
     public PushablePackageDto getPushablePackage(String packageId) {
