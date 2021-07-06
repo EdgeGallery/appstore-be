@@ -216,7 +216,7 @@ public class PullablePackageService {
             return Collections.emptyList();
         }
         // String url = appStore.getUrl() + PULLABLE_API;
-        String url = appStore.getUrl() + PULLABLE_API + "/v1?appName="
+        String url = appStore.getUrl() + PULLABLE_API + "?appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
