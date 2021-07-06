@@ -28,7 +28,7 @@ public interface PushablePackageMapper {
 
     List<PushablePackageAndAppVo> getAllPushablePackagesV2(Map<String, Object> params);
 
-    List<PushablePackageAndAppVo> getAllPushablePackages(int start, int end);
+    List<PushablePackageAndAppVo> getAllPushablePackages(Map<String, Object> params);
 
     Integer getAllPushablePackagesCount(Map<String, Object> params);
 

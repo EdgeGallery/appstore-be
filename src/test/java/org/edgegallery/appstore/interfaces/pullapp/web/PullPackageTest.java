@@ -122,6 +122,14 @@ public class PullPackageTest {
         assertEquals(200, result); // app is exist
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_getPullablePackagesV2() {
+        ResponseEntity<Page<PushablePackageDto>> res  = pullablePackageService.getPullablePackagesV2(
+            "appid-test-0001", 10, 0, "desc",
+            "appName", "testAppName","test-userid-0001");
+        assertTrue(res.getBody().getResults().isEmpty());
+    }
 
 
 }

@@ -81,8 +81,9 @@ public class PushablePackageServiceFacade {
      *
      * @return list
      */
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages());
+    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages(String appName, String sortType,
+        String sortItem) {
+        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages(appName, sortType, sortItem));
     }
 
     /**
@@ -191,7 +192,7 @@ public class PushablePackageServiceFacade {
      * filter app list to user.
      * @param limit limit.
      * @param offset offset.
-     * @param list app list.
+     * @param list applist.
      * @return
      */
     private List<PushablePackageDto> filterList(int limit, int offset, List<PushablePackageDto> list) {
@@ -213,7 +214,8 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
         String sortType, String sortItem, String appName, String userId) {
-        List<PushablePackageDto> allList = pullablePackageService.getPullablePackages(platformId, userId);
+        List<PushablePackageDto> allList = pullablePackageService.getPullablePackages(platformId, userId, sortType,
+            sortItem, appName);
         List<PushablePackageDto> packageList = filterList(limit, (int)offset, allList);
         return   ResponseEntity.ok(new Page<PushablePackageDto>(packageList, limit, offset,
             allList.size()));
@@ -224,8 +226,9 @@ public class PushablePackageServiceFacade {
      *
      * @return list
      */
-    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
-        return ResponseEntity.ok(pullablePackageService.queryAllPullablePackages());
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(String appName,
+        String sortType, String sortItem) {
+        return ResponseEntity.ok(pullablePackageService.queryAllPullablePackages(appName, sortType, sortItem));
     }
 
     /**
@@ -235,8 +238,10 @@ public class PushablePackageServiceFacade {
      * @param userId user id
      * @return dto
      */
-    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId) {
-        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId));
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId,String appName,
+        String sortType, String sortItem) {
+        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId, sortType,
+            sortItem, appName));
     }
 
     /**

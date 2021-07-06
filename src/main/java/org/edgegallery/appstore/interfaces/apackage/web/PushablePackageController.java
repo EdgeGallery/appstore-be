@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import java.io.FileNotFoundException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
@@ -59,8 +60,11 @@ public class PushablePackageController {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return pushablePackageServiceFacade.queryAllPushablePackages();
+    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages(
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem) {
+        return pushablePackageServiceFacade.queryAllPushablePackages(appName, sortType, sortItem);
     }
 
     @GetMapping(value = "/{packageId}/pushable", produces = MediaType.APPLICATION_JSON)
@@ -108,18 +112,20 @@ public class PushablePackageController {
         return pushablePackageServiceFacade.downloadIcon(packageId);
     }
 
-    /**
-     * get pullable packages.
-     */
+
     @GetMapping(value = "/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
         responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
-        return pushablePackageServiceFacade.queryAllPullablePackages();
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem) {
+        return pushablePackageServiceFacade.queryAllPullablePackages(appName, sortType, sortItem);
     }
+
 
     /**
      * get pullable packages by id.
@@ -133,8 +139,13 @@ public class PushablePackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> getPullablePackages(
-        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId, HttpServletRequest request) {
-        return pushablePackageServiceFacade.getPullablePackages(platformId, (String) request.getAttribute("userId"));
+        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId,
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem, HttpServletRequest request
+    ) {
+        return pushablePackageServiceFacade.getPullablePackages(platformId, (String) request.getAttribute("userId"),
+            sortType, sortItem, appName);
     }
 
     /**
