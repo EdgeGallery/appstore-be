@@ -215,7 +215,6 @@ public class PullablePackageService {
             LOGGER.error(APPSTORE_NOT_EXIST, platformId);
             return Collections.emptyList();
         }
-        // String url = appStore.getUrl() + PULLABLE_API;
         String url = appStore.getUrl() + PULLABLE_API + "?appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
