@@ -195,9 +195,9 @@ public class PushablePackageServiceFacade {
      * @param list applist.
      * @return
      */
-    private List<PushablePackageDto> filterList(int limit, int offset, List<PushablePackageDto> list) {
+    private List<PushablePackageDto> paginationList(int limit, int offset, List<PushablePackageDto> list) {
         List<PushablePackageDto> tempList = new ArrayList<>();
-        if (!list.isEmpty() && list.size() > offset + 1) {
+        if (!list.isEmpty() && list.size() > offset) {
             for (int i = offset; i < offset + limit && i < list.size(); i++) {
                 tempList.add(list.get(i));
             }
@@ -216,7 +216,7 @@ public class PushablePackageServiceFacade {
         String sortType, String sortItem, String appName, String userId) {
         List<PushablePackageDto> allList = pullablePackageService.getPullablePackages(platformId, userId, sortType,
             sortItem, appName);
-        List<PushablePackageDto> packageList = filterList(limit, (int)offset, allList);
+        List<PushablePackageDto> packageList = paginationList(limit, (int)offset, allList);
         return   ResponseEntity.ok(new Page<PushablePackageDto>(packageList, limit, offset,
             allList.size()));
     }
@@ -238,8 +238,8 @@ public class PushablePackageServiceFacade {
      * @param userId user id
      * @return dto
      */
-    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId,String appName,
-        String sortType, String sortItem) {
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId,
+        String appName, String sortType, String sortItem) {
         return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId, sortType,
             sortItem, appName));
     }

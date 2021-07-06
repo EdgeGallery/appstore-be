@@ -192,23 +192,13 @@ public class PullablePackageService {
     }
 
     /**
-     * query push packege count.
-     *
-     * @param params params.
-     * @return count.
-     */
-    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
-        return pushablePackageRepository.getAllPushablePackagesCount(params);
-    }
-
-    /**
      * get pullable packages by id.
      *
      * @param platformId appstore id
      * @param userId user id
      * @return dto
      */
-    public List<PushablePackageDto> getPullablePackages(String platformId, String userId,String sortType,
+    public List<PushablePackageDto> getPullablePackages(String platformId, String userId, String sortType,
         String sortItem, String appName) {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {

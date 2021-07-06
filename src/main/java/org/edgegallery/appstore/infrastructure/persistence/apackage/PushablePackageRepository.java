@@ -56,7 +56,6 @@ public class PushablePackageRepository {
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        params.put("status", EnumAppStatus.Published.toString());
         if (shareType.equals("push")) {
             params.put("latestPushTime", "latestPushTime");
         } else {
@@ -80,7 +79,6 @@ public class PushablePackageRepository {
         String sortItem, String shareType) {
         Map<String, Object> params = new HashMap<>();
         params.put("appName", appName);
-        params.put("status", EnumAppStatus.Published.toString());
         if (shareType.equals("push")) {
             params.put("latestPushTime", "latestPushTime");
         } else {
@@ -94,14 +92,6 @@ public class PushablePackageRepository {
         return packages;
     }
 
-    /**
-     * query all of the pushable packages count.
-     *
-     * @return
-     */
-    public Integer getAllPushablePackagesCount(Map<String, Object> params) {
-        return pushablePackageMapper.getAllPushablePackagesCount(params);
-    }
 
     /**
      * find one package by id.
