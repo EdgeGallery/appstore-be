@@ -52,6 +52,14 @@ public class PushablePackageController {
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
+    /**
+     * get pushable packages.
+     *
+     * @param appName appName.
+     * @param sortType sortType.
+     * @param sortItem sortItem.
+     * @return
+     */
     @GetMapping(value = "/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
         responseContainer = "List")
@@ -59,8 +67,11 @@ public class PushablePackageController {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return pushablePackageServiceFacade.queryAllPushablePackages();
+    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages(
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem) {
+        return pushablePackageServiceFacade.queryAllPushablePackages(appName, sortType, sortItem);
     }
 
     @GetMapping(value = "/{packageId}/pushable", produces = MediaType.APPLICATION_JSON)
@@ -110,6 +121,11 @@ public class PushablePackageController {
 
     /**
      * get pullable packages.
+     *
+     * @param appName appName.
+     * @param sortType sortType.
+     * @param sortItem sortItem.
+     * @return
      */
     @GetMapping(value = "/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
@@ -117,9 +133,13 @@ public class PushablePackageController {
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
-    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
-        return pushablePackageServiceFacade.queryAllPullablePackages();
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem) {
+        return pushablePackageServiceFacade.queryAllPullablePackages(appName, sortType, sortItem);
     }
+
 
     /**
      * get pullable packages by id.
@@ -133,8 +153,13 @@ public class PushablePackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PushablePackageDto>> getPullablePackages(
-        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId, HttpServletRequest request) {
-        return pushablePackageServiceFacade.getPullablePackages(platformId, (String) request.getAttribute("userId"));
+        @ApiParam(value = "platform Id") @PathVariable("platformId") String platformId,
+        @RequestParam(value = "app Name", required = false)   String appName,
+        @RequestParam(value = "query sortType", required = false) String sortType,
+        @RequestParam(value = "sort condition", required = false) String sortItem, HttpServletRequest request
+    ) {
+        return pushablePackageServiceFacade.getPullablePackages(platformId, (String) request.getAttribute("userId"),
+            sortType, sortItem, appName);
     }
 
     /**

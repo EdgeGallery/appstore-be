@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -80,8 +81,9 @@ public class PushablePackageServiceFacade {
      *
      * @return list
      */
-    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages() {
-        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages());
+    public ResponseEntity<List<PushablePackageDto>> queryAllPushablePackages(String appName, String sortType,
+        String sortItem) {
+        return ResponseEntity.ok(pushablePackageService.queryAllPushablePackages(appName, sortType, sortItem));
     }
 
     /**
@@ -187,6 +189,23 @@ public class PushablePackageServiceFacade {
     }
 
     /**
+     * filter app list to user.
+     * @param limit limit.
+     * @param offset offset.
+     * @param list applist.
+     * @return
+     */
+    private List<PushablePackageDto> paginationList(int limit, int offset, List<PushablePackageDto> list) {
+        List<PushablePackageDto> tempList = new ArrayList<>();
+        if (!list.isEmpty() && list.size() > offset) {
+            for (int i = offset; i < offset + limit && i < list.size(); i++) {
+                tempList.add(list.get(i));
+            }
+        }
+        return tempList;
+    }
+
+    /**
      * get pullable packages by id.
      *
      * @param platformId appstore id
@@ -195,8 +214,11 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<Page<PushablePackageDto>> getPullablePackagesV2(String platformId, int limit, long offset,
         String sortType, String sortItem, String appName, String userId) {
-        return  pullablePackageService.getPullablePackagesV2(platformId, limit, offset,
-            sortType, sortItem, appName, userId);
+        List<PushablePackageDto> allList = pullablePackageService.getPullablePackages(platformId, userId, sortType,
+            sortItem, appName);
+        List<PushablePackageDto> packageList = paginationList(limit, (int)offset, allList);
+        return   ResponseEntity.ok(new Page<PushablePackageDto>(packageList, limit, offset,
+            allList.size()));
     }
 
     /**
@@ -204,8 +226,9 @@ public class PushablePackageServiceFacade {
      *
      * @return list
      */
-    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages() {
-        return ResponseEntity.ok(pullablePackageService.queryAllPullablePackages());
+    public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(String appName,
+        String sortType, String sortItem) {
+        return ResponseEntity.ok(pullablePackageService.queryAllPullablePackages(appName, sortType, sortItem));
     }
 
     /**
@@ -215,8 +238,10 @@ public class PushablePackageServiceFacade {
      * @param userId user id
      * @return dto
      */
-    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId) {
-        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId));
+    public ResponseEntity<List<PushablePackageDto>> getPullablePackages(String platformId, String userId,
+        String appName, String sortType, String sortItem) {
+        return ResponseEntity.ok(pullablePackageService.getPullablePackages(platformId, userId, sortType,
+            sortItem, appName));
     }
 
     /**
