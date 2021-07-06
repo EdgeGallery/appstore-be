@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiResponses;
 import java.io.FileNotFoundException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Min;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.interfaces.apackage.facade.PushablePackageServiceFacade;
@@ -53,6 +52,14 @@ public class PushablePackageController {
     @Autowired
     private PushablePackageServiceFacade pushablePackageServiceFacade;
 
+    /**
+     * get pushable packages.
+     *
+     * @param appName appName.
+     * @param sortType sortType.
+     * @param sortItem sortItem.
+     * @return
+     */
     @GetMapping(value = "/pushable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pushable packages", response = PushablePackageDto.class,
         responseContainer = "List")
@@ -112,7 +119,14 @@ public class PushablePackageController {
         return pushablePackageServiceFacade.downloadIcon(packageId);
     }
 
-
+    /**
+     * get pullable packages.
+     *
+     * @param appName appName.
+     * @param sortType sortType.
+     * @param sortItem sortItem.
+     * @return
+     */
     @GetMapping(value = "/pullable", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get all the pullable packages", response = PushablePackageDto.class,
         responseContainer = "List")

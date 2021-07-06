@@ -25,9 +25,7 @@
         (
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
-            <if test="status != null">
                 a.STATUS = 'Published'
-            </if>
             <if test="appName != null">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
@@ -60,9 +58,7 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
-            <if test="status != null">
                 a.STATUS = 'Published'
-            </if>
             <if test="appName != null">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
@@ -93,9 +89,7 @@
             resultType="java.lang.Integer">
         select count(*) from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
-            <if test="status != null and status != '' ">
                 a.STATUS = 'Published'
-            </if>
             <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
