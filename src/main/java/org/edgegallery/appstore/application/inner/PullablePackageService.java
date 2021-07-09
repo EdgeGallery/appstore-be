@@ -134,10 +134,10 @@ public class PullablePackageService {
         String url = appStore.getUrl() + PULLABLE_API_V2 + "?limit=" + limit + "&offset=" + offset + "&appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         String countUrl = appStore.getUrl() + PULLABLE_API;
-        List<PushablePackageDto> countPackages = filterPullabelPackages(commonPackage(countUrl, appStore), userId);
+        List<PushablePackageDto> countPackages = filterPullablePackages(commonPackage(countUrl, appStore), userId);
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
-        return ResponseEntity.ok(new Page<PushablePackageDto>(filterPullabelPackages(packages, userId), limit, offset,
+        return ResponseEntity.ok(new Page<PushablePackageDto>(filterPullablePackages(packages, userId), limit, offset,
             countPackages.size()));
 
     }
@@ -209,7 +209,7 @@ public class PullablePackageService {
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
         List<PushablePackageDto> packages = commonPackage(url, appStore);
-        return filterPullabelPackages(packages, userId);
+        return filterPullablePackages(packages, userId);
     }
 
     /**
@@ -258,7 +258,7 @@ public class PullablePackageService {
         return true;
     }
 
-    private List<PushablePackageDto> filterPullabelPackages(List<PushablePackageDto> packages, String userId) {
+    private List<PushablePackageDto> filterPullablePackages(List<PushablePackageDto> packages, String userId) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
             AtomicBoolean bexist = new AtomicBoolean(false);

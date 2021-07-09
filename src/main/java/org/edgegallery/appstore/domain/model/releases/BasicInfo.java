@@ -254,8 +254,8 @@ public class BasicInfo {
         }
         if (appName == null || provider == null || version == null || appName.length() < 1 || provider.length() < 1
             || version.length() < 1) {
-            throw new IllegalArgumentException(
-                MF_PRODUCT_NAME + ", " + MF_PROVIDER_META + " or " + MF_VERSION_META + " is empty.");
+            throw new AppException(MF_PRODUCT_NAME + ", " + MF_PROVIDER_META + " or " + MF_VERSION_META + " is empty.",
+                ResponseConst.RET_MF_CONTENT_INVALID);
         }
 
         if (isXmlCsar) {
@@ -268,17 +268,8 @@ public class BasicInfo {
     }
 
     private void readMarkDown(File file) {
-        try (InputStream in = FileUtils.openInputStream(file);
-             BoundedInputStream boundedInput = new BoundedInputStream(in, BOUNDED_INPUTSTREAM_SIZE);
-             InputStreamReader reader = new InputStreamReader(boundedInput, StandardCharsets.UTF_8);
-             BufferedReader br = new BufferedReader(reader)) {
-            String temp = readLine(br);
-            StringBuilder sb = new StringBuilder();
-            while (temp != null) {
-                sb.append(temp).append("\n");
-                temp = readLine(br);
-            }
-            markDownContent = sb.toString();
+        try {
+            markDownContent = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             LOGGER.error("Exception occurs when open markdown file.");
         }
@@ -398,7 +389,7 @@ public class BasicInfo {
             readManifest(mfFile);
             String mfFilePath = mfFile.getCanonicalPath();
             String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
-            LOGGER.info("rewirte manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
+            LOGGER.info("rewrite manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
             String content = buildManifestContent(parentDir, imgZipPath);
             writeFile(mfFile, content);
         } catch (IOException e) {
