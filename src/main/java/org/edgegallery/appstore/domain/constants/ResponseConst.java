@@ -162,6 +162,11 @@ public class ResponseConst {
     public static final int RET_IMAGE_NOT_EXIST = 10028;
 
     /**
+     * the content of manifest file is incorrect.
+     */
+    public static final int RET_MF_CONTENT_INVALID = 10029;
+
+    /**
      * package base error code.
      */
     public static final int RET_PACKAGE_BASE = 11000;
