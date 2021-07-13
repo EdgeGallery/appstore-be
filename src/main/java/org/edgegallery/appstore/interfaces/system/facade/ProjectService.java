@@ -483,7 +483,7 @@ public class ProjectService {
             client.execute(httpPost);
             String xsrfToken = getXsrf();
             //third call auth login-info interface
-            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":8091/auth/login-info";
+            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30091/auth/login-info";
             LOGGER.warn("user login-info url: {}", getTokenUrl);
             HttpGet httpGet = new HttpGet(getTokenUrl);
             httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
