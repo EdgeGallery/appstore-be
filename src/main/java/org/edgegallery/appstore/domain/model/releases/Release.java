@@ -75,6 +75,8 @@ public class Release implements ValueObject<Release> {
 
     private String errorLog;
 
+    private String startExpTime;
+
     /**
      * Constructor of Release.
      */
