@@ -43,7 +43,7 @@ public interface AppMapper {
 
     Integer countTotalV2(Map<String, Object> params);
 
-    List<AppPo> findAllWithAppPaginationV2(Map<String, Object> params);
+    List<AppBasicPo> findAllWithAppPaginationV2(Map<String, Object> params);
 
     Integer countTotalAppForUser(String userId);
 }

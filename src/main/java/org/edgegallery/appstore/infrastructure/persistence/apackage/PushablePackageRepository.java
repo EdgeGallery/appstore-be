@@ -48,7 +48,7 @@ public class PushablePackageRepository {
     /**
      * query all of the pushable packages.
      *
-     * @return
+     * @return pushable packages list
      */
     public Page<PushablePackageDto> queryAllPushablePackagesV2(int limit, int offset, String appName, String sortType,
         String sortItem, String shareType) {
@@ -73,7 +73,7 @@ public class PushablePackageRepository {
     /**
      * query all of the pushable packages.
      *
-     * @return
+     * @return pushable packages list
      */
     public List<PushablePackageDto> queryAllPushablePackages(String appName, String sortType,
         String sortItem, String shareType) {
@@ -96,7 +96,7 @@ public class PushablePackageRepository {
     /**
      * find one package by id.
      *
-     * @return
+     * @return PushablePackageDto
      */
     public PushablePackageDto getPushablePackages(String packageId) {
         PushablePackageAndAppVo appReleasePo = pushablePackageMapper.getPushablePackages(packageId)
@@ -123,5 +123,14 @@ public class PushablePackageRepository {
             po.setSourcePlatform(packagePo.getSourcePlatform());
             pushablePackageMapper.updatePushTable(po);
         }
+    }
+
+    /**
+     * delete one package by id.
+     *
+     * @param packageId package id
+     */
+    public void deletePushablePackages(String packageId) {
+        pushablePackageMapper.deletePushablePackages(packageId);
     }
 }

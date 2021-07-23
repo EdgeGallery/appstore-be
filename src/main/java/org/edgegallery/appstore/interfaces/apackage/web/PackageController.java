@@ -70,6 +70,15 @@ public class PackageController {
     @Autowired
     private PackageServiceFacade packageServiceFacade;
 
+    /**
+     * delete application package.
+     *
+     * @param userId user id
+     * @param userName user name
+     * @param appId app id
+     * @param packageId package id
+     * @param request token
+     */
     @DeleteMapping(value = "/apps/{appId}/packages/{packageId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "delete a package", response = String.class)
     @ApiResponses(value = {
@@ -82,8 +91,10 @@ public class PackageController {
     public ResponseEntity<String> unPublishPackage(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId) {
-        packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName));
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        HttpServletRequest request) {
+        packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
+            (String) request.getAttribute(ACCESS_TOKEN));
         return ResponseEntity.ok("delete App package success.");
     }
 

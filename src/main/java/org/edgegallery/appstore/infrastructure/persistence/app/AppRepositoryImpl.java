@@ -107,7 +107,7 @@ public class AppRepositoryImpl implements AppRepository {
 
     @Override
     public List<App> queryV2(Map<String, Object> params) {
-        return appMapper.findAllWithAppPaginationV2(params).stream().map(AppPo::toDomainModel)
+        return appMapper.findAllWithAppPaginationV2(params).stream().map(AppBasicPo::toDomainModel)
             .collect(Collectors.toList());
     }
 

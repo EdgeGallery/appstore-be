@@ -39,6 +39,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -320,7 +322,7 @@ public class AppUtil {
     public File getFile(String parentDir, String fileExtension) {
         List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
         for (File fileEntry : files) {
-            if (Files.getFileExtension(fileEntry.getName().toLowerCase()).equals(fileExtension)) {
+            if (Files.getFileExtension(fileEntry.getName().toLowerCase(Locale.ROOT)).equals(fileExtension)) {
                 return fileEntry;
             }
         }

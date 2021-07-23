@@ -68,6 +68,7 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -130,6 +131,9 @@ public class AppService {
 
     @Autowired
     private AtpService atpService;
+
+    @Autowired
+    private PushablePackageRepository pushablePackageRepository;
 
     /**
      * Returns software image descriptor content in string format.
@@ -568,9 +572,10 @@ public class AppService {
      * @param appId     app id
      * @param packageId package id
      * @param user      obj of User
+     * @param token     access token
      */
     @Transactional
-    public void unPublishPackage(String appId, String packageId, User user) {
+    public void unPublishPackage(String appId, String packageId, User user, String token) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
@@ -579,7 +584,7 @@ public class AppService {
 
         app.unPublish(release);
         if (app.getReleases().isEmpty()) {
-            unPublish(app);
+            unPublish(app, token);
         } else {
             packageRepository.removeRelease(release);
             if (!app.hasPublishedRelease()) {
@@ -612,18 +617,32 @@ public class AppService {
      * unPublish app.
      *
      * @param app app object.
+     * @param token access token
      */
     @Transactional
-    public void unPublish(App app) {
+    public void unPublish(App app, String token) {
         app.getReleases().forEach(this::deleteReleaseFile);
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());
+        app.getReleases().forEach(this::deletePullablePackage);
+        app.getReleases().forEach(release -> deleteTestReport(release, token));
     }
 
     // delete release file
     private void deleteReleaseFile(Release release) {
         fileService.delete(release.getIcon());
         fileService.delete(release.getPackageFile());
+        if (release.getDemoVideo() != null) {
+            fileService.delete(release.getDemoVideo());
+        }
+    }
+
+    private void deleteTestReport(Release release, String token) {
+        atpService.deleteTestReport(token, release.getTestTaskId());
+    }
+
+    private void deletePullablePackage(Release release) {
+        pushablePackageRepository.deletePushablePackages(release.getPackageId());
     }
 
     /**

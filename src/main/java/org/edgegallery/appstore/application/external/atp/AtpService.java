@@ -36,4 +36,9 @@ public class AtpService implements AtpServiceInterface {
         return atpUtil.sendCreateTask2Atp(release.getPackageFile().getStorageAddress(), token);
     }
 
+    @Override
+    public void deleteTestReport(String token, String taskId) {
+        atpUtil.deleteTestReportFromAtp(taskId, token);
+    }
+
 }
