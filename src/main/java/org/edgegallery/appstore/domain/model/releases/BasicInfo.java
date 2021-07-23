@@ -36,7 +36,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -122,7 +124,7 @@ public class BasicInfo {
 
     private String appDesc;
 
-    private List<String> sources = new ArrayList<>();
+    private Set<String> sources = new HashSet<>();
 
     private String hashAlgorithm;
 

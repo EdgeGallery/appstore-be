@@ -30,7 +30,7 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.app.facade.AppParam;
@@ -53,7 +53,7 @@ public class MessageService {
     private MessageRepository messageRepository;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Autowired
     private AppService appService;

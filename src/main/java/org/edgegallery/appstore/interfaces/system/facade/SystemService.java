@@ -84,7 +84,6 @@ public class SystemService {
     /**
      * getALlHosts.
      *
-     * @return
      */
     public List<MepHost> getAllHosts(String name, String ip) {
         LOGGER.info("Get all hosts success.");
@@ -94,9 +93,7 @@ public class SystemService {
     /**
      * createHost.
      *
-     * @return
      */
-    @Transactional
     public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
@@ -135,9 +132,7 @@ public class SystemService {
     /**
      * deleteHost.
      *
-     * @return
      */
-    @Transactional
     public Either<FormatRespDto, Boolean> deleteHost(String hostId) {
         int res = hostMapper.deleteHost(hostId);
         if (res < 1) {
@@ -152,9 +147,7 @@ public class SystemService {
     /**
      * updateHost.
      *
-     * @return
      */
-    @Transactional
     public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
@@ -204,7 +197,6 @@ public class SystemService {
     /**
      * getHost.
      *
-     * @return
      */
     public Either<FormatRespDto, MepHost> getHost(String hostId) {
         MepHost host = hostMapper.getHost(hostId);
@@ -282,7 +274,6 @@ public class SystemService {
     /**
      * uploadFile.
      *
-     * @return
      */
     public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
         LOGGER.info("Begin upload file");

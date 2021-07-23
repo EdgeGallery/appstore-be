@@ -56,7 +56,7 @@ public class PushablePackageRepository {
         params.put("limit", limit);
         params.put("offset", offset);
         params.put("appName", appName);
-        if (shareType.equals("push")) {
+        if ("push".equals(shareType)) {
             params.put("latestPushTime", "latestPushTime");
         } else {
             params.put("createTime", "createTime");
@@ -79,7 +79,7 @@ public class PushablePackageRepository {
         String sortItem, String shareType) {
         Map<String, Object> params = new HashMap<>();
         params.put("appName", appName);
-        if (shareType.equals("push")) {
+        if ("push".equals(shareType)) {
             params.put("latestPushTime", "latestPushTime");
         } else {
             params.put("createTime", "createTime");
@@ -109,7 +109,6 @@ public class PushablePackageRepository {
     /**
      * to save or update push log.
      */
-    @Transactional
     public void updateOrSavePushLog(PushablePackageDto packagePo) {
         PushablePackagePo po = pushablePackageMapper.findPushTableByPackageId(packagePo.getPackageId());
         if (po == null) {

@@ -54,10 +54,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service("LocalFileService")
-public class LocalFileService implements FileService {
+@Service("LocalFileServiceImpl")
+public class LocalFileServiceImpl implements FileService {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileServiceImpl.class);
 
 
     /**

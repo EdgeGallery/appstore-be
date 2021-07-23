@@ -67,7 +67,7 @@ import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.modelmapper.ModelMapper;
@@ -127,7 +127,7 @@ public class AppService {
     private PackageRepository packageRepository;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Autowired
     private AtpService atpService;
@@ -153,7 +153,7 @@ public class AppService {
                 }
                 entriesCount++;
                 // sanitize file path
-                String fileName = LocalFileService.sanitizeFileName(entry.getName(), intendedDir);
+                String fileName = LocalFileServiceImpl.sanitizeFileName(entry.getName(), intendedDir);
                 if (!entry.isDirectory()) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         if (inputStream.available() > TOO_BIG) {
@@ -211,7 +211,7 @@ public class AppService {
      *
      * @param release use object of release to register.
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public RegisterRespDto registerApp(Release release) {
 
         Optional<App> existedApp = appRepository
@@ -324,7 +324,7 @@ public class AppService {
             Map<String, Object> values = loadvaluesYaml(valuesYaml);
             ImgLoc imageLoc = null;
             for (String key : values.keySet()) {
-                if (key.equals(IMAGE_LOCATION)) {
+                if (IMAGE_LOCATION.equals(key)) {
                     ModelMapper mapper = new ModelMapper();
                     imageLoc = mapper.map(values.get(IMAGE_LOCATION), ImgLoc.class);
                     LOGGER.info("imageLoc domain {}, project {}", imageLoc.getDomainname(), imageLoc.getProject());
@@ -574,7 +574,7 @@ public class AppService {
      * @param user      obj of User
      * @param token     access token
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void unPublishPackage(String appId, String packageId, User user, String token) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
@@ -619,7 +619,7 @@ public class AppService {
      * @param app app object.
      * @param token access token
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void unPublish(App app, String token) {
         app.getReleases().forEach(this::deleteReleaseFile);
         appRepository.remove(app.getAppId());
