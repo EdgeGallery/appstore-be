@@ -34,7 +34,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class PackageService {
     private AtpService atpService;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -89,7 +89,7 @@ public class PackageService {
      * @param appId app id
      * @param release a package
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void publishAppAndPackage(String appId, Release release) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));

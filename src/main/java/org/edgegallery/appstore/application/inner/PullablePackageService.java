@@ -42,7 +42,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
 import org.edgegallery.appstore.infrastructure.persistence.appstore.AppStoreRepositoryImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
@@ -97,7 +97,7 @@ public class PullablePackageService {
     private AppRepository appRepository;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Autowired
     private AppService appService;

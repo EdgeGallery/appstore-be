@@ -15,7 +15,10 @@
 
 package org.edgegallery.appstore.domain.model.app;
 
+/**
+ * app or package status.
+ */
 public enum EnumAppStatus {
-    Published,
-    UnPublish
+    Published, // app or package is published
+    UnPublish  // app or package is unpublished
 }

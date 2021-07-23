@@ -59,7 +59,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
@@ -95,7 +95,7 @@ public class AppServiceFacade {
     private AppService appService;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Autowired
     private AppRepository appRepository;
@@ -198,7 +198,7 @@ public class AppServiceFacade {
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileStoreageAddress);
-        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
+        if (!StringUtils.isEmpty(appClass) && VM.equals(appClass)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
 
         } else {
@@ -248,7 +248,7 @@ public class AppServiceFacade {
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
-        if (!StringUtils.isEmpty(appClass) && appClass.equals(VM)) {
+        if (!StringUtils.isEmpty(appClass) && VM.equals(appClass)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);

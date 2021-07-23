@@ -33,7 +33,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.Page;
-import org.edgegallery.appstore.infrastructure.files.LocalFileService;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageRepository;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
@@ -52,7 +52,7 @@ public class PushablePackageServiceFacade {
     private AppService appService;
 
     @Autowired
-    private LocalFileService fileService;
+    private LocalFileServiceImpl fileService;
 
     @Autowired
     private PushablePackageService pushablePackageService;

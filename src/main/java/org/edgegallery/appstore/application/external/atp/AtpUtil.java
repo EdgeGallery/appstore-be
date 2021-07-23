@@ -42,7 +42,7 @@ public class AtpUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
-    private static final RestTemplate restTemplate = new RestTemplate();
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private static final String ATP_STATUS = "status";
 
@@ -76,7 +76,7 @@ public class AtpUtil {
         String url = createTaskUrl;
         LOGGER.info("url: {}", url);
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(response.getStatusCode())) {
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
@@ -113,7 +113,7 @@ public class AtpUtil {
         LOGGER.info("Get task status frm atp, url: {}", url);
         String status = null;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to get task status from atp response, the taskId is {}, The status code is {}",
                     taskId, response.getStatusCode());
@@ -155,7 +155,7 @@ public class AtpUtil {
         LOGGER.info("delete test report frm atp, url: {}", url);
         String status = null;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to delete test report from atp response, the taskId is {}, The status code is {}",
                     taskId, response.getStatusCode());
