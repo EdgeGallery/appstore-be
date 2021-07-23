@@ -33,6 +33,7 @@ drop table IF EXISTS message_table;
         INSTANCEPACKAGEID        VARCHAR(255)       NULL,
         INSTANCETENENTID         VARCHAR(100)       NULL,
         APPINSTANCEID            VARCHAR(100)       NULL,
+        STARTEXPTIME             VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 

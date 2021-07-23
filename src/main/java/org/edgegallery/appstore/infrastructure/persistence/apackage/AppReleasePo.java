@@ -122,6 +122,9 @@ public class AppReleasePo {
     @Column(name = "EXPERIENCEABLE")
     private boolean experienceAble;
 
+    @Column(name = "STARTEXPTIME")
+    private String startExpTime;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
@@ -172,6 +175,7 @@ public class AppReleasePo {
         po.instanceTenentId = pack.getInstanceTenentId();
         po.instancePackageId = pack.getInstancePackageId();
         po.experienceAble = pack.isExperienceAble();
+        po.startExpTime = pack.getStartExpTime();
         return po;
     }
 
@@ -217,6 +221,7 @@ public class AppReleasePo {
     public void initialConfig() {
         this.appInstanceId = null;
         this.instanceTenentId = null;
+        this.startExpTime = null;
     }
 
 }

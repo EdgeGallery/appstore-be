@@ -20,12 +20,38 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -42,6 +68,7 @@ import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -51,9 +78,22 @@ public class ProjectService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
+    private static final int CLEAN_ENV_WAIT_TIME = 24;
+
     private static final String COLON = ":";
 
     private static final int GET_WORKSTATUS_WAIT_TIME = 5;
+
+    private static final CookieStore cookieStore = new BasicCookieStore();
+
+    @Value("${security.oauth2.resource.jwt.key-uri:}")
+    private String loginUrl;
+
+    @Value("${client.client-id:}")
+    private String clientId;
+
+    @Value("${client.client-secret:}")
+    private String clientPW;
 
     @Autowired
     private PackageMapper packageMapper;
@@ -93,6 +133,33 @@ public class ProjectService {
         return stringBuilder;
     }
 
+    private static String getXsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("XSRF-TOKEN")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+            LOGGER.error("call sslConnectionSocketFactory to clean env interface occur error {}", e.getMessage());
+        }
+        return null;
+    }
+
     /**
      * deploy app to host.
      *
@@ -104,8 +171,7 @@ public class ProjectService {
     public boolean deployTestConfigToAppLcm(String filePath, String packageId, String appInstanceId, String userId,
         MepHost mepHost, String token, AppReleasePo appReleasePo, LcmLog lcmLog) {
         String uploadRes = HttpClientUtil
-            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(),
-                filePath, userId, token, lcmLog);
+            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), filePath, userId, token, lcmLog);
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
@@ -117,8 +183,7 @@ public class ProjectService {
         appReleasePo.setInstancePackageId(pkgId);
         packageMapper.updateAppInstanceApp(appReleasePo);
         // distribute pkg
-        boolean distributeRes = HttpClientUtil
-            .distributePkg(mepHost, userId, token, pkgId, lcmLog);
+        boolean distributeRes = HttpClientUtil.distributePkg(mepHost, userId, token, pkgId, lcmLog);
         if (!distributeRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -142,7 +207,6 @@ public class ProjectService {
 
     /**
      * cleanTestEnv.
-     *
      */
     public Either<FormatRespDto, Boolean> cleanTestEnv(String packageId, String name, String ip, String token) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
@@ -177,7 +241,6 @@ public class ProjectService {
 
     /**
      * deleteDeployApp.
-     *
      */
     private boolean deleteDeployApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
 
@@ -194,11 +257,22 @@ public class ProjectService {
             }
         }
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                appInstanceId, userId, token);
+            return HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
+                    token);
         }
 
         return true;
+    }
+
+    /**
+     * get nodePort.
+     *
+     * @param workStatus workStatus.
+     */
+    public int getNodePort(String workStatus) {
+        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
+            .getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject().get("nodePort").getAsInt();
     }
 
     /**
@@ -210,8 +284,8 @@ public class ProjectService {
      * @param ip ip.
      * @param token token.
      */
-    public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId,
-        String name, String ip, String token) {
+    public ResponseEntity<ResponseObject> deployAppById(String appId, String packageId, String userId, String name,
+        String ip, String token) {
         String showInfo = "";
         LcmLog lcmLog = new LcmLog();
         List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
@@ -228,18 +302,18 @@ public class ProjectService {
         String appInstanceId = appReleasePo.getAppInstanceId();
         if (StringUtils.isEmpty(appInstanceId)) {
             appInstanceId = UUID.randomUUID().toString();
-            boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId,
-                mapHosts.get(0), token,appReleasePo,lcmLog);
+            boolean instantRes = deployTestConfigToAppLcm(filePath, packageId, appInstanceId, userId, mapHosts.get(0),
+                token, appReleasePo, lcmLog);
             if (!instantRes) {
                 LOGGER.error("instantiate application failed, response is null");
                 String errorlog = lcmLog.getLog();
-                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg,errorlog));
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, errorlog));
             }
-            AppReleasePo releasePo = new AppReleasePo();
-            releasePo.setPackageId(packageId);
-            releasePo.setAppInstanceId(appInstanceId);
-            releasePo.setInstanceTenentId(instanceTenentId);
-            packageMapper.updateAppInstanceApp(releasePo);
+            appReleasePo.setAppInstanceId(appInstanceId);
+            appReleasePo.setInstanceTenentId(instanceTenentId);
+            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            appReleasePo.setStartExpTime(time.format(new Date()));
+            packageMapper.updateAppInstanceApp(appReleasePo);
         }
 
         int from = getMinute(new Date());
@@ -267,7 +341,7 @@ public class ProjectService {
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }
-    
+
     /**
      * get nodeStatus.
      *
@@ -306,23 +380,124 @@ public class ProjectService {
     }
 
     /**
-     * get nodePort.
-     *
-     * @param workStatus workStatus.
-     */
-    public int getNodePort(String workStatus) {
-        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
-            .getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject().get("nodePort").getAsInt();
-    }
-
-    /**
      * get serviceName.
      *
      * @param workStatus workStatus.
      */
     public String getServiceName(String workStatus) {
-        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray()
-            .get(0).getAsJsonObject().get("serviceName").getAsString();
+        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
+            .getAsJsonObject().get("serviceName").getAsString();
+    }
+
+    /**
+     * cleanUnreleasedEnv.
+     */
+    public void cleanUnreleasedEnv() {
+        List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
+        if (CollectionUtils.isEmpty(packageList)) {
+            LOGGER.error("get package List is empty");
+            return;
+
+        }
+        //Call by service nameuser-mgmtLogin interface
+        try {
+            String accessToken = getAccessToken();
+            if (StringUtils.isEmpty(accessToken)) {
+                LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
+                return;
+            }
+            String name = "";
+            String ip = "";
+            Instant dateOfProject = null;
+            for (AppReleasePo packageObj : packageList) {
+                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String createDate = packageObj.getStartExpTime();
+                if (StringUtils.isEmpty(createDate)) {
+                    dateOfProject = Instant.now();
+                } else {
+                    dateOfProject = fmt.parse(createDate).toInstant();
+                }
+                Instant now = Instant.now();
+                Long timeDiff = Duration.between(dateOfProject, now).toHours();
+                if (timeDiff.intValue() >= CLEAN_ENV_WAIT_TIME) {
+                    cleanTestEnv(packageObj.getPackageId(), name, ip, accessToken);
+                }
+            }
+        } catch (ParseException e) {
+            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+            return;
+        }
+
+    }
+
+    private String getAccessToken() {
+        int count = 0;
+        String accessToken = "";
+        CloseableHttpClient client = createIgnoreSslHttpClient();
+        if (client == null) {
+            LOGGER.error("call client interface occur error");
+            return null;
+        }
+        while (count < 10) {
+            String authResult = getAuthResult(client);
+            if (StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
+                String[] authResults = authResult.split(",");
+                for (String authRes : authResults) {
+                    if (authRes.contains("accessToken")) {
+                        String[] tokenArr = authRes.split(":");
+                        if (tokenArr != null && tokenArr.length > 1) {
+                            accessToken = tokenArr[1].substring(1, tokenArr[1].length() - 1);
+                            return accessToken;
+
+                        }
+                    }
+                }
+            } else {
+                count++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                }
+            }
+        }
+        return accessToken;
+    }
+
+    private String getAuthResult(CloseableHttpClient client) {
+        try {
+            URL url = new URL(loginUrl);
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/login";
+            LOGGER.warn("user login url: {}", userLoginUrl);
+            HttpPost httpPost = new HttpPost(userLoginUrl);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("username", clientId + ":" + new Date().getTime());
+            builder.addTextBody("password", clientPW);
+            httpPost.setEntity(builder.build());
+            // first call login interface
+            client.execute(httpPost);
+            String xsrf = getXsrf();
+            httpPost.setHeader("X-XSRF-TOKEN", xsrf);
+            // secode call login interface
+            client.execute(httpPost);
+            String xsrfToken = getXsrf();
+            //third call auth login-info interface
+            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30091/auth/login-info";
+            LOGGER.warn("user login-info url: {}", getTokenUrl);
+            HttpGet httpGet = new HttpGet(getTokenUrl);
+            httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
+            CloseableHttpResponse res = client.execute(httpGet);
+            InputStream inputStream = res.getEntity().getContent();
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+            String authResult = new String(bytes, StandardCharsets.UTF_8);
+            LOGGER.info("response token length: {}", authResult.length());
+            return authResult;
+        } catch (IOException e) {
+            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+            return null;
+        }
     }
 
 }

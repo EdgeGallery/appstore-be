@@ -130,7 +130,8 @@
         update catalog_package_table
         SET
         appinstanceid = #{appInstanceId},
-        instancetenentid = #{instanceTenentId}
+        instancetenentid = #{instanceTenentId},
+        STARTEXPTIME = #{startExpTime}
         <if test="instancePackageId != null  and instancePackageId != ''">
             ,instancepackageid = #{instancePackageId}
         </if>
@@ -141,6 +142,12 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
             parameterType="java.lang.String">
         select * from catalog_package_table where userid = #{userId}
+    </select>
+
+    <select id="findReleaseNoCondtion"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            parameterType="java.lang.String">
+        select * from catalog_package_table order by STARTEXPTIME desc
     </select>
 
     <select id="countTotalForUserId" resultType="java.lang.Integer"

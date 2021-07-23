@@ -45,6 +45,8 @@ public interface PackageMapper {
 
     List<AppReleasePo> findReleaseByUserId(String userId);
 
+    List<AppReleasePo> findReleaseNoCondtion();
+
     Integer countTotalForUserId(Map<String, Object> params);
 
     void updateAppInstanceApp(AppReleasePo releasePo);

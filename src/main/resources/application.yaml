@@ -84,6 +84,9 @@ atp:
     create-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073}/edgegallery/atp/v1/tasks
     query-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073}/edgegallery/atp/v1/tasks/%s
 
+client:
+  client-id: ${CLIENT_ID:}
+  client-secret: ${CLIENT_SECRET:}
 
 ### appShare feature config ###
 appShare:
