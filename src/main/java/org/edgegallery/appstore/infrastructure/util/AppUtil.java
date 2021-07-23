@@ -74,10 +74,6 @@ public class AppUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AppUtil.class);
 
-    private static final RestTemplate restTemplate = new RestTemplate();
-
-    private static final Gson gson = new Gson();
-
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
     private static final String DOWNLOAD_IMAGE_FAIL = "failed download image from file system";
@@ -157,6 +153,7 @@ public class AppUtil {
         HttpEntity<String> request = new HttpEntity<>(headers);
         LOGGER.info("get images status from fileSystem, url: {}", url);
         try {
+            RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("get image from file system status: {}", response.getStatusCode());
             return HttpStatus.OK.equals(response.getStatusCode());
@@ -289,7 +286,7 @@ public class AppUtil {
         imgDecsLists.set(index, imageDesc);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDesc = new File(jsonFile);
-        writeFile(swImageDesc, gson.toJson(imgDecsLists));
+        writeFile(swImageDesc, new Gson().toJson(imgDecsLists));
     }
 
     private void addImageFileInfo(String parentDir, String imgZipPath) {

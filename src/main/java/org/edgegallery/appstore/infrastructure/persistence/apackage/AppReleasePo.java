@@ -42,16 +42,16 @@ public class AppReleasePo {
     private String packageId;
 
     @Column(name = "packageAddress")
-    private String packageAddress; //packageAddress
+    private String packageAddress;
 
     @Column(name = "iconAddress")
-    private String iconAddress; //iconAddress
+    private String iconAddress;
 
     @Column(name = "SIZE")
     private String size;
 
     @Column(name = "fileStructure")
-    private String fileStructure; //Tree
+    private String fileStructure;
 
     @Column(name = "CREATETIME")
     private Date createTime;
@@ -72,7 +72,7 @@ public class AppReleasePo {
     private String provider;
 
     @Column(name = "applicationType")
-    private String applicationType; //applicationType
+    private String applicationType;
 
     @Column(name = "markdownContent")
     private String markDownContent;
@@ -141,7 +141,7 @@ public class AppReleasePo {
      * transfer Release to AppRelease.
      *
      * @param pack object of Release.
-     * @return
+     * @return AppReleasePo
      */
     public static AppReleasePo of(Release pack) {
         AppReleasePo po = new AppReleasePo();
@@ -182,7 +182,7 @@ public class AppReleasePo {
     /**
      * transfer to Release.
      *
-     * @return
+     * @return Release
      */
     public Release toDomainModel() {
         BasicInfo basicInfo = new BasicInfo();
@@ -218,6 +218,10 @@ public class AppReleasePo {
         return release;
     }
 
+    /**
+     * init experience param.
+     *
+     */
     public void initialConfig() {
         this.appInstanceId = null;
         this.instanceTenentId = null;
