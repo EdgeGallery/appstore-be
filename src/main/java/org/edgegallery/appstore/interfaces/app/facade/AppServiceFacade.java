@@ -379,12 +379,14 @@ public class AppServiceFacade {
      *
      * @param appId app id.
      * @param user User object.
+     * @param authorities role info.
+     * @param token access token.
      */
-    public void unPublishApp(String appId, User user, String authorities) {
+    public void unPublishApp(String appId, User user, String authorities, String token) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
-            appService.unPublish(app);
+            appService.unPublish(app, token);
         } else {
             throw new PermissionNotAllowedException("can not delete app",
                 ResponseConst.RET_NO_ACCESS_DELETE_APP, user.getUserName());

@@ -31,10 +31,10 @@ public class RestReturn {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private final Date timestamp = new Date();
 
-    // Error code.
+    // Status code.
     private int code;
 
-    // Description of error.
+    // Description of status error.
     private String error;
 
     // Detail of error.

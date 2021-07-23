@@ -43,7 +43,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AccessTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
 
-    private static final String[] NoNeedTokenUrls = {
+    private static final String[] NO_NEED_TOKEN_URLS = {
         "GET /health", "POST /mec/appstore/v1/messages",
         "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-package",
         "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon", "GET /mec/appstore/v1/packages/pullable",
@@ -113,7 +113,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             return true;
         }
         String accessUrl = String.format("%s %s", request.getMethod(), request.getRequestURI());
-        for (String filter : NoNeedTokenUrls) {
+        for (String filter : NO_NEED_TOKEN_URLS) {
             if (accessUrl.matches(filter)) {
                 return false;
             }

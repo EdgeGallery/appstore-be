@@ -42,4 +42,5 @@ public interface PushablePackageMapper {
 
     PushablePackagePo findPushTableByPackageId(String packageId);
 
+    void deletePushablePackages(String packageId);
 }

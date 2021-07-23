@@ -121,9 +121,10 @@
 
 
     <select id="findAllWithAppPaginationV2"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppBasicPo"
             parameterType="java.util.Map">
-        select * from app_table
+        select appId,appName,applicationType,shortDesc,showType,provider,downloadCount,affinity,industry,contact,userId,
+        userName,createTime,modifyTime,score,status,deployMode,isHotApp,experienceAble from app_table
         <where>
 
             <if test="industry != null and industry.size()>0">
