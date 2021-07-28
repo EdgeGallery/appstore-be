@@ -29,7 +29,7 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
-public abstract class FileChecker {
+public abstract class AbstractFileChecker {
 
     public static final String BLANK_REG = "\\s";
 
@@ -58,11 +58,11 @@ public abstract class FileChecker {
     private String dir;
 
     /**
-     * Constructor to create FileChecker.
+     * Constructor to create AbstractFileChecker.
      *
      * @param dir package path
      */
-    protected FileChecker(String dir) {
+    protected AbstractFileChecker(String dir) {
         this.dir = dir;
     }
 
@@ -94,7 +94,7 @@ public abstract class FileChecker {
 
         String[] dirs = filePath.split(":");
         for (String dir : dirs) {
-            Matcher matcher = Pattern.compile(FileChecker.REG).matcher(dir);
+            Matcher matcher = Pattern.compile(AbstractFileChecker.REG).matcher(dir);
             if (!matcher.matches()) {
                 throw new IllegalRequestException(filePath + " :filepath isn't regular",
                     ResponseConst.RET_FILE_PATH_INVALID);

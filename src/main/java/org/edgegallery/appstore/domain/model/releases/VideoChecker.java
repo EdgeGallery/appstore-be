@@ -25,7 +25,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
-public class VideoChecker extends FileChecker {
+public class VideoChecker extends AbstractFileChecker {
 
     /**
      * Constructor to create VideoChecker.

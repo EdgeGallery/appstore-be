@@ -42,9 +42,9 @@ import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
-import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageChecker;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -193,7 +193,7 @@ public class AppServiceFacade {
         }
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
-        FileChecker fileChecker = new PackageChecker(dir);
+        AbstractFileChecker fileChecker = new PackageChecker(dir);
         File tempfile = fileChecker.check(packageFile);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         AFile packageAFile;
@@ -237,7 +237,7 @@ public class AppServiceFacade {
             FileInputStream fileInputStream = new FileInputStream(packageFile);
             multipartFile = new MockMultipartFile("file", packageFile.getName(),
                 "text/plain", IOUtils.toByteArray(fileInputStream));
-            FileChecker fileChecker = new PackageChecker(fileParent);
+            AbstractFileChecker fileChecker = new PackageChecker(fileParent);
             File file = fileChecker.check(multipartFile);
             if (!file.exists()) {
                 LOGGER.error("Package File is Illegal.");
@@ -269,7 +269,7 @@ public class AppServiceFacade {
         return ResponseEntity.ok(dto);
     }
 
-    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
+    private AFile getFile(MultipartFile file, AbstractFileChecker fileChecker, String fileParent) {
         File tempfile = fileChecker.check(file);
         String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);

@@ -26,8 +26,8 @@ import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
-import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -192,7 +192,7 @@ public class PackageService {
         packageRepository.updateRelease(release);
     }
 
-    private AFile getFile(MultipartFile file, FileChecker fileChecker, String fileParent) {
+    private AFile getFile(MultipartFile file, AbstractFileChecker fileChecker, String fileParent) {
         File tempFile = fileChecker.check(file);
         String fileStorageAddress = fileService.saveTo(tempFile, fileParent);
         return new AFile(file.getOriginalFilename(), fileStorageAddress);
