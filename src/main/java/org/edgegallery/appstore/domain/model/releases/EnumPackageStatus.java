@@ -20,15 +20,31 @@ package org.edgegallery.appstore.domain.model.releases;
  *
  */
 public enum EnumPackageStatus {
-    Upload("upload"), // package is uploaded
-    Test_created("created"), // test task is created successfully
-    Test_create_failed("create failed"), // test task is created failed
-    Test_running("running"), // test task is running
-    Test_waiting("waiting"), // test task is waiting
-    Test_failed("failed"), // test failed
-    Test_success("success"), // test success
-    Published("publish"); // package is published
+    // package is uploaded
+    Upload("upload"),
 
+    // test task is created successfully
+    Test_created("created"),
+
+    // test task is created failed
+    Test_create_failed("create failed"),
+
+    // test task is running
+    Test_running("running"),
+
+    // test task is waiting
+    Test_waiting("waiting"),
+
+    // test failed
+    Test_failed("failed"),
+
+    // test success
+    Test_success("success"),
+
+    // package is published
+    Published("publish");
+
+    // enum content
     private String text;
 
     EnumPackageStatus(String text) {

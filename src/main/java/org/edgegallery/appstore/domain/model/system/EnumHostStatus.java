@@ -20,7 +20,12 @@ package org.edgegallery.appstore.domain.model.system;
  * host status.
  */
 public enum EnumHostStatus {
-    NORMAL, // host is normal
-    BUSY,  // host is busy
-    STOP  // host is stopped
+    // host is normal
+    NORMAL,
+
+    // host is busy
+    BUSY,
+
+    // host is stopped
+    STOP
 }

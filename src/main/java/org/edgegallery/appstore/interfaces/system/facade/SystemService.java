@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
-import org.edgegallery.appstore.domain.model.releases.FileChecker;
+import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
@@ -52,7 +52,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -279,7 +278,7 @@ public class SystemService {
         LOGGER.info("Begin upload file");
         UploadedFile result = new UploadedFile();
         String fileName = uploadFile.getOriginalFilename();
-        if (!FileChecker.isValid(fileName)) {
+        if (!AbstractFileChecker.isValid(fileName)) {
             LOGGER.error("File Name is invalid.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "File Name is invalid."));
         }

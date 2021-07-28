@@ -28,8 +28,8 @@ import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
-import org.edgegallery.appstore.domain.model.releases.FileChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -111,7 +111,7 @@ public class PackageServiceFacade {
      */
     public String getCsarFileByName(String appId, String packageId, String filePath) {
         Release release = appService.getRelease(appId, packageId);
-        filePath = FileChecker.checkByPath(filePath);
+        filePath = AbstractFileChecker.checkByPath(filePath);
         return fileService.get(release.getPackageFile().getStorageAddress(), filePath);
     }
 

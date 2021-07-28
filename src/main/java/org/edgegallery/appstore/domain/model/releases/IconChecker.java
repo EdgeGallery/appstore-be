@@ -25,7 +25,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
-public class IconChecker extends FileChecker {
+public class IconChecker extends AbstractFileChecker {
 
     /**
      * Constructor to create IconChecker.
