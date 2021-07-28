@@ -34,10 +34,12 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,12 +47,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
+import org.edgegallery.appstore.infrastructure.util.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Setter
@@ -133,6 +138,12 @@ public class BasicInfo {
     private String fileStructure;
 
     private String markDownContent;
+
+    @Value("${appstore-be.encrypted-private-key-path:}")
+    private String keyPath;
+
+    @Value("${appstore-be.private-key-password:}")
+    private String keyPwd;
 
     public BasicInfo() {
         // empty construct function
@@ -392,7 +403,8 @@ public class BasicInfo {
             String mfFilePath = mfFile.getCanonicalPath();
             String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
             LOGGER.info("rewrite manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
-            String content = buildManifestContent(parentDir, imgZipPath);
+            String cmsEncrypted = signPackage(mfFilePath, keyPwd);
+            String content = buildManifestContent(parentDir, imgZipPath, cmsEncrypted);
             writeFile(mfFile, content);
         } catch (IOException e) {
             LOGGER.error("Exception while rewrite manifest file: {}", e.getMessage());
@@ -401,7 +413,57 @@ public class BasicInfo {
         }
     }
 
-    private String buildManifestContent(String parentDir, String imageFullPath) {
+    private String signPackage(String filePath, String keyPwd) {
+        if (!StringUtils.isEmpty(filePath)) {
+            List<String> rules = new ArrayList<>();
+            rules.add("[Ss]ource\\s*:");
+            rules.add("[Aa]lgorithm\\s*:");
+            rules.add("[Hh]ash\\s*:");
+            String in = readMatchLineContent(filePath, rules);
+            Signature signature = new Signature();
+            Optional<byte[]> signBytes = signature.signMessage(in.trim(), keyPath, keyPwd);
+            if (signBytes.isPresent()) {
+                return new String(signBytes.get(), StandardCharsets.UTF_8);
+            } else {
+                throw new AppException("sign package failed.", ResponseConst.RET_SIGN_PACKAGE_FAILED);
+            }
+        }
+        return "";
+    }
+
+    private String readMatchLineContent(String filePath, List<String> rules) {
+        LineIterator lineIterator;
+        StringBuilder result = new StringBuilder();
+        try (InputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(filePath));
+             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+            lineIterator = new LineIterator(bufferedReader);
+            String line;
+            while (lineIterator.hasNext()) {
+                line = lineIterator.next();
+                if (StringUtils.isEmpty(line) || canLineMatch(line, rules)) {
+                    line += "\\n";
+                    result.append(line);
+                }
+            }
+        } catch (IOException e) {
+            throw new AppException("Exception while read manifest file.",
+                ResponseConst.RET_PARSE_FILE_EXCEPTION, filePath);
+        }
+        return result.toString().trim();
+    }
+
+    private boolean canLineMatch(String line, List<String> rules) {
+        String normalizeLine = Normalizer.normalize(line, Normalizer.Form.NFKC);
+        for (String rule : rules) {
+            if (normalizeLine.matches(rule) || normalizeLine.split(rule).length > 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String buildManifestContent(String parentDir, String imageFullPath, String cmsEncrypted) {
         StringBuilder content = new StringBuilder().append(MF_META).append(MF_NEWLINE);
         content.append(MF_PRODUCT_NAME).append(MF_SEPARATOR).append(appName).append(MF_NEWLINE)
             .append(MF_PROVIDER_META).append(MF_SEPARATOR).append(provider).append(MF_NEWLINE)
@@ -427,6 +489,9 @@ public class BasicInfo {
                     .append(MF_NEWLINE);
             }
         }
+        content.append("-----BEGIN CMS-----").append(MF_NEWLINE)
+            .append(cmsEncrypted).append(MF_NEWLINE)
+            .append("-----END CMS-----").append(MF_NEWLINE);
         return content.toString();
     }
 

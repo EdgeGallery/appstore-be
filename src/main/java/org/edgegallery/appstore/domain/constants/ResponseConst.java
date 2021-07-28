@@ -167,6 +167,11 @@ public class ResponseConst {
     public static final int RET_MF_CONTENT_INVALID = 10029;
 
     /**
+     * sign package failed.
+     */
+    public static final int RET_SIGN_PACKAGE_FAILED = 10030;
+
+    /**
      * package base error code.
      */
     public static final int RET_PACKAGE_BASE = 11000;

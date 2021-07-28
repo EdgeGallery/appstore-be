@@ -78,6 +78,9 @@ appstore-be:
   appstore-repo-endpoint: ${APPSTORE_REPO_ENDPOINT:}
   dev-repo-password: ${DEV_REPO_PASSWORD:}
   dev-repo-username: ${DEV_REPO_USERNAME:}
+  public-key-path: /usr/app/keys/sign_publickey
+  encrypted-private-key-path: /usr/app/keys/sign_encrypted_privatekey
+  private-key-password: ${EDGE_CERT_PASSWORD:}
 ### atp config ###
 atp:
   urls:
