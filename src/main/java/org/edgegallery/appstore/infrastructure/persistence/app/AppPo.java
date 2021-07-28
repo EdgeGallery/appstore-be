@@ -131,6 +131,6 @@ public class AppPo implements PersistenceObject<App> {
             .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).showType(showType)
             .affinity(affinity).industry(industry).contact(contact).applicationType(applicationType)
             .appIntroduction(appIntroduction).user(new User(userId, userName)).numOfcomment(0).releases(null)
-            .status(status).deployMode(deployMode).isHotApp(isHotApp).build();
+            .status(status).deployMode(deployMode).isHotApp(isHotApp).experienceAble(experienceAble).build();
     }
 }
