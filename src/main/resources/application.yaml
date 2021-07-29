@@ -81,6 +81,7 @@ appstore-be:
   public-key-path: /usr/app/keys/sign_publickey
   encrypted-private-key-path: /usr/app/keys/sign_encrypted_privatekey
   private-key-password: ${EDGE_CERT_PASSWORD:}
+  filesystem-address: ${FILESYSTEM_ADDRESS:}
 ### atp config ###
 atp:
   urls:
