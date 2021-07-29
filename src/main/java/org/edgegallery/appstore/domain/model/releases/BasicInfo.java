@@ -34,7 +34,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -47,7 +46,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -403,8 +401,7 @@ public class BasicInfo {
             String mfFilePath = mfFile.getCanonicalPath();
             String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
             LOGGER.info("rewrite manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
-            String cmsEncrypted = signPackage(mfFilePath, keyPwd);
-            String content = buildManifestContent(parentDir, imgZipPath, cmsEncrypted);
+            String content = buildManifestContent(parentDir, imgZipPath);
             writeFile(mfFile, content);
         } catch (IOException e) {
             LOGGER.error("Exception while rewrite manifest file: {}", e.getMessage());
@@ -413,57 +410,7 @@ public class BasicInfo {
         }
     }
 
-    private String signPackage(String filePath, String keyPwd) {
-        if (!StringUtils.isEmpty(filePath)) {
-            List<String> rules = new ArrayList<>();
-            rules.add("[Ss]ource\\s*:");
-            rules.add("[Aa]lgorithm\\s*:");
-            rules.add("[Hh]ash\\s*:");
-            String in = readMatchLineContent(filePath, rules);
-            Signature signature = new Signature();
-            Optional<byte[]> signBytes = signature.signMessage(in.trim(), keyPath, keyPwd);
-            if (signBytes.isPresent()) {
-                return new String(signBytes.get(), StandardCharsets.UTF_8);
-            } else {
-                throw new AppException("sign package failed.", ResponseConst.RET_SIGN_PACKAGE_FAILED);
-            }
-        }
-        return "";
-    }
-
-    private String readMatchLineContent(String filePath, List<String> rules) {
-        LineIterator lineIterator;
-        StringBuilder result = new StringBuilder();
-        try (InputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(filePath));
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-            lineIterator = new LineIterator(bufferedReader);
-            String line;
-            while (lineIterator.hasNext()) {
-                line = lineIterator.next();
-                if (StringUtils.isEmpty(line) || canLineMatch(line, rules)) {
-                    line += "\\n";
-                    result.append(line);
-                }
-            }
-        } catch (IOException e) {
-            throw new AppException("Exception while read manifest file.",
-                ResponseConst.RET_PARSE_FILE_EXCEPTION, filePath);
-        }
-        return result.toString().trim();
-    }
-
-    private boolean canLineMatch(String line, List<String> rules) {
-        String normalizeLine = Normalizer.normalize(line, Normalizer.Form.NFKC);
-        for (String rule : rules) {
-            if (normalizeLine.matches(rule) || normalizeLine.split(rule).length > 1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String buildManifestContent(String parentDir, String imageFullPath, String cmsEncrypted) {
+    private String buildManifestContent(String parentDir, String imageFullPath) {
         StringBuilder content = new StringBuilder().append(MF_META).append(MF_NEWLINE);
         content.append(MF_PRODUCT_NAME).append(MF_SEPARATOR).append(appName).append(MF_NEWLINE)
             .append(MF_PROVIDER_META).append(MF_SEPARATOR).append(provider).append(MF_NEWLINE)
@@ -471,11 +418,11 @@ public class BasicInfo {
             .append(MF_TIME_META).append(MF_SEPARATOR).append(appReleaseTime).append(MF_NEWLINE)
             .append(MF_TYPE_META).append(MF_SEPARATOR).append(appType).append(MF_NEWLINE)
             .append(MF_CLASS_META).append(MF_SEPARATOR).append(appClass).append(MF_NEWLINE)
-            .append(MF_DESC_META).append(MF_SEPARATOR).append(appDesc).append(MF_NEWLINE)
-            .append(MF_NEWLINE);
+            .append(MF_DESC_META).append(MF_SEPARATOR).append(appDesc).append(MF_NEWLINE);
+        StringBuilder srcMsg = new StringBuilder().append(MF_NEWLINE);
         for (String source : sources) {
             String sourceFilePath = parentDir + File.separator + source;
-            content.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(source).append(MF_NEWLINE)
+            srcMsg.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(source).append(MF_NEWLINE)
                 .append(MF_ALGORITHM_CHECK).append(MF_SEPARATOR).append(hashAlgorithm).append(MF_NEWLINE)
                 .append(MF_HASH_CHECK).append(MF_SEPARATOR).append(getHashValue(sourceFilePath)).append(MF_NEWLINE)
                 .append(MF_NEWLINE);
@@ -483,16 +430,29 @@ public class BasicInfo {
         if (!StringUtils.isEmpty(imageFullPath)) {
             String imageSourceFile = imageFullPath.substring(parentDir.length() + 1);
             if (!sources.contains(imageSourceFile)) {
-                content.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(imageSourceFile).append(MF_NEWLINE)
+                srcMsg.append(MF_SOURCE_CHECK).append(MF_SEPARATOR).append(imageSourceFile).append(MF_NEWLINE)
                     .append(MF_ALGORITHM_CHECK).append(MF_SEPARATOR).append(hashAlgorithm).append(MF_NEWLINE)
-                    .append(MF_HASH_CHECK).append(MF_SEPARATOR).append(getHashValue(imageFullPath)).append(MF_NEWLINE)
-                    .append(MF_NEWLINE);
+                    .append(MF_HASH_CHECK).append(MF_SEPARATOR).append(getHashValue(imageFullPath)).append(MF_NEWLINE);
             }
         }
-        content.append("-----BEGIN CMS-----").append(MF_NEWLINE)
-            .append(cmsEncrypted).append(MF_NEWLINE)
-            .append("-----END CMS-----").append(MF_NEWLINE);
+        content.append(srcMsg.toString());
+
+        // add signature
+        // String cmsEncrypted = signPackage(srcMsg.toString());
+        // content.append(MF_NEWLINE).append("-----BEGIN CMS-----").append(MF_NEWLINE)
+        //     .append(cmsEncrypted).append(MF_NEWLINE)
+        //     .append("-----END CMS-----").append(MF_NEWLINE);
         return content.toString();
+    }
+
+    private String signPackage(String srcMsg) {
+        Signature signature = new Signature();
+        Optional<byte[]> signBytes = signature.signMessage(srcMsg.trim(), keyPath, keyPwd);
+        if (signBytes.isPresent()) {
+            return new String(signBytes.get(), StandardCharsets.UTF_8);
+        } else {
+            throw new AppException("sign package failed.", ResponseConst.RET_SIGN_PACKAGE_FAILED);
+        }
     }
 
     private String getHashValue(String sourceFilePath) {
