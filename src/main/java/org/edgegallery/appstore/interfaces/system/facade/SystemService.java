@@ -133,7 +133,6 @@ public class SystemService {
         int ret = hostMapper.createHost(host);
         if (ret <= 0) {
             LOGGER.error("Create host failed ");
-            new ErrorMessage(ResponseConst.RET_FAIL, null);
             throw new EntityNotFoundException("Can not create a host.", ResponseConst.CREATE_HOST_ERROR);
         }
         LOGGER.info("Crete host {} success ", host.getHostId());
