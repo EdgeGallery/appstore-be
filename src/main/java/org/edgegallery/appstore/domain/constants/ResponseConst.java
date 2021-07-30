@@ -338,6 +338,11 @@ public class ResponseConst {
     public static final int RET_FILE_PATH_INVALID = 19006;
 
     /**
+     * Upload config file error.
+     */
+    public static final int UPLOAD_CONFIG_FILE_ERROR = 19017;
+
+    /**
      * please register host.
      */
     public static final int HOST_EMPTY_ERROR = 19018;
