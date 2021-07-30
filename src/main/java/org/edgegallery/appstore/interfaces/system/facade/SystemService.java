@@ -106,7 +106,6 @@ public class SystemService {
     public Either<ResponseObject, Boolean> createHost(MepCreateHost host, String token) {
         ErrorMessage errMsg = null;
         if (StringUtils.isBlank(host.getUserId())) {
-            new ErrorMessage(ResponseConst.RET_FAIL, null);
             LOGGER.error("Create host failed, userId is empty");
             throw new EntityNotFoundException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
         }
