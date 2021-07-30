@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -217,7 +218,9 @@ public class SystemService {
             return Either.right(host);
         } else {
             LOGGER.error("Can not find host by {}", hostId);
-            throw new HostException("Can not find host", ResponseConst.USERID_IS_EMPTY);
+            ErrorMessage errMsg = new ErrorMessage(Response.Status.BAD_REQUEST.getStatusCode(), null);
+            ResponseObject error = new ResponseObject(null, errMsg, "Can not find the host.");
+            return Either.left(error);
         }
     }
 
