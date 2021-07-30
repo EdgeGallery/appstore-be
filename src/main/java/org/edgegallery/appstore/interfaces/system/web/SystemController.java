@@ -31,6 +31,7 @@ import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
@@ -93,7 +94,7 @@ public class SystemController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
         @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
-        Either<FormatRespDto, MepHost> either = systemService.getHost(hostId);
+        Either<ResponseObject, MepHost> either = systemService.getHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -114,7 +115,7 @@ public class SystemController {
         @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepCreateHost host,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = systemService.createHost(host, token);
+        Either<ResponseObject, Boolean> either = systemService.createHost(host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -133,7 +134,7 @@ public class SystemController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
         @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
-        Either<FormatRespDto, Boolean> either = systemService.deleteHost(hostId);
+        Either<ResponseObject, Boolean> either = systemService.deleteHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -154,7 +155,7 @@ public class SystemController {
         @PathVariable("hostId") @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
         @Validated @RequestBody MepCreateHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = systemService.updateHost(hostId, host, token);
+        Either<ResponseObject, Boolean> either = systemService.updateHost(hostId, host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -173,7 +174,7 @@ public class SystemController {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REG_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = systemService.uploadFile(userId, uploadFile);
+        Either<ResponseObject, UploadedFile> either = systemService.uploadFile(userId, uploadFile);
         return ResponseDataUtil.buildResponse(either);
     }
 

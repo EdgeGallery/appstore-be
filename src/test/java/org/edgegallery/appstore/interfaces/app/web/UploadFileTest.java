@@ -17,6 +17,7 @@ package org.edgegallery.appstore.interfaces.app.web;
 
 import com.spencerwi.either.Either;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
@@ -54,7 +55,7 @@ public class UploadFileTest extends AppTest {
         File file = ResourceUtils.getFile("classpath:testfile/logo.png");
         FileInputStream fileInputStream = new FileInputStream(file);
         MultipartFile multipartFile = new MockMultipartFile(file.getName(), "originalFilename", "", fileInputStream);
-        Either<FormatRespDto, UploadedFile> res = systemService.uploadFile("e111f3e7-90d8-4a39-9874-ea6ea6752edd", multipartFile);
+        Either<ResponseObject, UploadedFile> res = systemService.uploadFile("e111f3e7-90d8-4a39-9874-ea6ea6752edd", multipartFile);
         Assert.assertTrue(res.isRight());
     }
 
@@ -64,7 +65,7 @@ public class UploadFileTest extends AppTest {
         File file = ResourceUtils.getFile("classpath:testfile/logo.png");
         FileInputStream fileInputStream = new FileInputStream(file);
         MultipartFile multipartFile = new MockMultipartFile(file.getName(),fileInputStream);
-        Either<FormatRespDto, UploadedFile> res = systemService.uploadFile("e111f3e7-90d8-4a39-9874-ea6ea6752edd", multipartFile);
+        Either<ResponseObject, UploadedFile> res = systemService.uploadFile("e111f3e7-90d8-4a39-9874-ea6ea6752edd", multipartFile);
         Assert.assertTrue(res.isLeft());
     }
 }

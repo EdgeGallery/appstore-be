@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
 import org.junit.After;
@@ -61,7 +62,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithNullUserName() {
-        Either<FormatRespDto, Boolean> res = systemService.createHost(new MepCreateHost(), "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(new MepCreateHost(), "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -77,7 +78,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -93,7 +94,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -110,7 +111,7 @@ public class SystemServiceTest {
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -128,7 +129,7 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -136,14 +137,14 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testDeleteHostWithErrorId() {
-        Either<FormatRespDto, Boolean> res = systemService.deleteHost("hostId");
+        Either<ResponseObject, Boolean> res = systemService.deleteHost("hostId");
         Assert.assertTrue(res.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteHostSuccess() {
-        Either<FormatRespDto, Boolean> res = systemService.deleteHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7");
+        Either<ResponseObject, Boolean> res = systemService.deleteHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7");
         Assert.assertTrue(res.isRight());
     }
 
@@ -160,7 +161,7 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
+        Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
@@ -177,21 +178,21 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
+        Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testGetHostError() {
-        Either<FormatRespDto, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789");
+        Either<ResponseObject, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789");
         Assert.assertTrue(res.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testGetHostSuccess() {
-        Either<FormatRespDto, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cdd");
+        Either<ResponseObject, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cdd");
         Assert.assertTrue(res.isRight());
     }
 

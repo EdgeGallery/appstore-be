@@ -32,7 +32,7 @@ public interface HostMapper {
     MepHost getHost(String hostId);
 
     List<MepHost> getHostsByCondition(@Param("name") String name,
-        @Param("ip") String ip);
+        @Param("ip") String ip, @Param("os") String os);
 
 }
 

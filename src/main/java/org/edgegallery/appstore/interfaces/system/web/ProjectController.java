@@ -27,7 +27,6 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
@@ -102,8 +101,7 @@ public class ProjectController {
         @ApiParam(value = "name") @RequestParam("name") String name,
         @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(packageId, name, ip, token);
-
+        Either<ResponseObject, Boolean> either = projectService.cleanTestEnv(packageId, name, ip, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

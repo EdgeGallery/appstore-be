@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
@@ -68,6 +69,7 @@ public final class HttpClientUtil {
         String protocol = mepHost.getProtocol();
         String ip = mepHost.getLcmIp();
         int port = mepHost.getPort();
+        Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
         //before instantiate, call distribute result interface
         String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
         if (StringUtils.isEmpty(disRes)) {
@@ -87,6 +89,7 @@ public final class HttpClientUtil {
         InstantRequest ins = new InstantRequest();
         ins.setAppName(appName);
         ins.setHostIp(mepHost.getMecHost());
+        ins.setParameters(inputParams);
         ins.setPackageId(pkgId);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);

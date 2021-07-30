@@ -63,7 +63,6 @@ import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
-import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +82,20 @@ public class ProjectService {
     private static final String COLON = ":";
 
     private static final int GET_WORKSTATUS_WAIT_TIME = 5;
+
+    private static final String CONTAINER = "container";
+
+    private static final String VM = "vm";
+
+    private static final String K8S = "K8S";
+
+    private static final String OPENSTACK = "OpenStack";
+
+    private static final String VM_EXPERIENCE_IP  = "app_n6_ip";
+
+    private static final String VM_SEMICOLON = ";";
+
+    private static final String VM_EQUAL = "=";
 
     private static final CookieStore cookieStore = new BasicCookieStore();
 
@@ -175,6 +188,12 @@ public class ProjectService {
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         LOGGER.info("upload res {}", uploadRes);
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
@@ -191,7 +210,7 @@ public class ProjectService {
         LOGGER.info("distribute res {}", distributeRes);
         // instantiate application
         try {
-            Thread.sleep(3000);
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
@@ -208,12 +227,12 @@ public class ProjectService {
     /**
      * cleanTestEnv.
      */
-    public Either<FormatRespDto, Boolean> cleanTestEnv(String packageId, String name, String ip, String token) {
+    public Either<ResponseObject, Boolean> cleanTestEnv(String packageId, String name, String ip, String token) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         String instanceTenentId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
+        List<MepHost> mapHosts = judgeHost(name, ip, appReleasePo.getDeployMode());
         if (CollectionUtils.isEmpty(mapHosts)) {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(false);
@@ -222,6 +241,18 @@ public class ProjectService {
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
         return Either.right(cleanResult);
+    }
+
+    public List<MepHost> judgeHost(String name, String ip, String deployMode) {
+        String os = "";
+        List<MepHost> mapHosts = null;
+        if (deployMode.equals(CONTAINER)) {
+            os = K8S;
+        } else {
+            os = OPENSTACK;
+        }
+        mapHosts = hostMapper.getHostsByCondition(name, ip, os);
+        return mapHosts;
     }
 
     /**
@@ -288,15 +319,14 @@ public class ProjectService {
         String ip, String token) {
         String showInfo = "";
         LcmLog lcmLog = new LcmLog();
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
+        AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
+        List<MepHost> mapHosts = judgeHost(name, ip, appReleasePo.getDeployMode());
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         }
-
         LOGGER.info("Get all hosts success.");
         String instanceTenentId = userId;
-        AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         Release release = packageRepository.findReleaseById(appId, packageId);
         String filePath = release.getPackageFile().getStorageAddress();
         String appInstanceId = appReleasePo.getAppInstanceId();
@@ -315,31 +345,56 @@ public class ProjectService {
             appReleasePo.setStartExpTime(time.format(new Date()));
             packageMapper.updateAppInstanceApp(appReleasePo);
         }
+        //If it is a vm package, it will get the IP in parameter and return it to the foreground
+        String serviceName = "";
+        String nodePort = "";
+        String mecHost = "";
+        if (appReleasePo.getDeployMode().equals(CONTAINER)) {
+            int from = getMinute(new Date());
+            String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+            int to;
+            while (StringUtils.isEmpty(workStatus)) {
+                try {
+                    Thread.sleep(3000);
+                    workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+                } catch (InterruptedException e) {
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                    Thread.currentThread().interrupt();
+                }
+                to = getMinute(new Date());
+                if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
+                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
+                }
+            }
+            if (!StringUtils.isEmpty(workStatus)) {
+                serviceName = getServiceName(workStatus);
+                nodePort = String.valueOf(getNodePort(workStatus));
+                mecHost = mapHosts.get(0).getMecHost();
 
-        int from = getMinute(new Date());
-        String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-        int to;
-        while (StringUtils.isEmpty(workStatus)) {
-            try {
-                Thread.sleep(3000);
-                workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-            } catch (InterruptedException e) {
-                LOGGER.error("sleep fail! {}", e.getMessage());
-                Thread.currentThread().interrupt();
             }
-            to = getMinute(new Date());
-            if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
-            }
+        } else {
+            serviceName = appReleasePo.getAppName();
+            mecHost = getVmExperienceIp(mapHosts.get(0).getParameter());
         }
-        if (!StringUtils.isEmpty(workStatus)) {
-            String serviceName = getServiceName(workStatus);
-            String nodePort = String.valueOf(getNodePort(workStatus));
-            String mecHost = mapHosts.get(0).getMecHost();
-            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
-        }
+        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
+    }
+
+    /**
+     * get vm experience ip.
+     *
+     * @param parameter mapHost parameter.
+     * @return
+     */
+    private String getVmExperienceIp(String parameter) {
+        String[] parameters = parameter.split("VM_SEMICOLON ");
+        for (String vmIp : parameters) {
+            if (vmIp.contains(VM_EXPERIENCE_IP)) {
+                return vmIp.substring(vmIp.lastIndexOf("VM_EQUAL") + 1);
+            }
+        }
+        return null;
     }
 
     /**
@@ -355,26 +410,35 @@ public class ProjectService {
         String token) {
         String workStatus = "";
         String showInfo = "";
-        List<MepHost> mapHosts = hostMapper.getHostsByCondition(name, ip);
+        String serviceName = "";
+        String nodePort = "";
+        String mecHost = "";
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
+        AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
+        List<MepHost> mapHosts = judgeHost(name, ip, appReleasePo.getDeployMode());
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
-            AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
-            String appInstanceId = appReleasePo.getAppInstanceId();
-            if (StringUtils.isEmpty(appInstanceId) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(token)) {
+            //If the VM application is not released, you can determine whether the vm application is released by checking whether the instance ID is empty
+            // If the appInstanceId is null for a vm application, the appInstanceId is released
+            if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils
+                .isEmpty(token)) {
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this pacakge not instantiate"));
             }
-            workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-
+            if (appReleasePo.getDeployMode().equals(VM)) {
+                serviceName = appReleasePo.getAppName();
+                mecHost = getVmExperienceIp(mapHosts.get(0).getParameter());
+            } else {
+                workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mapHosts.get(0), token);
+            }
         }
         if (StringUtils.isNotEmpty(workStatus)) {
-            String serviceName = getServiceName(workStatus);
-            String nodePort = String.valueOf(getNodePort(workStatus));
-            String mecHost = mapHosts.get(0).getMecHost();
-            showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
+            serviceName = getServiceName(workStatus);
+            nodePort = String.valueOf(getNodePort(workStatus));
+            mecHost = mapHosts.get(0).getMecHost();
         }
+        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
     }

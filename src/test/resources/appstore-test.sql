@@ -137,7 +137,7 @@ drop table IF EXISTS message_table;
       port_range_max INTEGER DEFAULT 0,
       port INTEGER DEFAULT 0,
       vnc_port INTEGER DEFAULT NULL,
-      parameter VARCHAR(500) DEFAULT 22,
+      parameter text DEFAULT NULL,
       delete boolean DEFAULT NULL
     )
 

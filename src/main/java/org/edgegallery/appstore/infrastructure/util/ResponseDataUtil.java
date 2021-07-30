@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.util;
 
 import com.spencerwi.either.Either;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.springframework.http.ResponseEntity;
 
 public final class ResponseDataUtil {
@@ -30,10 +31,10 @@ public final class ResponseDataUtil {
      *
      * @return
      */
-    public static <T> ResponseEntity<T> buildResponse(Either<FormatRespDto, T> either) {
+    public static <T> ResponseEntity<T> buildResponse(Either<ResponseObject, T> either) {
         if (either.isLeft()) {
-            throw new InvocationException(either.getLeft().getEnumStatus().getStatusCode(),
-                either.getLeft().getEnumStatus().getReasonPhrase(), either.getLeft().getErrorRespDto().getDetail());
+            throw new InvocationException(either.getLeft().getRetCode(),
+                either.getLeft().getMessage(), either.getLeft().getData());
         }
         return ResponseEntity.ok(either.getRight());
     }
