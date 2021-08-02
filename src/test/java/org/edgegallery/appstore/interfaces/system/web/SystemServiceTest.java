@@ -23,12 +23,13 @@ import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,6 +52,9 @@ public class SystemServiceTest {
     public void after() {
         System.out.println("test over");
     }
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -129,16 +133,18 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
+        expectedEx.expectMessage( "add mec host to lcm fail.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
+        // Assert.assertTrue(res.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testDeleteHostWithErrorId() {
+        expectedEx.expectMessage( "Delete host failed.");
         Either<ResponseObject, Boolean> res = systemService.deleteHost("hostId");
-        Assert.assertTrue(res.isLeft());
+        // Assert.assertTrue(res.isLeft());
     }
 
     @Test
@@ -178,6 +184,7 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
+        expectedEx.expectMessage( "health check faild,current ip or port cann't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
         Assert.assertTrue(res.isLeft());
     }
