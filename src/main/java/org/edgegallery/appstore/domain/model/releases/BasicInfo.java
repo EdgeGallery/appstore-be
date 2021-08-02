@@ -53,7 +53,6 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.util.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @Setter
@@ -136,12 +135,6 @@ public class BasicInfo {
     private String fileStructure;
 
     private String markDownContent;
-
-    @Value("${appstore-be.encrypted-private-key-path:}")
-    private String keyPath;
-
-    @Value("${appstore-be.private-key-password:}")
-    private String keyPwd;
 
     public BasicInfo() {
         // empty construct function
@@ -395,13 +388,13 @@ public class BasicInfo {
      * rewrite manifest file with image zip file.
      *
      */
-    public void rewriteManifestWithImage(File mfFile, String imgZipPath) {
+    public void rewriteManifestWithImage(File mfFile, String imgZipPath, String keyPath, String keyPwd) {
         try {
             readManifest(mfFile);
             String mfFilePath = mfFile.getCanonicalPath();
             String parentDir = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
             LOGGER.info("rewrite manifest file, mfFilePath {}, parentDir {}", mfFilePath, parentDir);
-            String content = buildManifestContent(parentDir, imgZipPath);
+            String content = buildManifestContent(parentDir, imgZipPath, keyPath, keyPwd);
             writeFile(mfFile, content);
         } catch (IOException e) {
             LOGGER.error("Exception while rewrite manifest file: {}", e.getMessage());
@@ -410,7 +403,7 @@ public class BasicInfo {
         }
     }
 
-    private String buildManifestContent(String parentDir, String imageFullPath) {
+    private String buildManifestContent(String parentDir, String imageFullPath, String keyPath, String keyPwd) {
         StringBuilder content = new StringBuilder().append(MF_META).append(MF_NEWLINE);
         content.append(MF_PRODUCT_NAME).append(MF_SEPARATOR).append(appName).append(MF_NEWLINE)
             .append(MF_PROVIDER_META).append(MF_SEPARATOR).append(provider).append(MF_NEWLINE)
@@ -438,14 +431,14 @@ public class BasicInfo {
         content.append(srcMsg.toString());
 
         // add signature
-        // String cmsEncrypted = signPackage(srcMsg.toString());
-        // content.append(MF_NEWLINE).append("-----BEGIN CMS-----").append(MF_NEWLINE)
-        //     .append(cmsEncrypted).append(MF_NEWLINE)
-        //     .append("-----END CMS-----").append(MF_NEWLINE);
+        String cmsEncrypted = signPackage(srcMsg.toString(), keyPath, keyPwd);
+        content.append(MF_NEWLINE).append("-----BEGIN CMS-----").append(MF_NEWLINE)
+            .append(cmsEncrypted).append(MF_NEWLINE)
+            .append("-----END CMS-----").append(MF_NEWLINE);
         return content.toString();
     }
 
-    private String signPackage(String srcMsg) {
+    private String signPackage(String srcMsg, String keyPath, String keyPwd) {
         Signature signature = new Signature();
         Optional<byte[]> signBytes = signature.signMessage(srcMsg.trim(), keyPath, keyPwd);
         if (signBytes.isPresent()) {
