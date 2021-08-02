@@ -153,13 +153,11 @@ public class AtpUtil {
         // the delete and query task URL is the same, just method is different.
         String url = String.format(queryTaskUrl, taskId);
         LOGGER.info("delete test report frm atp, url: {}", url);
-        String status = null;
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to delete test report from atp response, the taskId is {}, The status code is {}",
                     taskId, response.getStatusCode());
-                return;
             }
 
         } catch (RestClientException | NullPointerException e) {
