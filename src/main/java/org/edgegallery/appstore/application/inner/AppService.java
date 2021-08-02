@@ -576,6 +576,7 @@ public class AppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void unPublishPackage(String appId, String packageId, User user, String token) {
+        LOGGER.info("unPublishPackage appId {}, packageId {}", appId, packageId);
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
@@ -640,6 +641,7 @@ public class AppService {
     }
 
     private void deleteTestReport(Release release, String token) {
+        LOGGER.info("deleteTestReport packageId {}", release.getPackageId());
         atpService.deleteTestReport(token, release.getTestTaskId());
     }
 
