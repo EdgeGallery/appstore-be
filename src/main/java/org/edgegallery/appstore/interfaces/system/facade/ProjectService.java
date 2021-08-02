@@ -244,7 +244,8 @@ public class ProjectService {
     }
 
     /**
-     * judge vm and container host
+     * judge vm and container host.
+     *
      * @param name host name.
      * @param ip host ip.
      * @param deployMode deployMode.

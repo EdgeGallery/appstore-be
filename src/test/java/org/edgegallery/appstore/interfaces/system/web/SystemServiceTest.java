@@ -66,6 +66,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithNullUserName() {
+        expectedEx.expectMessage( "Create host failed, userId is empty");
         Either<ResponseObject, Boolean> res = systemService.createHost(new MepCreateHost(), "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -82,6 +83,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
+        expectedEx.expectMessage( "Create host failed, userId is empty");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -98,6 +100,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
+        expectedEx.expectMessage( "Create host failed, userId is empty");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -115,6 +118,7 @@ public class SystemServiceTest {
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
         host.setUserId(UUID.randomUUID().toString());
+        expectedEx.expectMessage( "add mec host to lcm fail.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -167,6 +171,7 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
+        expectedEx.expectMessage( "health check faild,current ip or port cann't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
         Assert.assertTrue(res.isLeft());
     }
