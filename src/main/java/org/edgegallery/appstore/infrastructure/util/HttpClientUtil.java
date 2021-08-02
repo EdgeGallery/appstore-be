@@ -81,15 +81,15 @@ public final class HttpClientUtil {
         List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
         String appName = list.get(0).getAppPkgName();
         Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
         InstantRequest ins = new InstantRequest();
         ins.setParameters(inputParams);
         ins.setAppName(appName);
         ins.setHostIp(mepHost.getMecHost());
         ins.setPackageId(pkgId);
         LOGGER.warn(gson.toJson(ins));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
