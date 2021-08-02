@@ -587,6 +587,8 @@ public class AppService {
             unPublish(app, token);
         } else {
             packageRepository.removeRelease(release);
+            deletePullablePackage(release);
+            deleteTestReport(release, token);
             if (!app.hasPublishedRelease()) {
                 app.setStatus(EnumAppStatus.UnPublish);
                 appRepository.store(app);

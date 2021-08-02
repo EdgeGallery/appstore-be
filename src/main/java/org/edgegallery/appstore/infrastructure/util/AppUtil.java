@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -58,6 +57,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -93,6 +93,12 @@ public class AppUtil {
     private static final String DOWNLOAD_IMAGE_TAG = "/action/download";
 
     private static final String DOWNLOAD_ZIP_IMAGE = "?isZip=true";
+
+    @Value("${appstore-be.encrypted-key-path:}")
+    private String keyPath;
+
+    @Value("${appstore-be.key-password:}")
+    private String keyPwd;
 
     @Autowired
     private AppService appService;
@@ -294,7 +300,7 @@ public class AppUtil {
             try {
                 // add image zip to mf file
                 File mfFile = getFile(parentDir, "mf");
-                new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath);
+                new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath, keyPath, keyPwd);
 
                 // add image zip to TOSCA.meta file
                 String toscaMeta = parentDir + "/TOSCA-Metadata/TOSCA.meta";
