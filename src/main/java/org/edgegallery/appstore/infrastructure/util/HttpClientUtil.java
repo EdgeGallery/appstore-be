@@ -69,7 +69,6 @@ public final class HttpClientUtil {
         String protocol = mepHost.getProtocol();
         String ip = mepHost.getLcmIp();
         int port = mepHost.getPort();
-        Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
         //before instantiate, call distribute result interface
         String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
         if (StringUtils.isEmpty(disRes)) {
@@ -81,6 +80,7 @@ public final class HttpClientUtil {
         Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
         List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
         String appName = list.get(0).getAppPkgName();
+        Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

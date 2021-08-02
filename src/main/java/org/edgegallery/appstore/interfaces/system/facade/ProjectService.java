@@ -243,6 +243,13 @@ public class ProjectService {
         return Either.right(cleanResult);
     }
 
+    /**
+     * judge vm and container host
+     * @param name host name.
+     * @param ip host ip.
+     * @param deployMode deployMode.
+     * @return
+     */
     public List<MepHost> judgeHost(String name, String ip, String deployMode) {
         String os = "";
         List<MepHost> mapHosts = null;
@@ -420,7 +427,8 @@ public class ProjectService {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
-            //If the VM application is not released, you can determine whether the vm application is released by checking whether the instance ID is empty
+            //If the VM application is not released, you can determine whether the vm application is released
+            // by checking whether the instance ID is empty.
             // If the appInstanceId is null for a vm application, the appInstanceId is released
             if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils
                 .isEmpty(token)) {
