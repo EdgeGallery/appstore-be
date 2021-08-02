@@ -432,7 +432,7 @@ public class BasicInfo {
 
         // add signature
         String cmsEncrypted = signPackage(srcMsg.toString(), keyPath, keyPwd);
-        content.append(MF_NEWLINE).append("-----BEGIN CMS-----").append(MF_NEWLINE)
+        content.append("-----BEGIN CMS-----").append(MF_NEWLINE)
             .append(cmsEncrypted).append(MF_NEWLINE)
             .append("-----END CMS-----").append(MF_NEWLINE);
         return content.toString();
