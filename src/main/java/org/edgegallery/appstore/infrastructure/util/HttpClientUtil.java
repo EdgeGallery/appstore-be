@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
@@ -79,16 +80,16 @@ public final class HttpClientUtil {
         Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
         List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
         String appName = list.get(0).getAppPkgName();
-        //set instantiate headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        //set instantiate bodys
+        Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
         InstantRequest ins = new InstantRequest();
+        ins.setParameters(inputParams);
         ins.setAppName(appName);
         ins.setHostIp(mepHost.getMecHost());
         ins.setPackageId(pkgId);
         LOGGER.warn(gson.toJson(ins));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);

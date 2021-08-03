@@ -23,7 +23,9 @@ import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,9 +50,13 @@ public class DeployAppByIdTest extends AppTest {
         System.out.println("test over");
     }
 
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
+
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed_no_appInstanceId() {
+        expectedEx.expect(NullPointerException.class);
         ResponseEntity<ResponseObject> res  = projectService.deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1", "", "access_token");
         Assert.assertEquals(null, res.getBody().getMessage());
     }

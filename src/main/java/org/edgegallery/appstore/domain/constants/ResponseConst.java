@@ -337,6 +337,66 @@ public class ResponseConst {
      */
     public static final int RET_FILE_PATH_INVALID = 19006;
 
+    /**
+     * Upload config file error.
+     */
+    public static final int UPLOAD_CONFIG_FILE_ERROR = 15001;
+
+    /**
+     * please register host.
+     */
+    public static final int HOST_EMPTY_ERROR = 15002;
+
+    /**
+     * get app nodeport url failed.
+     */
+    public static final int GET_NODEPORT_FAILED = 15003;
+
+    /**
+     * this pacakge not instantiate.
+     */
+    public static final int NOT_INSTATIATE_ERROR = 15004;
+
+    /**
+     * Can not create a host.
+     */
+    public static final int CREATE_HOST_ERROR = 15005;
+
+    /**
+     * add mec host to lcm fail.
+     */
+    public static final int ADD_HOST_TO_LCM_FAILED = 15006;
+
+    /**
+     * userId is empty.
+     */
+    public static final int USERID_IS_EMPTY = 15007;
+
+    /**
+     * Can not find the host.
+     */
+    public static final int NOT_GET_HOST_ERROR = 15008;
+
+    /**
+     * delete host failed.
+     */
+    public static final int DELETE_HOST_FAILED = 15009;
+
+    /**
+     * health check faild,current ip or port cann't be used.
+     */
+    public static final int HEALTH_CHECK_FAILED = 15010;
+
+    /**
+     * file name is invalid.
+     */
+    public static final int RET_FILE_NAME_INVALID = 15011;
+
+    /**
+     * Can not update the host.
+     */
+    public static final int RET_UPDATE_HOST_FAILED = 15012;
+
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
     }

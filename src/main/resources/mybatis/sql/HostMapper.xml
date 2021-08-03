@@ -151,6 +151,9 @@
         <if test="name != null  and name != ''">
             and name like CONCAT('%',#{name},'%')
         </if>
+        <if test="os != null and os != ''">
+            and os = #{os}
+        </if>
     </select>
 
 </mapper>

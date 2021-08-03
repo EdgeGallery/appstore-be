@@ -27,18 +27,24 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.domain.shared.exceptions.HostException;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
 import org.edgegallery.appstore.infrastructure.util.AppStoreFileUtils;
 import org.edgegallery.appstore.infrastructure.util.BusinessConfigUtil;
 import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
-import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -52,6 +58,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -81,29 +88,33 @@ public class SystemService {
     }
 
     /**
-     * getALlHosts.
-     *
+     * getAllHosts.
+     * @param name name.
+     * @param ip ip.
+     * @return
      */
     public List<MepHost> getAllHosts(String name, String ip) {
         LOGGER.info("Get all hosts success.");
-        return hostMapper.getHostsByCondition(name, ip);
+        return hostMapper.getHostsByCondition(name, ip, "");
     }
 
     /**
      * createHost.
      *
+     * @return
      */
-    public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
+    @Transactional
+    public Either<ResponseObject, Boolean> createHost(MepCreateHost host, String token) {
+        ErrorMessage errMsg = null;
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId is empty"));
+            throw new EntityNotFoundException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
         }
         boolean addMecHostRes = addMecHostToLcm(host);
         if (!addMecHostRes) {
             String msg = "add mec host to lcm fail";
             LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            throw new EntityNotFoundException("add mec host to lcm fail.", ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
@@ -113,31 +124,33 @@ public class SystemService {
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
-                FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-                return Either.left(dto);
+                throw new EntityNotFoundException("Create host failed,upload config file error.",
+                    ResponseConst.UPLOAD_CONFIG_FILE_ERROR);
             }
         }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setVncPort(VNC_PORT);
         int ret = hostMapper.createHost(host);
-        if (ret > 0) {
-            LOGGER.info("Crete host {} success ", host.getHostId());
-            return Either.right(true);
+        if (ret <= 0) {
+            LOGGER.error("Create host failed ");
+            throw new EntityNotFoundException("Can not create a host.", ResponseConst.CREATE_HOST_ERROR);
         }
-        LOGGER.error("Create host failed ");
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a host."));
+        LOGGER.info("Crete host {} success ", host.getHostId());
+        return Either.right(true);
+
     }
 
     /**
      * deleteHost.
      *
+     * @return
      */
-    public Either<FormatRespDto, Boolean> deleteHost(String hostId) {
+    @Transactional
+    public Either<ResponseObject, Boolean> deleteHost(String hostId) {
         int res = hostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete failed.");
-            return Either.left(error);
+            throw new EntityNotFoundException("Delete host failed.", ResponseConst.DELETE_HOST_FAILED);
         }
         LOGGER.info("Delete host {} success", hostId);
         return Either.right(true);
@@ -146,23 +159,24 @@ public class SystemService {
     /**
      * updateHost.
      *
+     * @return
      */
-    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
+    @Transactional
+    public Either<ResponseObject, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (healRes == null) {
-            String msg = "health check faild,current ip or port cann't be used!";
+            String msg = "health check faild,current ip or port cann't be used.";
             LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            throw new HostException("health check faild,current ip or port cann't be used.",
+                ResponseConst.HEALTH_CHECK_FAILED);
         }
         // add mechost to lcm
         boolean addMecHostRes = addMecHostToLcm(host);
         if (!addMecHostRes) {
             String msg = "add mec host to lcm fail";
             LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            throw new HostException("add mec host to lcm fail.", ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
@@ -171,15 +185,14 @@ public class SystemService {
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
-                FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-                return Either.left(dto);
+                throw new HostException("Create host failed,upload config file error.",
+                    ResponseConst.UPLOAD_CONFIG_FILE_ERROR);
             }
         }
         MepHost currentHost = hostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Can not find the host.");
-            return Either.left(error);
+            throw new HostException("Can not find the host.}", ResponseConst.NOT_GET_HOST_ERROR);
         }
 
         host.setHostId(hostId); // no need to set hostId by user
@@ -190,21 +203,23 @@ public class SystemService {
             return Either.right(true);
         }
         LOGGER.error("Update host {} failed", hostId);
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update the host"));
+        throw new HostException("Can not update the host.", ResponseConst.RET_UPDATE_HOST_FAILED);
     }
 
     /**
      * getHost.
      *
+     * @return
      */
-    public Either<FormatRespDto, MepHost> getHost(String hostId) {
+    public Either<ResponseObject, MepHost> getHost(String hostId) {
         MepHost host = hostMapper.getHost(hostId);
         if (host != null) {
             LOGGER.info("Get host {} success", hostId);
             return Either.right(host);
         } else {
             LOGGER.error("Can not find host by {}", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Can not find the host.");
+            ErrorMessage errMsg = new ErrorMessage(Response.Status.BAD_REQUEST.getStatusCode(), null);
+            ResponseObject error = new ResponseObject(null, errMsg, "Can not find the host.");
             return Either.left(error);
         }
     }
@@ -273,14 +288,15 @@ public class SystemService {
     /**
      * uploadFile.
      *
+     * @return
      */
-    public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
+    public Either<ResponseObject, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
         LOGGER.info("Begin upload file");
         UploadedFile result = new UploadedFile();
         String fileName = uploadFile.getOriginalFilename();
         if (!AbstractFileChecker.isValid(fileName)) {
             LOGGER.error("File Name is invalid.");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "File Name is invalid."));
+            throw new IllegalRequestException("File Name is invalid.", ResponseConst.RET_FILE_NAME_INVALID);
         }
         String fileId = UUID.randomUUID().toString();
         String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
@@ -289,7 +305,7 @@ public class SystemService {
         if (!dir.isDirectory()) {
             boolean isSuccess = dir.mkdirs();
             if (!isSuccess) {
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "make file dir failed"));
+                throw new FileOperateException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
             }
         }
 
@@ -305,7 +321,7 @@ public class SystemService {
             uploadedFileMapper.saveFile(result);
         } catch (IOException e) {
             LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Failed to save file."));
+            throw new FileOperateException("save file exception.", ResponseConst.RET_SAVE_FILE_EXCEPTION);
         }
         LOGGER.info("upload file success {}", fileName);
         //upload success
