@@ -646,7 +646,7 @@ public class AppService {
     }
 
     private void deleteTestReport(Release release, String token) {
-        LOGGER.info("deleteTestReport packageId {}", release.getPackageId());
+        LOGGER.info("deleteTestReport packageId come in");
         atpService.deleteTestReport(token, release.getTestTaskId());
     }
 
