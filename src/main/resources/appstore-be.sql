@@ -26,7 +26,7 @@
         INSTANCETENENTID         VARCHAR(100)       NULL,
         INSTANCEPACKAGEID        VARCHAR(255)       NULL,
         EXPERIENCEABLE           boolean            DEFAULT false,
-        TRYSTART                 VARCHAR(100)       NULL,
+        STARTEXPTIME             VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 

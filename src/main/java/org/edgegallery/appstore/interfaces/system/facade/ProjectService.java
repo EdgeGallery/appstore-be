@@ -284,23 +284,24 @@ public class ProjectService {
     private boolean deleteDeployApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
 
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            // delete hosts
-            boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getLcmIp());
-
+            HttpClientUtil.
+                terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error("sleep fail! {}", e.getMessage());
+            }
             // delete pkg
             boolean deletePkgRes = HttpClientUtil
                 .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId);
+            // delete hosts
+            boolean deleteHostRes = HttpClientUtil
+                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getLcmIp());
             if (!deleteHostRes || !deletePkgRes) {
                 return false;
             }
         }
-        if (StringUtils.isNotEmpty(appInstanceId)) {
-            return HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
-                    token);
-        }
-
         return true;
     }
 
