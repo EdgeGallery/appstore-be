@@ -32,7 +32,6 @@ import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.infrastructure.util.FormatRespDto;
 import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
