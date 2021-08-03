@@ -583,12 +583,17 @@ public class AppService {
             .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
         release.checkPermission(user);
 
+        LOGGER.info("unPublishPackage appId test 1111");
         app.unPublish(release);
         if (app.getReleases().isEmpty()) {
+            LOGGER.info("unPublishPackage appId test 2222");
             unPublish(app, token);
         } else {
+            LOGGER.info("unPublishPackage appId test 3333");
             packageRepository.removeRelease(release);
+            LOGGER.info("unPublishPackage appId test 4444");
             deletePullablePackage(release);
+            LOGGER.info("unPublishPackage appId test 5555");
             deleteTestReport(release, token);
             if (!app.hasPublishedRelease()) {
                 app.setStatus(EnumAppStatus.UnPublish);
