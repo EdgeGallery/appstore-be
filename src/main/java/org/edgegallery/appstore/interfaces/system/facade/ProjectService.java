@@ -396,10 +396,10 @@ public class ProjectService {
      * @return
      */
     private String getVmExperienceIp(String parameter) {
-        String[] parameters = parameter.split("VM_SEMICOLON ");
+        String[] parameters = parameter.split(VM_SEMICOLON);
         for (String vmIp : parameters) {
             if (vmIp.contains(VM_EXPERIENCE_IP)) {
-                return vmIp.substring(vmIp.lastIndexOf("VM_EQUAL") + 1);
+                return vmIp.substring(vmIp.lastIndexOf(VM_EQUAL) + 1);
             }
         }
         return null;
