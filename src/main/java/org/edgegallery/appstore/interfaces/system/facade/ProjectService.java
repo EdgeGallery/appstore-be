@@ -17,6 +17,8 @@
 package org.edgegallery.appstore.interfaces.system.facade;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -35,6 +37,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
@@ -64,6 +67,8 @@ import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
+import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +87,16 @@ public class ProjectService {
     private static final String COLON = ":";
 
     private static final int GET_WORKSTATUS_WAIT_TIME = 5;
+
+    private static final int GET_TEMINATE_RESULT_TIME = 2;
+
+    private static final int STATUS_FAILED = 500;
+
+    private static final int STATUS_SUCCESS = 200;
+
+    private static final int IP_COUNT = 0;
+
+    private static final int IP_COUNT_INCREASE = 1;
 
     private static final String CONTAINER = "container";
 
@@ -195,16 +210,20 @@ public class ProjectService {
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         LOGGER.info("upload res {}", uploadRes);
+        JsonObject jsonObject = new JsonParser().parse(uploadRes).getAsJsonObject();
+        JsonElement uploadData = jsonObject.get("data");
+        Map<String, String> inputParams = getInputParams(mepHost.getParameter(), mepHost.getMecHost());
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
-        UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
+        UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
+        appReleasePo.setExperienceableIp(inputParams.get(VM_EXPERIENCE_IP));
         packageMapper.updateAppInstanceApp(appReleasePo);
         // distribute pkg
         boolean distributeRes = HttpClientUtil.distributePkg(mepHost, userId, token, pkgId, lcmLog);
         if (!distributeRes) {
-            cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
+            cleanTestEnv(packageId, mepHost.getName(), mepHost.getMecHost(), token);
             return false;
         }
         LOGGER.info("distribute res {}", distributeRes);
@@ -215,7 +234,9 @@ public class ProjectService {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        boolean instantRes = HttpClientUtil.instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId);
+
+        boolean instantRes = HttpClientUtil.
+            instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId, inputParams);
         if (!instantRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -223,6 +244,31 @@ public class ProjectService {
         LOGGER.info("after instant {}", instantRes);
         return true;
     }
+
+    /**
+     * get instantiate parameter.
+     * @param parameter parameter.
+     * @param mecHost mecHost.
+     * @return
+     */
+    private  Map<String, String> getInputParams(String parameter, String mecHost) {
+        int count = hostMapper.getHostLogCount(mecHost);
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
+        String n6Range = vmInputParams.get("app_n6_ip");
+        String mepRange = vmInputParams.get("app_mp1_ip");
+        String internetRange = vmInputParams.get("app_internet_ip");
+        vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
+        vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
+        vmInputParams.put("app_n6_mask",IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
+        vmInputParams.put("app_mp1_mask",IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
+        vmInputParams.put("app_internet_mask",IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
+        vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
+        vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
+        vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        return vmInputParams;
+    }
+
 
     /**
      * cleanTestEnv.
@@ -233,13 +279,18 @@ public class ProjectService {
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
         List<MepHost> mapHosts = judgeHost(name, ip, appReleasePo.getDeployMode());
+        MepHost mepHost = mapHosts.get(0);
         if (CollectionUtils.isEmpty(mapHosts)) {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(false);
         }
-        boolean cleanResult = deleteDeployApp(mapHosts.get(0), instanceTenentId, appInstanceId, pkgId, token);
+        boolean cleanResult = deleteDeployedApp(mepHost, instanceTenentId, appInstanceId, pkgId, token);
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
+        if(mepHost.getIpCount() > IP_COUNT){
+            mepHost.setIpCount(mepHost.getIpCount() - IP_COUNT_INCREASE);
+            hostMapper.updateHost(mepHost);
+        }
         return Either.right(cleanResult);
     }
 
@@ -279,26 +330,59 @@ public class ProjectService {
     }
 
     /**
-     * deleteDeployApp.
+     * parse uninstall result.
+     * @param status status.
+     * @return
      */
-    private boolean deleteDeployApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
+    public static int parseStatus(String status) {
+        JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
+        return jsonObject.get("code").getAsInt();
 
+    }
+    /**
+     * delete Deployed App.
+     */
+    private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            HttpClientUtil.
+            int from = getMinute(new Date());
+            boolean uninstallApp = HttpClientUtil.
                 terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("sleep fail! {}", e.getMessage());
+            if(!uninstallApp){
+                LOGGER.error("uninstall AppInstance failed.");
+                return false;
+            }
+            String workStatus = HttpClientUtil
+                .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
+            int status = parseStatus(workStatus);
+            int to;
+            while (status == STATUS_FAILED) {
+                try {
+                    Thread.sleep(3000);
+                    workStatus = HttpClientUtil
+                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                            appInstanceId, userId, token);
+                } catch (InterruptedException e) {
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                    Thread.currentThread().interrupt();
+                }
+                to = getMinute(new Date());
+                if ((to - from) > GET_TEMINATE_RESULT_TIME) {
+                    LOGGER.error("uninstall AppInstance failed.");
+                    return false;
+                }
+            }
+            // delete hosts
+            boolean deleteHostRes = HttpClientUtil
+                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getLcmIp());
+            if (!deleteHostRes) {
+                LOGGER.error("delete host records failed after instantiateApp.");
+                return false;
             }
             // delete pkg
             boolean deletePkgRes = HttpClientUtil
                 .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId);
-            // delete hosts
-            boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getLcmIp());
-            if (!deleteHostRes || !deletePkgRes) {
+            if (!deletePkgRes) {
+                LOGGER.error("delete package failed after instantiateApp.");
                 return false;
             }
         }
@@ -348,6 +432,9 @@ public class ProjectService {
                 String errorlog = lcmLog.getLog();
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, errorlog));
             }
+            MepHost mepHost = mapHosts.get(0);
+            mepHost.setIpCount(mepHost.getIpCount() + IP_COUNT_INCREASE);
+            hostMapper.updateHost(mepHost);
             appReleasePo.setAppInstanceId(appInstanceId);
             appReleasePo.setInstanceTenentId(instanceTenentId);
             SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -358,32 +445,32 @@ public class ProjectService {
         String serviceName = "";
         String nodePort = "";
         String mecHost = "";
-        if (appReleasePo.getDeployMode().equals(CONTAINER)) {
-            int from = getMinute(new Date());
-            String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-            int to;
-            while (StringUtils.isEmpty(workStatus)) {
-                try {
-                    Thread.sleep(3000);
-                    workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
-                } catch (InterruptedException e) {
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-                to = getMinute(new Date());
-                if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                    return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
-                }
+        int from = getMinute(new Date());
+        String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+        int status = parseStatus(workStatus);
+        int to;
+        while (status == STATUS_FAILED) {
+            try {
+                Thread.sleep(3000);
+                workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
+            } catch (InterruptedException e) {
+                LOGGER.error("sleep fail! {}", e.getMessage());
+                Thread.currentThread().interrupt();
             }
-            if (!StringUtils.isEmpty(workStatus)) {
-                serviceName = getServiceName(workStatus);
-                nodePort = String.valueOf(getNodePort(workStatus));
-                mecHost = mapHosts.get(0).getMecHost();
+            to = getMinute(new Date());
+            if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
+                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
+            }
+        }
+        if (status == STATUS_SUCCESS && appReleasePo.getDeployMode().equals(CONTAINER)) {
+            serviceName = getServiceName(workStatus);
+            nodePort = String.valueOf(getNodePort(workStatus));
+            mecHost = mapHosts.get(0).getMecHost();
 
-            }
         } else {
             serviceName = appReleasePo.getAppName();
-            mecHost = getVmExperienceIp(mapHosts.get(0).getParameter());
+            mecHost = appReleasePo.getExperienceableIp();
+
         }
         showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

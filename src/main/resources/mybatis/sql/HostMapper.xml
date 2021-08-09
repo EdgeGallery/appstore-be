@@ -35,6 +35,7 @@
         <result property="portRangeMax" column="port_range_max"/>
         <result property="vncPort" column="vnc_port" />
         <result property="parameter" column="parameter" />
+        <result property="ipCount" column="ip_count" />
     </resultMap>
 
 
@@ -75,9 +76,9 @@
     <update id="updateHost" parameterType="org.edgegallery.appstore.domain.model.system.MepHost">
         UPDATE
         tbl_service_host
-        SET ip=#{ip}, port=#{port}
+        SET ip_count=#{ipCount}
         WHERE
-        user_id = #{userId}
+        host_id = #{hostId}
     </update>
 
     <update id="updateHostSelected" parameterType="org.edgegallery.appstore.domain.model.system.MepHost">
@@ -154,6 +155,15 @@
         <if test="os != null and os != ''">
             and os = #{os}
         </if>
+    </select>
+
+    <select id="getHostLogCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+        ip_count
+        FROM
+        tbl_service_host
+        WHERE
+        mec_host=#{mecHost}
     </select>
 
 </mapper>

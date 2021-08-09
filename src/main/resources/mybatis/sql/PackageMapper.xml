@@ -129,12 +129,12 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
         update catalog_package_table
         SET
-        appinstanceid = #{appInstanceId},
-        instancetenentid = #{instanceTenentId},
-        STARTEXPTIME = #{startExpTime}
-        <if test="instancePackageId != null  and instancePackageId != ''">
-            ,instancepackageid = #{instancePackageId}
-        </if>
+        packageid = #{packageId}
+        ,appinstanceid = #{appInstanceId}
+        ,instancetenentid = #{instanceTenentId}
+        ,STARTEXPTIME = #{startExpTime}
+        ,instancepackageid = #{instancePackageId}
+        ,EXPERIENCEABLEIP = #{experienceableIp}
         WHERE packageid = #{packageId}
     </update>
 

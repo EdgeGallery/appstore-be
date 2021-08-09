@@ -34,6 +34,7 @@ drop table IF EXISTS message_table;
         INSTANCETENENTID         VARCHAR(100)       NULL,
         APPINSTANCEID            VARCHAR(100)       NULL,
         STARTEXPTIME             VARCHAR(100)       NULL,
+        EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -138,7 +139,8 @@ drop table IF EXISTS message_table;
       port INTEGER DEFAULT 0,
       vnc_port INTEGER DEFAULT NULL,
       parameter text DEFAULT NULL,
-      delete boolean DEFAULT NULL
+      delete boolean DEFAULT NULL,
+      ip_count INTEGER DEFAULT 0
     )
 
     ;
