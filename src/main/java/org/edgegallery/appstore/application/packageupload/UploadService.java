@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 @Service("UploadService")
 public class UploadService {
     /**
-     * uploadPackage
+     * uploadPackage.
      *
-     * @param reqStr
-     * @return
+     * @param reqStr 请求body体
+     * @return JSONObject
      */
     public JSONObject uploadPackage(String reqStr) {
         JSONObject reqJson = JSONObject.parseObject(reqStr);

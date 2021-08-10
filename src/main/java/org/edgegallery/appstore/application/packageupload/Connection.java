@@ -44,14 +44,14 @@ public class Connection {
     public static final String SEPARATOR = "\n";
 
     /**
-     * 分片上传
+     * 分片上传.
      *
-     * @param header
-     * @param url
-     * @param upPackage
-     * @param req
-     * @param postData
-     * @return
+     * @param header header信息
+     * @param url 请求url
+     * @param upPackage package信息
+     * @param req 请求参数
+     * @param postData 分片字节数组
+     * @return JSONObject
      */
 
     public static JSONObject postFiles(JSONObject header, String url, UploadPackageEntity upPackage, JSONObject req,

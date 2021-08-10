@@ -46,6 +46,14 @@ public class Utils {
 
     public static final String BSP_SESSION_PREFIX = "bspsession=";
 
+    /**
+     * 获取cookie信息.
+     *
+     * @param hostIp 请求路径
+     * @param userName 用户名
+     * @param password 密码
+     * @return JSONObject
+     */
     public static JSONObject getSessionCookie(String hostIp, String userName, String password) {
         JSONObject json = new JSONObject();
         String session = loginSession(hostIp, userName, password, BSP_SESSION_PREFIX);

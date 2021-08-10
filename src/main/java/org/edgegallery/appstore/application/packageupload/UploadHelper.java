@@ -12,14 +12,14 @@ public class UploadHelper {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadHelper.class);
 
     /**
-     * upload Big Software
+     * upload Big Software.
      *
-     * @param softPath
-     * @param req
-     * @param csrfToken
-     * @param cookie
-     * @param hostUrl
-     * @return
+     * @param softPath package路径
+     * @param req 请求body体
+     * @param csrfToken token信息
+     * @param cookie cookie信息
+     * @param hostUrl 请求url
+     * @return JSONObject
      */
     public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie,
         String hostUrl) {
@@ -45,14 +45,14 @@ public class UploadHelper {
             long i = 0;
             long j;
             int count = 1;
-            long length = soft.length();
-            long totalSize = length;
             input = new FileInputStream(soft);
 
             UploadPackageEntity upPackage = new UploadPackageEntity();
             upPackage.setFileName(fileName);
             upPackage.setCookie(cookie);
             upPackage.setCsrfToken(csrfToken);
+            long length = soft.length();
+            long totalSize = length;
             upPackage.setTotalSie(totalSize);
 
             //分片大小9437980
