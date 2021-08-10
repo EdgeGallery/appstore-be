@@ -94,8 +94,6 @@ public class ProjectService {
 
     private static final int GET_TERMINATE_RESULT_TIME = 2 * 1000 * 60;
 
-    private static final int STATUS_FAILED = 500;
-
     private static final int STATUS_SUCCESS = 200;
 
     private static final String CONTAINER = "container";
@@ -282,7 +280,7 @@ public class ProjectService {
 
     public int getIpCount(String n6Range) {
         int cou = IP_BINARY_BITS - Integer.parseInt(n6Range.substring(n6Range.lastIndexOf("/") + 1));
-        return (int) Math.pow(IP_CALCULATE_BASE,cou) - RESERVE_IP_COUNT;
+        return (int) Math.pow(IP_CALCULATE_BASE, cou) - RESERVE_IP_COUNT;
     }
 
 
@@ -375,7 +373,7 @@ public class ProjectService {
                 .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
             int status = parseStatus(workStatus);
             long to;
-            while (status == STATUS_FAILED) {
+            while (status != STATUS_SUCCESS) {
                 try {
                     Thread.sleep(3000);
                     workStatus = HttpClientUtil
@@ -466,7 +464,7 @@ public class ProjectService {
         String workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
         int status = parseStatus(workStatus);
         long to;
-        while (status == STATUS_FAILED) {
+        while (status != STATUS_SUCCESS) {
             try {
                 Thread.sleep(3000);
                 workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
