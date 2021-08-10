@@ -36,21 +36,14 @@ import org.slf4j.LoggerFactory;
 public class Connection {
     public static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        + "(KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36";
-
-    public static final String LINE_SEPARATOR = "\r\n";
-
-    public static final String SEPARATOR = "\n";
-
     /**
-     * 分片上传.
+     * Shard to upload.
      *
-     * @param header header信息
-     * @param url 请求url
-     * @param upPackage package信息
-     * @param req 请求参数
-     * @param postData 分片字节数组
+     * @param header header info
+     * @param url request url
+     * @param upPackage package info
+     * @param req request body
+     * @param postData upload data
      * @return JSONObject
      */
 
@@ -72,18 +65,15 @@ public class Connection {
             }
             requestBase.setHeader("Cookie", upPackage.getCookie());
             requestBase.setHeader("roarand", upPackage.getCsrfToken());
-            requestBase.setHeader("X_Requested_With", "XMLHttpRequest");
             requestBase.setHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-            requestBase.setHeader("User-Agent", USER_AGENT);
-            requestBase.setHeader("Connection", "Keep-Alive");
 
             MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("formInfo",
                 "{\n" + "    \"fileSize\":" + upPackage.getTotalSie() + ",\n" + "    \"fileTotalNum\":" + (int) Math
                     .ceil(upPackage.getTotalSie() / (double) AppConfig.FILE_SIZE) + ",\n" + "    \"fileCurrentIndex"
-                    + "\":" + upPackage.getShardCount() + ",\n" + "    \"fileIdentify\":1628244705698,\n"
-                    + "    \"fileName\":\"" + upPackage.getFileName() + "\"\n" + "}");
+                    + "\":" + upPackage.getShardCount() + ",\n" + "    \"fileIdentify\":" + upPackage.getFileIdentify()
+                    + ",\n" + "    \"fileName\":\"" + upPackage.getFileName() + "\"\n" + "}");
 
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("vnfpackageInfo", req.getString("vnfpackageInfo"));
@@ -112,21 +102,21 @@ public class Connection {
             }
             return ret;
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            LOGGER.error("PostFiles ClientProtocolException {}", e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("PostFiles IOException {}", e.getMessage());
         } finally {
             if (response != null) {
                 try {
                     response.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("PostFiles IOException {}", e.getMessage());
                 }
             }
             try {
                 httpClient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("PostFiles IOException {}", e.getMessage());
             }
         }
         return ret;
@@ -165,7 +155,7 @@ public class Connection {
             HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
 
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
+            LOGGER.error("TrustEveryone exception: {}", e.getMessage());
         }
     }
 
@@ -197,7 +187,7 @@ public class Connection {
         try {
             ssl = SSLContext.getInstance("TLS");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("createIgnoreVerifySsl exception: {}", e.getMessage());
         }
 
         X509TrustManager trustManager = new X509TrustManager() {
@@ -224,7 +214,7 @@ public class Connection {
                 ssl.init(null, new TrustManager[] {trustManager}, null);
             }
         } catch (KeyManagementException e) {
-            e.printStackTrace();
+            LOGGER.error("createIgnoreVerifySsl KeyManagementException: {}", e.getMessage());
         }
         return ssl;
     }

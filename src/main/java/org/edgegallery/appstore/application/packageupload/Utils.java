@@ -47,11 +47,11 @@ public class Utils {
     public static final String BSP_SESSION_PREFIX = "bspsession=";
 
     /**
-     * 获取cookie信息.
+     * Get cookie info.
      *
-     * @param hostIp 请求路径
-     * @param userName 用户名
-     * @param password 密码
+     * @param hostIp host port
+     * @param userName user name
+     * @param password password
      * @return JSONObject
      */
     public static JSONObject getSessionCookie(String hostIp, String userName, String password) {
@@ -149,7 +149,7 @@ public class Utils {
             LOGGER.info("sessionParam: " + sessionParam);
             return sessionParam;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("loginSession IOException: {}", e.getMessage());
         }
         return "";
     }
@@ -186,11 +186,11 @@ public class Utils {
                 }
             });
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("createSslConnSocketFactory NoSuchAlgorithmException: {}", e.getMessage());
         } catch (KeyStoreException e) {
-            e.printStackTrace();
+            LOGGER.error("createSslConnSocketFactory KeyStoreException: {}", e.getMessage());
         } catch (KeyManagementException e) {
-            e.printStackTrace();
+            LOGGER.error("createSslConnSocketFactory KeyManagementException: {}", e.getMessage());
         }
         return sslSf;
     }

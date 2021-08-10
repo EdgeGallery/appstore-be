@@ -16,4 +16,6 @@ public class UploadPackageEntity {
 
     private String cookie;
 
+    private long fileIdentify;
+
 }

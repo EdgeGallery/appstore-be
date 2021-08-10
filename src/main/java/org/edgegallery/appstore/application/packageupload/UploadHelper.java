@@ -14,11 +14,11 @@ public class UploadHelper {
     /**
      * upload Big Software.
      *
-     * @param softPath package路径
-     * @param req 请求body体
-     * @param csrfToken token信息
-     * @param cookie cookie信息
-     * @param hostUrl 请求url
+     * @param softPath package path
+     * @param req request body
+     * @param csrfToken token
+     * @param cookie cookie
+     * @param hostUrl request url
      * @return JSONObject
      */
     public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie,
@@ -49,13 +49,14 @@ public class UploadHelper {
 
             UploadPackageEntity upPackage = new UploadPackageEntity();
             upPackage.setFileName(fileName);
+            upPackage.setFileIdentify(System.currentTimeMillis());
             upPackage.setCookie(cookie);
             upPackage.setCsrfToken(csrfToken);
             long length = soft.length();
             long totalSize = length;
             upPackage.setTotalSie(totalSize);
 
-            //分片大小9437980
+            //shard size 9437980
             byte[] buffer = new byte[AppConfig.FILE_SIZE];
             while (length > AppConfig.FILE_SIZE && input.read(buffer, 0, AppConfig.FILE_SIZE) != -1) {
                 header.put("Content-Length", AppConfig.FILE_SIZE);
@@ -65,7 +66,7 @@ public class UploadHelper {
                 String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
                 upPackage.setShardCount(count);
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
-                LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + i);
+                LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
                 i = j;
                 count++;
                 length = length - AppConfig.FILE_SIZE;
@@ -82,8 +83,8 @@ public class UploadHelper {
             String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
             upPackage.setShardCount(count);
             ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, ednBuffer);
-            LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
-            LOGGER.info("Upload package finished.");
+            LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + soft.length());
+            LOGGER.info(fileName + "Upload package finished.");
             return ret;
         } catch (IOException e) {
             LOGGER.error("uploadBigSoftware IOException");
