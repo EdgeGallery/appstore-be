@@ -38,14 +38,13 @@ public class UploadHelper {
             FileInputStream input = new FileInputStream(soft);
 
             //分片大小9437980
-            while (length > AppConfig.FILE_SIZE) {
+            byte[] buffer = new byte[AppConfig.FILE_SIZE];
+            while (length > AppConfig.FILE_SIZE && input.read(buffer, 0, AppConfig.FILE_SIZE) != -1) {
                 header.put("Content-Length", AppConfig.FILE_SIZE);
                 j = i + AppConfig.FILE_SIZE;
                 header.put("X-File-start", i);
                 header.put("X-File-end", j);
-                byte[] buffer = new byte[AppConfig.FILE_SIZE];
 
-                input.read(buffer, 0, AppConfig.FILE_SIZE);
                 ret = Connection
                     .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
                         buffer, totalSize, count, fileName, req, csrfToken, cookie);
@@ -55,21 +54,23 @@ public class UploadHelper {
                 length = length - AppConfig.FILE_SIZE;
             }
 
-            byte[] buffer1 = new byte[(int) length];
-
-            input.read(buffer1);
+            byte[] ednBuffer = new byte[(int) length];
+            int readCount = input.read(ednBuffer);
+            if (readCount == -1) {
+                return ret;
+            }
             header.put("Content-Length", length);
             header.put("X-File-start", i);
             header.put("X-File-end", soft.length());
             ret = Connection
                 .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
-                    buffer1, totalSize, count, fileName, req, csrfToken, cookie);
+                    ednBuffer, totalSize, count, fileName, req, csrfToken, cookie);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
             input.close();
             LOGGER.info("Upload package finished.");
             return ret;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("uploadBigSoftware IOException");
         }
         ret.put("retCode", -1);
         return ret;

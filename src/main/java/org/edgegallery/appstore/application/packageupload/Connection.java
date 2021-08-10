@@ -94,13 +94,14 @@ public class Connection {
             response = httpClient.execute(requestBase);
 
             int statusCode = response.getStatusLine().getStatusCode();
+            ret.put("body", EntityUtils.toString(response.getEntity()));
+
             if (statusCode == 200) {
                 ret.put("retCode", 0);
             } else {
                 ret.put("retCode", -1);
                 LOGGER.error(ret.toString());
             }
-            ret.put("body", EntityUtils.toString(response.getEntity()));
             return ret;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
