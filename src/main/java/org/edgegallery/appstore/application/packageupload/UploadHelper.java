@@ -13,6 +13,7 @@ public class UploadHelper {
 
     public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie) {
         JSONObject ret = new JSONObject();
+        FileInputStream input = null;
         try {
             File soft = new File(softPath);
             String fileName = soft.getName();
@@ -35,7 +36,7 @@ public class UploadHelper {
             int count = 1;
             long length = soft.length();
             long totalSize = length;
-            FileInputStream input = new FileInputStream(soft);
+            input = new FileInputStream(soft);
 
             //分片大小9437980
             byte[] buffer = new byte[AppConfig.FILE_SIZE];
@@ -66,11 +67,18 @@ public class UploadHelper {
                 .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
                     ednBuffer, totalSize, count, fileName, req, csrfToken, cookie);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
-            input.close();
             LOGGER.info("Upload package finished.");
             return ret;
         } catch (IOException e) {
             LOGGER.error("uploadBigSoftware IOException");
+        } finally {
+            try {
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException e) {
+                LOGGER.error("uploadBigSoftware close input IOException");
+            }
         }
         ret.put("retCode", -1);
         return ret;
