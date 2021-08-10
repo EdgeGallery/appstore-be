@@ -252,9 +252,10 @@ public class ProjectService {
         int count = 0;
         String n6Range = vmInputParams.get("app_n6_ip");
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);;
-
         for (Release mecRelease : mecHostPackage) {
-            if (mecRelease.getMecHost().equals(temN6Ip) && count < PARSE_IP_SUBNETWORK_SEGMENT) {
+            if (!mecRelease.getMecHost().equals(temN6Ip) && count < PARSE_IP_SUBNETWORK_SEGMENT) {
+                continue;
+            } else {
                 count++;
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
