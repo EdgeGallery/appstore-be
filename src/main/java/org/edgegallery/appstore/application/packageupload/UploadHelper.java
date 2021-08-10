@@ -49,6 +49,12 @@ public class UploadHelper {
             long totalSize = length;
             input = new FileInputStream(soft);
 
+            UploadPackageEntity upPackage = new UploadPackageEntity();
+            upPackage.setFileName(fileName);
+            upPackage.setCookie(cookie);
+            upPackage.setCsrfToken(csrfToken);
+            upPackage.setTotalSie(totalSize);
+
             //分片大小9437980
             byte[] buffer = new byte[AppConfig.FILE_SIZE];
             while (length > AppConfig.FILE_SIZE && input.read(buffer, 0, AppConfig.FILE_SIZE) != -1) {
@@ -57,8 +63,9 @@ public class UploadHelper {
                 header.put("X-File-start", i);
                 header.put("X-File-end", j);
                 String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
-                ret = Connection
-                    .postFiles(header, url, buffer, totalSize, count, fileName, req, csrfToken, cookie, hostUrl);
+                upPackage.setPostData(buffer);
+                upPackage.setShardCount(count);
+                ret = Connection.postFiles(header, hostUrl + url, upPackage, req);
                 LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + i);
                 i = j;
                 count++;
@@ -74,8 +81,9 @@ public class UploadHelper {
             header.put("X-File-start", i);
             header.put("X-File-end", soft.length());
             String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
-            ret = Connection
-                .postFiles(header, url, ednBuffer, totalSize, count, fileName, req, csrfToken, cookie, hostUrl);
+            upPackage.setPostData(ednBuffer);
+            upPackage.setShardCount(count);
+            ret = Connection.postFiles(header, hostUrl + url, upPackage, req);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
             LOGGER.info("Upload package finished.");
             return ret;

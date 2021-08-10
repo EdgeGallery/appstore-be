@@ -46,28 +46,26 @@ public class Connection {
     /**
      * 分片上传
      *
-     * @param header
-     * @param url
      * @param postData
      * @param totalSie
      * @param count
      * @param fileName
-     * @param req
      * @param csrfToken
      * @param cookie
      * @param hostUrl
+     * @param header
+     * @param url
+     * @param req
      * @return
      */
 
-    public static JSONObject postFiles(JSONObject header, String url, byte[] postData, long totalSie, int count,
-        String fileName, JSONObject req, String csrfToken, String cookie, String hostUrl) {
+    public static JSONObject postFiles(JSONObject header, String url, UploadPackageEntity upPackage, JSONObject req) {
         JSONObject ret = new JSONObject();
         String boundary = "----WebKitFormBoundaryZqGhgoAoEb8BCQWC";
         CloseableHttpClient httpClient = createClient();
         CloseableHttpResponse response = null;
         try {
-            String uri = "https://" + hostUrl.split(":")[0] + ":" + hostUrl.split(":")[1] + url;
-            HttpEntityEnclosingRequestBase requestBase = new HttpPost(uri);
+            HttpEntityEnclosingRequestBase requestBase = new HttpPost(url);
             Set<String> keySet = header.keySet();
             for (String key : keySet) {
                 if (key.equalsIgnoreCase("Content-Length")) {
@@ -76,8 +74,8 @@ public class Connection {
                 String value = header.getString(key);
                 requestBase.setHeader(key, value);
             }
-            requestBase.setHeader("Cookie", cookie);
-            requestBase.setHeader("roarand", csrfToken);
+            requestBase.setHeader("Cookie", upPackage.getCookie());
+            requestBase.setHeader("roarand", upPackage.getCsrfToken());
             requestBase.setHeader("X_Requested_With", "XMLHttpRequest");
             requestBase.setHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
             requestBase.setHeader("User-Agent", USER_AGENT);
@@ -86,9 +84,10 @@ public class Connection {
             MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("formInfo",
-                "{\n" + "    \"fileSize\":" + totalSie + ",\n" + "    \"fileTotalNum\":" + (int) Math
-                    .ceil(totalSie / (double) AppConfig.FILE_SIZE) + ",\n" + "    \"fileCurrentIndex\":" + count + ",\n"
-                    + "    \"fileIdentify\":1628244705698,\n" + "    \"fileName\":\"" + fileName + "\"\n" + "}");
+                "{\n" + "    \"fileSize\":" + upPackage.getTotalSie() + ",\n" + "    \"fileTotalNum\":" + (int) Math
+                    .ceil(upPackage.getTotalSie() / (double) AppConfig.FILE_SIZE) + ",\n" + "    \"fileCurrentIndex"
+                    + "\":" + upPackage.getShardCount() + ",\n" + "    \"fileIdentify\":1628244705698,\n"
+                    + "    \"fileName\":\"" + upPackage.getFileName() + "\"\n" + "}");
 
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("vnfpackageInfo", req.getString("vnfpackageInfo"));
@@ -97,7 +96,8 @@ public class Connection {
             multiBuilder.addTextBody("catalogShareInfo", req.getString("catalogShareInfo"));
 
             multiBuilder.setBoundary(boundary);
-            multiBuilder.addBinaryBody("serviceDefFile", postData, ContentType.APPLICATION_OCTET_STREAM, "blob");
+            multiBuilder
+                .addBinaryBody("serviceDefFile", upPackage.getPostData(), ContentType.APPLICATION_OCTET_STREAM, "blob");
 
             multiBuilder.setBoundary(boundary);
 
