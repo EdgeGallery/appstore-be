@@ -66,4 +66,6 @@ public class MepCreateHost {
 
     private String parameter;
 
+    private int ipCount;
+
 }

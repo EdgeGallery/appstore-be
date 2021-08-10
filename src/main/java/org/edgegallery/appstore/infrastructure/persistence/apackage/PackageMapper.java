@@ -51,4 +51,7 @@ public interface PackageMapper {
 
     void updateAppInstanceApp(AppReleasePo releasePo);
 
+    List<AppReleasePo> findReleaseByMecHost(String mecHost);
+
+
 }

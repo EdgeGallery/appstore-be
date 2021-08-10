@@ -65,7 +65,7 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApp(MepHost mepHost, String appInstanceId, String userId, String token,
-        LcmLog lcmLog, String pkgId) {
+        LcmLog lcmLog, String pkgId, Map<String, String> inputParams) {
         String protocol = mepHost.getProtocol();
         String ip = mepHost.getLcmIp();
         int port = mepHost.getPort();
@@ -80,16 +80,17 @@ public final class HttpClientUtil {
         Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
         List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
         String appName = list.get(0).getAppPkgName();
-        Map<String, String> inputParams = InputParameterUtil.getParams(mepHost.getParameter());
-        InstantRequest ins = new InstantRequest();
-        ins.setParameters(inputParams);
-        ins.setAppName(appName);
-        ins.setHostIp(mepHost.getMecHost());
-        ins.setPackageId(pkgId);
-        LOGGER.warn(gson.toJson(ins));
+        //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
+        //set instantiate bodys
+        InstantRequest ins = new InstantRequest();
+        ins.setAppName(appName);
+        ins.setHostIp(mepHost.getMecHost());
+        ins.setParameters(inputParams);
+        ins.setPackageId(pkgId);
+        LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
@@ -100,7 +101,6 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPlCM instantiate log:{}", response);
         } catch (CustomException e) {
-            e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 errorLog);

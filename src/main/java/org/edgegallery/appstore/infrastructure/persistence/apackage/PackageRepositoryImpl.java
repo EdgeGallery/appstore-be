@@ -96,4 +96,11 @@ public class PackageRepositoryImpl implements PackageRepository {
     public Integer countTotalForUserId(Map<String, Object> params) {
         return packageMapper.countTotalForUserId(params);
     }
+
+    @Override
+    public List<Release> findReleaseByMecHost(String mecHost) {
+        return packageMapper.findReleaseByMecHost(mecHost).stream().map(AppReleasePo::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
 }

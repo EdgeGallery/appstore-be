@@ -397,6 +397,16 @@ public class ResponseConst {
      */
     public static final int RET_UPDATE_HOST_FAILED = 15012;
 
+    /**
+     * Get ip number error.
+     */
+    public static final int RET_GET_IP_NUMBER_ERROR = 15013;
+
+    /**
+     * get current node error.
+     */
+    public static final int RET_GET_NODE_ERROR = 15014;
+
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
     }
