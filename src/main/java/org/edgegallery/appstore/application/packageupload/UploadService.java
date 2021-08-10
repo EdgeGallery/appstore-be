@@ -13,16 +13,12 @@ public class UploadService {
         String password = reqJson.getString("passWord");
         String filePath = reqJson.getString("filePath");
 
-        String ip = hostUrl.split(":")[0];
-        int port = Integer.parseInt(hostUrl.split(":")[1]);
-        Utils.configHostPort(ip, port);
-
         JSONObject session = Utils.getSessionCookie(hostUrl, userName, password);
         JSONObject cookieInfo = JSON.parseObject(session.getString("body"));
         String csrfToken = cookieInfo.getString("csrfToken");
         String cookie = cookieInfo.getString("session");
 
         UploadHelper helper = new UploadHelper();
-        return helper.uploadBigSoftware(filePath, reqJson, csrfToken, cookie);
+        return helper.uploadBigSoftware(filePath, reqJson, csrfToken, cookie, hostUrl);
     }
 }

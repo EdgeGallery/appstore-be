@@ -7,7 +7,4 @@ public class AppConfig {
     public static final String UPLOAD_PATH
         = "/rest/nfv/v1/vnfcatalogwebsite/apppackage/action/upload/vnfpackage?name=${taskName}&unlimitRetryNum=0&fileCurrentIndex=";
 
-    protected static String SERVER_IP;
-
-    protected static int SERVER_PORT = 31943;
 }

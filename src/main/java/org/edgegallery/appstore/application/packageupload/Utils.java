@@ -187,11 +187,6 @@ public class Utils {
         return sslSf;
     }
 
-    public static void configHostPort(String ip, int port) {
-        AppConfig.SERVER_IP = ip;
-        AppConfig.SERVER_PORT = port;
-    }
-
     private static class GetSessionCookieRedirectStrategy extends DefaultRedirectStrategy {
         public String session = "";
 

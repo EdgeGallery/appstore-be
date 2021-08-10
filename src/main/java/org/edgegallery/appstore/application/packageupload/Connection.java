@@ -47,13 +47,13 @@ public class Connection {
      * 分片上传
      */
     public static JSONObject postFiles(JSONObject header, String url, byte[] postData, long totalSie, int count,
-        String fileName, JSONObject req, String csrfToken, String cookie) {
+        String fileName, JSONObject req, String csrfToken, String cookie, String hostUrl) {
         JSONObject ret = new JSONObject();
         String boundary = "----WebKitFormBoundaryZqGhgoAoEb8BCQWC";
         CloseableHttpClient httpClient = createClient();
         CloseableHttpResponse response = null;
         try {
-            String uri = "https://" + AppConfig.SERVER_IP + ":" + AppConfig.SERVER_PORT + url;
+            String uri = "https://" + hostUrl.split(":")[0] + ":" + hostUrl.split(":")[1] + url;
             HttpEntityEnclosingRequestBase requestBase = new HttpPost(uri);
             Set<String> keySet = header.keySet();
             for (String key : keySet) {

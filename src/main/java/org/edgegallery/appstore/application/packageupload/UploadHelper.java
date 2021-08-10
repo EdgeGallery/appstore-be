@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 public class UploadHelper {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadHelper.class);
 
-    public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie) {
+    public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie,
+        String hostUrl) {
         JSONObject ret = new JSONObject();
         FileInputStream input = null;
         try {
@@ -29,7 +30,7 @@ public class UploadHelper {
             header.put("X_Requested_With", "XMLHttpRequest");
             header.put("Content-Type", "application/octet-stream");
             header.put("Cache-Control", "no-cache");
-            header.put("Host", AppConfig.SERVER_IP + ":" + AppConfig.SERVER_PORT);
+            header.put("Host", hostUrl.split(":")[0] + ":" + hostUrl.split(":")[1]);
 
             long i = 0;
             long j;
@@ -48,7 +49,7 @@ public class UploadHelper {
 
                 ret = Connection
                     .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
-                        buffer, totalSize, count, fileName, req, csrfToken, cookie);
+                        buffer, totalSize, count, fileName, req, csrfToken, cookie,hostUrl);
                 LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + i);
                 i = j;
                 count++;
@@ -65,7 +66,7 @@ public class UploadHelper {
             header.put("X-File-end", soft.length());
             ret = Connection
                 .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
-                    ednBuffer, totalSize, count, fileName, req, csrfToken, cookie);
+                    ednBuffer, totalSize, count, fileName, req, csrfToken, cookie,hostUrl);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
             LOGGER.info("Upload package finished.");
             return ret;
