@@ -63,9 +63,8 @@ public class UploadHelper {
                 header.put("X-File-start", i);
                 header.put("X-File-end", j);
                 String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
-                upPackage.setPostData(buffer);
                 upPackage.setShardCount(count);
-                ret = Connection.postFiles(header, hostUrl + url, upPackage, req);
+                ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + i);
                 i = j;
                 count++;
@@ -81,9 +80,8 @@ public class UploadHelper {
             header.put("X-File-start", i);
             header.put("X-File-end", soft.length());
             String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
-            upPackage.setPostData(ednBuffer);
             upPackage.setShardCount(count);
-            ret = Connection.postFiles(header, hostUrl + url, upPackage, req);
+            ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, ednBuffer);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
             LOGGER.info("Upload package finished.");
             return ret;

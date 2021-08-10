@@ -8,8 +8,6 @@ import lombok.Setter;
 public class UploadPackageEntity {
     private String fileName;
 
-    private byte[] postData;
-
     private long totalSie;
 
     private int shardCount;

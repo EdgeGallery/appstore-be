@@ -46,20 +46,16 @@ public class Connection {
     /**
      * 分片上传
      *
-     * @param postData
-     * @param totalSie
-     * @param count
-     * @param fileName
-     * @param csrfToken
-     * @param cookie
-     * @param hostUrl
      * @param header
      * @param url
+     * @param upPackage
      * @param req
+     * @param postData
      * @return
      */
 
-    public static JSONObject postFiles(JSONObject header, String url, UploadPackageEntity upPackage, JSONObject req) {
+    public static JSONObject postFiles(JSONObject header, String url, UploadPackageEntity upPackage, JSONObject req,
+        byte[] postData) {
         JSONObject ret = new JSONObject();
         String boundary = "----WebKitFormBoundaryZqGhgoAoEb8BCQWC";
         CloseableHttpClient httpClient = createClient();
@@ -96,8 +92,7 @@ public class Connection {
             multiBuilder.addTextBody("catalogShareInfo", req.getString("catalogShareInfo"));
 
             multiBuilder.setBoundary(boundary);
-            multiBuilder
-                .addBinaryBody("serviceDefFile", upPackage.getPostData(), ContentType.APPLICATION_OCTET_STREAM, "blob");
+            multiBuilder.addBinaryBody("serviceDefFile", postData, ContentType.APPLICATION_OCTET_STREAM, "blob");
 
             multiBuilder.setBoundary(boundary);
 
