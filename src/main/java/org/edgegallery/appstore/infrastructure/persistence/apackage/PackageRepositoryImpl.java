@@ -98,7 +98,7 @@ public class PackageRepositoryImpl implements PackageRepository {
     }
 
     @Override
-    public List<Release> findReleaseByMecHost(String mecHost){
+    public List<Release> findReleaseByMecHost(String mecHost) {
         return packageMapper.findReleaseByMecHost(mecHost).stream().map(AppReleasePo::toDomainModel)
             .collect(Collectors.toList());
     }

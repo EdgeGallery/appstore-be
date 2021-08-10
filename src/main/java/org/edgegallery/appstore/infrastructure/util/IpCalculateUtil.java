@@ -44,7 +44,7 @@ public class IpCalculateUtil {
         int num1 = inetMask / PARSE_MASK_NBITS_EIGHT;
         // The number of bits to fill in the subnet mask.
         int num2 = inetMask % PARSE_MASK_NBITS_EIGHT;
-        int array[] = new int[INT_CAPACITY];
+        int[] array = new int[INT_CAPACITY];
         for (int i = 0; i < num1; i++) {
             array[i] = PARSE_IP_NETWORK_SEGMENT;
         }
@@ -77,15 +77,15 @@ public class IpCalculateUtil {
         if (segment == null) {
             return null;
         }
-        String arr[] = segment.split("/");
+        String[] arr = segment.split("/");
         String ip = arr[0];
         String maskIndex = arr[1];
         String mask = IpCalculateUtil.getNetMask(maskIndex);
         if (PARSE_IP_BITS_FOUR != ip.split("\\.").length || mask == null) {
             return null;
         }
-        int ipArray[] = new int[INT_CAPACITY];
-        int netMaskArray[] = new int[INT_CAPACITY];
+        int[] ipArray = new int[INT_CAPACITY];
+        int[] netMaskArray = new int[INT_CAPACITY];
         for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
             try {
                 ipArray[i] = Integer.parseInt(ip.split("\\.")[i]);
@@ -95,10 +95,10 @@ public class IpCalculateUtil {
                     return null;
                 }
                 ipArray[i] = ipArray[i] & netMaskArray[i];
-                if(i==PARSE_HOST_IP_INDEX){
-                    startIp.append(ipArray[i] + range%PARSE_IP_RANGE + PARSE_HOST_IP_INDEX);
-                }else{
-                    startIp.append(ipArray[i]+".");
+                if (i == PARSE_HOST_IP_INDEX) {
+                    startIp.append(ipArray[i] + range % PARSE_IP_RANGE + PARSE_HOST_IP_INDEX);
+                } else {
+                    startIp.append(ipArray[i] + ".");
                 }
             } catch (NumberFormatException e) {
                 throw new HostException("get ip number error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
@@ -113,21 +113,21 @@ public class IpCalculateUtil {
      * @return end IP
      */
     public static String getEndIp(String segment) {
-        StringBuffer endIp=new StringBuffer();
+        StringBuffer endIp = new StringBuffer();
         String startIp = getStartIp(segment,0);
         if (segment == null) {
             return null;
         }
-        String arr[] = segment.split("/");
+        String[] arr = segment.split("/");
         String maskIndex = arr[1];
         //Number of IPs actually needed.
         int hostNumber = 0;
-        int startIpArray[] = new int[INT_CAPACITY];
+        int[] startIpArray = new int[INT_CAPACITY];
         try {
-            hostNumber=1<<PARSE_IP_NUMBER-(Integer.parseInt(maskIndex));
-            for (int i = 0; i <PARSE_IP_BITS_FOUR; i++) {
+            hostNumber = 1 << PARSE_IP_NUMBER - (Integer.parseInt(maskIndex));
+            for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
                 startIpArray[i] = Integer.parseInt(startIp.split("\\.")[i]);
-                if(i == PARSE_HOST_IP_INDEX){
+                if (i == PARSE_HOST_IP_INDEX) {
                     startIpArray[i] = startIpArray[i] - 1;
                     break;
                 }
@@ -137,28 +137,28 @@ public class IpCalculateUtil {
             throw new HostException("get ip number error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
         }
 
-        if(startIpArray[PARSE_HOST_IP_INDEX] >PARSE_IP_NETWORK_SEGMENT){
+        if (startIpArray[PARSE_HOST_IP_INDEX] > PARSE_IP_NETWORK_SEGMENT) {
             int k = startIpArray[PARSE_HOST_IP_INDEX] / PARSE_IP_SUBNETWORK_SEGMENT;
             startIpArray[PARSE_HOST_IP_INDEX] = startIpArray[PARSE_HOST_IP_INDEX] % PARSE_IP_SUBNETWORK_SEGMENT;
             startIpArray[PARSE_SUBNETWORK_INDEX] = startIpArray[2] + k;
         }
-        if(startIpArray[PARSE_SUBNETWORK_INDEX] > PARSE_IP_NETWORK_SEGMENT){
+        if (startIpArray[PARSE_SUBNETWORK_INDEX] > PARSE_IP_NETWORK_SEGMENT) {
             int j = startIpArray[PARSE_SUBNETWORK_INDEX] / PARSE_IP_SUBNETWORK_SEGMENT;
             startIpArray[PARSE_SUBNETWORK_INDEX] = startIpArray[PARSE_SUBNETWORK_INDEX] % PARSE_IP_SUBNETWORK_SEGMENT;
             startIpArray[1] = startIpArray[1] + j;
-            if(startIpArray[1] > PARSE_IP_NETWORK_SEGMENT){
+            if (startIpArray[1] > PARSE_IP_NETWORK_SEGMENT) {
                 int k = startIpArray[1] / PARSE_IP_SUBNETWORK_SEGMENT;
                 startIpArray[1] = startIpArray[1] % PARSE_IP_SUBNETWORK_SEGMENT;
                 startIpArray[0] = startIpArray[0] + k;
             }
         }
-        for(int i = 0; i < PARSE_IP_BITS_FOUR; i++){
-            if(i == PARSE_HOST_IP_INDEX){
+        for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
+            if (i == PARSE_HOST_IP_INDEX) {
                 startIpArray[i] = startIpArray[i] - 1;
             }
-            if("".equals(endIp.toString())||endIp.length()==0){
+            if ("".equals(endIp.toString()) || endIp.length() == 0) {
                 endIp.append(startIpArray[i]);
-            }else{
+            } else {
                 endIp.append("." + startIpArray[i]);
             }
         }

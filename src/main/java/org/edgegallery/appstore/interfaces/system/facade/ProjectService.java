@@ -97,10 +97,6 @@ public class ProjectService {
 
     private static final int STATUS_SUCCESS = 200;
 
-    private static final int IP_COUNT = 0;
-
-    private static final int IP_COUNT_INCREASE = 1;
-
     private static final String CONTAINER = "container";
 
     private static final String VM = "vm";
@@ -114,6 +110,8 @@ public class ProjectService {
     private static final String VM_SEMICOLON = ";";
 
     private static final String VM_EQUAL = "=";
+
+    private static final int PARSE_IP_SUBNETWORK_SEGMENT = 255;
 
     private static final CookieStore cookieStore = new BasicCookieStore();
 
@@ -231,8 +229,8 @@ public class ProjectService {
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
 
-        boolean instantRes = HttpClientUtil.
-            instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId, inputParams);
+        boolean instantRes = HttpClientUtil
+            .instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId, inputParams);
         if (!instantRes) {
             cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
             return false;
@@ -247,20 +245,22 @@ public class ProjectService {
      * @param mecHost mecHost.
      * @return
      */
-    public Map<String, String> getInputParams(String parameter, String mecHost){
+    public Map<String, String> getInputParams(String parameter, String mecHost) {
+
         List<Release> mecHostPackage = packageRepository.findReleaseByMecHost(mecHost);
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
-        String n6Range = vmInputParams.get("app_n6_ip");
-        String mepRange = vmInputParams.get("app_mp1_ip");
-        String internetRange = vmInputParams.get("app_internet_ip");
         int count = 0;
+        String n6Range = vmInputParams.get("app_n6_ip");
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);;
-        for(Release mecRelease : mecHostPackage){
-            if(mecRelease.getMecHost().equals(temN6Ip)){
+
+        for (Release mecRelease : mecHostPackage) {
+            if (mecRelease.getMecHost().equals(temN6Ip) && count < PARSE_IP_SUBNETWORK_SEGMENT) {
                 count++;
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
         }
+        String mepRange = vmInputParams.get("app_mp1_ip");
+        String internetRange = vmInputParams.get("app_internet_ip");
         vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
         vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
         vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
@@ -272,6 +272,7 @@ public class ProjectService {
         vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
         return vmInputParams;
     }
+
 
     /**
      * cleanTestEnv.
@@ -290,10 +291,6 @@ public class ProjectService {
         boolean cleanResult = deleteDeployedApp(mepHost, instanceTenentId, appInstanceId, pkgId, token);
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
-        if(mepHost.getIpCount() > IP_COUNT){
-            mepHost.setIpCount(mepHost.getIpCount() - IP_COUNT_INCREASE);
-            hostMapper.updateHost(mepHost);
-        }
         return Either.right(cleanResult);
     }
 
@@ -342,15 +339,23 @@ public class ProjectService {
         return jsonObject.get("code").getAsInt();
 
     }
+
     /**
-     * delete Deployed App.
+     *  delete Deployed App.
+     * @param host host.
+     * @param userId userId.
+     * @param appInstanceId appInstanceId
+     * @param pkgId pkgId.
+     * @param token token.
+     * @return
      */
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
             long from = new Date().getTime();
-            boolean uninstallApp = HttpClientUtil.
-                terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
-            if(!uninstallApp){
+            boolean uninstallApp = HttpClientUtil
+                .terminateAppInstance(host.getProtocol(),
+                    host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
+            if (!uninstallApp) {
                 LOGGER.error("uninstall AppInstance failed.");
                 return false;
             }
@@ -435,9 +440,6 @@ public class ProjectService {
                 String errorlog = lcmLog.getLog();
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, errorlog));
             }
-            MepHost mepHost = mapHosts.get(0);
-            mepHost.setIpCount(mepHost.getIpCount() + IP_COUNT_INCREASE);
-            hostMapper.updateHost(mepHost);
             appReleasePo.setAppInstanceId(appInstanceId);
             appReleasePo.setInstanceTenentId(instanceTenentId);
             SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");

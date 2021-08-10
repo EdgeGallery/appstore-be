@@ -73,14 +73,6 @@
         host_id = #{hostId}
     </select>
 
-    <update id="updateHost" parameterType="org.edgegallery.appstore.domain.model.system.MepHost">
-        UPDATE
-        tbl_service_host
-        SET ip_count=#{ipCount}
-        WHERE
-        host_id = #{hostId}
-    </update>
-
     <update id="updateHostSelected" parameterType="org.edgegallery.appstore.domain.model.system.MepHost">
         UPDATE
         tbl_service_host

@@ -34,7 +34,5 @@ public interface HostMapper {
     List<MepHost> getHostsByCondition(@Param("name") String name,
         @Param("ip") String ip, @Param("os") String os);
 
-    int updateHost(MepHost host);
-
 }
 
