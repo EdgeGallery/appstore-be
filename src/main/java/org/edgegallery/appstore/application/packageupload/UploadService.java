@@ -6,6 +6,12 @@ import org.springframework.stereotype.Service;
 
 @Service("UploadService")
 public class UploadService {
+    /**
+     * uploadPackage
+     *
+     * @param reqStr
+     * @return
+     */
     public JSONObject uploadPackage(String reqStr) {
         JSONObject reqJson = JSONObject.parseObject(reqStr);
         String hostUrl = reqJson.getString("hostIp");

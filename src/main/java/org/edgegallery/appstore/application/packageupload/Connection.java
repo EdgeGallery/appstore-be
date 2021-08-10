@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public class Connection {
     public static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 
-    public static final String USER_AGENT
-        = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        + "(KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36";
 
     public static final String LINE_SEPARATOR = "\r\n";
 
@@ -45,7 +45,20 @@ public class Connection {
 
     /**
      * 分片上传
+     *
+     * @param header
+     * @param url
+     * @param postData
+     * @param totalSie
+     * @param count
+     * @param fileName
+     * @param req
+     * @param csrfToken
+     * @param cookie
+     * @param hostUrl
+     * @return
      */
+
     public static JSONObject postFiles(JSONObject header, String url, byte[] postData, long totalSie, int count,
         String fileName, JSONObject req, String csrfToken, String cookie, String hostUrl) {
         JSONObject ret = new JSONObject();

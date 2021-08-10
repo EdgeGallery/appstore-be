@@ -11,6 +11,16 @@ import org.slf4j.LoggerFactory;
 public class UploadHelper {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadHelper.class);
 
+    /**
+     * upload Big Software
+     *
+     * @param softPath
+     * @param req
+     * @param csrfToken
+     * @param cookie
+     * @param hostUrl
+     * @return
+     */
     public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie,
         String hostUrl) {
         JSONObject ret = new JSONObject();
@@ -22,8 +32,8 @@ public class UploadHelper {
             LOGGER.info("--------start upload software--------" + fileName);
             JSONObject header = new JSONObject();
             UUID uuid = UUID.randomUUID();
-            String xFileId = uuid.toString().replace("-", "");
-            header.put("X-File-id", xFileId);
+            String fileId = uuid.toString().replace("-", "");
+            header.put("X-File-id", fileId);
             header.put("X-File-Name", fileName);
             header.put("X-File-size", soft.length());
             header.put("X-Uni-Crsf-Token", csrfToken);
@@ -46,10 +56,9 @@ public class UploadHelper {
                 j = i + AppConfig.FILE_SIZE;
                 header.put("X-File-start", i);
                 header.put("X-File-end", j);
-
+                String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
                 ret = Connection
-                    .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
-                        buffer, totalSize, count, fileName, req, csrfToken, cookie,hostUrl);
+                    .postFiles(header, url, buffer, totalSize, count, fileName, req, csrfToken, cookie, hostUrl);
                 LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + i);
                 i = j;
                 count++;
@@ -64,9 +73,9 @@ public class UploadHelper {
             header.put("Content-Length", length);
             header.put("X-File-start", i);
             header.put("X-File-end", soft.length());
+            String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
             ret = Connection
-                .postFiles(header, AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count,
-                    ednBuffer, totalSize, count, fileName, req, csrfToken, cookie,hostUrl);
+                .postFiles(header, url, ednBuffer, totalSize, count, fileName, req, csrfToken, cookie, hostUrl);
             LOGGER.info("上传文件：" + fileName + "-总大小：" + totalSize + "-已上传：" + soft.length());
             LOGGER.info("Upload package finished.");
             return ret;
