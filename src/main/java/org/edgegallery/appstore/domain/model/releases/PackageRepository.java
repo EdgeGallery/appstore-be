@@ -34,4 +34,6 @@ public interface PackageRepository {
 
     Integer countTotalForUserId(Map<String, Object> params);
 
+    List<Release> findReleaseByMecHost(String mecHost);
+
 }

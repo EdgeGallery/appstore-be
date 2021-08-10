@@ -101,7 +101,6 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPlCM instantiate log:{}", response);
         } catch (CustomException e) {
-            e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 errorLog);

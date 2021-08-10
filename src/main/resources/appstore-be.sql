@@ -28,6 +28,7 @@
         EXPERIENCEABLE           boolean            DEFAULT false,
         STARTEXPTIME             VARCHAR(100)       NULL,
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
+        MECHOST                  VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -131,8 +132,7 @@
         PORT INTEGER DEFAULT 0,
         VNC_PORT INTEGER DEFAULT NULL,
         PARAMETER text DEFAULT NULL,
-        DELETE BOOLEAN DEFAULT NULL,
-        IP_COUNT INTEGER DEFAULT 0
+        DELETE BOOLEAN DEFAULT NULL
     );
 
     CREATE TABLE IF NOT EXISTS TBL_UPLOADED_FILE (
@@ -177,6 +177,6 @@
 
     alter table tbl_service_host alter parameter type text USING parameter::VARCHAR(500);
 
-    alter table tbl_service_host  add column IF NOT EXISTS IP_COUNT INTEGER DEFAULT 0;
-
     alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLEIP varchar(100) NULL;
+
+    alter table catalog_package_table add column IF NOT EXISTS MECHOST varchar(100) NULL;

@@ -34,8 +34,6 @@ public interface HostMapper {
     List<MepHost> getHostsByCondition(@Param("name") String name,
         @Param("ip") String ip, @Param("os") String os);
 
-    int getHostLogCount(String mecHost);
-
     int updateHost(MepHost host);
 
 }

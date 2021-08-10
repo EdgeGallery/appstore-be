@@ -78,6 +78,9 @@ public class Release implements ValueObject<Release> {
     private String startExpTime;
 
     private String experienceableIp;
+
+    private String mecHost;
+
     /**
      * Constructor of Release.
      */

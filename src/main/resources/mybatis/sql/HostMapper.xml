@@ -157,13 +157,5 @@
         </if>
     </select>
 
-    <select id="getHostLogCount" parameterType="java.lang.String" resultType="java.lang.Integer">
-        SELECT
-        ip_count
-        FROM
-        tbl_service_host
-        WHERE
-        mec_host=#{mecHost}
-    </select>
 
 </mapper>

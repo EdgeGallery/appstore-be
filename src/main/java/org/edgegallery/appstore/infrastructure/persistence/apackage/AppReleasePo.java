@@ -127,6 +127,10 @@ public class AppReleasePo {
 
     @Column(name = "EXPERIENCEABLEIP")
     private String experienceableIp;
+
+    @Column(name = "MECHOST")
+    private String mecHost;
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }
@@ -179,6 +183,7 @@ public class AppReleasePo {
         po.experienceAble = pack.isExperienceAble();
         po.startExpTime = pack.getStartExpTime();
         po.setExperienceableIp(pack.getExperienceableIp());
+        po.setMecHost(pack.getMecHost());
         return po;
     }
 

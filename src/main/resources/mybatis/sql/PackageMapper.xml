@@ -135,6 +135,7 @@
         ,STARTEXPTIME = #{startExpTime}
         ,instancepackageid = #{instancePackageId}
         ,EXPERIENCEABLEIP = #{experienceableIp}
+        ,MECHOST = #{mecHost}
         WHERE packageid = #{packageId}
     </update>
 
@@ -142,6 +143,12 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
             parameterType="java.lang.String">
         select * from catalog_package_table where userid = #{userId}
+    </select>
+
+    <select id="findReleaseByMecHost"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            parameterType="java.lang.String">
+        select * from catalog_package_table where MECHOST = #{mecHost}
     </select>
 
     <select id="findReleaseNoCondtion"
