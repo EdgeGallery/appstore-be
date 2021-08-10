@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -111,7 +112,11 @@ public class ProjectService {
 
     private static final String VM_EQUAL = "=";
 
-    private static final int PARSE_IP_SUBNETWORK_SEGMENT = 255;
+    private static final int IP_BINARY_BITS = 32;
+
+    private static final int RESERVE_IP_COUNT = 2;
+
+    private static final int IP_CALCULATE_BASE = 2;
 
     private static final CookieStore cookieStore = new BasicCookieStore();
 
@@ -251,9 +256,10 @@ public class ProjectService {
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         int count = 0;
         String n6Range = vmInputParams.get("app_n6_ip");
-        String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);;
+        String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
+        int ipCount = getIpCount(temN6Ip);
         for (Release mecRelease : mecHostPackage) {
-            if (!mecRelease.getMecHost().equals(temN6Ip) && count < PARSE_IP_SUBNETWORK_SEGMENT) {
+            if (!mecRelease.getExperienceableIp().equals(temN6Ip) && count < ipCount) {
                 continue;
             } else {
                 count++;
@@ -272,6 +278,11 @@ public class ProjectService {
         vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
         vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
         return vmInputParams;
+    }
+
+    public int getIpCount(String n6Range) {
+        int cou = IP_BINARY_BITS - Integer.parseInt(n6Range.substring(n6Range.lastIndexOf("/") + 1));
+        return (int) Math.pow(IP_CALCULATE_BASE,cou) - RESERVE_IP_COUNT;
     }
 
 
