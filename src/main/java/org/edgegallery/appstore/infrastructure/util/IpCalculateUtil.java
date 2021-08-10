@@ -14,7 +14,7 @@ public class IpCalculateUtil {
 
     private static final int PARSE_IP_RANGE = 250;
 
-    private static final int PARSE_MASK_NBITS_EIGHT = 8;
+    private static final int PARSE_MASK_BITS_EIGHT = 8;
 
     private static final int PARSE_IP_NUMBER = 32;
 
@@ -41,9 +41,9 @@ public class IpCalculateUtil {
             return null;
         }
         // The subnet mask is 1 occupies a few bytes.
-        int num1 = inetMask / PARSE_MASK_NBITS_EIGHT;
+        int num1 = inetMask / PARSE_MASK_BITS_EIGHT;
         // The number of bits to fill in the subnet mask.
-        int num2 = inetMask % PARSE_MASK_NBITS_EIGHT;
+        int num2 = inetMask % PARSE_MASK_BITS_EIGHT;
         int[] array = new int[INT_CAPACITY];
         for (int i = 0; i < num1; i++) {
             array[i] = PARSE_IP_NETWORK_SEGMENT;
@@ -52,7 +52,7 @@ public class IpCalculateUtil {
             array[i] = 0;
         }
         for (int i = 0; i < num2; num2--) {
-            array[num1] += 1 << PARSE_MASK_NBITS_EIGHT - num2;
+            array[num1] += 1 << PARSE_MASK_BITS_EIGHT - num2;
         }
         for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
             if (i == PARSE_HOST_IP_INDEX) {
