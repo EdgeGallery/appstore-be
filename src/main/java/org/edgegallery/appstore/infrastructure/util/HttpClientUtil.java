@@ -137,7 +137,6 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPLCM upload pkg log:{}", response);
         } catch (CustomException e) {
-            e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed upload pkg exception {}", errorLog);
             lcmLog.setLog(errorLog);
@@ -177,7 +176,6 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPLCM distribute pkg log:{}", response);
         } catch (CustomException e) {
-            e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed distribute pkg packageId  {} exception {}", packageId, errorLog);
             lcmLog.setLog(errorLog);
