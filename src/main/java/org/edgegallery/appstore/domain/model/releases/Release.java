@@ -81,6 +81,8 @@ public class Release implements ValueObject<Release> {
 
     private String mecHost;
 
+    private String downloadTime;
+
     /**
      * Constructor of Release.
      */

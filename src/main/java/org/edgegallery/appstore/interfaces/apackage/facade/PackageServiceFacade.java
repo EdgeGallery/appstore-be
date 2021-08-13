@@ -16,13 +16,22 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -38,6 +47,8 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
@@ -48,6 +59,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("PackageServiceFacade")
@@ -58,6 +70,11 @@ public class PackageServiceFacade {
     private static final String ZIP_EXTENSION = ".zip";
 
     private static final String ZIP_POINT = ".";
+
+    /**
+     * scheduled clean up tempPackage more than 24 hours
+     */
+    private static final int CLEAN_ENV_WAIT_TIME = 24;
 
     @Autowired
     private AppService appService;
@@ -73,6 +90,10 @@ public class PackageServiceFacade {
 
     @Autowired
     private AppUtil appUtil;
+
+    @Autowired
+    private PackageMapper packageMapper;
+
 
     /**
      * Query package by package id.
@@ -136,7 +157,6 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
-        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         InputStream ins;
         if (isDownloadImage) {
             String storageAddress = release.getPackageFile().getStorageAddress();
@@ -147,6 +167,13 @@ public class PackageServiceFacade {
         } else {
             ins = fileService.get(release.getPackageFile());
         }
+        //update sownloadTime
+        AppReleasePo appReleasePo = new AppReleasePo();
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        appReleasePo.setPackageId(packageId);
+        appReleasePo.setDownloadTime(time.format(new Date()));
+        packageMapper.updateAppInstanceApp(appReleasePo);
+        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
@@ -245,5 +272,43 @@ public class PackageServiceFacade {
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
+    }
+
+    /**
+     * Periodically delete decompressed temporary directory files.
+     */
+    public void deletePackage() {
+        List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
+        if (CollectionUtils.isEmpty(packageList)) {
+            LOGGER.error("get package List is empty");
+            return;
+        }
+        try {
+            Instant dateOfProject = null;
+            for (AppReleasePo packageObj : packageList) {
+                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String createDate = packageObj.getStartExpTime();
+                if (StringUtils.isEmpty(createDate)) {
+                    dateOfProject = Instant.now();
+                } else {
+                    dateOfProject = fmt.parse(createDate).toInstant();
+                }
+                Instant now = Instant.now();
+                Long timeDiff = Duration.between(dateOfProject, now).toHours();
+                if (timeDiff.intValue() >= CLEAN_ENV_WAIT_TIME) {
+                    String storageAddress = packageObj.getPackageAddress();
+                    String fileZip = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT)) + ZIP_EXTENSION;
+                    File tempZip = new File(fileZip);
+                    FileUtils.deleteQuietly(tempZip);
+                    packageObj.setDownloadTime(null);
+                    packageMapper.updateRelease(packageObj);
+
+                }
+            }
+        } catch (ParseException e) {
+            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+            return;
+
+        }
     }
 }
