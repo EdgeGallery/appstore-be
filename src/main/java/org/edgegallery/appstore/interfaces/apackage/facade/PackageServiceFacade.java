@@ -70,7 +70,7 @@ public class PackageServiceFacade {
     private String packageDir;
 
     /**
-     * scheduled clean up tempPackage more than 24 hours
+     * scheduled clean up tempPackage more than 24 hours.
      */
     private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
 
@@ -278,18 +278,26 @@ public class PackageServiceFacade {
                 long timeDiff = getExpirTime(folderFile);
                 if (timeDiff >= CLEAN_ENV_WAIT_TIME) {
                     File[] tempFiles = folderFile.listFiles();
+                    if (tempFiles != null && tempFiles.length > 0) {
                         for (File zipFile : tempFiles) {
-                            if(zipFile.getName().contains(TEMP_EXPIRE_PREFIX)) {
+                            if (zipFile.getName().contains(TEMP_EXPIRE_PREFIX)) {
                                 long expireTime = getExpirTime(zipFile);
                                 if (expireTime >= CLEAN_ENV_WAIT_TIME) {
                                     FileUtils.deleteQuietly(zipFile);
                                 }
                             }
                         }
+                    }
                 }
             }
         }
     }
+
+    /**
+     * get expire time for pacakge.
+     * @param tempZip tempZip file.
+     * @return
+     */
     public long getExpirTime(File tempZip) {
         long startTime = tempZip.lastModified();
         long endTime = new Date().getTime();
