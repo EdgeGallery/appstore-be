@@ -275,16 +275,13 @@ public class PackageServiceFacade {
         File[] files = tempZip.listFiles();
         if (files != null && files.length > 0) {
             for (File folderFile : files) {
-                long timeDiff = getExpirTime(folderFile);
-                if (timeDiff >= CLEAN_ENV_WAIT_TIME) {
-                    File[] tempFiles = folderFile.listFiles();
-                    if (tempFiles != null && tempFiles.length > 0) {
-                        for (File zipFile : tempFiles) {
-                            if (zipFile.getName().contains(TEMP_EXPIRE_PREFIX)) {
-                                long expireTime = getExpirTime(zipFile);
-                                if (expireTime >= CLEAN_ENV_WAIT_TIME) {
-                                    FileUtils.deleteQuietly(zipFile);
-                                }
+                File[] tempFiles = folderFile.listFiles();
+                if (tempFiles != null && tempFiles.length > 0) {
+                    for (File zipFile : tempFiles) {
+                        if (zipFile.getName().startsWith(TEMP_EXPIRE_PREFIX)) {
+                            long expireTime = getExpirTime(zipFile);
+                            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                                FileUtils.deleteQuietly(zipFile);
                             }
                         }
                     }
