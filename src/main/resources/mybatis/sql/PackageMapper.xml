@@ -50,7 +50,7 @@
             userName         = #{userName},
             TESTTASKID       = #{testTaskId},
             status           = #{status},
-        EXPERIENCEABLE = #{experienceAble}
+            EXPERIENCEABLE = #{experienceAble}
         WHERE packageid = #{packageId}
     </update>
 

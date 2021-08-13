@@ -131,6 +131,7 @@ public class AppReleasePo {
     @Column(name = "MECHOST")
     private String mecHost;
 
+
     public AppReleasePo() {
         // empty constructor of AppReleasePO
     }

@@ -16,13 +16,16 @@
 
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -38,12 +41,14 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
+import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +64,16 @@ public class PackageServiceFacade {
 
     private static final String ZIP_POINT = ".";
 
+    private static String TEMP_EXPIRE_PREFIX = "tempExpire";
+
+    @Value("${appstore-be.package-path}")
+    private String packageDir;
+
+    /**
+     * scheduled clean up tempPackage more than 24 hours.
+     */
+    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
+
     @Autowired
     private AppService appService;
 
@@ -73,6 +88,10 @@ public class PackageServiceFacade {
 
     @Autowired
     private AppUtil appUtil;
+
+    @Autowired
+    private PackageMapper packageMapper;
+
 
     /**
      * Query package by package id.
@@ -136,17 +155,18 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
         String token) throws IOException {
         Release release = appService.download(appId, packageId);
-        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         InputStream ins;
         if (isDownloadImage) {
             String storageAddress = release.getPackageFile().getStorageAddress();
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
-            String fileAddress = appUtil.compressZipAppPackage(fileParent);
+            String fileZipName = TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
+            String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName);
             ins = fileService.get(fileAddress);
         } else {
             ins = fileService.get(release.getPackageFile());
         }
+        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
@@ -245,5 +265,39 @@ public class PackageServiceFacade {
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
+    }
+
+    /**
+     * schedule delete compressed temporary directory files.
+     */
+    public void scheduledDeletePackage() {
+        File tempZip = new File(packageDir);
+        File[] files = tempZip.listFiles();
+        if (files != null && files.length > 0) {
+            for (File folderFile : files) {
+                File[] tempFiles = folderFile.listFiles();
+                if (tempFiles != null && tempFiles.length > 0) {
+                    for (File zipFile : tempFiles) {
+                        if (zipFile.getName().startsWith(TEMP_EXPIRE_PREFIX)) {
+                            long expireTime = getExpirTime(zipFile);
+                            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                                FileUtils.deleteQuietly(zipFile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * get expire time for pacakge.
+     * @param tempZip tempZip file.
+     * @return
+     */
+    public long getExpirTime(File tempZip) {
+        long startTime = tempZip.lastModified();
+        long endTime = new Date().getTime();
+        return endTime - startTime;
     }
 }

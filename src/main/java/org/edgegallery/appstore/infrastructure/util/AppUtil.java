@@ -453,19 +453,20 @@ public class AppUtil {
     }
 
     /**
-     * ZIP application package.
+     * compress and delete ZIP application package.
      *
-     * @param intendedDir application package ID
+     * @param destinationFile destinationFile.
+     * @param fileName compress file name.
      */
-    public String compressZipAppPackage(String intendedDir) {
-        String zipFileName = intendedDir.concat(ZIP_EXTENSION);
+    public String compressAndDeleteFile(String destinationFile, String fileName) {
+        String zipFileName = fileName.concat(ZIP_EXTENSION);
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
-            createCompressedFile(out, new File(intendedDir), "");
+            createCompressedFile(out, new File(destinationFile), "");
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
         try {
-            FileUtils.deleteDirectory(new File(intendedDir));
+            FileUtils.deleteDirectory(new File(destinationFile));
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }

@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
+import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -27,10 +28,18 @@ import org.springframework.stereotype.Component;
 public class ScheduleTask {
 
     @Autowired
+    private PackageServiceFacade packageServiceFacade;
+
+    @Autowired
     private ProjectService projectService;
 
     @Scheduled(cron = "0 0 0 * * ? ")
     public void processCleanEnv() {
         projectService.cleanUnreleasedEnv();
+    }
+
+    @Scheduled(cron = "0 0 0 * * ? ")
+    public void processCleanTempPackage() {
+        packageServiceFacade.scheduledDeletePackage();
     }
 }
