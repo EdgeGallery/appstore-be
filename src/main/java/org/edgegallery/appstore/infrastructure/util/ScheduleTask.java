@@ -40,6 +40,6 @@ public class ScheduleTask {
 
     @Scheduled(cron = "0 0 0 * * ? ")
     public void processCleanTempPackage() {
-        packageServiceFacade.deletePackage();
+        packageServiceFacade.scheduledDeletePackage();
     }
 }

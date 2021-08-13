@@ -29,7 +29,6 @@
         STARTEXPTIME             VARCHAR(100)       NULL,
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         MECHOST                  VARCHAR(100)       NULL,
-        DOWNLOADTIME             VARCHAR(100)       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -181,5 +180,3 @@
     alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLEIP varchar(100) NULL;
 
     alter table catalog_package_table add column IF NOT EXISTS MECHOST varchar(100) NULL;
-
-    alter table catalog_package_table add column IF NOT EXISTS DOWNLOADTIME varchar(100) NULL;

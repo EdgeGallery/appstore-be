@@ -50,7 +50,6 @@
             userName         = #{userName},
             TESTTASKID       = #{testTaskId},
             status           = #{status},
-            DOWNLOADTIME = #{downloadTime},
             EXPERIENCEABLE = #{experienceAble}
         WHERE packageid = #{packageId}
     </update>
@@ -135,7 +134,6 @@
         ,instancetenentid = #{instanceTenentId}
         ,STARTEXPTIME = #{startExpTime}
         ,instancepackageid = #{instancePackageId}
-        ,DOWNLOADTIME = #{downloadTime}
         ,EXPERIENCEABLEIP = #{experienceableIp}
         ,MECHOST = #{mecHost}
         WHERE packageid = #{packageId}

@@ -19,11 +19,6 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -47,7 +41,6 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
@@ -55,11 +48,11 @@ import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("PackageServiceFacade")
@@ -71,10 +64,15 @@ public class PackageServiceFacade {
 
     private static final String ZIP_POINT = ".";
 
+    private static String TEMP_EXPIRE_PREFIX = "tempExpire";
+
+    @Value("${appstore-be.package-path}")
+    private String packageDir;
+
     /**
      * scheduled clean up tempPackage more than 24 hours
      */
-    private static final int CLEAN_ENV_WAIT_TIME = 24;
+    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
 
     @Autowired
     private AppService appService;
@@ -162,17 +160,12 @@ public class PackageServiceFacade {
             String storageAddress = release.getPackageFile().getStorageAddress();
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
-            String fileAddress = appUtil.compressZipAppPackage(fileParent);
+            String fileZipName = TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
+            String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName);
             ins = fileService.get(fileAddress);
         } else {
             ins = fileService.get(release.getPackageFile());
         }
-        //update sownloadTime
-        AppReleasePo appReleasePo = new AppReleasePo();
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        appReleasePo.setPackageId(packageId);
-        appReleasePo.setDownloadTime(time.format(new Date()));
-        packageMapper.updateAppInstanceApp(appReleasePo);
         String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
@@ -275,40 +268,31 @@ public class PackageServiceFacade {
     }
 
     /**
-     * Periodically delete decompressed temporary directory files.
+     * schedule delete compressed temporary directory files.
      */
-    public void deletePackage() {
-        List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
-        if (CollectionUtils.isEmpty(packageList)) {
-            LOGGER.error("get package List is empty");
-            return;
-        }
-        try {
-            Instant dateOfProject = null;
-            for (AppReleasePo packageObj : packageList) {
-                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                String createDate = packageObj.getStartExpTime();
-                if (StringUtils.isEmpty(createDate)) {
-                    dateOfProject = Instant.now();
-                } else {
-                    dateOfProject = fmt.parse(createDate).toInstant();
-                }
-                Instant now = Instant.now();
-                Long timeDiff = Duration.between(dateOfProject, now).toHours();
-                if (timeDiff.intValue() >= CLEAN_ENV_WAIT_TIME) {
-                    String storageAddress = packageObj.getPackageAddress();
-                    String fileZip = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT)) + ZIP_EXTENSION;
-                    File tempZip = new File(fileZip);
-                    FileUtils.deleteQuietly(tempZip);
-                    packageObj.setDownloadTime(null);
-                    packageMapper.updateRelease(packageObj);
-
+    public void scheduledDeletePackage() {
+        File tempZip = new File(packageDir);
+        File[] files = tempZip.listFiles();
+        if (files != null && files.length > 0) {
+            for (File folderFile : files) {
+                long timeDiff = getExpirTime(folderFile);
+                if (timeDiff >= CLEAN_ENV_WAIT_TIME) {
+                    File[] tempFiles = folderFile.listFiles();
+                        for (File zipFile : tempFiles) {
+                            if(zipFile.getName().contains(TEMP_EXPIRE_PREFIX)) {
+                                long expireTime = getExpirTime(zipFile);
+                                if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                                    FileUtils.deleteQuietly(zipFile);
+                                }
+                            }
+                        }
                 }
             }
-        } catch (ParseException e) {
-            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
-            return;
-
         }
+    }
+    public long getExpirTime(File tempZip) {
+        long startTime = tempZip.lastModified();
+        long endTime = new Date().getTime();
+        return endTime - startTime;
     }
 }

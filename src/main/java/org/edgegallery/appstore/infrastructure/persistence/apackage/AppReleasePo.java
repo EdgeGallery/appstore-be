@@ -131,9 +131,6 @@ public class AppReleasePo {
     @Column(name = "MECHOST")
     private String mecHost;
 
-    @Column(name = "DOWNLOADTIME")
-    private String downloadTime;
-
 
     public AppReleasePo() {
         // empty constructor of AppReleasePO
@@ -188,7 +185,6 @@ public class AppReleasePo {
         po.startExpTime = pack.getStartExpTime();
         po.setExperienceableIp(pack.getExperienceableIp());
         po.setMecHost(pack.getMecHost());
-        po.setDownloadTime(pack.getDownloadTime());
         return po;
     }
 
