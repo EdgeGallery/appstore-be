@@ -36,10 +36,10 @@ public class SwImgDesc {
     private String checksum;
     private String containerFormat;
     private String diskFormat;
-    private String minDisk;
-    private String minRam;
+    private int minDisk;
+    private int minRam;
     private String architecture;
-    private String size;
+    private int size;
     private String swImage;
     private String operatingSystem;
     private String supportedVirtualisationEnvironment;
