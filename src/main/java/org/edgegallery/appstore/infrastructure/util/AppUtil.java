@@ -281,7 +281,7 @@ public class AppUtil {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                newPathName = "/Image/" + imgPath.substring(imgPath.lastIndexOf(File.separator) + 1)
+                newPathName = "Image/" + imgPath.substring(imgPath.lastIndexOf(File.separator) + 1)
                     + File.separator + entry.getName();
             }
         } catch (IOException e) {
