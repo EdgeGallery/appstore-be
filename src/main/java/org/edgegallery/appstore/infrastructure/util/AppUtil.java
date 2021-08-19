@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -56,6 +57,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -71,10 +73,6 @@ import org.springframework.web.client.RestTemplate;
 public class AppUtil {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(AppUtil.class);
-
-    private static final RestTemplate restTemplate = new RestTemplate();
-
-    private static final Gson gson = new Gson();
 
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
@@ -95,6 +93,12 @@ public class AppUtil {
     private static final String DOWNLOAD_IMAGE_TAG = "/action/download";
 
     private static final String DOWNLOAD_ZIP_IMAGE = "?isZip=true";
+
+    @Value("${appstore-be.encrypted-key-path:}")
+    private String keyPath;
+
+    @Value("${appstore-be.key-password:}")
+    private String keyPwd;
 
     @Autowired
     private AppService appService;
@@ -155,6 +159,7 @@ public class AppUtil {
         HttpEntity<String> request = new HttpEntity<>(headers);
         LOGGER.info("get images status from fileSystem, url: {}", url);
         try {
+            RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("get image from file system status: {}", response.getStatusCode());
             return HttpStatus.OK.equals(response.getStatusCode());
@@ -276,7 +281,7 @@ public class AppUtil {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                newPathName = "/Image/" + imgPath.substring(imgPath.lastIndexOf(File.separator) + 1)
+                newPathName = "Image/" + imgPath.substring(imgPath.lastIndexOf(File.separator) + 1)
                     + File.separator + entry.getName();
             }
         } catch (IOException e) {
@@ -287,7 +292,7 @@ public class AppUtil {
         imgDecsLists.set(index, imageDesc);
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDesc = new File(jsonFile);
-        writeFile(swImageDesc, gson.toJson(imgDecsLists));
+        writeFile(swImageDesc, new Gson().toJson(imgDecsLists));
     }
 
     private void addImageFileInfo(String parentDir, String imgZipPath) {
@@ -295,7 +300,7 @@ public class AppUtil {
             try {
                 // add image zip to mf file
                 File mfFile = getFile(parentDir, "mf");
-                new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath);
+                new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath, keyPath, keyPwd);
 
                 // add image zip to TOSCA.meta file
                 String toscaMeta = parentDir + "/TOSCA-Metadata/TOSCA.meta";
@@ -320,7 +325,7 @@ public class AppUtil {
     public File getFile(String parentDir, String fileExtension) {
         List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
         for (File fileEntry : files) {
-            if (Files.getFileExtension(fileEntry.getName().toLowerCase()).equals(fileExtension)) {
+            if (Files.getFileExtension(fileEntry.getName().toLowerCase(Locale.ROOT)).equals(fileExtension)) {
                 return fileEntry;
             }
         }
