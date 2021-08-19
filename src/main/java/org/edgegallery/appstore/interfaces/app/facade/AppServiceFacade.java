@@ -109,6 +109,12 @@ public class AppServiceFacade {
     @Value("${appstore-be.temp-path}")
     private String filePathTemp;
 
+    @Value("${appstore-be.encrypted-key-path:}")
+    private String keyPath;
+
+    @Value("${appstore-be.key-password:}")
+    private String keyPwd;
+
     public AppServiceFacade(AppService appService) {
         this.appService = appService;
     }
@@ -297,7 +303,7 @@ public class AppServiceFacade {
                 appService.updateImgInRepo(imgDecsList);
                 // update hash value of Image/SwImageDesc.json
                 File mfFile = appUtil.getFile(fileParent, "mf");
-                new BasicInfo().rewriteManifestWithImage(mfFile, "");
+                new BasicInfo().rewriteManifestWithImage(mfFile, "", keyPath, keyPwd);
                 fileAddress = appUtil.compressCsarAppPackage(fileParent);
             }
         } catch (FileNotFoundException ex) {
