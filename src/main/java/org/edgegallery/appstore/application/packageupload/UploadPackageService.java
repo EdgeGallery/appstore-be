@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 @Service("UploadPackageService")
 public class UploadPackageService {
-    @Value("${meao.meao-host}")
+    @Value("${meao.host}")
     private String meaoHost;
 
-    @Value("${meao.meao-user}")
+    @Value("${meao.user}")
     private String meaoUser;
 
-    @Value("${meao.meao-password}")
+    @Value("${meao.password}")
     private String meaoPassword;
 
     /**
