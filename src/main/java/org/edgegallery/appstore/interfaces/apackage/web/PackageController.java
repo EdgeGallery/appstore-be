@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.hibernate.validator.constraints.Length;
@@ -140,7 +141,7 @@ public class PackageController {
         @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> syncPackage(
+    public ResponseEntity<ResponseObject> syncPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
         HttpServletRequest request) throws IOException {

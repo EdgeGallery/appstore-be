@@ -186,7 +186,7 @@ public class PackageServiceFacade {
      * @return ResponseEntity
      * @throws IOException IOException
      */
-    public ResponseEntity<String> syncPackage(String appId, String packageId, String token) throws IOException {
+    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
@@ -204,8 +204,8 @@ public class PackageServiceFacade {
                 uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION).toString();
             }
         }).start();
-
-        return ResponseEntity.ok().body("Uploading package takes a long time.");
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
 
     /**
