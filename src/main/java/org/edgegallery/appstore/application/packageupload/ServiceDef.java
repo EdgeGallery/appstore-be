@@ -21,4 +21,29 @@ public class ServiceDef {
     private String fileName;
 
     private String description;
+
+    /**
+     * getVims
+     *
+     * @return
+     */
+    public String[] getVims() {
+        if (vims != null) {
+            return vims.clone();
+        }
+        return new String[0];
+    }
+
+    /**
+     * setVims
+     *
+     * @param vims vims
+     */
+    public void setVims(String[] vims) {
+        if (vims != null) {
+            this.vims = vims.clone();
+        } else {
+            this.vims = null;
+        }
+    }
 }
