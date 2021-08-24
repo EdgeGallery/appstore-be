@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/package")
 public class UploadPackageController {
     @Autowired
-    private UploadService uploadService;
+    private UploadPackageService uploadPackageService;
 
     @RequestMapping(value = "/v1/upload/appd", method = RequestMethod.POST)
     public JSONObject uploadPackage(@RequestBody String req) {
-        return uploadService.uploadPackage(req);
+        return uploadPackageService.uploadPackage(req);
     }
 }

@@ -30,6 +30,7 @@ import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
+import org.edgegallery.appstore.application.packageupload.UploadPackageService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
@@ -92,6 +93,8 @@ public class PackageServiceFacade {
     @Autowired
     private PackageMapper packageMapper;
 
+    @Autowired
+    private UploadPackageService uploadPackageService;
 
     /**
      * Query package by package id.
@@ -160,7 +163,8 @@ public class PackageServiceFacade {
             String storageAddress = release.getPackageFile().getStorageAddress();
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
-            String fileZipName = TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
+            String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
+                + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
             String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName);
             ins = fileService.get(fileAddress);
         } else {
@@ -173,9 +177,32 @@ public class PackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
+    public ResponseEntity<String> syncPackage(String appId, String packageId, String token) throws IOException {
+        appId = "d415e520e00a48ed9721fefa99187f99";
+        packageId = "c5758730b9044a588852221245699766";
+        Release release = appService.download(appId, packageId);
+        String storageAddress = release.getPackageFile().getStorageAddress();
+        String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
+        String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
+            + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
+        if (!new File(fileZipName + ZIP_EXTENSION).exists()) {
+            appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
+            appUtil.compressAndDeleteFile(fileParent, fileZipName);
+        }
+
+        // start a thread to upload package to meao
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION).toString();
+            }
+        }).start();
+
+        return ResponseEntity.ok().body("Uploading package takes a long time.");
+    }
+
     /**
      * publish package.
-     *
      */
     public ResponseEntity<String> publishPackage(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
@@ -184,7 +211,6 @@ public class PackageServiceFacade {
 
     /**
      * publish package v2.
-     *
      */
     public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId) {
         packageService.publishPackage(appId, packageId);
@@ -243,11 +269,11 @@ public class PackageServiceFacade {
         params.put("sortType", queryCtrl.getSortType());
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(params);
-        return new Page<>(packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of)
-            .collect(Collectors.toList()), queryCtrl.getLimit(), queryCtrl.getOffset(), total);
+        return new Page<>(
+            packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of).collect(Collectors.toList()),
+            queryCtrl.getLimit(), queryCtrl.getOffset(), total);
     }
 
     /**
@@ -260,8 +286,7 @@ public class PackageServiceFacade {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
@@ -292,6 +317,7 @@ public class PackageServiceFacade {
 
     /**
      * get expire time for pacakge.
+     *
      * @param tempZip tempZip file.
      * @return
      */

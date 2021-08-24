@@ -78,8 +78,8 @@ public class Connection {
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("vnfpackageInfo", req.getString("vnfpackageInfo"));
 
-            multiBuilder.setBoundary(boundary);
-            multiBuilder.addTextBody("catalogShareInfo", req.getString("catalogShareInfo"));
+            // multiBuilder.setBoundary(boundary);
+            // multiBuilder.addTextBody("catalogShareInfo", req.getString("catalogShareInfo"));
 
             multiBuilder.setBoundary(boundary);
             multiBuilder.addBinaryBody("serviceDefFile", postData, ContentType.APPLICATION_OCTET_STREAM, "blob");
@@ -92,7 +92,7 @@ public class Connection {
             response = httpClient.execute(requestBase);
 
             int statusCode = response.getStatusLine().getStatusCode();
-            ret.put("body", EntityUtils.toString(response.getEntity()));
+            ret.put("message", EntityUtils.toString(response.getEntity()));
 
             if (statusCode == 200) {
                 ret.put("retCode", 0);
