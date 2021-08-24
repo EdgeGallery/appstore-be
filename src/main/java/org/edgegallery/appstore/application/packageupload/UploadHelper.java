@@ -66,6 +66,9 @@ public class UploadHelper {
                 String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
                 upPackage.setShardCount(count);
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
+                if (ret.getInteger("retCode") == -1) {
+                    return ret;
+                }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
                 i = j;
                 count++;
@@ -84,7 +87,7 @@ public class UploadHelper {
             upPackage.setShardCount(count);
             ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, ednBuffer);
             LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + soft.length());
-            LOGGER.info(fileName + "Upload package finished.");
+            LOGGER.info(fileName + " Upload package finished.");
             return ret;
         } catch (IOException e) {
             LOGGER.error("uploadBigSoftware IOException");

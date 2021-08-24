@@ -132,6 +132,21 @@ public class PackageController {
             .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
+    @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/sync", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "sync the package to meao.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<String> syncPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        HttpServletRequest request) throws IOException {
+        return packageServiceFacade.syncPackage(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
+    }
+
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get csar file uri by appId and packageId", response = String.class)
     @ApiResponses(value = {
