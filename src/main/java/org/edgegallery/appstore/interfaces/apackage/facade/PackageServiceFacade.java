@@ -177,6 +177,15 @@ public class PackageServiceFacade {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
+    /**
+     * sysc package to meao.
+     *
+     * @param appId appId
+     * @param packageId packageId
+     * @param token token
+     * @return ResponseEntity
+     * @throws IOException IOException
+     */
     public ResponseEntity<String> syncPackage(String appId, String packageId, String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();

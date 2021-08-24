@@ -23,7 +23,7 @@ public class ServiceDef {
     private String description;
 
     /**
-     * getVims
+     * getVims.
      *
      * @return
      */
@@ -35,7 +35,7 @@ public class ServiceDef {
     }
 
     /**
-     * setVims
+     * setVims.
      *
      * @param vims vims
      */

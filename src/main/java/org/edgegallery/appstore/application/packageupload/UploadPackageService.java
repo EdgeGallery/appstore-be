@@ -29,7 +29,6 @@ public class UploadPackageService {
         JSONObject reqJson = new JSONObject();
         reqJson.put("taskName", taskName);
 
-        JSONObject vnfpackageInfo = new JSONObject();
         ServiceDef serviceDef = new ServiceDef();
         serviceDef.setName(taskName);
         serviceDef.setServiceType("vnfpackage");
@@ -37,6 +36,7 @@ public class UploadPackageService {
         serviceDef.setAction("create");
         serviceDef.setMode("normal");
         serviceDef.setFileName(fileName);
+        JSONObject vnfpackageInfo = new JSONObject();
         vnfpackageInfo.put("serviceDef", serviceDef);
         reqJson.put("vnfpackageInfo", vnfpackageInfo);
 
