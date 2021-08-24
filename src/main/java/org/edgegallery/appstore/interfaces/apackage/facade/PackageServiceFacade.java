@@ -186,7 +186,7 @@ public class PackageServiceFacade {
      * @return ResponseEntity
      * @throws IOException IOException
      */
-    public ResponseEntity<String> syncPackage(String appId, String packageId, String token) throws IOException {
+    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String token) throws IOException {
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
@@ -204,8 +204,8 @@ public class PackageServiceFacade {
                 uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION).toString();
             }
         }).start();
-
-        return ResponseEntity.ok().body("Uploading package takes a long time.");
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
 
     /**
@@ -276,8 +276,7 @@ public class PackageServiceFacade {
         params.put("sortType", queryCtrl.getSortType());
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(params);
         return new Page<>(
             packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of).collect(Collectors.toList()),
@@ -294,8 +293,7 @@ public class PackageServiceFacade {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
