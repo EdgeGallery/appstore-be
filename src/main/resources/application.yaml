@@ -99,6 +99,6 @@ appShare:
 
 ### meao config ###
 meao:
-  meao-host: ${MEAO_HOST}
-  meao-user: ${MEAO_USER}
-  meao-password: ${MEAO_PASSWORD}
+  meao-host: ${MEAO_HOST:}
+  meao-user: ${MEAO_USER:}
+  meao-password: ${MEAO_PASSWORD:}
