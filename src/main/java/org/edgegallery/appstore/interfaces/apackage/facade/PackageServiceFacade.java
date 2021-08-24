@@ -178,8 +178,6 @@ public class PackageServiceFacade {
     }
 
     public ResponseEntity<String> syncPackage(String appId, String packageId, String token) throws IOException {
-        appId = "d415e520e00a48ed9721fefa99187f99";
-        packageId = "c5758730b9044a588852221245699766";
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
