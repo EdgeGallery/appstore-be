@@ -1,0 +1,20 @@
+metadata:
+app_product_name: loactionAppTest
+app_provider_id: HUAWEI
+app_package_version: v1.2
+app_release_data_time: 2021-06-24 20:21
+app_type: edgegallery_vm_package
+app_class: vm
+app_package_description: dadad
+
+Source: APPD/loactionAppTest.zip
+Algorithm: SHA-256
+Hash: 556a62edb8a15a457152c6c9d02607c28ebc69d9bdcab9e9f8c411eac75b3924
+
+Source: Image/SwImageDesc.json
+Algorithm: SHA-256
+Hash: 31c7e3b82418f736fb2ff34057dbdf8a2de9136bf9e60a178399346fb1dd7f5d
+
+
+
+
