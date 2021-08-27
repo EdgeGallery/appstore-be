@@ -1,0 +1,17 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 3.25
+Created-by: EdgeGallery
+Entry-Definitions: APPD/loactionAppTest.zip
+
+Name: Image/ubuntu_test.zip
+Content-Type: image
+
+Name: APPD/loactionAppTest.zip
+Content-Type: appd
+
+Name: Image/SwImageDesc.json
+Content-Type: SwImageDesc
+
+
+
+
