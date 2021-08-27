@@ -73,9 +73,7 @@ public class AppdFileContentHandler implements IParamsHandler {
     }
 
     public Map.Entry<String, String> getFirstData() {
-        for (Map.Entry<IAppdContentEnum, String> entry : params.entrySet()) {
-            return new AbstractMap.SimpleEntry<>(entry.getKey().getName(), entry.getValue());
-        }
-        return null;
+        IAppdContentEnum contentEnum = (IAppdContentEnum) contextEnum.getEnumConstants()[0];
+        return new AbstractMap.SimpleEntry<>(contentEnum.getName(), params.get(contentEnum));
     }
 }
