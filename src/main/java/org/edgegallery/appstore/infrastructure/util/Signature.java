@@ -16,8 +16,10 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -30,15 +32,26 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSTypedData;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -46,12 +59,16 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("Signature")
 public class Signature {
 
     private static final String KEY_TYPE = "PKCS12";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Signature.class);
 
     /**
      * sign message byte[].
@@ -107,5 +124,99 @@ public class Signature {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * verify the package signatures.
+     *
+     * @param filePath app package file path
+     * @return execute result
+     */
+    public Boolean signVerify(String filePath) {
+        try (ZipFile zipFile = new ZipFile(filePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                // root directory and file is end of mf
+                if (entry.getName().split("/").length == 1 && entry.getName().endsWith("mf")) {
+                    return validateSignature(zipFile, entry);
+                }
+            }
+        } catch (CMSException e) {
+            LOGGER.error("CMS exception, {}", e);
+        } catch (IOException e) {
+            LOGGER.error("IO exception, {}", e);
+        }
+
+        return false;
+    }
+
+    /**
+     * get signature value from mf file and verify it.
+     *
+     * @param zipFile zipFile
+     * @param entry entry
+     * @return if verify success
+     * @throws CMSException CMSException
+     */
+    private Boolean validateSignature(ZipFile zipFile, ZipEntry entry) throws CMSException {
+        StringBuffer signData = new StringBuffer();
+        try (BufferedReader br = new BufferedReader(
+            new InputStreamReader(zipFile.getInputStream(entry), StandardCharsets.UTF_8))) {
+            String line = "";
+            boolean flag = false;
+            while ((line = br.readLine()) != null) {
+                if (flag && !line.startsWith("---")) {
+                    signData.append(line.trim());
+                    continue;
+                }
+                if (line.startsWith("---")) {
+                    flag = true;
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("io exception, {}", e);
+        }
+
+        String signStr = new String(signData).trim();
+        if (StringUtils.isEmpty(signStr)) {
+            LOGGER.error("signature value is null.");
+            return false;
+        }
+        return signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * verify signature value.
+     *
+     * @param signedData signature value
+     * @return if verify sucess
+     * @throws CMSException CMSException
+     */
+    public boolean signedDataVerify(byte[] signedData) throws CMSException {
+        CMSSignedData cmsData = new CMSSignedData(Base64.decode(signedData));
+        Store store = cmsData.getCertificates();
+        SignerInformationStore signerInfo = cmsData.getSignerInfos();
+        Collection signers = signerInfo.getSigners();
+        Iterator iterator = signers.iterator();
+        while (iterator.hasNext()) {
+            SignerInformation signer = (SignerInformation) iterator.next();
+            Collection certs = store.getMatches(signer.getSID());
+            Iterator certIterator = certs.iterator();
+            X509CertificateHolder certHolder = (X509CertificateHolder) certIterator.next();
+            X509Certificate cert = null;
+            try {
+                cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(cert))) {
+                    return true;
+                }
+            } catch (CertificateException e) {
+                LOGGER.error("certificate exception, {}", e);
+            } catch (OperatorCreationException e) {
+                LOGGER.error("operator create exception, {}", e);
+            }
+
+        }
+        return false;
     }
 }
