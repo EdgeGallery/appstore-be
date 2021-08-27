@@ -61,25 +61,38 @@ public class ToscaFileHandler implements IAppdFile {
         if (lines == null || lines.size() <= 0) {
             return;
         }
-        IParamsHandler paramsHandler = null;
-        for (String line : lines) {
-            if (StringUtils.isEmpty(line)) {
+        // split list by empty line
+        List<List<String>> splitLines = splitByEmptyLine(lines);
+        for (List<String> lineRange : splitLines) {
+            IParamsHandler paramsHandler = paresFlag(lineRange.get(0));
+            if (paramsHandler == null) {
+                LOGGER.info("this data {} not define in the class {}", lineRange.get(0), contextEnums);
                 continue;
             }
-            IParamsHandler nextParamsHandler = paresFlag(line);
-            if (nextParamsHandler != null) {
-                if (paramsHandler != null) {
-                    paramsHandlerList.add(paramsHandler);
-                }
-                paramsHandler = nextParamsHandler;
+            for (String s : lineRange) {
+                paramsHandler.addOneData(parseThisLine(s));
             }
-            if (paramsHandler != null) {
-                paramsHandler.setData(parseThisLine(line));
-            }
-        }
-        if (paramsHandler != null) {
             paramsHandlerList.add(paramsHandler);
         }
+    }
+
+    private List<List<String>> splitByEmptyLine(List<String> lines) {
+        List<List<String>> splitLines = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
+        for (String line : lines) {
+            if (!StringUtils.isEmpty(line)) {
+                temp.add(line);
+            } else {
+                if (!temp.isEmpty()) {
+                    splitLines.add(temp);
+                }
+                temp = new ArrayList<>();
+            }
+        }
+        if (!temp.isEmpty()) {
+            splitLines.add(temp);
+        }
+        return splitLines;
     }
 
     private List<String> getLines(File file) {
@@ -110,9 +123,15 @@ public class ToscaFileHandler implements IAppdFile {
 
     private Map.Entry<String, String> parseThisLine(String line) {
         int splitIndex = line.indexOf(":");
-        String key = line.substring(0, splitIndex).trim();
-        String value = line.substring(splitIndex + 1).trim();
-        return new AbstractMap.SimpleEntry<>(key, value);
+        if (splitIndex > 0) {
+            String key = line.substring(0, splitIndex).trim();
+            String value = line.substring(splitIndex + 1).trim();
+            return new AbstractMap.SimpleEntry<>(key, value);
+        } else {
+            String key = line;
+            String value = line;
+            return new AbstractMap.SimpleEntry<>(key, value);
+        }
     }
 
     ToscaFileHandler(Class<?>... def) {

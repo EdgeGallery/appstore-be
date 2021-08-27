@@ -15,6 +15,7 @@
 package org.edgegallery.appstore.domain.model.appd.context;
 
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 /**
@@ -45,5 +46,15 @@ public enum ManifestFiledataContent implements IAppdContentEnum {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean check(String value) {
+        return !this.isNotNull() || !StringUtils.isEmpty(value);
+    }
+
+    @Override
+    public String toString(String value) {
+        return AppdFileUtil.toStringBy(this, value);
     }
 }

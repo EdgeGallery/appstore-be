@@ -87,7 +87,11 @@ public class ParsingAppFileTest {
         fileHandler.load(mfFile);
         String ret = fileHandler.toString();
         Assert.assertNotNull(ret);
-        Assert.assertTrue(data.trim().equals(ret));
+        System.out.println(data.trim());
+        System.out.println("---------------------");
+        System.out.println(ret);
+        System.out.println("---------------------");
+        Assert.assertEquals(data.trim(), ret);
     }
 
     @Test

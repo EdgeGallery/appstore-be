@@ -38,7 +38,7 @@ public class AppdFileContentHandler implements IParamsHandler {
     }
 
     @Override
-    public void setData(Map.Entry<String, String> data) {
+    public void addOneData(Map.Entry<String, String> data) {
         try {
             Object[] objects = contextEnum.getEnumConstants();
             Method valueOf = contextEnum.getMethod("of", String.class);
@@ -56,7 +56,7 @@ public class AppdFileContentHandler implements IParamsHandler {
         for (Object type : contextEnum.getEnumConstants()) {
             if (type instanceof IAppdContentEnum) {
                 IAppdContentEnum appdContextDef = (IAppdContentEnum) type;
-                if (appdContextDef.isNotNull() && !params.containsKey(appdContextDef)) {
+                if (!appdContextDef.check(params.get(appdContextDef))) {
                     LOGGER.info("not include param {} in the MF file.", appdContextDef.getName());
                     return false;
                 }
@@ -68,7 +68,7 @@ public class AppdFileContentHandler implements IParamsHandler {
     @Override
     public String toString() {
         List<String> lines = new ArrayList<>();
-        params.forEach((key, value) -> lines.add(String.format("%s: %s", key.getName(), value).trim()));
+        params.forEach((key, value) -> lines.add(key.toString(value)));
         return StringUtils.join(lines, "\n");
     }
 

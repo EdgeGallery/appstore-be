@@ -18,44 +18,56 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
-/**
- * TOSCA-Metadata: metadata.
- */
 @Getter
-public enum ToscaMetadataContent implements IAppdContentEnum {
-    TOSCA_Meta_File_Version("TOSCA-Meta-File-Version", true),
-    CSAR_Version("CSAR-Version", true),
-    Created_by("Created-by", true),
-    Entry_Definitions("Entry-Definitions", true);
+public enum ManifestCmsContent implements IAppdContentEnum {
+
+    BEGIN_CMS("-----BEGIN CMS-----", true),
+    CONTENT_CMS("*", true),
+    END_CMS("-----END CMS-----", true);
 
     private final String name;
 
     private final boolean isNotNull;
 
-    ToscaMetadataContent(String name, boolean isNotNull) {
+    ManifestCmsContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
-    /**
-     * create enum from name.
-     */
+    @Override
     public IAppdContentEnum of(String name) {
-        for (ToscaMetadataContent type : ToscaMetadataContent.values()) {
+        for (ManifestCmsContent type : ManifestCmsContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }
         }
+        if (!StringUtils.isEmpty(name)) {
+            return CONTENT_CMS;
+        }
         return null;
     }
 
-    @Override
+    /**
+     * to check the value is right.
+     */
     public boolean check(String value) {
         return !this.isNotNull() || !StringUtils.isEmpty(value);
     }
 
+    /**
+     * format to string this value.
+     */
     @Override
     public String toString(String value) {
-        return AppdFileUtil.toStringBy(this, value);
+        switch (this) {
+            case BEGIN_CMS:
+                return BEGIN_CMS.getName();
+            case END_CMS:
+                return END_CMS.getName();
+            case CONTENT_CMS:
+                return value;
+            default:
+                return "";
+        }
     }
 }

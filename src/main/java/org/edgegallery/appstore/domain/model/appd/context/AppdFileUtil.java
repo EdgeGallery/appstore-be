@@ -12,18 +12,17 @@
  * the License.
  */
 
-package org.edgegallery.appstore.domain.model.appd;
+package org.edgegallery.appstore.domain.model.appd.context;
 
-import java.util.Map;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
-public interface IParamsHandler {
+public class AppdFileUtil {
 
-    void addOneData(Map.Entry<String, String> data);
+    public static boolean toCheckData() {
+        return false;
+    }
 
-    boolean checkParams();
-
-    String toString();
-
-    Map.Entry<String, String> getFirstData();
-
+    public static String toStringBy(IAppdContentEnum type, String value) {
+        return (type.getName() + ": " + value).trim();
+    }
 }

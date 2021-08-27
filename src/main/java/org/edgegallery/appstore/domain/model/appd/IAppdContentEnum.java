@@ -22,5 +22,9 @@ public interface IAppdContentEnum {
 
     String getName();
 
+    boolean check(String value);
+
+    String toString(String value);
+
 }
 
