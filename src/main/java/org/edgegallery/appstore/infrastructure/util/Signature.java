@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -178,7 +179,7 @@ public class Signature {
         }
 
         String signStr = new String(signData).trim();
-        if (null == signStr || "" == signStr) {
+        if (StringUtils.isEmpty(signStr)) {
             LOGGER.error("signature value is null.");
             return false;
         }
