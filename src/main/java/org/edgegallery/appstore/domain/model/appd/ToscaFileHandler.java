@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ToscaFileHandler implements IAppdFile {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ToscaFileHandler.class);
 
-    private List<Class<?>> contextEnums = new ArrayList<>();
+    private final List<Class<?>> contextEnums = new ArrayList<>();
 
-    private List<String> firstTypes = new ArrayList<>();
+    private final List<String> firstTypes = new ArrayList<>();
 
     private List<IParamsHandler> paramsHandlerList;
 
@@ -29,7 +32,6 @@ public class ToscaFileHandler implements IAppdFile {
         }
         return true;
     }
-
 
     public boolean delFileDescByName(IAppdContentEnum type, String name) {
         return paramsHandlerList.removeIf(
@@ -88,7 +90,7 @@ public class ToscaFileHandler implements IAppdFile {
                 lines.add(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("failed to read file {}", file.getName());
         }
         return lines;
     }
@@ -102,7 +104,7 @@ public class ToscaFileHandler implements IAppdFile {
                 firstTypes.add((String) getName.invoke(objects[0]));
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            LOGGER.error("failed to invoke method in Class", def);
         }
     }
 
