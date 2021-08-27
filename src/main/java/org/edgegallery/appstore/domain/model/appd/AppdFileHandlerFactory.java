@@ -14,19 +14,23 @@
 
 package org.edgegallery.appstore.domain.model.appd;
 
-import org.edgegallery.appstore.domain.model.appd.context.ManifestMetadataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
-import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestMetadataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaMatedataContent;
+import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 
-public class AppdFileHandlerFactory {
+public final class AppdFileHandlerFactory {
 
     public static final int TOSCA_META_FILE = 1;
 
     public static final int MF_FILE = 2;
 
+    private AppdFileHandlerFactory() {
+    }
+
     /**
-     *  create handler by file type.
+     * create handler by file type.
+     *
      * @param fileType TOSCA_META_FILE or MF_FILE
      * @return ToscaFileHandler
      */

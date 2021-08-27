@@ -19,13 +19,34 @@ import java.util.List;
 
 public interface IAppdFile {
 
+    /**
+     * to load file.
+     * @param file
+     */
     void load(File file);
 
+    /**
+     * get the params after load file.
+     * @return
+     */
     List<IParamsHandler> getParamsHandlerList();
 
+    /**
+     * to string.
+     * @return
+     */
     String toString();
 
-    boolean delFileDescByName(IAppdContentEnum type, String name);
+    /**
+     * delete one content by content type and value.
+     * @param type IAppdContentEnum
+     * @param value String
+     * @return boolean
+     */
+    boolean delContentByTypeAndValue(IAppdContentEnum type, String value);
 
+    /**
+     * to check the file format by define.
+     */
     boolean formatCheck();
 }

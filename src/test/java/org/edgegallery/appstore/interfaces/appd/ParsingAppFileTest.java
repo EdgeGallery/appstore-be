@@ -98,7 +98,7 @@ public class ParsingAppFileTest {
         fileHandler.load(toscaFile);
         String ret = fileHandler.toString();
         Assert.assertTrue(ret.contains("Name: Image/ubuntu_test.zip\nContent-Type: image"));
-        Assert.assertTrue(fileHandler.delFileDescByName(ToscaSourceContent.Name, "Image/ubuntu_test.zip"));
+        Assert.assertTrue(fileHandler.delContentByTypeAndValue(ToscaSourceContent.Name, "Image/ubuntu_test.zip"));
         ret = fileHandler.toString();
         Assert.assertFalse(ret.contains("Name: Image/ubuntu_test.zip\nContent-Type: image"));
     }
@@ -111,7 +111,7 @@ public class ParsingAppFileTest {
         fileHandler.load(toscaFile);
         String ret = fileHandler.toString();
         Assert.assertTrue(ret.contains("Source: APPD/loactionAppTest.zip\nAlgorithm: SHA-256\nHash: 556a62edb8a15a457152c6c9d02607c28ebc69d9bdcab9e9f8c411eac75b3924"));
-        Assert.assertTrue(fileHandler.delFileDescByName(ManifestFiledataContent.Source, "APPD/loactionAppTest.zip"));
+        Assert.assertTrue(fileHandler.delContentByTypeAndValue(ManifestFiledataContent.Source, "APPD/loactionAppTest.zip"));
         ret = fileHandler.toString();
         Assert.assertFalse(ret.contains("Source: APPD/loactionAppTest.zip\nAlgorithm: SHA-256\nHash: 556a62edb8a15a457152c6c9d02607c28ebc69d9bdcab9e9f8c411eac75b3924"));
     }

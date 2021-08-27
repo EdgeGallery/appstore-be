@@ -47,7 +47,7 @@ public class ToscaFileHandler implements IAppdFile {
         return true;
     }
 
-    public boolean delFileDescByName(IAppdContentEnum type, String name) {
+    public boolean delContentByTypeAndValue(IAppdContentEnum type, String name) {
         return paramsHandlerList.removeIf(
             item -> item.getFirstData().getKey().equals(type.getName()) && item.getFirstData().getValue().equals(name));
     }
