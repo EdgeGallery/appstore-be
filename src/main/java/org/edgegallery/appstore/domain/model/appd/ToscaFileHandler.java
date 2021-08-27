@@ -1,3 +1,17 @@
+/*
+ * Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.edgegallery.appstore.domain.model.appd;
 
 import java.io.BufferedReader;
@@ -45,8 +59,7 @@ public class ToscaFileHandler implements IAppdFile {
             return;
         }
         IParamsHandler paramsHandler = null;
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
+        for (String line : lines) {
             if (StringUtils.isEmpty(line)) {
                 continue;
             }
@@ -57,7 +70,9 @@ public class ToscaFileHandler implements IAppdFile {
                 }
                 paramsHandler = nextParamsHandler;
             }
-            paramsHandler.setData(parseThisLine(line));
+            if (paramsHandler != null) {
+                paramsHandler.setData(parseThisLine(line));
+            }
         }
         if (paramsHandler != null) {
             paramsHandlerList.add(paramsHandler);
@@ -85,7 +100,7 @@ public class ToscaFileHandler implements IAppdFile {
     private List<String> readFileToList(File file) {
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
@@ -104,7 +119,7 @@ public class ToscaFileHandler implements IAppdFile {
                 firstTypes.add((String) getName.invoke(objects[0]));
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            LOGGER.error("failed to invoke method in Class", def);
+            LOGGER.error("failed to invoke method in Class.");
         }
     }
 
