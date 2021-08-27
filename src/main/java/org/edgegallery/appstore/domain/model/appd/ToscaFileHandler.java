@@ -14,12 +14,12 @@
 
 package org.edgegallery.appstore.domain.model.appd;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ public class ToscaFileHandler implements IAppdFile {
 
     public void load(File file) {
         paramsHandlerList = new ArrayList<>();
-        List<String> lines = readFileToList(file);
-        if (lines.size() <= 0) {
+        List<String> lines = getLines(file);
+        if (lines == null || lines.size() <= 0) {
             return;
         }
         IParamsHandler paramsHandler = null;
@@ -79,6 +79,15 @@ public class ToscaFileHandler implements IAppdFile {
         }
     }
 
+    private List<String> getLines(File file) {
+        try {
+            return Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.error("failed to read file {}", file.getPath());
+            return null;
+        }
+    }
+
     @Override
     public List<IParamsHandler> getParamsHandlerList() {
         return paramsHandlerList;
@@ -95,19 +104,6 @@ public class ToscaFileHandler implements IAppdFile {
         String key = line.substring(0, splitIndex).trim();
         String value = line.substring(splitIndex + 1).trim();
         return new AbstractMap.SimpleEntry<>(key, value);
-    }
-
-    private List<String> readFileToList(File file) {
-        List<String> lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        } catch (IOException e) {
-            LOGGER.error("failed to read file {}", file.getName());
-        }
-        return lines;
     }
 
     ToscaFileHandler(Class<?>... def) {
