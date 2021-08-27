@@ -18,7 +18,7 @@ import lombok.Getter;
 import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 /**
- * manifest-file: source file
+ * manifest-file: source file.
  */
 @Getter
 public enum ManifestFiledataContent implements IAppdContentEnum {
@@ -35,6 +35,9 @@ public enum ManifestFiledataContent implements IAppdContentEnum {
         this.isNotNull = isNotNull;
     }
 
+    /**
+     * create enum from name.
+     */
     public IAppdContentEnum of(String name) {
         for (ManifestFiledataContent type : ManifestFiledataContent.values()) {
             if (type.name.equals(name)) {

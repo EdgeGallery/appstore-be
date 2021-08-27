@@ -52,6 +52,9 @@ public class ToscaFileHandler implements IAppdFile {
             item -> item.getFirstData().getKey().equals(type.getName()) && item.getFirstData().getValue().equals(name));
     }
 
+    /**
+     * to load file.
+     */
     public void load(File file) {
         paramsHandlerList = new ArrayList<>();
         List<String> lines = getLines(file);
@@ -88,11 +91,17 @@ public class ToscaFileHandler implements IAppdFile {
         }
     }
 
+    /**
+     * get the params after load file.
+     */
     @Override
     public List<IParamsHandler> getParamsHandlerList() {
         return paramsHandlerList;
     }
 
+    /**
+     * to string.
+     */
     public String toString() {
         List<String> allData = new ArrayList<>();
         paramsHandlerList.forEach(item -> allData.add(item.toString()));
@@ -108,10 +117,10 @@ public class ToscaFileHandler implements IAppdFile {
 
     ToscaFileHandler(Class<?>... def) {
         try {
-            for (Class<?> aClass : def) {
-                contextEnums.add(aClass);
-                Object[] objects = aClass.getEnumConstants();
-                Method getName = aClass.getMethod("getName");
+            for (Class<?> clz : def) {
+                contextEnums.add(clz);
+                Object[] objects = clz.getEnumConstants();
+                Method getName = clz.getMethod("getName");
                 firstTypes.add((String) getName.invoke(objects[0]));
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

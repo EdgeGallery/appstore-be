@@ -18,7 +18,7 @@ import lombok.Getter;
 import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 /**
- * TOSCA-Metadata:
+ * TOSCA-Metadata: source file.
  */
 @Getter
 public enum ToscaSourceContent implements IAppdContentEnum {
@@ -33,6 +33,10 @@ public enum ToscaSourceContent implements IAppdContentEnum {
         this.name = name;
         this.isNotNull = isNotNull;
     }
+
+    /**
+     * create enum from name.
+     */
     public IAppdContentEnum of(String name){
         for (ToscaSourceContent type : ToscaSourceContent.values()) {
             if (type.name.equals(name)) {

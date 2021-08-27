@@ -21,19 +21,16 @@ public interface IAppdFile {
 
     /**
      * to load file.
-     * @param file
      */
     void load(File file);
 
     /**
      * get the params after load file.
-     * @return
      */
     List<IParamsHandler> getParamsHandlerList();
 
     /**
      * to string.
-     * @return
      */
     String toString();
 

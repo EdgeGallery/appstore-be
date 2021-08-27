@@ -17,8 +17,11 @@ package org.edgegallery.appstore.domain.model.appd.context;
 import lombok.Getter;
 import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
+/**
+ * TOSCA-Metadata: metadata.
+ */
 @Getter
-public enum ToscaMatedataContent implements IAppdContentEnum {
+public enum ToscaMetadataContent implements IAppdContentEnum {
     TOSCA_Meta_File_Version("TOSCA-Meta-File-Version", true),
     CSAR_Version("CSAR-Version", true),
     Created_by("Created-by", true),
@@ -28,13 +31,16 @@ public enum ToscaMatedataContent implements IAppdContentEnum {
 
     private final boolean isNotNull;
 
-    ToscaMatedataContent(String name, boolean isNotNull) {
+    ToscaMetadataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
+    /**
+     * create enum from name.
+     */
     public IAppdContentEnum of(String name) {
-        for (ToscaMatedataContent type : ToscaMatedataContent.values()) {
+        for (ToscaMetadataContent type : ToscaMetadataContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }
