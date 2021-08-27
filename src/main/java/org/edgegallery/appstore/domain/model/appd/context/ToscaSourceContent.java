@@ -37,7 +37,7 @@ public enum ToscaSourceContent implements IAppdContentEnum {
     /**
      * create enum from name.
      */
-    public IAppdContentEnum of(String name){
+    public IAppdContentEnum of(String name) {
         for (ToscaSourceContent type : ToscaSourceContent.values()) {
             if (type.name.equals(name)) {
                 return type;
