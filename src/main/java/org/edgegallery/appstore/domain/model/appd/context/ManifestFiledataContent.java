@@ -3,23 +3,26 @@ package org.edgegallery.appstore.domain.model.appd.context;
 import lombok.Getter;
 import org.edgegallery.appstore.domain.model.appd.IAppdContextDef;
 
+/**
+ * manifest-file: source file
+ */
 @Getter
-public enum MfSourceContext implements IAppdContextDef {
+public enum ManifestFiledataContent implements IAppdContextDef {
     Source("Source", true),
     Algorithm("Algorithm", true),
     Hash("Hash", true);
 
-    private String name;
+    private final String name;
 
-    private boolean isNotNull;
+    private final boolean isNotNull;
 
-    MfSourceContext(String name, boolean isNotNull) {
+    ManifestFiledataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
     public IAppdContextDef of(String name) {
-        for (MfSourceContext type : MfSourceContext.values()) {
+        for (ManifestFiledataContent type : ManifestFiledataContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }

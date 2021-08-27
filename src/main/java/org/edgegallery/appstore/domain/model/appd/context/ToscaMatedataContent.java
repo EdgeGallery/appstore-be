@@ -4,23 +4,23 @@ import lombok.Getter;
 import org.edgegallery.appstore.domain.model.appd.IAppdContextDef;
 
 @Getter
-public enum ToscaMateContext implements IAppdContextDef {
+public enum ToscaMatedataContent implements IAppdContextDef {
     TOSCA_Meta_File_Version("TOSCA-Meta-File-Version", true),
     CSAR_Version("CSAR-Version", true),
     Created_by("Created-by", true),
     Entry_Definitions("Entry-Definitions", true);
 
-    private String name;
+    private final String name;
 
-    private boolean isNotNull;
+    private final boolean isNotNull;
 
-    ToscaMateContext(String name, boolean isNotNull) {
+    ToscaMatedataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
     public IAppdContextDef of(String name) {
-        for (ToscaMateContext type : ToscaMateContext.values()) {
+        for (ToscaMatedataContent type : ToscaMatedataContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }

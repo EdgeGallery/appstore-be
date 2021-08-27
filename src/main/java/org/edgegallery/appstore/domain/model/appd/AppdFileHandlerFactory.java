@@ -1,9 +1,9 @@
 package org.edgegallery.appstore.domain.model.appd;
 
-import org.edgegallery.appstore.domain.model.appd.context.MfMetaContext;
-import org.edgegallery.appstore.domain.model.appd.context.MfSourceContext;
-import org.edgegallery.appstore.domain.model.appd.context.ToscaLinkContext;
-import org.edgegallery.appstore.domain.model.appd.context.ToscaMateContext;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestMetadataContent;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
+import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
+import org.edgegallery.appstore.domain.model.appd.context.ToscaMatedataContent;
 
 public class AppdFileHandlerFactory {
 
@@ -14,9 +14,9 @@ public class AppdFileHandlerFactory {
     public static IAppdFile createFileHandler(int fileType) {
         switch (fileType) {
             case TOSCA_META_FILE:
-                return new ToscaFileHandler(ToscaMateContext.class, ToscaLinkContext.class);
+                return new ToscaFileHandler(ToscaMatedataContent.class, ToscaSourceContent.class);
             case MF_FILE:
-                return new ToscaFileHandler(MfMetaContext.class, MfSourceContext.class);
+                return new ToscaFileHandler(ManifestMetadataContent.class, ManifestFiledataContent.class);
             default:
                 return null;
         }

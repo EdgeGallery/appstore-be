@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class ToscaFileContextDef implements IParamsHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToscaLinkFileDef.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ToscaFileContextDef.class);
 
     private final Map<IAppdContextDef, String> params = new LinkedHashMap<>();
 
@@ -58,21 +58,10 @@ public class ToscaFileContextDef implements IParamsHandler {
         return StringUtils.join(lines, "\n");
     }
 
-    @Override
-    public Map.Entry<String, String> getData(int index) {
-        return null;
-    }
-
     public Map.Entry<String, String> getFirstData() {
         for (Map.Entry<IAppdContextDef, String> entry : params.entrySet()) {
             return new AbstractMap.SimpleEntry<>(entry.getKey().getName(), entry.getValue());
         }
         return null;
     }
-
-    // @Override
-    // public IAppdContextDef getStartType() {
-    //     Object obj = contextEnum.getEnumConstants()[0];
-    //     return (IAppdContextDef) obj;
-    // }
 }
