@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
 import org.edgegallery.appstore.domain.model.appd.IAppdFile;
-import org.edgegallery.appstore.domain.model.appd.ToscaFileContextDef;
+import org.edgegallery.appstore.domain.model.appd.AppdFileContentHandler;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class ParasAppFileTest {
         fileHandler.load(mfFile);
         IAppdFile handler = (IAppdFile) fileHandler;
         Assert.assertEquals(4, handler.getParamsHandlerList().size());
-        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof ToscaFileContextDef);
+        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof AppdFileContentHandler);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ParasAppFileTest {
         fileHandler.load(mfFile);
         IAppdFile handler = (IAppdFile) fileHandler;
         Assert.assertEquals(3, handler.getParamsHandlerList().size());
-        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof ToscaFileContextDef);
+        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof AppdFileContentHandler);
     }
 
     @Test
@@ -111,15 +111,13 @@ public class ParasAppFileTest {
         Assert.assertFalse(fileHandler.formatCheck());
     }
 
-    private String readFileToList(File file) {
+    private String readFileToList(File file) throws IOException {
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return StringUtils.join(lines, "\n");
     }

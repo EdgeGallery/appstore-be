@@ -1,10 +1,10 @@
 package org.edgegallery.appstore.domain.model.appd.context;
 
 import lombok.Getter;
-import org.edgegallery.appstore.domain.model.appd.IAppdContextDef;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 @Getter
-public enum ToscaMatedataContent implements IAppdContextDef {
+public enum ToscaMatedataContent implements IAppdContentEnum {
     TOSCA_Meta_File_Version("TOSCA-Meta-File-Version", true),
     CSAR_Version("CSAR-Version", true),
     Created_by("Created-by", true),
@@ -19,7 +19,7 @@ public enum ToscaMatedataContent implements IAppdContextDef {
         this.isNotNull = isNotNull;
     }
 
-    public IAppdContextDef of(String name) {
+    public IAppdContentEnum of(String name) {
         for (ToscaMatedataContent type : ToscaMatedataContent.values()) {
             if (type.name.equals(name)) {
                 return type;

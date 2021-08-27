@@ -11,7 +11,7 @@ public interface IAppdFile {
 
     String toString();
 
-    boolean delFileDescByName(IAppdContextDef type, String name);
+    boolean delFileDescByName(IAppdContentEnum type, String name);
 
     boolean formatCheck();
 }

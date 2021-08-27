@@ -1,13 +1,13 @@
 package org.edgegallery.appstore.domain.model.appd.context;
 
 import lombok.Getter;
-import org.edgegallery.appstore.domain.model.appd.IAppdContextDef;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 /**
  * manifest-file: metadata info
  */
 @Getter
-public enum ManifestMetadataContent implements IAppdContextDef {
+public enum ManifestMetadataContent implements IAppdContentEnum {
     metadata("metadata", true),
     app_product_name("app_product_name", true),
     app_provider_id("app_provider_id", true),
@@ -26,7 +26,7 @@ public enum ManifestMetadataContent implements IAppdContextDef {
         this.isNotNull = isNotNull;
     }
 
-    public IAppdContextDef of(String name) {
+    public IAppdContentEnum of(String name) {
         for (ManifestMetadataContent type : ManifestMetadataContent.values()) {
             if (type.name.equals(name)) {
                 return type;

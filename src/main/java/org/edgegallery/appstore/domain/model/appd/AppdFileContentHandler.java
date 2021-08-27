@@ -11,15 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ToscaFileContextDef implements IParamsHandler {
+public class AppdFileContentHandler implements IParamsHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToscaFileContextDef.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppdFileContentHandler.class);
 
-    private final Map<IAppdContextDef, String> params = new LinkedHashMap<>();
+    private final Map<IAppdContentEnum, String> params = new LinkedHashMap<>();
 
     private final Class<?> contextEnum;
 
-    ToscaFileContextDef(Class<?> contextEnum) {
+    AppdFileContentHandler(Class<?> contextEnum) {
         this.contextEnum = contextEnum;
     }
 
@@ -30,7 +30,7 @@ public class ToscaFileContextDef implements IParamsHandler {
             Method valueOf = contextEnum.getMethod("of", String.class);
             Object def = valueOf.invoke(objects[0], data.getKey());
             if (def != null) {
-                params.put((IAppdContextDef) def, data.getValue());
+                params.put((IAppdContentEnum) def, data.getValue());
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             LOGGER.error("Failed to invoke method 'of' from class {}", contextEnum.getName());
@@ -40,8 +40,8 @@ public class ToscaFileContextDef implements IParamsHandler {
     @Override
     public boolean checkParams() {
         for (Object type : contextEnum.getEnumConstants()) {
-            if (type instanceof IAppdContextDef) {
-                IAppdContextDef appdContextDef = (IAppdContextDef) type;
+            if (type instanceof IAppdContentEnum) {
+                IAppdContentEnum appdContextDef = (IAppdContentEnum) type;
                 if (appdContextDef.isNotNull() && !params.containsKey(appdContextDef.getName())) {
                     LOGGER.info("not include param {} in the MF file.", appdContextDef.getName());
                     return false;
@@ -59,7 +59,7 @@ public class ToscaFileContextDef implements IParamsHandler {
     }
 
     public Map.Entry<String, String> getFirstData() {
-        for (Map.Entry<IAppdContextDef, String> entry : params.entrySet()) {
+        for (Map.Entry<IAppdContentEnum, String> entry : params.entrySet()) {
             return new AbstractMap.SimpleEntry<>(entry.getKey().getName(), entry.getValue());
         }
         return null;

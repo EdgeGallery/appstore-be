@@ -1,13 +1,13 @@
 package org.edgegallery.appstore.domain.model.appd.context;
 
 import lombok.Getter;
-import org.edgegallery.appstore.domain.model.appd.IAppdContextDef;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 /**
  * TOSCA-Metadata:
  */
 @Getter
-public enum ToscaSourceContent implements IAppdContextDef {
+public enum ToscaSourceContent implements IAppdContentEnum {
     Name("Name", true),
     Content_Type("Content-Type", true);
 
@@ -19,7 +19,7 @@ public enum ToscaSourceContent implements IAppdContextDef {
         this.name = name;
         this.isNotNull = isNotNull;
     }
-    public IAppdContextDef of(String name){
+    public IAppdContentEnum of(String name){
         for (ToscaSourceContent type : ToscaSourceContent.values()) {
             if (type.name.equals(name)) {
                 return type;

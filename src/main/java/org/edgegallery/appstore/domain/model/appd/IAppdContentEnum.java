@@ -1,8 +1,8 @@
 package org.edgegallery.appstore.domain.model.appd;
 
-public interface IAppdContextDef {
+public interface IAppdContentEnum {
 
-    IAppdContextDef of(String name);
+    IAppdContentEnum of(String name);
 
     boolean isNotNull();
 

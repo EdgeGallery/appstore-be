@@ -11,6 +11,11 @@ public class AppdFileHandlerFactory {
 
     public static final int MF_FILE = 2;
 
+    /**
+     *  create handler by file type.
+     * @param fileType TOSCA_META_FILE or MF_FILE
+     * @return ToscaFileHandler
+     */
     public static IAppdFile createFileHandler(int fileType) {
         switch (fileType) {
             case TOSCA_META_FILE:

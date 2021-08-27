@@ -31,7 +31,7 @@ public class ToscaFileHandler implements IAppdFile {
     }
 
 
-    public boolean delFileDescByName(IAppdContextDef type, String name) {
+    public boolean delFileDescByName(IAppdContentEnum type, String name) {
         return paramsHandlerList.removeIf(
             item -> item.getFirstData().getKey().equals(type.getName()) && item.getFirstData().getValue().equals(name));
     }
@@ -109,7 +109,7 @@ public class ToscaFileHandler implements IAppdFile {
     IParamsHandler paresFlag(String line) {
         for (int i = 0; i < firstTypes.size(); i++) {
             if (line.startsWith(firstTypes.get(i))) {
-                return new ToscaFileContextDef(contextEnums.get(i));
+                return new AppdFileContentHandler(contextEnums.get(i));
             }
         }
         return null;
