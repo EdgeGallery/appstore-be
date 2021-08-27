@@ -30,7 +30,7 @@ import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ParasAppFileTest {
+public class ParsingAppFileTest {
 
     @Test
     public void should_successfully_when_load_mf_file() throws IOException {
@@ -49,7 +49,7 @@ public class ParasAppFileTest {
     }
 
     @Test
-    public void should_successfully_when_paras_tosca_file() throws IOException {
+    public void should_successfully_when_parsing_tosca_file() throws IOException {
         IAppdFile fileHandler = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.TOSCA_META_FILE);
         File mfFile = Resources.getResourceAsFile("appd/TOSCA.meta");
         fileHandler.load(mfFile);
@@ -70,7 +70,7 @@ public class ParasAppFileTest {
     }
 
     @Test
-    public void should_successfully_when_paras_mf_file() throws IOException {
+    public void should_successfully_when_parsing_mf_file() throws IOException {
         IAppdFile fileHandler = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         File mfFile = Resources.getResourceAsFile("appd/loactionAppTest.mf");
         fileHandler.load(mfFile);
