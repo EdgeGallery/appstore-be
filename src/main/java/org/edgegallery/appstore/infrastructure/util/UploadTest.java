@@ -183,10 +183,8 @@ public class UploadTest {
                 }
             }
         }
-
-
-
     }
+
     /**
      * slice upload file.
      *
@@ -195,7 +193,6 @@ public class UploadTest {
      * @return upload result
      */
     public boolean sliceUploadFile(String identifier, String filePath) {
-        
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("part", new FileSystemResource(filePath));
         formData.add("priority", 0);
