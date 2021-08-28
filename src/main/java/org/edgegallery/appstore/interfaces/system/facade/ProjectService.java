@@ -211,7 +211,7 @@ public class ProjectService {
         JsonObject jsonObject = new JsonParser().parse(uploadRes).getAsJsonObject();
         JsonElement uploadData = jsonObject.get("data");
         Map<String, String> inputParams = new HashMap<>();
-        if( appReleasePo.getDeployMode().equals(VM)) {
+        if (appReleasePo.getDeployMode().equals(VM)) {
             inputParams = getInputParams(mepHost.getParameter(), mepHost.getMecHost());
         }
         Gson gson = new Gson();

@@ -165,6 +165,10 @@ public class UploadTest {
         return imageId;
     }
 
+    /**
+     * delete temp .part file.
+     * @param absolutionFilePath temp file folder.
+     */
     public void deleteTempPartFile(String absolutionFilePath) throws IOException {
         File tempFolder = new File(absolutionFilePath).getParentFile().getCanonicalFile();
         if (!tempFolder.exists() && !tempFolder.mkdirs()) {
@@ -174,7 +178,7 @@ public class UploadTest {
         File[] files = tempFolder.listFiles();
         if (files != null && files.length > 0) {
             for (File file : files) {
-                if(file.getName().endsWith(".part")) {
+                if (file.getName().endsWith(".part")) {
                     FileUtils.deleteQuietly(file);
                 }
             }
@@ -191,6 +195,7 @@ public class UploadTest {
      * @return upload result
      */
     public boolean sliceUploadFile(String identifier, String filePath) {
+        
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("part", new FileSystemResource(filePath));
         formData.add("priority", 0);
