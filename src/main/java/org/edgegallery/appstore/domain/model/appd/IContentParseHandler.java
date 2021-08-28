@@ -16,9 +16,9 @@ package org.edgegallery.appstore.domain.model.appd;
 
 import java.util.Map;
 
-public interface IParamsHandler {
+public interface IContentParseHandler {
 
-    void setData(Map.Entry<String, String> data);
+    void addOneData(String line);
 
     boolean checkParams();
 

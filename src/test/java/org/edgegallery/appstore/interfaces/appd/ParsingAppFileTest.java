@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
 import org.edgegallery.appstore.domain.model.appd.IAppdFile;
-import org.edgegallery.appstore.domain.model.appd.AppdFileContentHandler;
+import org.edgegallery.appstore.domain.model.appd.ContentParseHandlerImp;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.junit.Assert;
@@ -55,7 +55,7 @@ public class ParsingAppFileTest {
         fileHandler.load(mfFile);
         IAppdFile handler = (IAppdFile) fileHandler;
         Assert.assertEquals(4, handler.getParamsHandlerList().size());
-        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof AppdFileContentHandler);
+        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof ContentParseHandlerImp);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ParsingAppFileTest {
         fileHandler.load(mfFile);
         IAppdFile handler = (IAppdFile) fileHandler;
         Assert.assertEquals(3, handler.getParamsHandlerList().size());
-        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof AppdFileContentHandler);
+        Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof ContentParseHandlerImp);
     }
 
     @Test
@@ -87,7 +87,11 @@ public class ParsingAppFileTest {
         fileHandler.load(mfFile);
         String ret = fileHandler.toString();
         Assert.assertNotNull(ret);
-        Assert.assertTrue(data.trim().equals(ret));
+        System.out.println(data.trim());
+        System.out.println("---------------------");
+        System.out.println(ret);
+        System.out.println("---------------------");
+        Assert.assertEquals(data.trim(), ret);
     }
 
     @Test

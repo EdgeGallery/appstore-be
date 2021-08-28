@@ -14,6 +14,7 @@
 
 package org.edgegallery.appstore.domain.model.appd;
 
+import org.edgegallery.appstore.domain.model.appd.context.ManifestCmsContent;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestMetadataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaMetadataContent;
@@ -39,7 +40,8 @@ public final class AppdFileHandlerFactory {
             case TOSCA_META_FILE:
                 return new ToscaFileHandler(ToscaMetadataContent.class, ToscaSourceContent.class);
             case MF_FILE:
-                return new ToscaFileHandler(ManifestMetadataContent.class, ManifestFiledataContent.class);
+                return new ToscaFileHandler(ManifestMetadataContent.class, ManifestFiledataContent.class,
+                    ManifestCmsContent.class);
             default:
                 return null;
         }

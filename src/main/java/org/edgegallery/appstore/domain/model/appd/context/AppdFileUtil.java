@@ -12,21 +12,17 @@
  * the License.
  */
 
-package org.edgegallery.appstore.domain.model.appd;
+package org.edgegallery.appstore.domain.model.appd.context;
 
-public interface IAppdContentEnum {
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
-    IAppdContentEnum of(String name);
+public class AppdFileUtil {
 
-    boolean isNotNull();
+    public static boolean toCheckData() {
+        return false;
+    }
 
-    String getName();
-
-    String getSplit();
-
-    boolean check(String value);
-
-    String toString(String value);
-
+    public static String toStringBy(IAppdContentEnum type, String value) {
+        return (type.getName() + type.getSplit() + value).trim();
+    }
 }
-
