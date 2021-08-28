@@ -46,7 +46,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -81,9 +80,9 @@ public class UploadTest {
             String s = byteArrayToHex(bytes);
             return s.toUpperCase();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("upload to remote file server failed.");
+            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
         }
-        return null;
     }
 
     /**
@@ -167,21 +166,28 @@ public class UploadTest {
 
     /**
      * delete temp .part file.
+     *
      * @param absolutionFilePath temp file folder.
      */
-    public void deleteTempPartFile(String absolutionFilePath) throws IOException {
-        File tempFolder = new File(absolutionFilePath).getParentFile().getCanonicalFile();
-        if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-            LOGGER.error("temp file folder not exist.");
-            throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
-        }
-        File[] files = tempFolder.listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                if (file.getName().endsWith(".part")) {
-                    FileUtils.deleteQuietly(file);
+    public void deleteTempPartFile(String absolutionFilePath) {
+
+        try {
+            File tempFolder = new File(absolutionFilePath).getParentFile().getCanonicalFile();
+            if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+                LOGGER.error("temp file folder not exist.");
+                throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
+            }
+            File[] files = tempFolder.listFiles();
+            if (files != null && files.length > 0) {
+                for (File file : files) {
+                    if (file.getName().endsWith(".part")) {
+                        FileUtils.deleteQuietly(file);
+                    }
                 }
             }
+        } catch (IOException e) {
+            LOGGER.error("temp file folder not exist");
+            throw new AppException("temp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
         }
     }
 

@@ -256,8 +256,6 @@ public class AppUtil {
             while ((bytesRead = fis.read(buffer, 0, MAX_NET_FILE_SIZE)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
-            os.close();
-            fis.close();
         } catch (IOException e) {
             throw new AppException("Package File name is Illegal.", ResponseConst.RET_FILE_NOT_FOUND);
         }
