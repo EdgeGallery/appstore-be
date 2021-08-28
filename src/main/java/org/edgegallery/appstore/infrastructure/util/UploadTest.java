@@ -166,11 +166,14 @@ public class UploadTest {
     public void deleteTempPartFile(String absolutionFilePath) throws IOException {
         File s = new File(absolutionFilePath).getParentFile().getCanonicalFile();
         File[] files = s.listFiles();
-        for (File file : files) {
-            if(file.getName().endsWith(".part")) {
-                FileUtils.deleteQuietly(file);
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if(file.getName().endsWith(".part")) {
+                    FileUtils.deleteQuietly(file);
+                }
             }
         }
+
     }
     /**
      * slice upload file.
