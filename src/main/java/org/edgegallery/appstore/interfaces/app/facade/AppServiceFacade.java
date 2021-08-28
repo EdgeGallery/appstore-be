@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -72,9 +72,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Service("AppServiceFacade")
 public class AppServiceFacade {
@@ -218,7 +218,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(atpMetadata, fileParent, appClass);
+        appUtil.checkImage(atpMetadata, fileParent, appClass,user.getUserId());
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -238,19 +238,13 @@ public class AppServiceFacade {
         String fileParent = dir + File.separator + fileDir;
         fileAddress =  dir + File.separator + fileAddress;
         MultipartFile multipartFile = null;
-        try {
-            File packageFile  = new File(fileAddress);
-            FileInputStream fileInputStream = new FileInputStream(packageFile);
-            multipartFile = new MockMultipartFile("file", packageFile.getName(),
-                "text/plain", IOUtils.toByteArray(fileInputStream));
-            AbstractFileChecker fileChecker = new PackageChecker(fileParent);
-            File file = fileChecker.check(multipartFile);
-            if (!file.exists()) {
-                LOGGER.error("Package File is Illegal.");
-                throw new IllegalRequestException("Package File name is Illegal.", ResponseConst.RET_PARAM_INVALID);
-            }
-        } catch (IOException e) {
-            throw new AppException("Package File name is Illegal.", ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
+        FileItem fileItem = appUtil.createFileItem(fileAddress);
+        multipartFile = new CommonsMultipartFile(fileItem);
+        AbstractFileChecker fileChecker = new PackageChecker(fileParent);
+        File file = fileChecker.check(multipartFile);
+        if (!file.exists()) {
+            LOGGER.error("Package File is Illegal.");
+            throw new IllegalRequestException("Package File name is Illegal.", ResponseConst.RET_PARAM_INVALID);
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
@@ -267,7 +261,8 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(atpMetadata, fileParent, appClass);
+        String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
+        appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId());
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
