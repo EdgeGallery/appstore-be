@@ -23,6 +23,6 @@ public class AppdFileUtil {
     }
 
     public static String toStringBy(IAppdContentEnum type, String value) {
-        return (type.getName() + ": " + value).trim();
+        return (type.getName() + type.getSplit() + value).trim();
     }
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
 import org.edgegallery.appstore.domain.model.appd.IAppdFile;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestCmsContent;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,11 +38,24 @@ public class ParsingCMSTest {
     }
 
     @Test
-    public void should_successfully_when_delete_name_from_mf() throws IOException {
+    public void should_successfully_when_load_cms_from_mf() throws IOException {
         String ret = fileHandler.toString();
         System.out.println(ret);
         Assert.assertTrue(ret.contains("-----BEGIN CMS-----"));
         Assert.assertTrue(ret.contains("MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwGggCSABIIBClNvdXJjZTogQVBQRC9NYWluU2VydmljZVRlbXBsYXRlLnppcApBbGdvcml0aG06IFNIQS0yNTYKSGFzaDogNjIzNjE4MjVlZjc4ZDM5YTYzYjlmYzE4NTc5NTFjYjdkMjIxM2JhZjkzNGI0YmQ5ZDVkOTlkMzQxY2M3ZDk1NgoKU291cmNlOiBBcnRpZmFjdHMvRGVwbG95bWVudC9DaGFydHMvdGVzdDIwNDgudGd6CkFsZ29yaXRobTogU0hBLTI1NgpIYXNoOiA0MTdlMWQ4ZGI2ZWViODM1ODE3NWRkNTgzYTg1MmRkYmFiYTU2YzViZDdiMDQ3NmUzNTg0M2ZiNjVjYWQwMjk5AAAAAAAAoIAwggN"));
         Assert.assertTrue(ret.contains("-----END CMS-----"));
+    }
+
+    @Test
+    public void should_successfully_when_delete_cms_from_mf() throws IOException {
+        String ret = fileHandler.toString();
+        Assert.assertTrue(ret.contains("-----BEGIN CMS-----"));
+        Assert.assertTrue(ret.contains("MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwGggCSABIIBClNvdXJjZTogQVBQRC9NYWluU2VydmljZVRlbXBsYXRlLnppcApBbGdvcml0aG06IFNIQS0yNTYKSGFzaDogNjIzNjE4MjVlZjc4ZDM5YTYzYjlmYzE4NTc5NTFjYjdkMjIxM2JhZjkzNGI0YmQ5ZDVkOTlkMzQxY2M3ZDk1NgoKU291cmNlOiBBcnRpZmFjdHMvRGVwbG95bWVudC9DaGFydHMvdGVzdDIwNDgudGd6CkFsZ29yaXRobTogU0hBLTI1NgpIYXNoOiA0MTdlMWQ4ZGI2ZWViODM1ODE3NWRkNTgzYTg1MmRkYmFiYTU2YzViZDdiMDQ3NmUzNTg0M2ZiNjVjYWQwMjk5AAAAAAAAoIAwggN"));
+        Assert.assertTrue(ret.contains("-----END CMS-----"));
+        fileHandler.delContentByTypeAndValue(ManifestCmsContent.BEGIN_CMS, "-----BEGIN CMS-----");
+        ret = fileHandler.toString();
+        Assert.assertFalse(ret.contains("-----BEGIN CMS-----"));
+        Assert.assertFalse(ret.contains("MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwGggCSABIIBClNvdXJjZTogQVBQRC9NYWluU2VydmljZVRlbXBsYXRlLnppcApBbGdvcml0aG06IFNIQS0yNTYKSGFzaDogNjIzNjE4MjVlZjc4ZDM5YTYzYjlmYzE4NTc5NTFjYjdkMjIxM2JhZjkzNGI0YmQ5ZDVkOTlkMzQxY2M3ZDk1NgoKU291cmNlOiBBcnRpZmFjdHMvRGVwbG95bWVudC9DaGFydHMvdGVzdDIwNDgudGd6CkFsZ29yaXRobTogU0hBLTI1NgpIYXNoOiA0MTdlMWQ4ZGI2ZWViODM1ODE3NWRkNTgzYTg1MmRkYmFiYTU2YzViZDdiMDQ3NmUzNTg0M2ZiNjVjYWQwMjk5AAAAAAAAoIAwggN"));
+        Assert.assertFalse(ret.contains("-----END CMS-----"));
     }
 }

@@ -32,6 +32,8 @@ public enum ToscaMetadataContent implements IAppdContentEnum {
 
     private final boolean isNotNull;
 
+    private final String split = ": ";
+
     ToscaMetadataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;

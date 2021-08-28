@@ -22,12 +22,14 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 public enum ManifestCmsContent implements IAppdContentEnum {
 
     BEGIN_CMS("-----BEGIN CMS-----", true),
-    CONTENT_CMS("*", true),
+    CONTENT_CMS(".*", true),
     END_CMS("-----END CMS-----", true);
 
     private final String name;
 
     private final boolean isNotNull;
+
+    private final String split = "";
 
     ManifestCmsContent(String name, boolean isNotNull) {
         this.name = name;

@@ -31,6 +31,8 @@ public enum ManifestFiledataContent implements IAppdContentEnum {
 
     private final boolean isNotNull;
 
+    private final String split = ": ";
+
     ManifestFiledataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;

@@ -27,7 +27,7 @@ public interface IAppdFile {
     /**
      * get the params after load file.
      */
-    List<IParamsHandler> getParamsHandlerList();
+    List<IContentParseHandler> getParamsHandlerList();
 
     /**
      * to string.

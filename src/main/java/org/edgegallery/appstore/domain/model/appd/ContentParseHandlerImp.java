@@ -14,8 +14,6 @@
 
 package org.edgegallery.appstore.domain.model.appd;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,30 +23,40 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppdFileContentHandler implements IParamsHandler {
+public class ContentParseHandlerImp implements IContentParseHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppdFileContentHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentParseHandlerImp.class);
 
     private final Map<IAppdContentEnum, String> params = new LinkedHashMap<>();
 
     private final Class<?> contextEnum;
 
-    AppdFileContentHandler(Class<?> contextEnum) {
+    ContentParseHandlerImp(Class<?> contextEnum) {
         this.contextEnum = contextEnum;
     }
 
     @Override
-    public void addOneData(Map.Entry<String, String> data) {
-        try {
-            Object[] objects = contextEnum.getEnumConstants();
-            Method valueOf = contextEnum.getMethod("of", String.class);
-            Object def = valueOf.invoke(objects[0], data.getKey());
-            if (def != null) {
-                params.put((IAppdContentEnum) def, data.getValue());
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            LOGGER.error("Failed to invoke method 'of' from class {}", contextEnum.getName());
+    public void addOneData(String line) {
+        Map.Entry<String, String> data = parseThisLine(line);
+        IAppdContentEnum contentEnum = (IAppdContentEnum) contextEnum.getEnumConstants()[0];
+        IAppdContentEnum type = contentEnum.of(data.getKey());
+        if (type != null) {
+            params.put(type, data.getValue());
         }
+    }
+
+    private Map.Entry<String, String> parseThisLine(String line) {
+        int splitIndex = line.indexOf(":");
+        String key;
+        String value;
+        if (splitIndex > 0) {
+            key = line.substring(0, splitIndex).trim();
+            value = line.substring(splitIndex + 1).trim();
+        } else {
+            key = line;
+            value = line;
+        }
+        return new AbstractMap.SimpleEntry<>(key, value);
     }
 
     @Override
@@ -72,6 +80,7 @@ public class AppdFileContentHandler implements IParamsHandler {
         return StringUtils.join(lines, "\n");
     }
 
+    @Override
     public Map.Entry<String, String> getFirstData() {
         IAppdContentEnum contentEnum = (IAppdContentEnum) contextEnum.getEnumConstants()[0];
         return new AbstractMap.SimpleEntry<>(contentEnum.getName(), params.get(contentEnum));

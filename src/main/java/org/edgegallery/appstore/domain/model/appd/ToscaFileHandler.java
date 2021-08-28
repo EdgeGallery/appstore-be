@@ -20,10 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +33,24 @@ public class ToscaFileHandler implements IAppdFile {
 
     private final List<String> firstTypes = new ArrayList<>();
 
-    private List<IParamsHandler> paramsHandlerList;
+    private List<IContentParseHandler> paramsHandlerList;
+
+    ToscaFileHandler(Class<?>... def) {
+        try {
+            for (Class<?> clz : def) {
+                contextEnums.add(clz);
+                Object[] objects = clz.getEnumConstants();
+                Method getName = clz.getMethod("getName");
+                firstTypes.add((String) getName.invoke(objects[0]));
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            LOGGER.error("failed to invoke method in Class.");
+        }
+    }
 
     @Override
     public boolean formatCheck() {
-        for (IParamsHandler paramsHandler : paramsHandlerList) {
+        for (IContentParseHandler paramsHandler : paramsHandlerList) {
             if (!paramsHandler.checkParams()) {
                 return false;
             }
@@ -47,9 +58,11 @@ public class ToscaFileHandler implements IAppdFile {
         return true;
     }
 
-    public boolean delContentByTypeAndValue(IAppdContentEnum type, String name) {
+    @Override
+    public boolean delContentByTypeAndValue(IAppdContentEnum type, final String value) {
         return paramsHandlerList.removeIf(
-            item -> item.getFirstData().getKey().equals(type.getName()) && item.getFirstData().getValue().equals(name));
+            item -> item.getFirstData().getKey().equals(type.getName()) && item.getFirstData().getValue()
+                .equals(value));
     }
 
     /**
@@ -64,13 +77,13 @@ public class ToscaFileHandler implements IAppdFile {
         // split list by empty line
         List<List<String>> splitLines = splitByEmptyLine(lines);
         for (List<String> lineRange : splitLines) {
-            IParamsHandler paramsHandler = paresFlag(lineRange.get(0));
+            IContentParseHandler paramsHandler = paresFlag(lineRange.get(0));
             if (paramsHandler == null) {
                 LOGGER.info("this data {} not define in the class {}", lineRange.get(0), contextEnums);
                 continue;
             }
             for (String s : lineRange) {
-                paramsHandler.addOneData(parseThisLine(s));
+                paramsHandler.addOneData(s);
             }
             paramsHandlerList.add(paramsHandler);
         }
@@ -108,7 +121,7 @@ public class ToscaFileHandler implements IAppdFile {
      * get the params after load file.
      */
     @Override
-    public List<IParamsHandler> getParamsHandlerList() {
+    public List<IContentParseHandler> getParamsHandlerList() {
         return paramsHandlerList;
     }
 
@@ -121,36 +134,10 @@ public class ToscaFileHandler implements IAppdFile {
         return StringUtils.join(allData, "\n\n");
     }
 
-    private Map.Entry<String, String> parseThisLine(String line) {
-        int splitIndex = line.indexOf(":");
-        if (splitIndex > 0) {
-            String key = line.substring(0, splitIndex).trim();
-            String value = line.substring(splitIndex + 1).trim();
-            return new AbstractMap.SimpleEntry<>(key, value);
-        } else {
-            String key = line;
-            String value = line;
-            return new AbstractMap.SimpleEntry<>(key, value);
-        }
-    }
-
-    ToscaFileHandler(Class<?>... def) {
-        try {
-            for (Class<?> clz : def) {
-                contextEnums.add(clz);
-                Object[] objects = clz.getEnumConstants();
-                Method getName = clz.getMethod("getName");
-                firstTypes.add((String) getName.invoke(objects[0]));
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            LOGGER.error("failed to invoke method in Class.");
-        }
-    }
-
-    IParamsHandler paresFlag(String line) {
+    IContentParseHandler paresFlag(String line) {
         for (int i = 0; i < firstTypes.size(); i++) {
             if (line.startsWith(firstTypes.get(i))) {
-                return new AppdFileContentHandler(contextEnums.get(i));
+                return new ContentParseHandlerImp(contextEnums.get(i));
             }
         }
         return null;

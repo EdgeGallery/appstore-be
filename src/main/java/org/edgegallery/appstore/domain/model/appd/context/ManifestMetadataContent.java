@@ -36,6 +36,8 @@ public enum ManifestMetadataContent implements IAppdContentEnum {
 
     private final boolean isNotNull;
 
+    private final String split = ": ";
+
     ManifestMetadataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;

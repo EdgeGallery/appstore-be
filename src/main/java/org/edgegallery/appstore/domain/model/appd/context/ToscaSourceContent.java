@@ -30,6 +30,8 @@ public enum ToscaSourceContent implements IAppdContentEnum {
 
     private final boolean isNotNull;
 
+    private final String split = ": ";
+
     ToscaSourceContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
