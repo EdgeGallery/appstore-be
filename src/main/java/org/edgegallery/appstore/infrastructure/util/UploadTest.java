@@ -31,6 +31,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -164,8 +166,12 @@ public class UploadTest {
     }
 
     public void deleteTempPartFile(String absolutionFilePath) throws IOException {
-        File s = new File(absolutionFilePath).getParentFile().getCanonicalFile();
-        File[] files = s.listFiles();
+        File tempFolder = new File(absolutionFilePath).getParentFile().getCanonicalFile();
+        if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+            LOGGER.error("temp file folder not exist.");
+            throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
+        }
+        File[] files = tempFolder.listFiles();
         if (files != null && files.length > 0) {
             for (File file : files) {
                 if(file.getName().endsWith(".part")) {
@@ -173,6 +179,8 @@ public class UploadTest {
                 }
             }
         }
+
+
 
     }
     /**
