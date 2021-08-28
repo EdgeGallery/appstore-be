@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.interfaces.app.facade;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -218,7 +217,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(atpMetadata, fileParent, appClass,user.getUserId());
+        appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId());
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -236,7 +235,7 @@ public class AppServiceFacade {
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
-        fileAddress =  dir + File.separator + fileAddress;
+        fileAddress = dir + File.separator + fileAddress;
         MultipartFile multipartFile = null;
         FileItem fileItem = appUtil.createFileItem(fileAddress);
         multipartFile = new CommonsMultipartFile(fileItem);
@@ -358,7 +357,6 @@ public class AppServiceFacade {
 
     /**
      * query app by id.
-     *
      */
     public App queryByAppId(String appId) {
         return appRepository.find(appId)
@@ -367,7 +365,6 @@ public class AppServiceFacade {
 
     /**
      * query app by id.
-     *
      */
     public ResponseEntity<ResponseObject> queryByAppIdV2(String appId) {
         AppDto dto = AppDto.of(queryByAppId(appId));
@@ -389,8 +386,8 @@ public class AppServiceFacade {
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
             appService.unPublish(app, token);
         } else {
-            throw new PermissionNotAllowedException("can not delete app",
-                ResponseConst.RET_NO_ACCESS_DELETE_APP, user.getUserName());
+            throw new PermissionNotAllowedException("can not delete app", ResponseConst.RET_NO_ACCESS_DELETE_APP,
+                user.getUserName());
         }
     }
 
@@ -470,15 +467,17 @@ public class AppServiceFacade {
     public ResponseEntity<List<PackageDto>> findAllPackages(String appId, String userId, int limit, long offset,
         String token) {
         Stream<Release> releaseStream = appRepository
-            .findAllWithPagination(new PageCriteria(limit, offset, appId, null, null)).getResults().stream();
+            .findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
+            .getResults().stream();
         if (userId == null) {
             releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
                 .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
                     s -> appService
-                    .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
-            releaseStream = appRepository.findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
+                        .loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
+            releaseStream = appRepository
+                .findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
                 .getResults().stream().filter(r -> r.getUser().getUserId().equals(userId));
         }
         List<PackageDto> packageDtos = releaseStream.map(PackageDto::of).collect(Collectors.toList());
