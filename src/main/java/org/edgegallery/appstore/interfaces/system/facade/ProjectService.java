@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -209,7 +210,10 @@ public class ProjectService {
         packageMapper.updateAppInstanceApp(appReleasePo);
         JsonObject jsonObject = new JsonParser().parse(uploadRes).getAsJsonObject();
         JsonElement uploadData = jsonObject.get("data");
-        Map<String, String> inputParams = getInputParams(mepHost.getParameter(), mepHost.getMecHost());
+        Map<String, String> inputParams = new HashMap<>();
+        if (appReleasePo.getDeployMode().equals(VM)) {
+            inputParams = getInputParams(mepHost.getParameter(), mepHost.getMecHost());
+        }
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);

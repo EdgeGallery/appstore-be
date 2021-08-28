@@ -407,6 +407,27 @@ public class ResponseConst {
      */
     public static final int RET_GET_NODE_ERROR = 15014;
 
+    /**
+     * slice merge file exception.
+     */
+    public static final int RET_MERGE_FILE_FAILED = 15015;
+
+    /**
+     * add image zip to file server failed.
+     */
+    public static final int RET_IMAGE_TO_FILE_SERVER_FAILED = 15016;
+
+    /**
+     * clean up zip info failed.
+     */
+    public static final int RET_CLEAN_ZIP_INFO_FAILED = 15017;
+
+    /**
+     * upload to remote file server failed.
+     */
+    public static final int RET_UPLOAD_FILE_FAILED = 15018;
+
+
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
     }

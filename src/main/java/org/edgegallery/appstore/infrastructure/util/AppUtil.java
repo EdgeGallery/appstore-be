@@ -43,12 +43,19 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
+import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
+import org.edgegallery.appstore.domain.model.appd.IAppdFile;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
+import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -82,6 +89,10 @@ public class AppUtil {
 
     private static final String CSAR_EXTENSION = ".csar";
 
+    private static final String VIDIO_EXTENSION = ".mp4";
+
+    private static final String PNG_EXTENSION = ".png";
+
     private static final String JSON_EXTENSION = "Image/SwImageDesc.json";
 
     private static final String CONTAINER = "container";
@@ -89,6 +100,16 @@ public class AppUtil {
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
+
+    /**
+     * The maximum size of a package sent over the network.
+     */
+    private static final int MAX_NET_FILE_SIZE = 8192;
+
+    /**
+     * Set whether to save the uploaded file as a temporary file in the data value of the file.
+     */
+    private static final int FILE_TEMPORARY_VALUE = 16;
 
     private static final String DOWNLOAD_IMAGE_TAG = "/action/download";
 
@@ -100,8 +121,14 @@ public class AppUtil {
     @Value("${appstore-be.key-password:}")
     private String keyPwd;
 
+    @Value("${appstore-be.filesystem-address:}")
+    private String fileSystemAddress;
+
     @Autowired
     private AppService appService;
+
+    @Autowired
+    private UploadTest uploadtest;
 
     /**
      * get app_class.
@@ -209,10 +236,38 @@ public class AppUtil {
     }
 
     /**
-     * load file and analyse file list.
+     * transfer file format to multipartFile.
      *
+     * @param filePath filePath.
+     * @return
      */
-    public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass) {
+    public static FileItem createFileItem(String filePath) {
+        File file = new File(filePath);
+        String originalFilename = file.getName();
+        FileItemFactory factory = new DiskFileItemFactory(FILE_TEMPORARY_VALUE, null);
+        String textFieldName = "textField";
+        FileItem item = factory.createItem(textFieldName, "text/plain", true, originalFilename);
+        File newfile = new File(filePath);
+        int bytesRead = 0;
+        byte[] buffer = new byte[MAX_NET_FILE_SIZE];
+        try {
+            FileInputStream fis = new FileInputStream(newfile);
+            OutputStream os = item.getOutputStream();
+            while ((bytesRead = fis.read(buffer, 0, MAX_NET_FILE_SIZE)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            os.close();
+            fis.close();
+        } catch (IOException e) {
+            throw new AppException("Package File name is Illegal.", ResponseConst.RET_FILE_NOT_FOUND);
+        }
+        return item;
+    }
+
+    /**
+     * load file and analyse file list.
+     */
+    public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId) {
         if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
             return;
         }
@@ -223,17 +278,18 @@ public class AppUtil {
                 if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
                     File[] filezipArrays = fl.listFiles();
                     if (filezipArrays == null || filezipArrays.length == 0) {
-                        throw new AppException("there is no file in path /Image",
-                            ResponseConst.RET_FILE_NOT_FOUND, "/Image");
+                        throw new AppException("there is no file in path /Image", ResponseConst.RET_FILE_NOT_FOUND,
+                            "/Image");
 
                     }
-                    checkImageExist(atpMetadata, fileParent, filezipArrays);
+                    checkImageExist(atpMetadata, fileParent, filezipArrays, userId, fl);
                 }
             }
         }
     }
 
-    private void checkImageExist(AtpMetadata atpMetadata, String fileParent, File[] filezipArrays) {
+    private void checkImageExist(AtpMetadata atpMetadata, String fileParent, File[] filezipArrays, String userId,
+        File imageFolder) {
         boolean presentZip = Arrays.asList(filezipArrays).stream()
             .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
         if (!presentZip) {
@@ -246,8 +302,108 @@ public class AppUtil {
                         ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
                 }
             }
+        } else {
+            try {
+                uploadFileToFileServer(userId, fileParent, imageFolder);
+                organizedFile(fileParent);
+            } catch (IOException e) {
+                LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
+                throw new AppException("failed to add image zip to package.",
+                    ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
+            }
         }
     }
+
+    /**
+     * clean up temp file.
+     *
+     * @param fileParent fileParent.
+     */
+    public void organizedFile(String fileParent) {
+        String zipFileName = fileParent.concat(CSAR_EXTENSION);
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
+            createCompressedFile(out, new File(fileParent), "");
+        } catch (IOException e) {
+            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+        }
+        File file = new File(fileParent);
+        String parent = file.getParent();
+        File parentDir = new File(parent);
+        File[] files = parentDir.listFiles();
+        if (files != null && files.length > 0) {
+            for (File tempFile : files) {
+                if (tempFile.getName().endsWith(CSAR_EXTENSION) || tempFile.getName().endsWith(PNG_EXTENSION)
+                    || tempFile.getName().endsWith(VIDIO_EXTENSION)) {
+                    continue;
+                }
+                FileUtils.deleteQuietly(tempFile);
+            }
+        }
+    }
+
+    /**
+     * upload file to FileServer.
+     *
+     * @param userId userId.
+     * @param fileParent fileParent.
+     * @param imageFolder imageFolder.
+     */
+    public void uploadFileToFileServer(String userId, String fileParent, File imageFolder) throws IOException {
+        // filezipArrays  /Image
+        //fileParent Image.getPaatent()
+        String imageId = "";
+        String imagePath = "";
+        String outPath = imageFolder.getCanonicalPath();
+        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+        for (SwImgDesc imageDesc : imgDecsLists) {
+            try {
+                String imageName = imageDesc.getName();
+                //get image name
+                File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+                imagePath = fileImage.getCanonicalPath();
+                //upload image file
+                imageId = uploadtest.uploadFile(userId, imagePath);
+                if (StringUtils.isEmpty(imageId)) {
+                    LOGGER.error("upload to remote file server failed.");
+                    throw new AppException("upload to remote file server failed.",
+                        ResponseConst.RET_UPLOAD_FILE_FAILED);
+                }
+                //update swImageJson file
+                String newPathName = fileSystemAddress + "/image-management/v1/images/" + imageId + "/action/download";
+                updateJsonFileServer(imageDesc, imgDecsLists, fileParent, newPathName);
+                //delete already upload zip file.
+                FileUtils.deleteQuietly(new File(imagePath));
+                updateRelationalFile(fileParent, imageName);
+            } catch (IOException e) {
+                LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
+                throw new AppException("failed to add image zip to package.",
+                    ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
+            }
+        }
+    }
+
+    /**
+     * update mf and tosca config file.
+     *
+     * @param fileParent fileParent folder.
+     * @param imageName image Name.
+     */
+    public void updateRelationalFile(String fileParent, String imageName) throws IOException {
+        String target = "Image" + File.separator + imageName + ZIP_EXTENSION;
+        File mfFile = getFile(fileParent, "mf");
+        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
+        fileHandlerMf.load(mfFile);
+        fileHandlerMf.delContentByTypeAndValue(ManifestFiledataContent.Source, target);
+        writeFile(mfFile, fileHandlerMf.toString());
+        String toscaMeta = fileParent + "/TOSCA-Metadata/TOSCA.meta";
+        File metaFile = new File(toscaMeta);
+        IAppdFile fileHandlerTosca = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.TOSCA_META_FILE);
+        fileHandlerTosca.load(metaFile);
+        fileHandlerTosca.delContentByTypeAndValue(ToscaSourceContent.Name, target);
+        writeFile(metaFile, fileHandlerTosca.toString());
+
+    }
+
 
     private List<SwImgDesc> getPkgFile(String parentDir) {
         File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
@@ -309,7 +465,8 @@ public class AppUtil {
                 String contentName = "Name: " + contentFile + "\n";
                 if (!FileUtils.readFileToString(metaFile, StandardCharsets.UTF_8).contains(contentName)) {
                     FileUtils.writeStringToFile(metaFile, contentName, StandardCharsets.UTF_8, true);
-                    FileUtils.writeStringToFile(metaFile, "Content-Type: image\n", StandardCharsets.UTF_8, true);
+                    FileUtils.writeStringToFile(metaFile,
+                        "Content-Type: image\n", StandardCharsets.UTF_8, true);
                 }
             } catch (Exception e) {
                 LOGGER.error("add image file info to package failed {}", e.getMessage());
@@ -560,5 +717,23 @@ public class AppUtil {
             }
             out.closeEntry();
         }
+    }
+
+    /**
+     * update json file.
+     *
+     * @param imageDesc imageDesc.
+     * @param imgDecsLists imgDecsLists.
+     * @param fileParent fileParent.
+     * @param newPathName newPathName.
+     */
+    public void updateJsonFileServer(SwImgDesc imageDesc, List<SwImgDesc> imgDecsLists, String fileParent,
+        String newPathName) {
+        int index = imgDecsLists.indexOf(imageDesc);
+        imageDesc.setSwImage(newPathName);
+        imgDecsLists.set(index, imageDesc);
+        String jsonFile = fileParent + File.separator + JSON_EXTENSION;
+        File swImageDesc = new File(jsonFile);
+        writeFile(swImageDesc, new Gson().toJson(imgDecsLists));
     }
 }
