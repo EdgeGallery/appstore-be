@@ -38,7 +38,7 @@
                 name ilike '%' || #{appName} || '%'
             </if>
         </where>
-        <if test="sortType != null and sortItem != null">
+        <if test="sortType != null and sortType != '' and sortItem != '' and sortItem != null">
             order by ${sortItem} ${sortType},${time} ${sortType}
         </if>
         limit #{limit} offset #{offset}
