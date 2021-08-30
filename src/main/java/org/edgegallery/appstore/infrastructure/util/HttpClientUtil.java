@@ -17,6 +17,9 @@
 package org.edgegallery.appstore.infrastructure.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -25,6 +28,7 @@ import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
+import org.edgegallery.appstore.domain.model.system.lcm.ErrorLog;
 import org.edgegallery.appstore.domain.model.system.lcm.InstantRequest;
 import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
@@ -76,6 +80,8 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
+        JsonObject jsonObject = new JsonParser().parse(disRes).getAsJsonObject();
+        JsonElement uploadData = jsonObject.get("data");
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
         List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
@@ -102,9 +108,12 @@ public final class HttpClientUtil {
             LOGGER.info("APPlCM instantiate log:{}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
+            JsonObject jsonError = new JsonParser().parse(errorLog).getAsJsonObject();
+            Type typeError = new TypeToken<ErrorLog>() { }.getType();
+            ErrorLog errorMessage = gson.fromJson(jsonError, typeError);
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 errorLog);
-            lcmLog.setLog(errorLog);
+            lcmLog.setLog(errorMessage.getMessage());
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
@@ -177,8 +186,11 @@ public final class HttpClientUtil {
             LOGGER.info("APPLCM distribute pkg log:{}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
+            JsonObject jsonObject = new JsonParser().parse(errorLog).getAsJsonObject();
+            Type typeEvents = new TypeToken<ErrorLog>() { }.getType();
+            ErrorLog errorMessage = gson.fromJson(jsonObject, typeEvents);
             LOGGER.error("Failed distribute pkg packageId  {} exception {}", packageId, errorLog);
-            lcmLog.setLog(errorLog);
+            lcmLog.setLog(errorMessage.getMessage());
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed distribute pkg packageId is {} exception {}", packageId, e.getMessage());
