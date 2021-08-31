@@ -34,8 +34,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -230,7 +228,7 @@ public class ProjectService {
         LOGGER.info("distribute res {}", distributeRes);
         // instantiate application
         try {
-            Thread.sleep(60000);
+            Thread.sleep(50000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
@@ -259,8 +257,11 @@ public class ProjectService {
         int count = 0;
         String n6Range = vmInputParams.get("app_n6_ip");
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
-        int ipCount = getIpCount(temN6Ip);
+        int ipCount = getIpCount(n6Range);
         for (Release mecRelease : mecHostPackage) {
+            if (mecRelease.getExperienceableIp() == null) {
+                continue;
+            }
             if (!mecRelease.getExperienceableIp().equals(temN6Ip) && count < ipCount) {
                 continue;
             } else {
