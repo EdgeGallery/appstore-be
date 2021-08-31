@@ -81,10 +81,10 @@ public final class HttpClientUtil {
         }
         //parse dis res
         JsonObject jsonObject = new JsonParser().parse(disRes).getAsJsonObject();
-        JsonElement uploadData = jsonObject.get("data");
+        JsonElement distributeData = jsonObject.get("data");
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
-        List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
+        List<DistributeResponse> list = gson.fromJson(distributeData, typeEvents);
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
