@@ -34,7 +34,12 @@ public interface MessageMapper {
 
     List<MessagePo> getAllMessagesV2(Map<String, Object> params);
 
+    List<MessagePo> queryMsgCenterList(Map<String, Object> params);
+
     List<MessagePo> getAllMessages();
 
     Integer getAllMessageCount(Map<String, Object> param);
+
+    Integer queryMsgCenterCount(Map<String, Object> param);
+
 }

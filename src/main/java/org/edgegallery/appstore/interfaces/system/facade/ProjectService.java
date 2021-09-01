@@ -280,6 +280,7 @@ public class ProjectService {
         vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
         vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
         vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        vmInputParams.put("network_name_n6",vmInputParams.get("network_name_n6"));
         return vmInputParams;
     }
 

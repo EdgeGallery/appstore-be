@@ -71,6 +71,17 @@ public class MessageRepository {
     }
 
     /**
+     * get center messages in db.
+     *
+     * @return list
+     */
+    public List<Message> queryMsgCenterList(Map<String, Object> params) {
+        return messageMapper.queryMsgCenterList(params).stream().map(MessagePo::toDomainModel)
+            .collect(Collectors.toList());
+    }
+
+
+    /**
      * get all messages in db.
      *
      * @return list
@@ -91,7 +102,7 @@ public class MessageRepository {
     /**
      * get one message by id.
      *
-     * @param messageId id
+     * @param messageId id.
      * @return message obj
      */
     public Message getOneMessage(String messageId) {
@@ -107,7 +118,7 @@ public class MessageRepository {
     /**
      * delete one message by id.
      *
-     * @param messageId id
+     * @param messageId id.
      */
     public void deleteOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
@@ -133,5 +144,14 @@ public class MessageRepository {
         }
         messagePo.setReaded(true);
         messageMapper.update(messagePo);
+    }
+
+    /**
+     * get center message count.
+     * @param param param.
+     * @return
+     */
+    public long queryMsgCenterCount(Map<String, Object> param) {
+        return messageMapper.queryMsgCenterCount(param);
     }
 }

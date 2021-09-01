@@ -30,6 +30,7 @@ import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,6 +67,26 @@ public class MessageV2Controller {
         @ApiParam(value = "query condition")  @RequestParam("sortItem") String sortItem) {
         return ResponseEntity
             .ok(messageServiceFacade.getAllMessagesV2(messageType, appName, limit, offset, sortType, sortItem));
+    }
+
+    /**
+     * get message center list.
+     * @param queryMessageReqDto queryMessageReqDto.
+     * @return
+     */
+    @PostMapping(value = "/center/query", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
+        + "else will return all apps.", response = MessageRespDto.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<Page<MessageRespDto>> queryMsgCenterList(
+        @ApiParam(value = "queryMessageReqDto", required = true) @RequestBody QueryMessageReqDto queryMessageReqDto) {
+        return ResponseEntity
+            .ok(messageServiceFacade.queryMsgCenterList(queryMessageReqDto));
     }
 
     /**

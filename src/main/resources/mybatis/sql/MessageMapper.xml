@@ -83,5 +83,41 @@
         where MESSAGEID = #{messageId}
     </update>
 
+    <select id="queryMsgCenterList"
+            parameterType="java.util.Map"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
+        select * from message_table
+        <where>
+            <if test="messageType != null and messageType != ''">
+                messageType = #{messageType}
+            </if>
+            <if test="timeFlag != null and timeFlag != ''">
+                and time >= #{timeFlag}
+            </if>
+            <if test="readable != null and readable != ''">
+                and readed = #{readable}
+            </if>
+        </where>
+        <if test="sortType != null and sortType != '' and sortItem != '' and sortItem != null">
+            order by ${sortItem} ${sortType}
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="queryMsgCenterCount"
+            resultType="java.lang.Integer">
+        select count(*) from message_table
+        <where>
+            <if test="messageType != null and messageType != ''">
+                messageType = #{messageType}
+            </if>
+            <if test="timeFlag != null and timeFlag != ''">
+                and time >= #{timeFlag}
+            </if>
+            <if test="readable != null and readable != ''">
+                and readed = #{readable}
+            </if>
+        </where>
+    </select>
 
 </mapper>

@@ -15,7 +15,10 @@
 
 package org.edgegallery.appstore.interfaces.message.facade;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +31,10 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.infrastructure.persistence.message.MessageDateEnum;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -116,5 +121,57 @@ public class MessageServiceFacade {
         String result = messageService.addMessage(dto);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(result, errMsg, "add message success."));
+    }
+
+    /**
+     * get message center list.
+     * @param queryMessageReqDto queryMessageReqDto.
+     * @return
+     */
+    public Page<MessageRespDto> queryMsgCenterList(QueryMessageReqDto queryMessageReqDto) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("messageType",queryMessageReqDto.getMessageType());
+        params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
+        params.put("limit", queryMessageReqDto.getLimit());
+        params.put("offset", queryMessageReqDto.getOffset());
+        params.put("sortItem", queryMessageReqDto.getSortItem());
+        params.put("sortType", queryMessageReqDto.getSortType());
+        params.put("readable",queryMessageReqDto.isReadable());
+        List<Message> messages = messageService.queryMsgCenterList(params);
+        long total = messageService.queryMsgCenterCount(params);
+        return new Page<>(
+            messages.stream().map(MessageRespDto::of)
+                .collect(Collectors.toList()), queryMessageReqDto.getLimit(), queryMessageReqDto.getOffset(), total);
+    }
+
+    /**
+     * get time format by time flag.
+     * @param timeFlag timeFlag.
+     * @return
+     */
+    public String getMessageDate(String timeFlag) {
+        SimpleDateFormat format = new   SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        String messageTime = null;
+        switch (timeFlag) {
+            case "TODAY":
+                calendar.add(Calendar.DATE, MessageDateEnum.TODAY.dayValue);
+                messageTime = format.format(calendar.getTime());
+                break;
+            case "WEEK":
+                calendar.add(Calendar.DATE, MessageDateEnum.WEEK.dayValue);
+                messageTime = format.format(calendar.getTime() );
+                break;
+            case "MONTH":
+                calendar.add(Calendar.DATE, MessageDateEnum.MONTH.dayValue);
+                messageTime = format.format(calendar.getTime() );
+                break;
+            case "EARLIER":
+                messageTime = null;
+                break;
+        }
+        return messageTime;
     }
 }
