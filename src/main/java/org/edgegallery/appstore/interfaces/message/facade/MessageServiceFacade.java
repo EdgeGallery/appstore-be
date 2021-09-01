@@ -162,13 +162,13 @@ public class MessageServiceFacade {
                 break;
             case "WEEK":
                 calendar.add(Calendar.DATE, MessageDateEnum.WEEK.dayValue);
-                messageTime = format.format(calendar.getTime() );
+                messageTime = format.format(calendar.getTime());
                 break;
             case "MONTH":
                 calendar.add(Calendar.DATE, MessageDateEnum.MONTH.dayValue);
-                messageTime = format.format(calendar.getTime() );
+                messageTime = format.format(calendar.getTime());
                 break;
-            case "EARLIER":
+            default:
                 messageTime = null;
                 break;
         }
