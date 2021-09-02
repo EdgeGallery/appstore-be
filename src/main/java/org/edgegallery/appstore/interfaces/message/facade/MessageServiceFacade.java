@@ -38,6 +38,7 @@ import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service("MessageServiceFacade")
 public class MessageServiceFacade {
@@ -53,29 +54,6 @@ public class MessageServiceFacade {
      */
     public ResponseEntity<String> addMessage(MessageReqDto dto) {
         return ResponseEntity.ok(messageService.addMessage(dto));
-    }
-
-    /**
-     * get all messages by type limit offset.
-     *
-     * @param messageType type
-     * @return list
-     */
-    public Page<MessageRespDto> getAllMessagesV2(EnumMessageType messageType, String appName, int limit, int offset,
-        String sortType, String sortItem) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("limit", limit);
-        params.put("offset", offset);
-        params.put("appName", appName);
-        params.put("time", "time");
-        params.put("sortItem", sortItem);
-        params.put("sortType", sortType);
-
-        List<Message> messages = messageService.getAllMessagesV2(params);
-        long total = messageService.getAllMessageCount(params);
-        return new Page<>(
-            messages.stream().filter(m -> messageType == null ? m != null : m.getMessageType() == messageType)
-                .map(MessageRespDto::of).collect(Collectors.toList()), limit, offset, total);
     }
 
     /**
@@ -124,21 +102,27 @@ public class MessageServiceFacade {
     }
 
     /**
-     * get message center list.
+     * get all messages by type limit offset.
      * @param queryMessageReqDto queryMessageReqDto.
      * @return
      */
-    public Page<MessageRespDto> queryMsgCenterList(QueryMessageReqDto queryMessageReqDto) {
+    public Page<MessageRespDto> getAllMessagesV2(QueryMessageReqDto queryMessageReqDto) {
         Map<String, Object> params = new HashMap<>();
+        params.put("time", "time");
+        params.put("appName", queryMessageReqDto.getAppName());
         params.put("messageType",queryMessageReqDto.getMessageType());
-        params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
+        if (StringUtils.isEmpty(queryMessageReqDto.getTimeFlag())) {
+            params.put("timeFlag", queryMessageReqDto.getTimeFlag());
+        } else {
+            params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
+        }
         params.put("limit", queryMessageReqDto.getLimit());
         params.put("offset", queryMessageReqDto.getOffset());
         params.put("sortItem", queryMessageReqDto.getSortItem());
         params.put("sortType", queryMessageReqDto.getSortType());
         params.put("readable",queryMessageReqDto.isReadable());
-        List<Message> messages = messageService.queryMsgCenterList(params);
-        long total = messageService.queryMsgCenterCount(params);
+        List<Message> messages = messageService.getAllMessagesV2(params);
+        long total = messageService.getAllMessageCount(params);
         return new Page<>(
             messages.stream().map(MessageRespDto::of)
                 .collect(Collectors.toList()), queryMessageReqDto.getLimit(), queryMessageReqDto.getOffset(), total);

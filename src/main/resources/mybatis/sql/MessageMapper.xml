@@ -29,21 +29,6 @@
         select * from message_table
     </select>
 
-    <select id="getAllMessagesV2"
-            parameterType="java.util.Map"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
-        select * from message_table
-        <where>
-            <if test="appName != null and appName != ''">
-                name ilike '%' || #{appName} || '%'
-            </if>
-        </where>
-        <if test="sortType != null and sortType != '' and sortItem != '' and sortItem != null">
-            order by ${sortItem} ${sortType},${time} ${sortType}
-        </if>
-        limit #{limit} offset #{offset}
-    </select>
-
     <insert id="insert"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
         insert into message_table
@@ -55,16 +40,6 @@
         #{readed}, #{messageType},#{sourceAppStore}, #{targetAppStore}, #{time}, #{description},
         #{atpTestStatus}, #{atpTestTaskId}, #{atpTestReportUrl}, #{packageDownloadUrl}, #{iconDownloadUrl})
     </insert>
-
-    <select id="getAllMessageCount"
-            resultType="java.lang.Integer">
-        select count(*) from message_table
-        <where>
-            <if test="appName != null and appName != ''">
-                 name ilike '%' || #{appName} || '%'
-            </if>
-        </where>
-    </select>
 
     <delete id="deleteOneMessage" parameterType="String">
         delete from
@@ -83,13 +58,16 @@
         where MESSAGEID = #{messageId}
     </update>
 
-    <select id="queryMsgCenterList"
+    <select id="getAllMessagesV2"
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.message.MessagePo">
         select * from message_table
         <where>
             <if test="messageType != null and messageType != ''">
                 messageType = #{messageType}
+            </if>
+            <if test="appName != null and appName != ''">
+                and name ilike '%' || #{appName} || '%'
             </if>
             <if test="timeFlag != null and timeFlag != ''">
                 and time >= #{timeFlag}
@@ -99,17 +77,20 @@
             </if>
         </where>
         <if test="sortType != null and sortType != '' and sortItem != '' and sortItem != null">
-            order by ${sortItem} ${sortType}
+            order by ${sortItem} ${sortType},${time} ${sortType}
         </if>
         limit #{limit} offset #{offset}
     </select>
 
-    <select id="queryMsgCenterCount"
+    <select id="getAllMessageCount"
             resultType="java.lang.Integer">
         select count(*) from message_table
         <where>
             <if test="messageType != null and messageType != ''">
                 messageType = #{messageType}
+            </if>
+            <if test="appName != null and appName != ''">
+                and name ilike '%' || #{appName} || '%'
             </if>
             <if test="timeFlag != null and timeFlag != ''">
                 and time >= #{timeFlag}

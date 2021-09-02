@@ -20,11 +20,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import javax.validation.constraints.Min;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
@@ -36,11 +33,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "v2message")
@@ -52,29 +47,12 @@ public class MessageV2Controller {
     @Autowired
     private MessageServiceFacade messageServiceFacade;
 
-    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get all the messages", response = MessageRespDto.class, responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<Page<MessageRespDto>> getAllMessages(
-        @ApiParam(value = "messageType") @QueryParam("messageType") EnumMessageType messageType,
-        @ApiParam(value = "app Name") @RequestParam("appName") String appName,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
-        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
-        @ApiParam(value = "query condition")  @RequestParam("sortItem") String sortItem) {
-        return ResponseEntity
-            .ok(messageServiceFacade.getAllMessagesV2(messageType, appName, limit, offset, sortType, sortItem));
-    }
-
     /**
      * get message center list.
      * @param queryMessageReqDto queryMessageReqDto.
      * @return
      */
-    @PostMapping(value = "/center/query", produces = MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/query", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
         + "else will return all apps.", response = MessageRespDto.class, responseContainer = "List")
     @ApiResponses(value = {
@@ -83,10 +61,10 @@ public class MessageV2Controller {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<Page<MessageRespDto>> queryMsgCenterList(
+    public ResponseEntity<Page<MessageRespDto>> getAllMessages(
         @ApiParam(value = "queryMessageReqDto", required = true) @RequestBody QueryMessageReqDto queryMessageReqDto) {
         return ResponseEntity
-            .ok(messageServiceFacade.queryMsgCenterList(queryMessageReqDto));
+            .ok(messageServiceFacade.getAllMessagesV2(queryMessageReqDto));
     }
 
     /**

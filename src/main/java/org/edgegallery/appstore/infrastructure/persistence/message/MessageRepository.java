@@ -71,17 +71,6 @@ public class MessageRepository {
     }
 
     /**
-     * get center messages in db.
-     *
-     * @return list
-     */
-    public List<Message> queryMsgCenterList(Map<String, Object> params) {
-        return messageMapper.queryMsgCenterList(params).stream().map(MessagePo::toDomainModel)
-            .collect(Collectors.toList());
-    }
-
-
-    /**
      * get all messages in db.
      *
      * @return list
@@ -146,12 +135,4 @@ public class MessageRepository {
         messageMapper.update(messagePo);
     }
 
-    /**
-     * get center message count.
-     * @param param param.
-     * @return
-     */
-    public long queryMsgCenterCount(Map<String, Object> param) {
-        return messageMapper.queryMsgCenterCount(param);
-    }
 }

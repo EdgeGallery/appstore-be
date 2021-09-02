@@ -78,10 +78,6 @@ public class MessageService {
         return messageRepository.getAllMessagesV2(params);
     }
 
-    public List<Message> queryMsgCenterList(Map<String, Object> params) {
-        return messageRepository.queryMsgCenterList(params);
-    }
-
     public List<Message> getAllMessages() {
         return messageRepository.getAllMessages();
     }
@@ -156,7 +152,5 @@ public class MessageService {
         messageRepository.updateMessageReaded(messageId);
     }
 
-    public long queryMsgCenterCount(Map<String, Object> param) {
-        return messageRepository.queryMsgCenterCount(param);
-    }
+
 }

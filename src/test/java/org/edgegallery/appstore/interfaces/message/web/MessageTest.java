@@ -33,6 +33,7 @@ import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -107,8 +108,11 @@ public class MessageTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void test_merge() {
-        Page<MessageRespDto> res  = messageServiceFacade.getAllMessagesV2(null,"test",
-            10,0,"desc","name");
+        QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
+        queryMessageReqDto.setMessageType("NOTICE");
+        queryMessageReqDto.setLimit(5);
+        queryMessageReqDto.setOffset(0);
+        Page<MessageRespDto> res  = messageServiceFacade.getAllMessagesV2(queryMessageReqDto);
         Assert.assertEquals(true, res.getResults().isEmpty());
     }
 }

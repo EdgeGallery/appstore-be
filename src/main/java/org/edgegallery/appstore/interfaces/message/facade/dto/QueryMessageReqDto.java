@@ -23,6 +23,8 @@ import lombok.Setter;
 @Getter
 public class QueryMessageReqDto {
 
+    private String appName;
+
     private String timeFlag;
 
     private String messageType;
