@@ -48,9 +48,9 @@ public class MessageV2Controller {
     private MessageServiceFacade messageServiceFacade;
 
     /**
-     * get message center list.
-     * @param queryMessageReqDto queryMessageReqDto.
-     * @return
+     * get message list.
+     * @param queryMessageReqDto query conditions.
+     * @return Page.
      */
     @PostMapping(value = "/action/query", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
