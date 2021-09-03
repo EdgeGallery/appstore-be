@@ -130,7 +130,7 @@ public class MessageServiceFacade {
      * @return
      */
     public String getMessageDate(MessageDateEnum timeFlag) {
-        if (StringUtils.isEmpty(timeFlag) || timeFlag.name().equals("EARLIER")) {
+        if (timeFlag == null || timeFlag.name().equals("EARLIER")) {
             return null;
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
