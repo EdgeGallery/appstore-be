@@ -16,10 +16,9 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
-import lombok.Getter;
-import lombok.NonNull;
+import brave.internal.Nullable;
 
-@Getter
+@Nullable
 public enum MessageDateEnum {
     TODAY(0),
     WEEK(-7),
