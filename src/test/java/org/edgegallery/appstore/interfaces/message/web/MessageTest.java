@@ -104,14 +104,19 @@ public class MessageTest {
     }
 
     @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void test_merge() {
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void should_success_with_no_timeFlag() throws Exception {
         QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
         queryMessageReqDto.setMessageType("NOTICE");
         queryMessageReqDto.setLimit(5);
         queryMessageReqDto.setOffset(0);
-        queryMessageReqDto.setTimeFlag(MessageDateEnum.TODAY);
-        Page<MessageRespDto> res  = messageServiceFacade.getAllMessagesV2(queryMessageReqDto);
-        Assert.assertEquals(true, res.getResults().isEmpty());
+        queryMessageReqDto.setTimeFlag(null);
+        String body = new Gson().toJson(queryMessageReqDto);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders
+            .post("/mec/appstore/v2/messages/action/query")
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
+
 }
