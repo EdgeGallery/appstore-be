@@ -38,6 +38,7 @@ import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service("MessageServiceFacade")
 public class MessageServiceFacade {
@@ -129,13 +130,13 @@ public class MessageServiceFacade {
      * @return
      */
     public String getMessageDate(MessageDateEnum timeFlag) {
+        if (StringUtils.isEmpty(timeFlag) || timeFlag.name().equals("EARLIER")) {
+            return null;
+        }
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        if (timeFlag.name().equals("EARLIER")) {
-            return null;
-        }
         calendar.add(Calendar.DATE, timeFlag.dayValue);
         return format.format(calendar.getTime());
     }
