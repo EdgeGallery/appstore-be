@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 Huawei Technologies Co., Ltd.
+ *  Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.message.facade.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.infrastructure.persistence.message.MessageDateEnum;
 
 @Setter
 @Getter
@@ -25,7 +26,7 @@ public class QueryMessageReqDto {
 
     private String appName;
 
-    private String timeFlag;
+    private MessageDateEnum timeFlag;
 
     private String messageType;
 

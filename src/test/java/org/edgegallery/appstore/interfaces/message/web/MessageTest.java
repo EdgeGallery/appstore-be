@@ -26,10 +26,8 @@ import java.util.List;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
 import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.infrastructure.persistence.message.MessageDateEnum;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
-import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
-import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
-import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
 import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
@@ -112,6 +110,7 @@ public class MessageTest {
         queryMessageReqDto.setMessageType("NOTICE");
         queryMessageReqDto.setLimit(5);
         queryMessageReqDto.setOffset(0);
+        queryMessageReqDto.setTimeFlag(MessageDateEnum.TODAY);
         Page<MessageRespDto> res  = messageServiceFacade.getAllMessagesV2(queryMessageReqDto);
         Assert.assertEquals(true, res.getResults().isEmpty());
     }

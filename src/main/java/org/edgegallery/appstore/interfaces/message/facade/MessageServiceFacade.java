@@ -38,7 +38,6 @@ import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service("MessageServiceFacade")
 public class MessageServiceFacade {
@@ -111,11 +110,7 @@ public class MessageServiceFacade {
         params.put("time", "time");
         params.put("appName", queryMessageReqDto.getAppName());
         params.put("messageType",queryMessageReqDto.getMessageType());
-        if (StringUtils.isEmpty(queryMessageReqDto.getTimeFlag())) {
-            params.put("timeFlag", queryMessageReqDto.getTimeFlag());
-        } else {
-            params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
-        }
+        params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
         params.put("limit", queryMessageReqDto.getLimit());
         params.put("offset", queryMessageReqDto.getOffset());
         params.put("sortItem", queryMessageReqDto.getSortItem());
@@ -133,29 +128,16 @@ public class MessageServiceFacade {
      * @param timeFlag timeFlag.
      * @return
      */
-    public String getMessageDate(String timeFlag) {
-        SimpleDateFormat format = new   SimpleDateFormat("yyyy-MM-dd");
+    public String getMessageDate(MessageDateEnum timeFlag) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        String messageTime = null;
-        switch (timeFlag) {
-            case "TODAY":
-                calendar.add(Calendar.DATE, MessageDateEnum.TODAY.dayValue);
-                messageTime = format.format(calendar.getTime());
-                break;
-            case "WEEK":
-                calendar.add(Calendar.DATE, MessageDateEnum.WEEK.dayValue);
-                messageTime = format.format(calendar.getTime());
-                break;
-            case "MONTH":
-                calendar.add(Calendar.DATE, MessageDateEnum.MONTH.dayValue);
-                messageTime = format.format(calendar.getTime());
-                break;
-            default:
-                messageTime = null;
-                break;
+        if (timeFlag.name().equals("EARLIER")) {
+            return null;
         }
-        return messageTime;
+        calendar.add(Calendar.DATE, timeFlag.dayValue);
+        return format.format(calendar.getTime());
     }
+
 }
