@@ -103,7 +103,7 @@ public class MessageServiceFacade {
     /**
      * get all messages by type limit offset.
      * @param queryMessageReqDto queryMessageReqDto.
-     * @return
+     * @return Page<MessageRespDto>.
      */
     public Page<MessageRespDto> getAllMessagesV2(QueryMessageReqDto queryMessageReqDto) {
         Map<String, Object> params = new HashMap<>();

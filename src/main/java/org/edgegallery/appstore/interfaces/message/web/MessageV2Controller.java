@@ -50,7 +50,7 @@ public class MessageV2Controller {
     /**
      * get message list.
      * @param queryMessageReqDto query conditions.
-     * @return Page.
+     * @return Page<MessageRespDto>.
      */
     @PostMapping(value = "/action/query", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
