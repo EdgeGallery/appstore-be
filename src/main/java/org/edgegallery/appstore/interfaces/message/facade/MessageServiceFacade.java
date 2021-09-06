@@ -102,29 +102,30 @@ public class MessageServiceFacade {
 
     /**
      * get all messages by type limit offset.
+     *
      * @param queryMessageReqDto queryMessageReqDto.
-     * @return Page<MessageRespDto>.
+     * @return Page.
      */
     public Page<MessageRespDto> getAllMessagesV2(QueryMessageReqDto queryMessageReqDto) {
         Map<String, Object> params = new HashMap<>();
         params.put("time", "time");
         params.put("appName", queryMessageReqDto.getAppName());
-        params.put("messageType",queryMessageReqDto.getMessageType());
-        params.put("timeFlag",getMessageDate(queryMessageReqDto.getTimeFlag()));
+        params.put("messageType", queryMessageReqDto.getMessageType());
+        params.put("timeFlag", getMessageDate(queryMessageReqDto.getTimeFlag()));
         params.put("limit", queryMessageReqDto.getLimit());
         params.put("offset", queryMessageReqDto.getOffset());
         params.put("sortItem", queryMessageReqDto.getSortItem());
         params.put("sortType", queryMessageReqDto.getSortType());
-        params.put("readable",queryMessageReqDto.isReadable());
+        params.put("readable", queryMessageReqDto.isReadable());
         List<Message> messages = messageService.getAllMessagesV2(params);
         long total = messageService.getAllMessageCount(params);
-        return new Page<>(
-            messages.stream().map(MessageRespDto::of)
-                .collect(Collectors.toList()), queryMessageReqDto.getLimit(), queryMessageReqDto.getOffset(), total);
+        return new Page<>(messages.stream().map(MessageRespDto::of).collect(Collectors.toList()),
+            queryMessageReqDto.getLimit(), queryMessageReqDto.getOffset(), total);
     }
 
     /**
      * get time format by time flag.
+     *
      * @param timeFlag timeFlag.
      * @return
      */
