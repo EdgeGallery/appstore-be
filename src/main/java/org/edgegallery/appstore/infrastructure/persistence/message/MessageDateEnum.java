@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
 import brave.internal.Nullable;
@@ -30,7 +29,4 @@ public enum MessageDateEnum {
     private MessageDateEnum(int dayValue) {
         this.dayValue = dayValue;
     }
-
-
-
 }
