@@ -38,7 +38,6 @@ import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service("MessageServiceFacade")
 public class MessageServiceFacade {
