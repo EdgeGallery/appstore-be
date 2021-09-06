@@ -1,4 +1,4 @@
-/* Copyright 2020 Huawei Technologies Co., Ltd.
+/* Copyright 2021 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,18 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.message;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Component;
+import brave.internal.Nullable;
 
-@Component
-@Mapper
-public interface MessageMapper {
+@Nullable
+public enum MessageDateEnum {
+    TODAY(0),
+    WEEK(-7),
+    MONTH(-30),
+    EARLIER(-1);
 
-    void insert(MessagePo messagePo);
+    public final int dayValue;
 
-    void deleteOneMessage(String messageId);
-
-    void update(MessagePo messagePo);
-
-    MessagePo getOneMessage(String messageId);
-
-    List<MessagePo> getAllMessagesV2(Map<String, Object> params);
-
-    List<MessagePo> getAllMessages();
-
-    Integer getAllMessageCount(Map<String, Object> param);
-
+    private MessageDateEnum(int dayValue) {
+        this.dayValue = dayValue;
+    }
 }

@@ -91,7 +91,7 @@ public class MessageRepository {
     /**
      * get one message by id.
      *
-     * @param messageId id
+     * @param messageId id.
      * @return message obj
      */
     public Message getOneMessage(String messageId) {
@@ -107,7 +107,7 @@ public class MessageRepository {
     /**
      * delete one message by id.
      *
-     * @param messageId id
+     * @param messageId id.
      */
     public void deleteOneMessage(String messageId) {
         MessagePo messagePo = messageMapper.getOneMessage(messageId);
@@ -134,4 +134,5 @@ public class MessageRepository {
         messagePo.setReaded(true);
         messageMapper.update(messagePo);
     }
+
 }

@@ -151,4 +151,6 @@ public class MessageService {
     public void updateMessageReaded(String messageId) {
         messageRepository.updateMessageReaded(messageId);
     }
+
+
 }
