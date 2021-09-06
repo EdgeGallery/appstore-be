@@ -49,15 +49,15 @@ public class MessageV2Controller {
 
     /**
      * get message list.
+     *
      * @param queryMessageReqDto query conditions.
-     * @return Page<MessageRespDto>.
+     * @return Page.
      */
     @PostMapping(value = "/action/query", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get app list by condition. if the userId is null, it will return all published apps, "
-        + "else will return all apps.", response = MessageRespDto.class, responseContainer = "List")
+    @ApiOperation(value = "get message list by condition", response = MessageRespDto.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessed MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
