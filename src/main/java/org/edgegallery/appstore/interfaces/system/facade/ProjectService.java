@@ -271,16 +271,15 @@ public class ProjectService {
         }
         String mepRange = vmInputParams.get("app_mp1_ip");
         String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
-        vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
-        vmInputParams.put("app_n6_mask",IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
-        vmInputParams.put("app_mp1_mask",IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
-        vmInputParams.put("app_internet_mask",IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
-        vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
-        vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
-        vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
-        vmInputParams.put("network_name_n6",vmInputParams.get("network_name_n6"));
+        vmInputParams.put("app_n6_ip", temN6Ip);
+        vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
+        vmInputParams.put("app_n6_mask", IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
+        vmInputParams.put("app_mp1_mask", IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
+        vmInputParams.put("app_internet_mask", IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
+        vmInputParams.put("app_n6_gw", IpCalculateUtil.getStartIp(n6Range, 0));
+        vmInputParams.put("app_mp1_gw", IpCalculateUtil.getStartIp(mepRange, 0));
+        vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
         return vmInputParams;
     }
 

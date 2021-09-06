@@ -18,17 +18,20 @@ package org.edgegallery.appstore.interfaces.message.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.edgegallery.appstore.application.inner.MessageService;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
-import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageDateEnum;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
-import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto;
@@ -40,13 +43,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AppstoreApplicationTest.class)
@@ -57,7 +61,7 @@ public class MessageTest {
     protected MockMvc mvc;
 
     @Autowired
-    MessageServiceFacade messageServiceFacade;
+    private MessageService messageService;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -92,31 +96,117 @@ public class MessageTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_message_should_success() throws Exception {
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/v1/messages").param("messageType",
-                String.valueOf(EnumMessageType.NOTICE))
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/messages")
+            .param("messageType", String.valueOf(EnumMessageType.NOTICE)).contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
         Gson gson = new Gson();
-        List<MessageRespDto>  appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        List<MessageRespDto> appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
         Assert.assertEquals(0, appDtos.size());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void should_success_with_no_timeFlag() throws Exception {
+    public void should_success_query_message() throws Exception {
         QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
         queryMessageReqDto.setMessageType("NOTICE");
         queryMessageReqDto.setLimit(5);
         queryMessageReqDto.setOffset(0);
         queryMessageReqDto.setTimeFlag(null);
         String body = new Gson().toJson(queryMessageReqDto);
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders
-            .post("/mec/appstore/v2/messages/action/query")
+        MvcResult actions = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v2/messages/action/query")
             .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
+        Gson gson = new Gson();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        List<MessageRespDto> list = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class);
+        Assert.assertNotEquals(0, list.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void should_success_with_diff_MessageType() throws Exception {
+        QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
+        queryMessageReqDto.setMessageType("NOTICE");
+        queryMessageReqDto.setLimit(5);
+        queryMessageReqDto.setOffset(0);
+        queryMessageReqDto.setTimeFlag(null);
+        String body = new Gson().toJson(queryMessageReqDto);
+        MvcResult actions = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v2/messages/action/query")
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
+        Gson gson = new Gson();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        List<MessageRespDto> list = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class);
+        boolean typeFlag = false;
+        for (MessageRespDto messageRespDto : list) {
+            if (messageRespDto.getMessageType() != EnumMessageType.NOTICE) {
+                typeFlag = true;
+            }
+        }
+        Assert.assertEquals(false, typeFlag);
+    }
+
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public long should_success_query_count() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("messageType", "NOTICE");
+        return messageService.getAllMessageCount(params);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void should_success_with_two_page() throws Exception {
+        QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
+        queryMessageReqDto.setMessageType("NOTICE");
+        queryMessageReqDto.setLimit(3);
+        queryMessageReqDto.setOffset(2);
+        queryMessageReqDto.setTimeFlag(null);
+        String body = new Gson().toJson(queryMessageReqDto);
+        MvcResult actions = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v2/messages/action/query")
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        int listcount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
+        int count = (int) should_success_query_count();
+        boolean pageFlag = false;
+        if (listcount >= (count - 2)) {
+            pageFlag = true;
+        }
+        Assert.assertEquals(true, pageFlag);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void should_success_with_diff_time() throws Exception {
+        QueryMessageReqDto queryMessageReqDto = new QueryMessageReqDto();
+        queryMessageReqDto.setMessageType("NOTICE");
+        queryMessageReqDto.setLimit(5);
+        queryMessageReqDto.setOffset(0);
+        queryMessageReqDto.setTimeFlag(MessageDateEnum.WEEK);
+        String body = new Gson().toJson(queryMessageReqDto);
+        MvcResult actions = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v2/messages/action/query")
+            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(body).with(csrf()))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        List<MessageRespDto> list = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class);
+        boolean dateFlag = false;
+        for (MessageRespDto messageRespDto : list) {
+            if (messageRespDto.getTime().startsWith("2021-08-25")) {
+                dateFlag = true;
+            }
+        }
+        Assert.assertEquals(false, dateFlag);
     }
 
 }
