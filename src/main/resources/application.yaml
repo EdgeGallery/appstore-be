@@ -81,6 +81,8 @@ appstore-be:
   encrypted-key-path: /usr/app/keys/public.p12
   key-password: ${EDGE_CERT_PASSWORD:}
   filesystem-address: ${FILESYSTEM_ADDRESS:}
+  app-pkg-trans-tool:
+    enabled: ${APPD_ENABLED:false}
 ### atp config ###
 atp:
   urls:
