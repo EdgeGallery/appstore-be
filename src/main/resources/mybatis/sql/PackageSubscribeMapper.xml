@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.PackageSubscribeMapper" >
+  <resultMap id="BaseResultMap" type="com.example.entity.PackageSubscribe" >
+
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="caller_id" property="callerId" jdbcType="VARCHAR" />
+    <result column="meao_id" property="meaoId" jdbcType="VARCHAR" />
+    <result column="notification_uri" property="notificationUri" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+
+    id, caller_id, meao_id, notification_uri
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.example.entity.PackageSubscribeExample" >
+
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from package_subscribe_table
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+
+    select 
+    <include refid="Base_Column_List" />
+    from package_subscribe_table
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+
+    delete from package_subscribe_table
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.example.entity.PackageSubscribeExample" >
+
+    delete from package_subscribe_table
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.example.entity.PackageSubscribe" >
+
+    insert into package_subscribe_table (id, caller_id, meao_id, 
+      notification_uri)
+    values (#{id,jdbcType=VARCHAR}, #{callerId,jdbcType=VARCHAR}, #{meaoId,jdbcType=VARCHAR}, 
+      #{notificationUri,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.entity.PackageSubscribe" >
+
+    insert into package_subscribe_table
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="callerId != null" >
+        caller_id,
+      </if>
+      <if test="meaoId != null" >
+        meao_id,
+      </if>
+      <if test="notificationUri != null" >
+        notification_uri,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="callerId != null" >
+        #{callerId,jdbcType=VARCHAR},
+      </if>
+      <if test="meaoId != null" >
+        #{meaoId,jdbcType=VARCHAR},
+      </if>
+      <if test="notificationUri != null" >
+        #{notificationUri,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.example.entity.PackageSubscribeExample" resultType="java.lang.Integer" >
+
+    select count(*) from package_subscribe_table
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+
+    update package_subscribe_table
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.callerId != null" >
+        caller_id = #{record.callerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.meaoId != null" >
+        meao_id = #{record.meaoId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.notificationUri != null" >
+        notification_uri = #{record.notificationUri,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+
+    update package_subscribe_table
+    set id = #{record.id,jdbcType=VARCHAR},
+      caller_id = #{record.callerId,jdbcType=VARCHAR},
+      meao_id = #{record.meaoId,jdbcType=VARCHAR},
+      notification_uri = #{record.notificationUri,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.entity.PackageSubscribe" >
+
+    update package_subscribe_table
+    <set >
+      <if test="callerId != null" >
+        caller_id = #{callerId,jdbcType=VARCHAR},
+      </if>
+      <if test="meaoId != null" >
+        meao_id = #{meaoId,jdbcType=VARCHAR},
+      </if>
+      <if test="notificationUri != null" >
+        notification_uri = #{notificationUri,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.entity.PackageSubscribe" >
+
+    update package_subscribe_table
+    set caller_id = #{callerId,jdbcType=VARCHAR},
+      meao_id = #{meaoId,jdbcType=VARCHAR},
+      notification_uri = #{notificationUri,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
