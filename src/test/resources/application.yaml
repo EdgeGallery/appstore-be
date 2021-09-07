@@ -44,7 +44,8 @@ security:
 appstore-be:
   temp-path: usr/apptest/temp
   package-path: usr/apptest/packages
-
+  app-pkg-trans-tool:
+    enabled: ${APPD_ENABLED:false}
 ### atp config ###
 atp:
   urls:
