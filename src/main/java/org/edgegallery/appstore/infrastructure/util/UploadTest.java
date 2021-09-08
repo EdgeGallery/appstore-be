@@ -125,6 +125,7 @@ public class UploadTest {
     public String uploadFile(String userId, String absolutionFilePath) throws IOException {
         String imageId = "";
         File sourceFile = new File(absolutionFilePath);
+        String tempFolder = new File(absolutionFilePath).getParent();
         long fileLength = sourceFile.length();
         RandomAccessFile readFile = new RandomAccessFile(sourceFile, "rw");
         long chunkTotal = fileLength / chunkSize;
@@ -138,7 +139,7 @@ public class UploadTest {
         String identifier = UUID.randomUUID().toString().replace("-", "");
         while ((currentChunkSize = readFile.read(buf)) != -1) {
             chunkCount++;
-            String targetFile = chunkCount + ".part";
+            String targetFile = tempFolder + File.separator + chunkCount + ".part";
             RandomAccessFile writeFile = new RandomAccessFile(new File(targetFile), "rw");
             writeFile.write(buf, 0, currentChunkSize);
             writeFile.close();
@@ -158,7 +159,7 @@ public class UploadTest {
             Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             imageId = uploadResultModel.get("imageId");
-            deleteTempPartFile(absolutionFilePath);
+            deleteTempPartFile(tempFolder);
 
         }
         return imageId;
@@ -167,12 +168,12 @@ public class UploadTest {
     /**
      * delete temp .part file.
      *
-     * @param absolutionFilePath temp file folder.
+     * @param tempPath temp file folder.
      */
-    public void deleteTempPartFile(String absolutionFilePath) {
+    public void deleteTempPartFile(String tempPath) {
 
         try {
-            File tempFolder = new File(absolutionFilePath).getParentFile().getCanonicalFile();
+            File tempFolder = new File(tempPath).getParentFile().getCanonicalFile();
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                 LOGGER.error("temp file folder not exist.");
                 throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
