@@ -173,7 +173,7 @@ public class UploadTest {
     public void deleteTempPartFile(String tempPath) {
 
         try {
-            File tempFolder = new File(tempPath).getParentFile().getCanonicalFile();
+            File tempFolder = new File(tempPath).getCanonicalFile();
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                 LOGGER.error("temp file folder not exist.");
                 throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
