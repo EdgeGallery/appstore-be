@@ -1,4 +1,4 @@
-package org.edgegallery.appstore.infrastructure.persistence.apackage;
+package org.edgegallery.appstore.infrastructure.persistence.meao;
 
 import javax.persistence.Column;
 import javax.persistence.Id;

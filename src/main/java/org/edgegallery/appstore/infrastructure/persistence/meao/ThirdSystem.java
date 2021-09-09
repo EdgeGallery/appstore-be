@@ -1,4 +1,4 @@
-package org.edgegallery.appstore.infrastructure.persistence.apackage;
+package org.edgegallery.appstore.infrastructure.persistence.meao;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -22,7 +22,7 @@ public class ThirdSystem {
     private String ip;
 
     @Column(name = "port")
-    private String port;
+    private int port;
 
     @Column(name = "username")
     private String username;

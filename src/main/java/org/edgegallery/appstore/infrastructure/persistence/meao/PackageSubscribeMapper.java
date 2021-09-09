@@ -1,5 +1,10 @@
-package org.edgegallery.appstore.infrastructure.persistence.apackage;
+package org.edgegallery.appstore.infrastructure.persistence.meao;
 
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Component;
+
+@Component
+@Mapper
 public interface PackageSubscribeMapper {
 
     int deleteByPrimaryKey(String id);

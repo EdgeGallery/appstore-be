@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.example.mapper.PackageSubscribeMapper" >
-  <resultMap id="BaseResultMap" type="com.example.entity.PackageSubscribe" >
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeMapper" >
+  <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribe" >
 
     <id column="id" property="id" jdbcType="VARCHAR" />
     <result column="caller_id" property="callerId" jdbcType="VARCHAR" />
@@ -72,21 +72,7 @@
 
     id, caller_id, meao_id, notification_uri
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.example.entity.PackageSubscribeExample" >
 
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from package_subscribe_table
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
 
     select 
@@ -99,21 +85,15 @@
     delete from package_subscribe_table
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.example.entity.PackageSubscribeExample" >
 
-    delete from package_subscribe_table
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.example.entity.PackageSubscribe" >
+  <insert id="insert" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribe" >
 
     insert into package_subscribe_table (id, caller_id, meao_id, 
       notification_uri)
     values (#{id,jdbcType=VARCHAR}, #{callerId,jdbcType=VARCHAR}, #{meaoId,jdbcType=VARCHAR}, 
       #{notificationUri,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.example.entity.PackageSubscribe" >
+  <insert id="insertSelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribe" >
 
     insert into package_subscribe_table
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -145,13 +125,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.example.entity.PackageSubscribeExample" resultType="java.lang.Integer" >
 
-    select count(*) from package_subscribe_table
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
   <update id="updateByExampleSelective" parameterType="map" >
 
     update package_subscribe_table
@@ -184,7 +158,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.example.entity.PackageSubscribe" >
+  <update id="updateByPrimaryKeySelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribe" >
 
     update package_subscribe_table
     <set >
@@ -200,7 +174,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.example.entity.PackageSubscribe" >
+  <update id="updateByPrimaryKey" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribe" >
 
     update package_subscribe_table
     set caller_id = #{callerId,jdbcType=VARCHAR},
