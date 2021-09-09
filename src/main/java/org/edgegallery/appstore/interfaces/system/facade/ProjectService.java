@@ -93,7 +93,7 @@ public class ProjectService {
 
     private static final int GET_TERMINATE_RESULT_TIME = 2 * 1000 * 60;
 
-    private static final int STATUS_SUCCESS = 200;
+    private static final int STATUS_SUCCESS = 0;
 
     private static final String CONTAINER = "container";
 
@@ -351,7 +351,7 @@ public class ProjectService {
      */
     public static int parseStatus(String status) {
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
-        return jsonObject.get("code").getAsInt();
+        return jsonObject.get("retCode").getAsInt();
 
     }
 
@@ -418,8 +418,12 @@ public class ProjectService {
      * @param workStatus workStatus.
      */
     public int getNodePort(String workStatus) {
-        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
-            .getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject().get("nodePort").getAsInt();
+        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
+        String uploadData = jsonObjects.get("data").getAsString();
+        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
+        return jsonCode.get("services").getAsJsonArray().get(0).getAsJsonObject().get("ports").getAsJsonArray().get(0)
+            .getAsJsonObject().get("nodePort").getAsInt();
+
     }
 
     /**
@@ -566,8 +570,10 @@ public class ProjectService {
      * @param workStatus workStatus.
      */
     public String getServiceName(String workStatus) {
-        return new JsonParser().parse(workStatus).getAsJsonObject().get("services").getAsJsonArray().get(0)
-            .getAsJsonObject().get("serviceName").getAsString();
+        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
+        String uploadData = jsonObjects.get("data").getAsString();
+        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
+        return jsonCode.get("services").getAsJsonArray().get(0).getAsJsonObject().get("serviceName").getAsString();
     }
 
     /**
