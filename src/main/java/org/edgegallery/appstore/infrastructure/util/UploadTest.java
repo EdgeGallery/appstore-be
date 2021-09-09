@@ -243,6 +243,7 @@ public class UploadTest {
      */
     public String sliceMergeFile(String identifier, String fileName, String userId) {
         LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);
+        fileName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("userId", userId);
         formData.add("priority", 0);
