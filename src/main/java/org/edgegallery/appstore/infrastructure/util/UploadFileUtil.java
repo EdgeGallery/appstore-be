@@ -49,9 +49,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Service("UploadTest")
-public class UploadTest {
-    public static final Logger LOGGER = LoggerFactory.getLogger(UploadTest.class);
+@Service("UploadFileUtil")
+public class UploadFileUtil {
+    public static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
 
     private static final int chunkSize = 50 * 1024 * 1024;
 
@@ -127,7 +127,7 @@ public class UploadTest {
         File sourceFile = new File(absolutionFilePath);
         String tempFolder = new File(absolutionFilePath).getParent();
         long fileLength = sourceFile.length();
-        RandomAccessFile readFile = new RandomAccessFile(sourceFile, "rw");
+
         long chunkTotal = fileLength / chunkSize;
         if (fileLength % chunkSize != 0) {
             chunkTotal++;
@@ -137,29 +137,33 @@ public class UploadTest {
         int chunkCount = 0;
         int currentChunkSize = -1;
         String identifier = UUID.randomUUID().toString().replace("-", "");
-        while ((currentChunkSize = readFile.read(buf)) != -1) {
-            chunkCount++;
-            String targetFile = tempFolder + File.separator + chunkCount + ".part";
-            RandomAccessFile writeFile = new RandomAccessFile(new File(targetFile), "rw");
-            writeFile.write(buf, 0, currentChunkSize);
-            writeFile.close();
+        try (RandomAccessFile readFile = new RandomAccessFile(sourceFile, "rw");) {
+            while ((currentChunkSize = readFile.read(buf)) != -1) {
+                chunkCount++;
+                String targetFile = tempFolder + File.separator + chunkCount + ".part";
+                RandomAccessFile writeFile = new RandomAccessFile(new File(targetFile), "rw");
+                writeFile.write(buf, 0, currentChunkSize);
+                writeFile.close();
 
-            FileBody bin = new FileBody(new File(targetFile));
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addPart(targetFile, bin);
-            if (!sliceUploadFile(identifier, targetFile)) {
-                LOGGER.error("upload to remote file server failed.");
-                FileUtils.deleteDirectory(new File(targetFile));
-                throw new AppException("upload to remote file server failed.",
-                    ResponseConst.RET_UPLOAD_FILE_FAILED);
+                FileBody bin = new FileBody(new File(targetFile));
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                builder.addPart(targetFile, bin);
+                if (!sliceUploadFile(identifier, targetFile)) {
+                    LOGGER.error("upload to remote file server failed.");
+                    FileUtils.deleteDirectory(new File(targetFile));
+                    throw new AppException("upload to remote file server failed.",
+                        ResponseConst.RET_UPLOAD_FILE_FAILED);
+                }
             }
         }
+
         if (chunkTotal == chunkCount) {
-            String uploadResult = sliceMergeFile(identifier, absolutionFilePath, userId);
+            String fileName = absolutionFilePath.substring(absolutionFilePath.lastIndexOf(File.separator) + 1);
+            String uploadResult = sliceMergeFile(identifier, fileName, userId);
             Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             imageId = uploadResultModel.get("imageId");
-            deleteTempPartFile(tempFolder);
+            deleteTempPartFile(tempFolder, fileName);
 
         }
         return imageId;
@@ -170,7 +174,7 @@ public class UploadTest {
      *
      * @param tempPath temp file folder.
      */
-    public void deleteTempPartFile(String tempPath) {
+    public void deleteTempPartFile(String tempPath, String fileName) {
 
         try {
             File tempFolder = new File(tempPath).getCanonicalFile();
@@ -181,8 +185,8 @@ public class UploadTest {
             File[] files = tempFolder.listFiles();
             if (files != null && files.length > 0) {
                 for (File file : files) {
-                    if (file.getName().endsWith(".part")) {
-                        FileUtils.deleteQuietly(file);
+                    if (file.getName().endsWith(".part") || file.getName().endsWith(fileName)) {
+                        FileUtils.deleteQuietly(file.getCanonicalFile());
                     }
                 }
             }
@@ -243,6 +247,7 @@ public class UploadTest {
      */
     public String sliceMergeFile(String identifier, String fileName, String userId) {
         LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);
+
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("userId", userId);
         formData.add("priority", 0);

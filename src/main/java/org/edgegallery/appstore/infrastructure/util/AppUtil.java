@@ -128,7 +128,7 @@ public class AppUtil {
     private AppService appService;
 
     @Autowired
-    private UploadTest uploadtest;
+    private UploadFileUtil uploadFileUtil;
 
     /**
      * get app_class.
@@ -268,9 +268,6 @@ public class AppUtil {
      * load file and analyse file list.
      */
     public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId) {
-        if (!StringUtils.isEmpty(appClass) && appClass.equals(CONTAINER)) {
-            return;
-        }
         File file = new File(fileParent);
         File[] files = file.listFiles();
         if (files != null && files.length > 0) {
@@ -280,7 +277,6 @@ public class AppUtil {
                     if (filezipArrays == null || filezipArrays.length == 0) {
                         throw new AppException("there is no file in path /Image", ResponseConst.RET_FILE_NOT_FOUND,
                             "/Image");
-
                     }
                     checkImageExist(atpMetadata, fileParent, filezipArrays, userId, fl);
                 }
@@ -297,7 +293,12 @@ public class AppUtil {
             for (SwImgDesc imageDesc : imgDecsList) {
                 String pathUrl = imageDesc.getSwImage();
                 pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
-                if (!isImageExist(pathUrl, atpMetadata.getToken())) {
+                try {
+                    if (!isImageExist(pathUrl, atpMetadata.getToken())) {
+                        FileUtils.deleteDirectory(new File(fileParent));
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("delete file error {}", e.getMessage());
                     throw new AppException("the image of this application does not exist.",
                         ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
                 }
@@ -310,6 +311,29 @@ public class AppUtil {
                 LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
                 throw new AppException("failed to add image zip to package.",
                     ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
+            }
+        }
+
+    }
+
+    /**
+     * delete temp file and folder.
+     *
+     * @param fileParent fileParent.
+     */
+    public void deleteTempFolder(String fileParent) {
+        File file = new File(fileParent);
+        String parent = file.getParent();
+        File parentDir = new File(parent);
+        File[] files = parentDir.listFiles();
+        if (files != null && files.length > 0) {
+            for (File tempFile : files) {
+                if (tempFile.getName().endsWith(CSAR_EXTENSION) || tempFile.getName().endsWith(PNG_EXTENSION)
+                    || tempFile.getName().endsWith(VIDIO_EXTENSION)) {
+                    continue;
+                }
+                FileUtils.deleteQuietly(tempFile);
+
             }
         }
     }
@@ -326,19 +350,8 @@ public class AppUtil {
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
-        File file = new File(fileParent);
-        String parent = file.getParent();
-        File parentDir = new File(parent);
-        File[] files = parentDir.listFiles();
-        if (files != null && files.length > 0) {
-            for (File tempFile : files) {
-                if (tempFile.getName().endsWith(CSAR_EXTENSION) || tempFile.getName().endsWith(PNG_EXTENSION)
-                    || tempFile.getName().endsWith(VIDIO_EXTENSION)) {
-                    continue;
-                }
-                FileUtils.deleteQuietly(tempFile);
-            }
-        }
+        deleteTempFolder(fileParent);
+
     }
 
     /**
@@ -349,8 +362,6 @@ public class AppUtil {
      * @param imageFolder imageFolder.
      */
     public void uploadFileToFileServer(String userId, String fileParent, File imageFolder) throws IOException {
-        // filezipArrays  /Image
-        //fileParent Image.getPaatent()
         String imageId = "";
         String imagePath = "";
         String outPath = imageFolder.getCanonicalPath();
@@ -362,7 +373,7 @@ public class AppUtil {
                 File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
                 imagePath = fileImage.getCanonicalPath();
                 //upload image file
-                imageId = uploadtest.uploadFile(userId, imagePath);
+                imageId = uploadFileUtil.uploadFile(userId, imagePath);
                 if (StringUtils.isEmpty(imageId)) {
                     LOGGER.error("upload to remote file server failed.");
                     throw new AppException("upload to remote file server failed.",
@@ -371,8 +382,6 @@ public class AppUtil {
                 //update swImageJson file
                 String newPathName = fileSystemAddress + "/image-management/v1/images/" + imageId + "/action/download";
                 updateJsonFileServer(imageDesc, imgDecsLists, fileParent, newPathName);
-                //delete already upload zip file.
-                FileUtils.deleteQuietly(new File(imagePath));
                 updateRelationalFile(fileParent, imageName);
             } catch (IOException e) {
                 LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
