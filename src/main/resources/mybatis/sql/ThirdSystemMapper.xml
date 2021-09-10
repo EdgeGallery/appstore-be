@@ -2,18 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper" >
   <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem" >
-
     <id column="id" property="id" jdbcType="VARCHAR" />
     <result column="system_name" property="systemName" jdbcType="VARCHAR" />
     <result column="system_type" property="systemType" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
     <result column="ip" property="ip" jdbcType="VARCHAR" />
     <result column="port" property="port" jdbcType="VARCHAR" />
+    <result column="region" property="region" jdbcType="VARCHAR" />
     <result column="username" property="username" jdbcType="VARCHAR" />
     <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="product" property="product" jdbcType="VARCHAR" />
     <result column="vendor" property="vendor" jdbcType="VARCHAR" />
+    <result column="token_type" property="tokenType" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
-
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
         <if test="criteria.valid" >
@@ -43,7 +47,6 @@
     </where>
   </sql>
   <sql id="Update_By_Example_Where_Clause" >
-
     <where >
       <foreach collection="example.oredCriteria" item="criteria" separator="or" >
         <if test="criteria.valid" >
@@ -73,34 +76,34 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-
-    id, system_name, system_type, ip, port, username, password, vendor
+    id, system_name, system_type, version, url, ip, port, region, username, password,
+    product, vendor, token_type, status
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-
-    select 
+    select
     <include refid="Base_Column_List" />
     from third_system_table
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-
     delete from third_system_table
     where id = #{id,jdbcType=VARCHAR}
   </delete>
 
   <insert id="insert" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem" >
-
-    insert into third_system_table (id, system_name, system_type, 
-      ip, port, username, 
-      password, vendor)
-    values (#{id,jdbcType=VARCHAR}, #{systemName,jdbcType=VARCHAR}, #{systemType,jdbcType=VARCHAR}, 
-      #{ip,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{vendor,jdbcType=VARCHAR})
+    insert into third_system_table (id, system_name, system_type,
+                                    version, url, ip, port,
+                                    region, username, password,
+                                    product, vendor, token_type,
+                                    status)
+    values (#{id,jdbcType=VARCHAR}, #{systemName,jdbcType=VARCHAR}, #{systemType,jdbcType=VARCHAR},
+            #{version,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{port,jdbcType=VARCHAR},
+            #{region,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+            #{product,jdbcType=VARCHAR}, #{vendor,jdbcType=VARCHAR}, #{tokenType,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem" >
-
     insert into third_system_table
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -112,11 +115,20 @@
       <if test="systemType != null" >
         system_type,
       </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="url != null" >
+        url,
+      </if>
       <if test="ip != null" >
         ip,
       </if>
       <if test="port != null" >
         port,
+      </if>
+      <if test="region != null" >
+        region,
       </if>
       <if test="username != null" >
         username,
@@ -124,8 +136,17 @@
       <if test="password != null" >
         password,
       </if>
+      <if test="product != null" >
+        product,
+      </if>
       <if test="vendor != null" >
         vendor,
+      </if>
+      <if test="tokenType != null" >
+        token_type,
+      </if>
+      <if test="status != null" >
+        status,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -138,11 +159,20 @@
       <if test="systemType != null" >
         #{systemType,jdbcType=VARCHAR},
       </if>
+      <if test="version != null" >
+        #{version,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
       <if test="ip != null" >
         #{ip,jdbcType=VARCHAR},
       </if>
       <if test="port != null" >
         #{port,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
       </if>
       <if test="username != null" >
         #{username,jdbcType=VARCHAR},
@@ -150,14 +180,22 @@
       <if test="password != null" >
         #{password,jdbcType=VARCHAR},
       </if>
+      <if test="product != null" >
+        #{product,jdbcType=VARCHAR},
+      </if>
       <if test="vendor != null" >
         #{vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenType != null" >
+        #{tokenType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
 
   <update id="updateByExampleSelective" parameterType="map" >
-
     update third_system_table
     <set >
       <if test="record.id != null" >
@@ -169,11 +207,20 @@
       <if test="record.systemType != null" >
         system_type = #{record.systemType,jdbcType=VARCHAR},
       </if>
+      <if test="record.version != null" >
+        version = #{record.version,jdbcType=VARCHAR},
+      </if>
+      <if test="record.url != null" >
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
       <if test="record.ip != null" >
         ip = #{record.ip,jdbcType=VARCHAR},
       </if>
       <if test="record.port != null" >
         port = #{record.port,jdbcType=VARCHAR},
+      </if>
+      <if test="record.region != null" >
+        region = #{record.region,jdbcType=VARCHAR},
       </if>
       <if test="record.username != null" >
         username = #{record.username,jdbcType=VARCHAR},
@@ -181,8 +228,17 @@
       <if test="record.password != null" >
         password = #{record.password,jdbcType=VARCHAR},
       </if>
+      <if test="record.product != null" >
+        product = #{record.product,jdbcType=VARCHAR},
+      </if>
       <if test="record.vendor != null" >
         vendor = #{record.vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tokenType != null" >
+        token_type = #{record.tokenType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null" >
@@ -190,22 +246,26 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-
     update third_system_table
     set id = #{record.id,jdbcType=VARCHAR},
-      system_name = #{record.systemName,jdbcType=VARCHAR},
-      system_type = #{record.systemType,jdbcType=VARCHAR},
-      ip = #{record.ip,jdbcType=VARCHAR},
-      port = #{record.port,jdbcType=VARCHAR},
-      username = #{record.username,jdbcType=VARCHAR},
-      password = #{record.password,jdbcType=VARCHAR},
-      vendor = #{record.vendor,jdbcType=VARCHAR}
+    system_name = #{record.systemName,jdbcType=VARCHAR},
+    system_type = #{record.systemType,jdbcType=VARCHAR},
+    version = #{record.version,jdbcType=VARCHAR},
+    url = #{record.url,jdbcType=VARCHAR},
+    ip = #{record.ip,jdbcType=VARCHAR},
+    port = #{record.port,jdbcType=VARCHAR},
+    region = #{record.region,jdbcType=VARCHAR},
+    username = #{record.username,jdbcType=VARCHAR},
+    password = #{record.password,jdbcType=VARCHAR},
+    product = #{record.product,jdbcType=VARCHAR},
+    vendor = #{record.vendor,jdbcType=VARCHAR},
+    token_type = #{record.tokenType,jdbcType=VARCHAR},
+    status = #{record.status,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem" >
-
     update third_system_table
     <set >
       <if test="systemName != null" >
@@ -214,11 +274,20 @@
       <if test="systemType != null" >
         system_type = #{systemType,jdbcType=VARCHAR},
       </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        url = #{url,jdbcType=VARCHAR},
+      </if>
       <if test="ip != null" >
         ip = #{ip,jdbcType=VARCHAR},
       </if>
       <if test="port != null" >
         port = #{port,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        region = #{region,jdbcType=VARCHAR},
       </if>
       <if test="username != null" >
         username = #{username,jdbcType=VARCHAR},
@@ -226,22 +295,36 @@
       <if test="password != null" >
         password = #{password,jdbcType=VARCHAR},
       </if>
+      <if test="product != null" >
+        product = #{product,jdbcType=VARCHAR},
+      </if>
       <if test="vendor != null" >
         vendor = #{vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenType != null" >
+        token_type = #{tokenType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem" >
-
     update third_system_table
     set system_name = #{systemName,jdbcType=VARCHAR},
-      system_type = #{systemType,jdbcType=VARCHAR},
-      ip = #{ip,jdbcType=VARCHAR},
-      port = #{port,jdbcType=VARCHAR},
-      username = #{username,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR},
-      vendor = #{vendor,jdbcType=VARCHAR}
+        system_type = #{systemType,jdbcType=VARCHAR},
+        version = #{version,jdbcType=VARCHAR},
+        url = #{url,jdbcType=VARCHAR},
+        ip = #{ip,jdbcType=VARCHAR},
+        port = #{port,jdbcType=VARCHAR},
+        region = #{region,jdbcType=VARCHAR},
+        username = #{username,jdbcType=VARCHAR},
+        password = #{password,jdbcType=VARCHAR},
+        product = #{product,jdbcType=VARCHAR},
+        vendor = #{vendor,jdbcType=VARCHAR},
+        token_type = #{tokenType,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

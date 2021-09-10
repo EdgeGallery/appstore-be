@@ -38,7 +38,7 @@ public class ThirdSystemFacade {
             throw new AppException("third system not exist.");
         }
 
-        int ret = thirdSystemMapper.updateByPrimaryKey(thirdSystem);
+        int ret = thirdSystemMapper.updateByPrimaryKeySelective(thirdSystem);
         if (ret > 0) {
             return ResponseEntity.ok("update third system success.");
         } else {
