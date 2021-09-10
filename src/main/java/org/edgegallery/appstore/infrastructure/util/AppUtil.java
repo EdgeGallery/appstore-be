@@ -128,7 +128,7 @@ public class AppUtil {
     private AppService appService;
 
     @Autowired
-    private UploadTest uploadtest;
+    private UploadFileUtil uploadFileUtil;
 
     /**
      * get app_class.
@@ -373,7 +373,7 @@ public class AppUtil {
                 File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
                 imagePath = fileImage.getCanonicalPath();
                 //upload image file
-                imageId = uploadtest.uploadFile(userId, imagePath);
+                imageId = uploadFileUtil.uploadFile(userId, imagePath);
                 if (StringUtils.isEmpty(imageId)) {
                     LOGGER.error("upload to remote file server failed.");
                     throw new AppException("upload to remote file server failed.",

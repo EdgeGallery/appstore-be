@@ -50,8 +50,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Service("UploadTest")
-public class UploadTest {
-    public static final Logger LOGGER = LoggerFactory.getLogger(UploadTest.class);
+public class UploadFileUtil {
+    public static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
 
     private static final int chunkSize = 50 * 1024 * 1024;
 
