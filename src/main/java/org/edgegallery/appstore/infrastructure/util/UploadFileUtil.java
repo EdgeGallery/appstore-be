@@ -49,7 +49,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Service("UploadTest")
+@Service("UploadFileUtil")
 public class UploadFileUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
 
