@@ -7,20 +7,10 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service("UploadPackageService")
 public class UploadPackageService {
-    @Value("${meao.host}")
-    private String meaoHost;
-
-    @Value("${meao.user}")
-    private String meaoUser;
-
-    @Value("${meao.password}")
-    private String meaoPassword;
-
     @Autowired
     ThirdSystemMapper thirdSystemMapper;
 
@@ -34,6 +24,11 @@ public class UploadPackageService {
      * @return JSONObject
      */
     public JSONObject uploadPackage(String filePath, String packageId, String meaoId) {
+        // mock data
+        filePath = "D:\\OSDT\\APPD\\edgegallery_vm_meo_attributes\\edgegallery_vm_meo_attributes1.zip";
+        packageId = "12345";
+        meaoId = "e87650e5-3f0f-4688-8302-736acb1dac31";
+
         String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         String taskName = fileName.substring(0, fileName.indexOf("."));
         JSONObject reqJson = new JSONObject();
@@ -58,11 +53,13 @@ public class UploadPackageService {
             throw new AppException("get meao info fail.");
         }
 
-        JSONObject session = Utils.getSessionCookie(meaoInfo.getUrl(), meaoInfo.getUsername(), meaoInfo.getPassword());
+        String meaoUrl = meaoInfo.getUrl();
+        JSONObject session = Utils.getSessionCookie(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword());
         JSONObject cookieInfo = JSON.parseObject(session.getString("body"));
         String csrfToken = cookieInfo.getString("csrfToken");
         String cookie = cookieInfo.getString("session");
 
+        String meaoHost = meaoUrl.split("//")[1];
         return uploadHelper.uploadBigSoftware(filePath, reqJson, csrfToken, cookie, meaoHost);
     }
 }
