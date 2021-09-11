@@ -23,11 +23,13 @@ public class UploadPackageService {
      * @param filePath file path
      * @return JSONObject
      */
-    public JSONObject uploadPackage(String filePath) {
+    public JSONObject uploadPackage(String filePath, String packageId, String meaoId) {
         String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         String taskName = fileName.substring(0, fileName.indexOf("."));
         JSONObject reqJson = new JSONObject();
         reqJson.put("taskName", taskName);
+        reqJson.put("packageId", packageId);
+        reqJson.put("meaoId", meaoId);
 
         ServiceDef serviceDef = new ServiceDef();
         serviceDef.setName(taskName);
