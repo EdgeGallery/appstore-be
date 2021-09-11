@@ -13,7 +13,9 @@ import org.edgegallery.appstore.interfaces.meao.facade.ProgressFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service("UploadHelper")
 public class UploadHelper {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadHelper.class);
 
@@ -34,6 +36,13 @@ public class UploadHelper {
         String hostUrl) {
         JSONObject ret = new JSONObject();
         FileInputStream input = null;
+
+        // build upload progress data
+        String progressId = UUID.randomUUID().toString();
+        Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        PackageUploadProgress progress = new PackageUploadProgress(progressId, req.getString("packageId"),
+            req.getString("meaoId"), createTime);
+        progressFacade.createProgress(progress);
         try {
             File soft = new File(softPath);
             String fileName = soft.getName();
@@ -65,16 +74,10 @@ public class UploadHelper {
             long totalSize = length;
             upPackage.setTotalSie(totalSize);
 
-            // build upload progress data
-            String progressId = UUID.randomUUID().toString();
-            Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            PackageUploadProgress progress = new PackageUploadProgress(progressId, req.getString("packageId"),
-                req.getString("meaoId"), createTime);
-            progressFacade.createProgress(progress);
-            int shardTotal = (int) (totalSize / AppConfig.FILE_SIZE);
 
             //shard size 9437980
             byte[] buffer = new byte[AppConfig.FILE_SIZE];
+            int shardTotal = (int) (totalSize / AppConfig.FILE_SIZE);
             while (length > AppConfig.FILE_SIZE && input.read(buffer, 0, AppConfig.FILE_SIZE) != -1) {
                 header.put("Content-Length", AppConfig.FILE_SIZE);
                 j = i + AppConfig.FILE_SIZE;
@@ -84,13 +87,15 @@ public class UploadHelper {
                 upPackage.setShardCount(count);
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
+                    progress.setStatus("fail");
+                    progressFacade.updateProgress(progress);
                     return ret;
                 }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
 
                 // update upload progress
                 if (count % 10 == 0) {
-                    progress.setProgress(String.valueOf(count * 100 / totalSize));
+                    progress.setProgress(String.valueOf(count * 100 / shardTotal));
                     progressFacade.updateProgress(progress);
                 }
 
@@ -115,6 +120,7 @@ public class UploadHelper {
 
             // update upload progress to 100%
             progress.setProgress("100");
+            progress.setStatus("success");
             progressFacade.updateProgress(progress);
 
             return ret;
@@ -129,6 +135,8 @@ public class UploadHelper {
                 LOGGER.error("uploadBigSoftware close input IOException");
             }
         }
+        progress.setStatus("fail");
+        progressFacade.updateProgress(progress);
         ret.put("retCode", -1);
         return ret;
     }

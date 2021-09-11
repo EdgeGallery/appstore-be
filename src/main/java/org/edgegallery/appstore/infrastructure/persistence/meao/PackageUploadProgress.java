@@ -30,4 +30,12 @@ public class PackageUploadProgress {
         this.progress = "0";
         this.createTime = (Date) createTime.clone();
     }
+
+    public Date getCreateTime() {
+        return (Date) createTime.clone();
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = (Date) createTime.clone();
+    }
 }
