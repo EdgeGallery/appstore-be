@@ -22,6 +22,14 @@ public class PackageUploadProgress {
 
     private Date createTime;
 
+    /**
+     * PackageUploadProgress
+     *
+     * @param id id
+     * @param packageId packageId
+     * @param meaoId meaoId
+     * @param createTime createTime
+     */
     public PackageUploadProgress(String id, String packageId, String meaoId, Date createTime) {
         this.id = id;
         this.packageId = packageId;
