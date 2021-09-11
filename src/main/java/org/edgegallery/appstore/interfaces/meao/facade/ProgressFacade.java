@@ -15,10 +15,10 @@ public class ProgressFacade {
     PackageUploadProgressMapper packageUploadProgressMapper;
 
     /**
-     * create Progress
+     * create Progress.
      *
      * @param process process
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> createProgress(PackageUploadProgress process) {
         process.setId(UUID.randomUUID().toString());
@@ -31,10 +31,10 @@ public class ProgressFacade {
     }
 
     /**
-     * query Progress
+     * query Progress.
      *
      * @param id process id
-     * @return ResponseEntity<PackageUploadProgress>
+     * @return PackageUploadProgress
      */
     public ResponseEntity<PackageUploadProgress> getProgress(String id) {
         PackageUploadProgress ret = packageUploadProgressMapper.selectByPrimaryKey(id);
@@ -46,11 +46,11 @@ public class ProgressFacade {
     }
 
     /**
-     * query Progress by packageId and meaoId
+     * query Progress by packageId and meaoId.
      *
      * @param packageId packageId
      * @param meaoId meaoId
-     * @return ResponseEntity<List < PackageUploadProgress>>
+     * @return PackageUploadProgress list
      */
     public ResponseEntity<List<PackageUploadProgress>> getProgressByPackageAndMeao(String packageId, String meaoId) {
         List<PackageUploadProgress> ret = packageUploadProgressMapper.selectByPackageAndMeao(packageId, meaoId);
@@ -62,10 +62,10 @@ public class ProgressFacade {
     }
 
     /**
-     * update Progress
+     * update Progress.
      *
      * @param process process
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> updateProgress(PackageUploadProgress process) {
         PackageUploadProgress record = packageUploadProgressMapper.selectByPrimaryKey(process.getId());
@@ -82,10 +82,10 @@ public class ProgressFacade {
     }
 
     /**
-     * delete Progress
+     * delete Progress.
      *
      * @param id process id
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> deleteProgress(String id) {
         int ret = packageUploadProgressMapper.deleteByPrimaryKey(id);

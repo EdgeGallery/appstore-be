@@ -23,7 +23,7 @@ public class PackageUploadProgress {
     private Date createTime;
 
     /**
-     * PackageUploadProgress
+     * PackageUploadProgress.
      *
      * @param id id
      * @param packageId packageId

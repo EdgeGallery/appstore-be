@@ -14,10 +14,10 @@ public class ThirdSystemFacade {
     ThirdSystemMapper thirdSystemMapper;
 
     /**
-     * create a thirdSystem
+     * create a thirdSystem.
      *
      * @param thirdSystem thirdSystem
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> createThirdSystem(ThirdSystem thirdSystem) {
         thirdSystem.setId(UUID.randomUUID().toString());
@@ -30,10 +30,10 @@ public class ThirdSystemFacade {
     }
 
     /**
-     * query a thirdSystem by id
+     * query a thirdSystem by id.
      *
      * @param id thirdSystem id
-     * @return ResponseEntity<ThirdSystem>
+     * @return ThirdSystem
      */
     public ResponseEntity<ThirdSystem> getThirdSystemById(String id) {
         ThirdSystem ret = thirdSystemMapper.selectByPrimaryKey(id);
@@ -45,10 +45,10 @@ public class ThirdSystemFacade {
     }
 
     /**
-     * update a thirdSystem
+     * update a thirdSystem.
      *
      * @param thirdSystem thirdSystem
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> updateThirdSystem(ThirdSystem thirdSystem) {
         ThirdSystem record = thirdSystemMapper.selectByPrimaryKey(thirdSystem.getId());
@@ -65,10 +65,10 @@ public class ThirdSystemFacade {
     }
 
     /**
-     * delete a thirdSystem
+     * delete a thirdSystem.
      *
      * @param id thirdSystem id
-     * @return ResponseEntity<String>
+     * @return String
      */
     public ResponseEntity<String> deleteThirdSystem(String id) {
         int ret = thirdSystemMapper.deleteByPrimaryKey(id);
