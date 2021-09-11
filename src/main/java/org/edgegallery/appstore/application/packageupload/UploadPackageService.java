@@ -24,11 +24,6 @@ public class UploadPackageService {
      * @return JSONObject
      */
     public JSONObject uploadPackage(String filePath, String packageId, String meaoId) {
-        // mock data
-        filePath = "D:\\OSDT\\APPD\\edgegallery_vm_meo_attributes\\edgegallery_vm_meo_attributes1.zip";
-        packageId = "12345";
-        meaoId = "e87650e5-3f0f-4688-8302-736acb1dac31";
-
         String fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
         String taskName = fileName.substring(0, fileName.indexOf("."));
         JSONObject reqJson = new JSONObject();
