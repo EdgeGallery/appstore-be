@@ -201,7 +201,7 @@ public class PackageServiceFacade {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION).toString();
+                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, "").toString();
             }
         }).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

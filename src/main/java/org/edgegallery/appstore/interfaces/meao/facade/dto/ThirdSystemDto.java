@@ -14,14 +14,29 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application.packageupload;
+package org.edgegallery.appstore.interfaces.meao.facade.dto;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public class NullHostNameVerifier implements HostnameVerifier {
-    @Override
-    public boolean verify(String hostname, SSLSession session) {
-        return true;
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+public class ThirdSystemDto {
+    private String id;
+
+    private String systemName;
+
+    private String systemType;
+
+    private String ip;
+
+    private String port;
+
+    private String username;
+
+    private String password;
+
+    private String vendor;
 }

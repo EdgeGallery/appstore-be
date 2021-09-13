@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.appstore.application.packageupload;
 
 import com.alibaba.fastjson.JSON;
@@ -78,7 +94,7 @@ public class Utils {
             HttpPost post = new HttpPost();
             post.setConfig(requestConfigBuilder.build());
 
-            get.setURI(URI.create(String.format("https://%s", hostIp)));
+            get.setURI(URI.create(String.format("%s", hostIp)));
             try (CloseableHttpResponse response = client.execute(get)) {
                 String location = redirectStrategy.location;
                 if (location.equals("") || !location.contains("?")) {
@@ -90,7 +106,7 @@ public class Utils {
 
             String queryParams = redirectStrategy.location.split("\\?")[1];
             List<NameValuePair> nvps = new ArrayList<>();
-            String hostUrl = String.format("https://%s/unisso/validateUser.action?", hostIp);
+            String hostUrl = String.format("%s/unisso/validateUser.action?", hostIp);
             post.setURI(URI.create(hostUrl + queryParams));
             nvps.add(new BasicNameValuePair("userpasswordcredentials.username", userName));
             nvps.add(new BasicNameValuePair("userpasswordcredentials.password", password));
@@ -115,7 +131,7 @@ public class Utils {
             if (redirectStrategy.isLicenselogin) {
                 String redirectUrlParam = URLEncoder.encode("service=/unisess/v1/auth?service=/", "UTF-8");
                 String licenseDirectLoginUrl = String
-                    .format("https://%s/plat/licapp/v1/licensedirectlogin?%s&_=%s", hostIp, redirectUrlParam,
+                    .format("%s/plat/licapp/v1/licensedirectlogin?%s&_=%s", hostIp, redirectUrlParam,
                         System.currentTimeMillis());
                 get.setURI(URI.create(licenseDirectLoginUrl));
                 get.addHeader("X_Requested_With", "XMLHttpRequest");
@@ -130,7 +146,7 @@ public class Utils {
                 }
             }
 
-            String sessionUrl = String.format("https://%s/unisess/v1/auth/session", hostIp);
+            String sessionUrl = String.format("%s/unisess/v1/auth/session", hostIp);
             get.setURI(URI.create(sessionUrl));
             get.addHeader("Accept", "application/json");
             get.addHeader("Cookie", sessionCookie);

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilterMapper" >
+  <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilter" >
+
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="subscribe_id" property="subscribeId" jdbcType="VARCHAR" />
+    <result column="vendor" property="vendor" jdbcType="VARCHAR" />
+    <result column="type_package" property="typePackage" jdbcType="VARCHAR" />
+    <result column="type_ne" property="typeNe" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+
+    id, subscribe_id, vendor, type_package, type_ne
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+
+    select 
+    <include refid="Base_Column_List" />
+    from package_subscribe_filter_table
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+
+    delete from package_subscribe_filter_table
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insert" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilter" >
+
+    insert into package_subscribe_filter_table (id, subscribe_id, vendor, 
+      type_package, type_ne)
+    values (#{id,jdbcType=VARCHAR}, #{subscribeId,jdbcType=VARCHAR}, #{vendor,jdbcType=VARCHAR}, 
+      #{typePackage,jdbcType=VARCHAR}, #{typeNe,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilter" >
+
+    insert into package_subscribe_filter_table
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="subscribeId != null" >
+        subscribe_id,
+      </if>
+      <if test="vendor != null" >
+        vendor,
+      </if>
+      <if test="typePackage != null" >
+        type_package,
+      </if>
+      <if test="typeNe != null" >
+        type_ne,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="subscribeId != null" >
+        #{subscribeId,jdbcType=VARCHAR},
+      </if>
+      <if test="vendor != null" >
+        #{vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="typePackage != null" >
+        #{typePackage,jdbcType=VARCHAR},
+      </if>
+      <if test="typeNe != null" >
+        #{typeNe,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByExampleSelective" parameterType="map" >
+
+    update package_subscribe_filter_table
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.subscribeId != null" >
+        subscribe_id = #{record.subscribeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.vendor != null" >
+        vendor = #{record.vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="record.typePackage != null" >
+        type_package = #{record.typePackage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.typeNe != null" >
+        type_ne = #{record.typeNe,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+
+    update package_subscribe_filter_table
+    set id = #{record.id,jdbcType=VARCHAR},
+      subscribe_id = #{record.subscribeId,jdbcType=VARCHAR},
+      vendor = #{record.vendor,jdbcType=VARCHAR},
+      type_package = #{record.typePackage,jdbcType=VARCHAR},
+      type_ne = #{record.typeNe,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilter" >
+
+    update package_subscribe_filter_table
+    <set >
+      <if test="subscribeId != null" >
+        subscribe_id = #{subscribeId,jdbcType=VARCHAR},
+      </if>
+      <if test="vendor != null" >
+        vendor = #{vendor,jdbcType=VARCHAR},
+      </if>
+      <if test="typePackage != null" >
+        type_package = #{typePackage,jdbcType=VARCHAR},
+      </if>
+      <if test="typeNe != null" >
+        type_ne = #{typeNe,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageSubscribeFilter" >
+
+    update package_subscribe_filter_table
+    set subscribe_id = #{subscribeId,jdbcType=VARCHAR},
+      vendor = #{vendor,jdbcType=VARCHAR},
+      type_package = #{typePackage,jdbcType=VARCHAR},
+      type_ne = #{typeNe,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

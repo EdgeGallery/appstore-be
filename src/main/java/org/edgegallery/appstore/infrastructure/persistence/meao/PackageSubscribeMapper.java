@@ -14,14 +14,24 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application.packageupload;
+package org.edgegallery.appstore.infrastructure.persistence.meao;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Component;
 
-public class NullHostNameVerifier implements HostnameVerifier {
-    @Override
-    public boolean verify(String hostname, SSLSession session) {
-        return true;
-    }
+@Component
+@Mapper
+public interface PackageSubscribeMapper {
+
+    int deleteByPrimaryKey(String id);
+
+    int insert(PackageSubscribe record);
+
+    int insertSelective(PackageSubscribe record);
+
+    PackageSubscribe selectByPrimaryKey(String id);
+
+    int updateByPrimaryKeySelective(PackageSubscribe record);
+
+    int updateByPrimaryKey(PackageSubscribe record);
 }

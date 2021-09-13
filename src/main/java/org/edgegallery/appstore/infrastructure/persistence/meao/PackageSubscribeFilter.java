@@ -14,14 +14,29 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application.packageupload;
+package org.edgegallery.appstore.infrastructure.persistence.meao;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
-public class NullHostNameVerifier implements HostnameVerifier {
-    @Override
-    public boolean verify(String hostname, SSLSession session) {
-        return true;
-    }
+@Getter
+@Setter
+public class PackageSubscribeFilter {
+    @Id
+    @Column(name = "id")
+    private String id;
+
+    @Column(name = "subscribe_id")
+    private String subscribeId;
+
+    @Column(name = "vendor")
+    private String vendor;
+
+    @Column(name = "type_package")
+    private String typePackage;
+
+    @Column(name = "type_ne")
+    private String typeNe;
 }
