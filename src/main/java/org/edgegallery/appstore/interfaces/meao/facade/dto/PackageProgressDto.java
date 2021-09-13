@@ -34,6 +34,12 @@ public class PackageProgressDto {
         this.createTime = createTime == null ? null : (Date) createTime.clone();
     }
 
+    /**
+     * transfer PackageUploadProgress to PackageProgressDto.
+     *
+     * @param progress PackageUploadProgress
+     * @return PackageProgressDto
+     */
     public PackageProgressDto transferTo(PackageUploadProgress progress) {
         PackageProgressDto dto = new PackageProgressDto();
         dto.setId(progress.getId());
