@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.interfaces.meao.facade.ProgressFacade;
+import org.edgegallery.appstore.interfaces.meao.facade.dto.PackageProgressDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -68,6 +69,19 @@ public class ProgressController {
         @ApiParam(value = "packageId") @PathVariable("packageId") String packageId,
         @ApiParam(value = "meaoId") @PathVariable("meaoId") String meaoId) {
         return progressFacade.getProgressByPackageAndMeao(packageId, meaoId);
+    }
+
+    /**
+     * query  progress by package id.
+     */
+    @GetMapping(value = "/package/{packageId}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get a progress by package id", response = PackageUploadProgress.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    public ResponseEntity<List<PackageProgressDto>> getProgressByPackageId(
+        @ApiParam(value = "packageId") @PathVariable("packageId") String packageId) {
+        return progressFacade.getProgressByPackageId(packageId);
     }
 
     /**

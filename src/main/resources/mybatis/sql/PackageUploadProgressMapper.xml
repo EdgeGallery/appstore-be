@@ -1,211 +1,223 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgressMapper" >
-  <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress" >
-    <id column="id" property="id" jdbcType="VARCHAR" />
-    <result column="package_id" property="packageId" jdbcType="VARCHAR" />
-    <result column="meao_id" property="meaoId" jdbcType="VARCHAR" />
-    <result column="status" property="status" jdbcType="VARCHAR" />
-    <result column="progress" property="progress" jdbcType="VARCHAR" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgressMapper">
+    <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="package_id" property="packageId" jdbcType="VARCHAR"/>
+        <result column="meao_id" property="meaoId" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="progress" property="progress" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
             </foreach>
-          </trim>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+        id
+        , package_id, meao_id, status, progress, create_time
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from package_upload_progress_table
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByPackageAndMeao" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from package_upload_progress_table
+        where package_id = #{param1} and meao_id = #{param2}
+    </select>
+
+    <select id="selectByPackageId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from package_upload_progress_table
+        where package_id = #{param1}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from package_upload_progress_table
+        where id = #{id,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress">
+        insert into package_upload_progress_table (id, package_id, meao_id,
+                                                   status, progress, create_time)
+        values (#{id,jdbcType=VARCHAR}, #{packageId,jdbcType=VARCHAR}, #{meaoId,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR}, #{progress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress">
+        insert into package_upload_progress_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="packageId != null">
+                package_id,
+            </if>
+            <if test="meaoId != null">
+                meao_id,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="progress != null">
+                progress,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="packageId != null">
+                #{packageId,jdbcType=VARCHAR},
+            </if>
+            <if test="meaoId != null">
+                #{meaoId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="progress != null">
+                #{progress,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByExampleSelective" parameterType="map">
+        update package_upload_progress_table
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=VARCHAR},
+            </if>
+            <if test="record.packageId != null">
+                package_id = #{record.packageId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.meaoId != null">
+                meao_id = #{record.meaoId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null">
+                status = #{record.status,jdbcType=VARCHAR},
+            </if>
+            <if test="record.progress != null">
+                progress = #{record.progress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createTime != null">
+                create_time = #{record.createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
         </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    id, package_id, meao_id, status, progress, create_time
-  </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from package_upload_progress_table
-    where id = #{id,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByPackageAndMeao" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select
-    <include refid="Base_Column_List" />
-    from package_upload_progress_table
-    where package_id = #{param1} and meao_id = #{param2}
-  </select>
-
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from package_upload_progress_table
-    where id = #{id,jdbcType=VARCHAR}
-  </delete>
-  <insert id="insert" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress" >
-    insert into package_upload_progress_table (id, package_id, meao_id, 
-      status, progress, create_time
-      )
-    values (#{id,jdbcType=VARCHAR}, #{packageId,jdbcType=VARCHAR}, #{meaoId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{progress,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress" >
-    insert into package_upload_progress_table
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="packageId != null" >
-        package_id,
-      </if>
-      <if test="meaoId != null" >
-        meao_id,
-      </if>
-      <if test="status != null" >
-        status,
-      </if>
-      <if test="progress != null" >
-        progress,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=VARCHAR},
-      </if>
-      <if test="packageId != null" >
-        #{packageId,jdbcType=VARCHAR},
-      </if>
-      <if test="meaoId != null" >
-        #{meaoId,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="progress != null" >
-        #{progress,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-    </trim>
-  </insert>
-
-  <update id="updateByExampleSelective" parameterType="map" >
-    update package_upload_progress_table
-    <set >
-      <if test="record.id != null" >
-        id = #{record.id,jdbcType=VARCHAR},
-      </if>
-      <if test="record.packageId != null" >
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update package_upload_progress_table
+        set id = #{record.id,jdbcType=VARCHAR},
         package_id = #{record.packageId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.meaoId != null" >
         meao_id = #{record.meaoId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null" >
         status = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.progress != null" >
         progress = #{record.progress,jdbcType=VARCHAR},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update package_upload_progress_table
-    set id = #{record.id,jdbcType=VARCHAR},
-      package_id = #{record.packageId,jdbcType=VARCHAR},
-      meao_id = #{record.meaoId,jdbcType=VARCHAR},
-      status = #{record.status,jdbcType=VARCHAR},
-      progress = #{record.progress,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress" >
-    update package_upload_progress_table
-    <set >
-      <if test="packageId != null" >
-        package_id = #{packageId,jdbcType=VARCHAR},
-      </if>
-      <if test="meaoId != null" >
-        meao_id = #{meaoId,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null" >
-        status = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="progress != null" >
-        progress = #{progress,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress" >
-    update package_upload_progress_table
-    set package_id = #{packageId,jdbcType=VARCHAR},
-      meao_id = #{meaoId,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
-      progress = #{progress,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
+        create_time = #{record.createTime,jdbcType=TIMESTAMP}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress">
+        update package_upload_progress_table
+        <set>
+            <if test="packageId != null">
+                package_id = #{packageId,jdbcType=VARCHAR},
+            </if>
+            <if test="meaoId != null">
+                meao_id = #{meaoId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="progress != null">
+                progress = #{progress,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress">
+        update package_upload_progress_table
+        set package_id  = #{packageId,jdbcType=VARCHAR},
+            meao_id     = #{meaoId,jdbcType=VARCHAR},
+            status      = #{status,jdbcType=VARCHAR},
+            progress    = #{progress,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
 </mapper>

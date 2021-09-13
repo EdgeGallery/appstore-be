@@ -18,6 +18,8 @@ public interface PackageUploadProgressMapper {
 
     List<PackageUploadProgress> selectByPackageAndMeao(String packageId, String meaoId);
 
+    List<PackageUploadProgress> selectByPackageId(String packageId);
+
     int updateByPrimaryKeySelective(PackageUploadProgress record);
 
     int updateByPrimaryKey(PackageUploadProgress record);

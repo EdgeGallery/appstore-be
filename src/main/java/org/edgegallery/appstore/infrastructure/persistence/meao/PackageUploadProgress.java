@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PackageUploadProgress {
-
     private String id;
 
     private String packageId;
@@ -36,14 +35,14 @@ public class PackageUploadProgress {
         this.meaoId = meaoId;
         this.status = "uploading";
         this.progress = "0";
-        this.createTime = (Date) createTime.clone();
+        this.createTime = createTime == null ? null : (Date) createTime.clone();
     }
 
     public Date getCreateTime() {
-        return (Date) createTime.clone();
+        return createTime == null ? null : (Date) createTime.clone();
     }
 
     public void setCreateTime(Date createTime) {
-        this.createTime = (Date) createTime.clone();
+        this.createTime = createTime == null ? null : (Date) createTime.clone();
     }
 }
