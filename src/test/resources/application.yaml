@@ -57,9 +57,3 @@ appShare:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}
   atp-report-url: http://127.0.0.1:8899/atp/report
   host-url: ${PLATFORM_URL:http://127.0.0.1:8099}
-
-### meao config ###
-#meao:
-#  host: ${MEAO_HOST:127.0.0.1:31943}
-#  user: ${MEAO_USER:admin}
-#  password: ${MEAO_PASSWORD:******}
