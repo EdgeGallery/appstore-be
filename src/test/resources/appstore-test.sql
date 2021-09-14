@@ -60,6 +60,8 @@ drop table IF EXISTS message_table;
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
         ISHOTAPP                 boolean            DEFAULT false,
         EXPERIENCEABLE           boolean            DEFAULT false,
+        ISFREE                   boolean            DEFAULT true,
+        PRICE                    NUMERIC(10,2)      NULL,
         CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
