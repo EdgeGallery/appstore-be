@@ -51,6 +51,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -331,7 +332,8 @@ public class AppService {
                     break;
                 }
             }
-            if (imageLoc == null || imageLoc.getDomainname().isEmpty() || imageLoc.getProject().isEmpty()) {
+            if (imageLoc == null || StringUtils.isEmpty(imageLoc.getDomainname())
+                || StringUtils.isEmpty(imageLoc.getProject())) {
                 LOGGER.error("missing image location parameters ");
                 throw new AppException("failed to update values yaml, missing image location parameters",
                     ResponseConst.RET_MISS_IMAGE_LOCATION);
