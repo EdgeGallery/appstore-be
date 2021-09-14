@@ -177,7 +177,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort())
+        String url = getUrlPrefix(mepHost.getProtocol(), mepHost.getMecHost(), mepHost.getPort())
             + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replace(TENANT_ID, userId).replace(PACKAGE_ID, packageId);
         ResponseEntity<String> response;
         try {
