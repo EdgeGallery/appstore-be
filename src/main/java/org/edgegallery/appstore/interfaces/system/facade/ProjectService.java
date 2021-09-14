@@ -193,7 +193,7 @@ public class ProjectService {
     public boolean deployTestConfigToAppLcm(String filePath, String packageId, String appInstanceId, String userId,
         MepHost mepHost, String token, AppReleasePo appReleasePo, LcmLog lcmLog) {
         String uploadRes = HttpClientUtil
-            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), filePath, userId, token, lcmLog);
+            .uploadPkg(mepHost.getProtocol(), mepHost.getMecHost(), mepHost.getPort(), filePath, userId, token, lcmLog);
         if (StringUtils.isEmpty(uploadRes)) {
             return false;
         }
@@ -237,7 +237,7 @@ public class ProjectService {
         boolean instantRes = HttpClientUtil
             .instantiateApp(mepHost, appInstanceId, userId, token, lcmLog, pkgId, inputParams);
         if (!instantRes) {
-            cleanTestEnv(packageId, mepHost.getName(), mepHost.getLcmIp(), token);
+            cleanTestEnv(packageId, mepHost.getName(), mepHost.getMecHost(), token);
             return false;
         }
         LOGGER.info("after instant {}", instantRes);
@@ -369,20 +369,20 @@ public class ProjectService {
             long from = new Date().getTime();
             boolean uninstallApp = HttpClientUtil
                 .terminateAppInstance(host.getProtocol(),
-                    host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
+                    host.getMecHost(), host.getPort(), appInstanceId, userId, token);
             if (!uninstallApp) {
                 LOGGER.error("uninstall AppInstance failed.");
                 return false;
             }
             String workStatus = HttpClientUtil
-                .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
+                .getWorkloadStatus(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId, token);
             int status = parseStatus(workStatus);
             long to;
             while (status != STATUS_SUCCESS) {
                 try {
                     Thread.sleep(3000);
                     workStatus = HttpClientUtil
-                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                        .getWorkloadStatus(host.getProtocol(), host.getMecHost(), host.getPort(),
                             appInstanceId, userId, token);
                 } catch (InterruptedException e) {
                     LOGGER.error("sleep fail! {}", e.getMessage());
@@ -396,14 +396,14 @@ public class ProjectService {
             }
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getLcmIp());
+                .deleteHost(host.getProtocol(), host.getMecHost(), host.getPort(), userId, token, pkgId, host.getLcmIp());
             if (!deleteHostRes) {
                 LOGGER.error("delete host records failed after instantiateApp.");
                 return false;
             }
             // delete pkg
             boolean deletePkgRes = HttpClientUtil
-                .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId);
+                .deletePkg(host.getProtocol(), host.getMecHost(), host.getPort(), userId, token, pkgId);
             if (!deletePkgRes) {
                 LOGGER.error("delete package failed after instantiateApp.");
                 return false;
