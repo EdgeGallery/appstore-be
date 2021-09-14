@@ -26,8 +26,6 @@ import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 public class AppDto {
     private String appId;
 
-    private String iconUrl;
-
     private String name;
 
     private String provider;

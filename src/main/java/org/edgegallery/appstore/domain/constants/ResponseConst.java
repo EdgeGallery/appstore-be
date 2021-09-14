@@ -172,6 +172,11 @@ public class ResponseConst {
     public static final int RET_SIGN_PACKAGE_FAILED = 10030;
 
     /**
+     * The app package signature is incorrect.
+     */
+    public static final int RET_PACKAGE_SIGN_INVALID = 10031;
+
+    /**
      * package base error code.
      */
     public static final int RET_PACKAGE_BASE = 11000;
