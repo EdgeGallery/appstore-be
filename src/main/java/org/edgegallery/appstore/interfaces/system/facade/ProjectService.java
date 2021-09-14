@@ -86,10 +86,14 @@ public class ProjectService {
 
     private static final String COLON = ":";
 
-    /** get worksrtatus wait 5 minites. */
+    /**
+     * get worksrtatus wait 5 minites.
+     */
     private static final int GET_WORKSTATUS_WAIT_TIME = 5 * 1000 * 60;
 
-    /** get terminate app result wait 2 minites. */
+    /**
+     * get terminate app result wait 2 minites.
+     */
 
     private static final int GET_TERMINATE_RESULT_TIME = 2 * 1000 * 60;
 
@@ -103,7 +107,7 @@ public class ProjectService {
 
     private static final String OPENSTACK = "OpenStack";
 
-    private static final String VM_EXPERIENCE_IP  = "app_n6_ip";
+    private static final String VM_EXPERIENCE_IP = "app_n6_ip";
 
     private static final String VM_SEMICOLON = ";";
 
@@ -246,6 +250,7 @@ public class ProjectService {
 
     /**
      * get instantiate parameter.
+     *
      * @param parameter parameter.
      * @param mecHost mecHost.
      * @return
@@ -287,7 +292,6 @@ public class ProjectService {
         int cou = IP_BINARY_BITS - Integer.parseInt(n6Range.substring(n6Range.lastIndexOf("/") + 1));
         return (int) Math.pow(IP_CALCULATE_BASE, cou) - RESERVE_IP_COUNT;
     }
-
 
     /**
      * cleanTestEnv.
@@ -346,6 +350,7 @@ public class ProjectService {
 
     /**
      * parse uninstall result.
+     *
      * @param status status.
      * @return
      */
@@ -356,7 +361,8 @@ public class ProjectService {
     }
 
     /**
-     *  delete Deployed App.
+     * delete Deployed App.
+     *
      * @param host host.
      * @param userId userId.
      * @param appInstanceId appInstanceId
@@ -368,8 +374,8 @@ public class ProjectService {
         if (StringUtils.isNotEmpty(appInstanceId)) {
             long from = new Date().getTime();
             boolean uninstallApp = HttpClientUtil
-                .terminateAppInstance(host.getProtocol(),
-                    host.getMecHost(), host.getPort(), appInstanceId, userId, token);
+                .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
+                    token);
             if (!uninstallApp) {
                 LOGGER.error("uninstall AppInstance failed.");
                 return false;
@@ -382,8 +388,8 @@ public class ProjectService {
                 try {
                     Thread.sleep(3000);
                     workStatus = HttpClientUtil
-                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                            appInstanceId, userId, token);
+                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
+                            token);
                 } catch (InterruptedException e) {
                     LOGGER.error("sleep fail! {}", e.getMessage());
                     Thread.currentThread().interrupt();
@@ -396,8 +402,8 @@ public class ProjectService {
             }
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(),
-                    host.getPort(), userId, token, pkgId, host.getMecHost());
+                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId,
+                    host.getMecHost());
             if (!deleteHostRes) {
                 LOGGER.error("delete host records failed after instantiateApp.");
                 return false;
