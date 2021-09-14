@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
@@ -69,6 +70,19 @@ public class ThirdSystemController {
     public ResponseEntity<ThirdSystem> getThirdSystem(
         @ApiParam(value = "thirdSystemId") @PathVariable("thirdSystemId") String thirdSystemId) {
         return thirdSystemFacade.getThirdSystemById(thirdSystemId);
+    }
+
+    /**
+     * query thirdSystem by type.
+     */
+    @GetMapping(value = "/systemType/{type}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "query thirdSystem by type", response = ThirdSystem.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    public ResponseEntity<List<ThirdSystem>> getThirdSystemByType(
+        @ApiParam(value = "type") @PathVariable("type") String type) {
+        return thirdSystemFacade.getThirdSystemByType(type);
     }
 
     /**

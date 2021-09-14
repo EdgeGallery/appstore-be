@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.meao;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,8 @@ public interface ThirdSystemMapper {
     int insertSelective(ThirdSystem record);
 
     ThirdSystem selectByPrimaryKey(String id);
+
+    List<ThirdSystem> selectBySystemType(String type);
 
     int updateByPrimaryKeySelective(ThirdSystem record);
 
