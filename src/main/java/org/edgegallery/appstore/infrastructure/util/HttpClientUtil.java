@@ -74,7 +74,7 @@ public final class HttpClientUtil {
         String ip = mepHost.getLcmIp();
         int port = mepHost.getPort();
         //before instantiate, call distribute result interface
-        String disRes = getDistributeRes(protocol, mepHost.getLcmIp(), port, userId, token, pkgId);
+        String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
         if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
