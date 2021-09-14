@@ -53,6 +53,8 @@
         SHOWTYPE                 VARCHAR(100)       NOT NULL DEFAULT 'public',
         ISHOTAPP                 boolean            DEFAULT false,
         EXPERIENCEABLE           boolean            DEFAULT false,
+        ISFREE                   boolean            DEFAULT true,
+        PRICE                    NUMERIC(10,2)      NULL,
         CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
@@ -189,6 +191,42 @@
         CREATE_TIME TIMESTAMP DEFAULT NULL,
         CONSTRAINT PACKAGE_UPLOAD_PROGRESS_TABLE_PKEY PRIMARY KEY (ID)
         );
+
+    create TABLE if not exists app_order (
+        ORDERID                  VARCHAR(200)       NOT NULL,
+        ORDERNUM                 VARCHAR(50)        NOT NULL,
+        USERID                   VARCHAR(100)       NOT NULL,
+        USERNAME                 VARCHAR(100)       NOT NULL,
+        APPID                    VARCHAR(200)       NOT NULL,
+        APPPACKAGEID             VARCHAR(200)       NOT NULL,
+        ORDERTIME                TIMESTAMP          NOT NULL,
+        OPERATETIME              TIMESTAMP          NULL,
+        STATUS                   VARCHAR(50)        NOT NULL,
+        MECM_HOSTIP              VARCHAR(1024)      NULL,
+        MECM_APPID               VARCHAR(200)       NULL,
+        MECM_APPPACKAGEID        VARCHAR(200)       NULL,
+        MECM_INSTANCEID          VARCHAR(200)       NULL,
+        CONSTRAINT app_order_pkey PRIMARY KEY (ORDERID),
+        CONSTRAINT app_order_uniqueOrderNum UNIQUE (ORDERNUM)
+    );
+
+    create TABLE if not exists app_bill (
+        BILLID                  VARCHAR(200)       NOT NULL,
+        ORDERID                 VARCHAR(200)       NOT NULL,
+        CREATETIME              TIMESTAMP          NOT NULL,
+        OPERATORFEE             NUMERIC(10,2)      NULL,
+        SUPPLIERFEE             NUMERIC(10,2)      NULL,
+        CONSTRAINT app_bill_pkey PRIMARY KEY (BILLID),
+        CONSTRAINT app_bill_fk_orderid foreign key(ORDERID) references app_order(ORDERID)
+    );
+
+    create TABLE if not exists app_split_config (
+        APPID                 VARCHAR(200)       NOT NULL,
+        SPLITRATIO            NUMERIC(3,2)       NULL,
+        CONSTRAINT app_split_config_pkey PRIMARY KEY (APPID)
+    );
+
+    create INDEX app_order_idx_userid on app_order (USERID);
 
     alter table catalog_package_table add column IF NOT EXISTS DEMOVIDEOADDRESS VARCHAR(200) NULL;
 

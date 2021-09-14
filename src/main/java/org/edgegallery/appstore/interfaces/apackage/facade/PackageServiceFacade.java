@@ -45,6 +45,7 @@ import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,16 +212,16 @@ public class PackageServiceFacade {
     /**
      * publish package.
      */
-    public ResponseEntity<String> publishPackage(String appId, String packageId) {
-        packageService.publishPackage(appId, packageId);
+    public ResponseEntity<String> publishPackage(String appId, String packageId, PublishAppReqDto publishAppReq) {
+        packageService.publishPackage(appId, packageId, publishAppReq);
         return ResponseEntity.ok("Publish Success");
     }
 
     /**
      * publish package v2.
      */
-    public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId) {
-        packageService.publishPackage(appId, packageId);
+    public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId, PublishAppReqDto publishAppReq) {
+        packageService.publishPackage(appId, packageId, publishAppReq);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Publish Success", errMsg, "Publish Success."));
     }
