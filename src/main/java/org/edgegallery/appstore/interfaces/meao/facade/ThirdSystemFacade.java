@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.meao.facade;
 
+import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
@@ -53,6 +54,20 @@ public class ThirdSystemFacade {
      */
     public ResponseEntity<ThirdSystem> getThirdSystemById(String id) {
         ThirdSystem ret = thirdSystemMapper.selectByPrimaryKey(id);
+        if (ret != null) {
+            return ResponseEntity.ok(ret);
+        } else {
+            throw new AppException("get third system fail.");
+        }
+    }
+
+    /**
+     * query thirdSystem by type.
+     * @param type type
+     * @return ThirdSystem
+     */
+    public ResponseEntity<List<ThirdSystem>> getThirdSystemByType(String type) {
+        List<ThirdSystem> ret = thirdSystemMapper.selectBySystemType(type);
         if (ret != null) {
             return ResponseEntity.ok(ret);
         } else {
