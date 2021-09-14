@@ -396,7 +396,8 @@ public class ProjectService {
             }
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost());
+                .deleteHost(host.getProtocol(), host.getLcmIp(),
+                    host.getPort(), userId, token, pkgId, host.getMecHost());
             if (!deleteHostRes) {
                 LOGGER.error("delete host records failed after instantiateApp.");
                 return false;
