@@ -71,7 +71,7 @@ public final class HttpClientUtil {
     public static boolean instantiateApp(MepHost mepHost, String appInstanceId, String userId, String token,
         LcmLog lcmLog, String pkgId, Map<String, String> inputParams) {
         String protocol = mepHost.getProtocol();
-        String ip = mepHost.getLcmIp();
+        String ip = mepHost.getMecHost();
         int port = mepHost.getPort();
         //before instantiate, call distribute result interface
         String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
