@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.edgegallery.appstore.interfaces.common;
+package org.edgegallery.appstore.domain.shared;
 
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Max;
@@ -31,9 +31,9 @@ import org.springframework.util.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryCtrlDto {
-    private static final String DEFAULT_SORTITEM = "createTime";
+    private static final String DEFAULT_SORT_ITEM = "createTime";
 
-    private static final String DEFAULT_SORTTYPE = "DESC";
+    private static final String DEFAULT_SORT_TYPE = "DESC";
 
     @Min(value = 0)
     private int offset;
@@ -55,12 +55,12 @@ public class QueryCtrlDto {
     public void stringTrim() {
         this.sortItem = StringUtils.trimWhitespace(this.sortItem);
         if (StringUtils.isEmpty(this.sortItem)) {
-            this.sortItem = DEFAULT_SORTITEM;
+            this.sortItem = DEFAULT_SORT_ITEM;
         }
 
         this.sortType = StringUtils.trimWhitespace(this.sortType);
         if (StringUtils.isEmpty(this.sortType)) {
-            this.sortType = DEFAULT_SORTTYPE;
+            this.sortType = DEFAULT_SORT_TYPE;
         }
 
     }
