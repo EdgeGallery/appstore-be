@@ -16,6 +16,10 @@ package org.edgegallery.appstore.domain.constants;
 
 public final class Consts {
 
+    public static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    public static final String REG_APP_ID = "[0-9a-f]{32}";
+
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
     public static final String APP_LCM_INSTANTIATE_APP_URL
