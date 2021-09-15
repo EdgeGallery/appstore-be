@@ -49,7 +49,9 @@
             username        = #{userName},
             score           = #{score},
             status          = #{status},
-            ishotapp        = #{isHotApp}
+            ishotapp        = #{isHotApp},
+            isfree          = #{isFree},
+            price           = #{price}
         WHERE appid = #{appId}
     </update>
 
@@ -58,11 +60,11 @@
         insert into app_table
         (appid, createtime, modifytime, shortdesc, showtype, provider, appname, applicationType, deployMode,
          appIntroduction,
-         downloadcount, affinity, industry, contact, userid, username, score, status)
+         downloadcount, affinity, industry, contact, userid, username, score, status, isfree, price)
         VALUES (#{appId}, (select now()), (select now()), #{shortDesc}, #{showType}, #{provider}, #{appName},
                 #{applicationType}, #{deployMode},
                 #{appIntroduction}, #{downloadCount}, #{affinity}, #{industry}, #{contact}, #{userId}, #{userName}, 5.0,
-                #{status})
+                #{status}, #{isFree}, #{price})
     </insert>
 
     <delete id="remove" parameterType="String">
@@ -124,7 +126,7 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppBasicPo"
             parameterType="java.util.Map">
         select appId,appName,applicationType,shortDesc,showType,provider,downloadCount,affinity,industry,contact,userId,
-        userName,createTime,modifyTime,score,status,deployMode,isHotApp,experienceAble from app_table
+        userName,createTime,modifyTime,score,status,deployMode,isHotApp,experienceAble,isFree,price from app_table
         <where>
 
             <if test="industry != null and industry.size()>0">

@@ -21,6 +21,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.util.Optional;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class PublishPackageTest extends AppTest {
         });
         MvcResult result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -51,6 +53,7 @@ public class PublishPackageTest extends AppTest {
     public void should_failed_with_wrong_status() throws Exception {
         MvcResult result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
@@ -62,6 +65,7 @@ public class PublishPackageTest extends AppTest {
         String appId = "30ec10f4a43041e6a6198ba824311af3";
         MvcResult result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());

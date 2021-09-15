@@ -35,6 +35,8 @@ import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -48,6 +50,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -175,8 +178,9 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> publishPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
-        return packageServiceFacade.publishPackage(appId, packageId);
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "PublishAppDto", required = true) @RequestBody PublishAppReqDto publishAppReq) {
+        return packageServiceFacade.publishPackage(appId, packageId, publishAppReq);
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/test", produces = MediaType.APPLICATION_JSON)

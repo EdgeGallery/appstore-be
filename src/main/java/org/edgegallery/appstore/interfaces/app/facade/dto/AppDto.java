@@ -60,6 +60,10 @@ public class AppDto {
 
     private boolean isHotApp;
 
+    private boolean isFree;
+
+    private double price;
+
     public AppDto() {
         // empty construct
     }
@@ -90,6 +94,8 @@ public class AppDto {
         dto.status = app.getStatus();
         dto.deployMode = app.getDeployMode();
         dto.isHotApp = app.isHotApp();
+        dto.isFree = app.isFree();
+        dto.price = app.getPrice();
         return dto;
     }
 
