@@ -286,7 +286,6 @@ public class ResponseConst {
      */
     public static final int RET_DOWNLOAD_FROM_APPSTORE_FAILED = 14005;
 
-
     /**
      * right base error code.
      */
@@ -427,6 +426,30 @@ public class ResponseConst {
      */
     public static final int RET_UPLOAD_FILE_FAILED = 15018;
 
+    /**
+     * create third system fail.
+     */
+    public static final int RET_CREATE_THIRD_SYSTEM_FAILED = 15101;
+
+    /**
+     * get third system fail.
+     */
+    public static final int RET_QUERY_THIRD_SYSTEM_FAILED = 15102;
+
+    /**
+     * third system not exist.
+     */
+    public static final int RET_THIRD_SYSTEM_NOT_FOUND = 15103;
+
+    /**
+     * update third system fail.
+     */
+    public static final int RET_UPDATE_THIRD_SYSTEM_FAILED = 15104;
+
+    /**
+     * delete third system fail.
+     */
+    public static final int RET_DELETE_THIRD_SYSTEM_FAILED = 15105;
 
     private ResponseConst() {
         throw new IllegalStateException("Utility class");

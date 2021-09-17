@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.meao.facade;
 
 import java.util.List;
 import java.util.UUID;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
@@ -27,6 +28,16 @@ import org.springframework.stereotype.Service;
 
 @Service("ThirdSystemFacade")
 public class ThirdSystemFacade {
+    private static final String CREATE_THIRD_SYSTEM_ERR_MESSAGES = "create third system fail.";
+
+    private static final String QUERY_THIRD_SYSTEM_ERR_MESSAGES = "get third system fail.";
+
+    private static final String UPDATE_THIRD_SYSTEM_ERR_MESSAGES = "update third system fail.";
+
+    private static final String DELETE_THIRD_SYSTEM_ERR_MESSAGES = "delete third system fail.";
+
+    private static final String THIRD_SYSTEM_ERR_NOT_FOUND_MESSAGES = "third system not exist.";
+
     @Autowired
     ThirdSystemMapper thirdSystemMapper;
 
@@ -42,7 +53,7 @@ public class ThirdSystemFacade {
         if (ret > 0) {
             return ResponseEntity.ok("create third system success.");
         } else {
-            throw new AppException("create third system fail.");
+            throw new AppException(CREATE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_CREATE_THIRD_SYSTEM_FAILED);
         }
     }
 
@@ -57,12 +68,13 @@ public class ThirdSystemFacade {
         if (ret != null) {
             return ResponseEntity.ok(ret);
         } else {
-            throw new AppException("get third system fail.");
+            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
         }
     }
 
     /**
      * query thirdSystem by type.
+     *
      * @param type type
      * @return ThirdSystem
      */
@@ -71,7 +83,22 @@ public class ThirdSystemFacade {
         if (ret != null) {
             return ResponseEntity.ok(ret);
         } else {
-            throw new AppException("get third system fail.");
+            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
+        }
+    }
+
+    /**
+     * query thirdSystem by like name.
+     *
+     * @param name name
+     * @return ThirdSystem
+     */
+    public ResponseEntity<List<ThirdSystem>> selectByNameLike(String name) {
+        List<ThirdSystem> ret = thirdSystemMapper.selectByNameLike(name);
+        if (ret != null) {
+            return ResponseEntity.ok(ret);
+        } else {
+            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
         }
     }
 
@@ -84,14 +111,14 @@ public class ThirdSystemFacade {
     public ResponseEntity<String> updateThirdSystem(ThirdSystem thirdSystem) {
         ThirdSystem record = thirdSystemMapper.selectByPrimaryKey(thirdSystem.getId());
         if (record == null) {
-            throw new AppException("third system not exist.");
+            throw new AppException(THIRD_SYSTEM_ERR_NOT_FOUND_MESSAGES, ResponseConst.RET_THIRD_SYSTEM_NOT_FOUND);
         }
 
         int ret = thirdSystemMapper.updateByPrimaryKeySelective(thirdSystem);
         if (ret > 0) {
             return ResponseEntity.ok("update third system success.");
         } else {
-            throw new AppException("update third system fail.");
+            throw new AppException(UPDATE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_UPDATE_THIRD_SYSTEM_FAILED);
         }
     }
 
@@ -105,7 +132,7 @@ public class ThirdSystemFacade {
         int ret = thirdSystemMapper.deleteByPrimaryKey(id);
 
         if (ret < 0) {
-            throw new AppException("delete third system fail.");
+            throw new AppException(DELETE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_DELETE_THIRD_SYSTEM_FAILED);
         } else {
             return ResponseEntity.ok("delete third system success.");
         }
