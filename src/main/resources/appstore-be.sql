@@ -230,8 +230,6 @@
         CONSTRAINT app_split_config_pkey PRIMARY KEY (APPID)
     );
 
-    create INDEX app_order_idx_userid on app_order (USERID);
-
     alter table catalog_package_table add column IF NOT EXISTS DEMOVIDEOADDRESS VARCHAR(200) NULL;
 
     alter table message_table add column IF NOT EXISTS DEMOVIDEODOWNLOADURL VARCHAR(255) NULL;
