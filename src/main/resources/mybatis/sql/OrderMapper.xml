@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
+
+    <update id="update"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
+        update app_order
+        SET status          = #{status},
+            operateTime     = (select now())
+        WHERE orderId = #{orderId}
+    </update>
+
+    <insert id="insert"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
+        insert into app_order
+        (orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
+         mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId)
+        VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{orderTime},
+                #{operateTime}, #{status}, #{mecm_hostIp}, #{mecm_appId}, #{mecm_appPackageId}, #{mecm_instanceId})
+    </insert>
+
+    <select id="getCountByCondition" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+        select count(*) from app_order
+        <where>
+            <if test="orderId != null and orderId != '' ">
+                and orderId = #{orderId}
+            </if>
+            <if test="orderNum != null and orderNum != '' ">
+                and orderNum = #{orderNum}
+            </if>
+            <if test="status != null and status != '' ">
+                and status = #{status}
+            </if>
+            <if test="oderBeginTime != null and oderBeginTime != '' and orderEndTime != null and orderEndTime != ''">
+                and orderTime between #{oderBeginTime} and #{orderEndTime}
+            </if>
+            <if test="userId != null and userId != '' ">
+                and userId= #{userId}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="queryOrders"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
+            parameterType="java.util.Map">
+        select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
+        mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId from app_order
+        <where>
+            <if test="orderId != null and orderId != '' ">
+                and orderId = #{orderId}
+            </if>
+            <if test="orderNum != null and orderNum != '' ">
+                and orderNum = #{orderNum}
+            </if>
+            <if test="status != null and status != '' ">
+                and status = #{status}
+            </if>
+            <if test="oderBeginTime != null and oderBeginTime != '' and orderEndTime != null and orderEndTime != ''">
+                and orderTime between #{oderBeginTime} and #{orderEndTime}
+            </if>
+            <if test="userId != null and userId != '' ">
+                and userId= #{userId}
+            </if>
+        </where>
+        <if test="queryCtrl != null">
+            <if test="queryCtrl.sortItem != null and queryCtrl.sortItem != '' and queryCtrl.sortType != null and queryCtrl.sortType != ''">
+                order by ${queryCtrl.sortItem} ${queryCtrl.sortType}
+            </if>
+            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
+                limit #{queryCtrl.limit} offset #{queryCtrl.offset}
+            </if>
+        </if>
+    </select>
+
+    <select id="findByOrderId"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
+            parameterType="String">
+        select * from app_order where orderId = #{orderId}
+    </select>
+
+    <select id="maxOrderNum"
+            resultType="String">
+        select max(orderNum) from app_order
+    </select>
+
+</mapper>

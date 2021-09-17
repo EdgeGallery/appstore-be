@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,45 +16,57 @@
 
 package org.edgegallery.appstore.domain.model.order;
 
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.shared.Entity;
+import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bill implements Entity {
-
-    private String billId;
+public class Order implements Entity {
 
     private String orderId;
 
-    private String createTime;
+    private String orderNum;
 
     private String userId;
 
     private String userName;
 
-    private String billFlag;
+    private String appId;
 
-    private double billAmount;
+    private String packageId;
 
-    private double operatorFee;
+    private Date orderTime;
 
-    private double supplierFee;
+    private Date operateTime;
 
-    /**
-     * Constructor of Bill.
-     *
-     * @param billId bill id
-     */
-    public Bill(String billId) {
-        this.billId = billId;
+    private EnumOrderStatus status;
+
+    private String mecHostIp;
+
+    private String mecAppId;
+
+    private String mecPackageId;
+
+    private String mecInstanceId;
+
+    public Order(String orderId, String orderNum, String userId, CreateOrderReqDto dto) {
+        this.orderId = orderId;
+        this.orderNum = orderNum;
+        this.userId = userId;
+        this.appId = dto.getAppId();
+        this.packageId = dto.getPackageId();
+        this.orderTime = new Date();
+        this.operateTime = null;
+        this.status = EnumOrderStatus.ACTIVATING;
+        this.mecHostIp = dto.getMecHostIp();
     }
-
 }
