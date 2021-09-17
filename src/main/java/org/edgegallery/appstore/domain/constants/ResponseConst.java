@@ -406,6 +406,10 @@ public class ResponseConst {
      */
     public static final int RET_ACTIVATE_ORDER_FAILED = 16003;
 
+    /**
+     * get mecm host failed.
+     */
+    public static final int RET_GET_MECMHOST_FAILED = 16004;
 
     /**
      * right base error code.

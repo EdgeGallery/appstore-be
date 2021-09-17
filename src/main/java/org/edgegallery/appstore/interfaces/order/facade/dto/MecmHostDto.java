@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,4 +29,16 @@ public class MecmHostDto {
     private String mechostName;
 
     private String mechostCity;
+
+    /**
+     * convert from data map.
+     *
+     * @param mecHostInfoMap mec host data map
+     * @return dto object
+     */
+    public static MecmHostDto fromMap(Map<String, Object> mecHostInfoMap) {
+        MecmHostDto result = new MecmHostDto((String) mecHostInfoMap.get("mechostIp"),
+            (String) mecHostInfoMap.get("mechostName"), (String) mecHostInfoMap.get("city"));
+        return result;
+    }
 }

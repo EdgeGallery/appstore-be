@@ -16,21 +16,27 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.order.facade.dto.MecmHostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service("MecmWrapperServiceFacade")
 public class MecmWrapperServiceFacade {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(MecmWrapperServiceFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MecmWrapperServiceFacade.class);
+
+    @Autowired
+    private MecmService mecmService;
 
     /**
      * get all mecm hosts.
@@ -39,11 +45,10 @@ public class MecmWrapperServiceFacade {
      * @return ResponseEntity
      */
     public ResponseEntity<ResponseObject> getAllMecmHosts(String token) {
-        List<MecmHostDto> respDataDto = new ArrayList<>();
-
-        // TODO
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(respDataDto, errMsg, "query mecm host success."));
+        LOGGER.info("get all mecm hosts.");
+        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token);
+        List<MecmHostDto> respDataDto = mecHostList.stream().map(MecmHostDto::fromMap).collect(Collectors.toList());
+        ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "query mecm host success."));
     }
-
 }
