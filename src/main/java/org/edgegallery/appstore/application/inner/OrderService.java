@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,20 +44,33 @@ public class OrderService {
     @Autowired
     private AppService appService;
 
+    @Autowired
+    private MecmService mecmService;
+
     /**
      * query order list.
      *
      * @param params query condition.
      */
-    public List<OrderDto> queryOrders(Map<String, Object> params) {
+    public List<OrderDto> queryOrders(Map<String, Object> params, String token) {
         List<Order> orders = orderRepository.queryOrders(params);
         List<OrderDto> dtoList = new ArrayList<>();
         for (Order order : orders) {
             Release release = appService.getRelease(order.getAppId(), order.getPackageId());
-            // TODO
             // query mec host info
+            String mecHostIp = order.getMecHostIp();
+            String mecHostName = "";
+            String mecHostCity = "";
+            List<String> mecHostIpLst = new ArrayList<>();
+            mecHostIpLst.add(mecHostIp);
+            Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
+            if (!mecHostInfo.isEmpty()) {
+                mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
+                mecHostCity = mecHostInfo.get(mecHostIp).getCity();
+            }
+
             OrderDto dto = new OrderDto(order, release.getAppBasicInfo().getAppName(),
-                release.getAppBasicInfo().getVersion(), "", "");
+                release.getAppBasicInfo().getVersion(), mecHostName, mecHostCity);
             dtoList.add(dto);
         }
         return dtoList;

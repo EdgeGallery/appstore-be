@@ -86,6 +86,19 @@ public class ThirdSystemController {
     }
 
     /**
+     * query thirdSystem by like name.
+     */
+    @GetMapping(value = "/nameLike/{name}", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "query thirdSystem by like name", response = ThirdSystem.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    public ResponseEntity<List<ThirdSystem>> getThirdSystemByLikeNmae(
+        @ApiParam(value = "name") @PathVariable("name") String name) {
+        return thirdSystemFacade.selectByNameLike(name);
+    }
+
+    /**
      * update a thirdSystem.
      */
     @PutMapping(value = "", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)

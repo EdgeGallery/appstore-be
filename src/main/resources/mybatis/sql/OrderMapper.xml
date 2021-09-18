@@ -16,7 +16,7 @@
   -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.order.OrderMapper">
 
     <update id="update"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">

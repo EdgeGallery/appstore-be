@@ -94,7 +94,8 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId) {
+    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName,
+        String orderId, String token) {
         try {
             Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException(Order.class,
@@ -135,7 +136,7 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId) {
+    public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId, String token) {
         try {
             Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException(Order.class,
@@ -178,7 +179,7 @@ public class OrderServiceFacade {
      * @return order list
      */
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
-        QueryOrdersReqDto queryOrdersReqDto) {
+        QueryOrdersReqDto queryOrdersReqDto, String token) {
         Map<String, Object> params = new HashMap<>();
         if (!"admin".equals(userName)) {
             params.put("userId", userId);
@@ -189,7 +190,7 @@ public class OrderServiceFacade {
         params.put("oderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
         params.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
         params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
-        List<OrderDto> orderList = orderService.queryOrders(params);
+        List<OrderDto> orderList = orderService.queryOrders(params, token);
         long total = orderService.getCountByCondition(params);
         return ResponseEntity
             .ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
