@@ -60,7 +60,7 @@ public class OrderPo implements PersistenceObject<Order> {
     private Date operateTime;
 
     @Column(name = "STATUS")
-    private EnumOrderStatus status;
+    private String status;
 
     @Column(name = "MECM_HOSTIP")
     private String mecm_hostIp;
@@ -88,7 +88,7 @@ public class OrderPo implements PersistenceObject<Order> {
         po.appPackageId = order.getPackageId();
         po.orderTime = order.getOrderTime();
         po.operateTime = order.getOperateTime();
-        po.status = order.getStatus();
+        po.status = order.getStatus().toString();
         po.mecm_hostIp = order.getMecHostIp();
         po.mecm_appId = order.getMecAppId();
         po.mecm_appPackageId = order.getMecPackageId();
@@ -99,7 +99,8 @@ public class OrderPo implements PersistenceObject<Order> {
     @Override
     public Order toDomainModel() {
         return Order.builder().orderId(orderId).orderNum(orderNum).userId(userId).userName(userName)
-            .appId(appId).packageId(appPackageId).orderTime(orderTime).operateTime(operateTime).status(status)
+            .appId(appId).packageId(appPackageId).orderTime(orderTime).operateTime(operateTime)
+            .status(EnumOrderStatus.valueOf(status))
             .mecHostIp(mecm_hostIp).mecAppId(mecm_appId).mecPackageId(mecm_appPackageId).mecInstanceId(mecm_instanceId)
             .build();
     }
