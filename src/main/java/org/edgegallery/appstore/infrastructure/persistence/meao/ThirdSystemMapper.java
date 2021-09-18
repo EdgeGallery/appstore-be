@@ -34,6 +34,8 @@ public interface ThirdSystemMapper {
 
     List<ThirdSystem> selectBySystemType(String type);
 
+    List<ThirdSystem> selectByNameLike(String systemName);
+
     int updateByPrimaryKeySelective(ThirdSystem record);
 
     int updateByPrimaryKey(ThirdSystem record);
