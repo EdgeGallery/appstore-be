@@ -22,7 +22,9 @@ import java.util.Optional;
 
 public interface OrderRepository {
 
-    void store(Order order);
+    void addOrder(Order order);
+
+    void updateOrderStatus(Order order);
 
     List<Order> queryOrders(Map<String, Object> params);
 

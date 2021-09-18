@@ -36,14 +36,15 @@ public class OrderRepositoryImpl implements OrderRepository {
     private OrderMapper orderMapper;
 
     @Override
-    public void store(Order order) {
+    public void addOrder(Order order) {
         OrderPo orderPo = OrderPo.of(order);
-        Optional<OrderPo> existed = orderMapper.findByOrderId(order.getOrderId());
-        if (existed.isPresent()) {
-            orderMapper.update(orderPo);
-        } else {
-            orderMapper.insert(orderPo);
-        }
+        orderMapper.insert(orderPo);
+    }
+
+    @Override
+    public void updateOrderStatus(Order order) {
+        OrderPo orderPo = OrderPo.of(order);
+        orderMapper.update(orderPo);
     }
 
     @Override

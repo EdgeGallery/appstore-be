@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class OrderServiceFacade {
             String oderId = UUID.randomUUID().toString();
             String orderNum = orderService.generateOrderNum();
             Order order = new Order(oderId, orderNum, userId, addOrderReqDto);
-            orderRepository.store(order);
+            orderRepository.addOrder(order);
 
             // TODO
             // upload package to mec
@@ -74,7 +75,8 @@ public class OrderServiceFacade {
             // if success, update status to activated, if failed, update status to activate_failed
             Thread.sleep(5000);
             order.setStatus(EnumOrderStatus.ACTIVATED);
-            orderRepository.store(order);
+            order.setOperateTime(new Date());
+            orderRepository.updateOrderStatus(order);
 
             CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(oderId).orderNum(orderNum).build();
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -97,16 +99,21 @@ public class OrderServiceFacade {
             Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException(Order.class,
                     orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+            if (order.getStatus() != EnumOrderStatus.ACTIVATED) {
+                throw new AppException("inactivated orders can't be deactivated.",
+                    ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
+            }
             if (userId.equals(order.getUserId()) || "admin".equals(userName)) {
                 order.setStatus(EnumOrderStatus.DEACTIVATING);
-                orderRepository.store(order);
+                orderRepository.updateOrderStatus(order);
                 // TODO
                 // undeploy app
                 // query status
                 // if success, update status to deactivated, if failed, update status to deactivate_failed
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
-                orderRepository.store(order);
+                order.setOperateTime(new Date());
+                orderRepository.updateOrderStatus(order);
 
             } else {
                 throw new PermissionNotAllowedException("can not deactivate order",
@@ -133,9 +140,13 @@ public class OrderServiceFacade {
             Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException(Order.class,
                     orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+            if (order.getStatus() != EnumOrderStatus.DEACTIVATED) {
+                throw new AppException("unsubscribed orders can't be activated.",
+                    ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
+            }
             if (userId.equals(order.getUserId()) || "admin".equals(userName)) {
                 order.setStatus(EnumOrderStatus.ACTIVATING);
-                orderRepository.store(order);
+                orderRepository.updateOrderStatus(order);
                 // TODO
                 // upload package to mecm
                 // deploy app
@@ -143,7 +154,8 @@ public class OrderServiceFacade {
                 // if success, update status to activated, if failed, update status to activate_failed
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.ACTIVATED);
-                orderRepository.store(order);
+                order.setOperateTime(new Date());
+                orderRepository.updateOrderStatus(order);
 
             } else {
                 throw new PermissionNotAllowedException("can not deactivate order",
