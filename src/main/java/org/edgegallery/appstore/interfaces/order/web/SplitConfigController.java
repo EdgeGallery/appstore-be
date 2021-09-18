@@ -26,9 +26,11 @@ import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigBatchReqDto;
+import org.edgegallery.appstore.interfaces.order.facade.SplitConfigServiceFacade;
+import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigOperReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -51,6 +53,9 @@ public class SplitConfigController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigController.class);
 
+    @Autowired
+    private SplitConfigServiceFacade splitConfigServiceFacade;
+
     /**
      * query split configs.
      */
@@ -63,10 +68,7 @@ public class SplitConfigController {
     public ResponseEntity<ResponseObject> querySplitConfigs(
         @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId) {
         LOGGER.info("enter query split configs.");
-        // return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-        //     new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon,
-        //     demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
-        return ResponseEntity.ok().build();
+        return splitConfigServiceFacade.queryAllSplitConfigs();
     }
 
     /**
@@ -80,13 +82,10 @@ public class SplitConfigController {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> addSplitConfigs(
         @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
-        @ApiParam(value = "splitConfigBatchReqDto", required = true) @RequestBody
-            SplitConfigBatchReqDto splitConfigBatchReqDto) {
+        @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
+            SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter add split configs.");
-        // return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-        //     new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon,
-        //     demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
-        return ResponseEntity.ok().build();
+        return splitConfigServiceFacade.addSplitConfig(splitConfigOperReqDto);
     }
 
     /**
@@ -100,12 +99,11 @@ public class SplitConfigController {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> modifySplitConfigs(
         @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId) {
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
+        @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
+            SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter modify split configs.");
-        // return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-        //     new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon,
-        //     demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
-        return ResponseEntity.ok().build();
+        return splitConfigServiceFacade.modifySplitConfig(appId, splitConfigOperReqDto);
     }
 
     /**
@@ -119,13 +117,10 @@ public class SplitConfigController {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> deleteSplitConfigs(
         @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
-        @ApiParam(value = "splitConfigBatchReqDto", required = true) @RequestBody
-            SplitConfigBatchReqDto splitConfigBatchReqDto) {
+        @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
+            SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter delete split configs.");
-        // return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-        //     new AppParam(type, shortDesc, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon,
-        //     demoVideo, new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
-        return ResponseEntity.ok().build();
+        return splitConfigServiceFacade.deleteSplitConfig(splitConfigOperReqDto);
     }
 }
 

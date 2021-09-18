@@ -23,10 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.appstore.domain.model.app.App;
-import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.order.Bill;
-import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 
 @Getter

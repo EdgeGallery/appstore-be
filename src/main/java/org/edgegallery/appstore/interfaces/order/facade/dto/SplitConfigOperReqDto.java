@@ -23,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class SplitConfigBatchReqDto {
+public class SplitConfigOperReqDto {
     private List<String> appIds;
 
     private double splitRatio;
