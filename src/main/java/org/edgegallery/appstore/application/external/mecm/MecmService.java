@@ -17,9 +17,12 @@ package org.edgegallery.appstore.application.external.mecm;
 
 import com.google.gson.Gson;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +56,8 @@ public class MecmService {
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<String> response = REST_TEMPLATE.exchange(MECM_URL_GET_MECHOSTS, HttpMethod.GET, request, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE
+                .exchange(MECM_URL_GET_MECHOSTS, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
@@ -69,5 +73,34 @@ public class MecmService {
         }
 
         return Collections.emptyList();
+    }
+
+    /**
+     * get mec host by ip list.
+     *
+     * @param token access token
+     * @param mecHostIpList mec host ip list
+     * @return mec host map
+     */
+    public Map<String, MecHostBody> getMecHostByIpList(String token, List<String> mecHostIpList) {
+        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token);
+        Map<String, MecHostBody> mecHostMap = new HashMap<>();
+        for (String mecHostIp : mecHostIpList) {
+            Optional<Map<String, Object>> mecHostInfo = allMecHosts.stream()
+                .filter(mecHostInfoMap -> mecHostIp.equalsIgnoreCase((String) mecHostInfoMap.get("mechostIp")))
+                .findFirst();
+            if (!mecHostInfo.isPresent()) {
+                continue;
+            }
+
+            Map<String, Object> mecHostInfoMap = mecHostInfo.get();
+            MecHostBody mecHost = new MecHostBody();
+            mecHost.setMechostIp(mecHostIp);
+            mecHost.setMechostName((String) mecHostInfoMap.get("mechostName"));
+            mecHost.setCity((String) mecHostInfoMap.get("city"));
+            mecHostMap.put(mecHostIp, mecHost);
+        }
+
+        return mecHostMap;
     }
 }
