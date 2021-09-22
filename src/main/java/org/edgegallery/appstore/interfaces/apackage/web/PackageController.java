@@ -133,7 +133,8 @@ public class PackageController {
             .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
-    @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/sync", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/apps/{appId}/packages/{packageId}/meao/{meaoId}/action/sync",
+        produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "sync the package to meao.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -144,8 +145,9 @@ public class PackageController {
     public ResponseEntity<ResponseObject> syncPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        HttpServletRequest request) throws IOException {
-        return packageServiceFacade.syncPackage(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
+        @ApiParam(value = "meao Id") @PathVariable("meaoId") String meaoId, HttpServletRequest request)
+        throws IOException {
+        return packageServiceFacade.syncPackage(appId, packageId, meaoId, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)

@@ -22,11 +22,15 @@ import java.io.File;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("UploadPackageService")
 public class UploadPackageService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadPackageService.class);
+
     @Autowired
     ThirdSystemMapper thirdSystemMapper;
 
@@ -61,10 +65,12 @@ public class UploadPackageService {
         // query meao info by id
         ThirdSystem meaoInfo = thirdSystemMapper.selectByPrimaryKey(meaoId);
         if (meaoInfo == null) {
+            LOGGER.error("get meao info fail.");
             throw new AppException("get meao info fail.");
         }
 
         String meaoUrl = meaoInfo.getUrl();
+        LOGGER.info("meaoUrl: %s", meaoUrl);
         JSONObject session = Utils.getSessionCookie(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword());
         JSONObject cookieInfo = JSON.parseObject(session.getString("body"));
         String csrfToken = cookieInfo.getString("csrfToken");

@@ -186,7 +186,8 @@ public class PackageServiceFacade {
      * @return ResponseEntity
      * @throws IOException IOException
      */
-    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String token) throws IOException {
+    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
+        throws IOException {
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
@@ -201,7 +202,7 @@ public class PackageServiceFacade {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, "").toString();
+                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString();
             }
         }).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -276,8 +277,7 @@ public class PackageServiceFacade {
         params.put("sortType", queryCtrl.getSortType());
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
         long total = packageService.countTotalForUserId(params);
         return new Page<>(
             packageService.getPackageByUserIdV2(params).stream().map(PackageDto::of).collect(Collectors.toList()),
@@ -294,8 +294,7 @@ public class PackageServiceFacade {
         // refresh package status
         packageService.getPackageByUserId(userId).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(
-                s -> appService.loadTestTask(s.getAppId(), s.getPackageId(),
-                    new AtpMetadata(s.getTestTaskId(), token)));
+            s -> appService.loadTestTask(s.getAppId(), s.getPackageId(), new AtpMetadata(s.getTestTaskId(), token)));
 
         return ResponseEntity.ok(packageService.getPackageByUserId(userId).stream().map(PackageDto::of)
             .sorted(Comparator.comparing(PackageDto::getCreateTime).reversed()).collect(Collectors.toList()));
