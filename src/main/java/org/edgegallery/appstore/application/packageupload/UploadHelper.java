@@ -102,9 +102,8 @@ public class UploadHelper {
                 upPackage.setShardCount(count);
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
-                    progress.setStatus("fail");
-                    progressFacade.updateProgress(progress);
-                    LOGGER.error("upload failed: %s", ret.toString());
+                    updateProgressStatus(progress, "failed");
+                    LOGGER.error("upload failed: {}", ret.toString());
                     return ret;
                 }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
@@ -123,7 +122,8 @@ public class UploadHelper {
             byte[] ednBuffer = new byte[(int) length];
             int readCount = input.read(ednBuffer);
             if (readCount == -1) {
-                LOGGER.error("upload failed: %s", ret.toString());
+                updateProgressStatus(progress, "failed");
+                LOGGER.error("upload failed: {}", ret.toString());
                 return ret;
             }
             header.put("Content-Length", length);
@@ -137,8 +137,7 @@ public class UploadHelper {
 
             // update upload progress to 100%
             progress.setProgress("100");
-            progress.setStatus("success");
-            progressFacade.updateProgress(progress);
+            updateProgressStatus(progress, "success");
 
             return ret;
         } catch (IOException e) {
@@ -152,10 +151,14 @@ public class UploadHelper {
                 LOGGER.error("uploadBigSoftware close input IOException");
             }
         }
-        progress.setStatus("fail");
-        progressFacade.updateProgress(progress);
+        updateProgressStatus(progress, "failed");
         ret.put("retCode", -1);
-        LOGGER.error("upload failed: %s", ret.toString());
+        LOGGER.error("upload failed: {}", ret.toString());
         return ret;
+    }
+
+    private void updateProgressStatus(PackageUploadProgress progress, String status) {
+        progress.setStatus(status);
+        progressFacade.updateProgress(progress);
     }
 }

@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.persistence.meao;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,7 +35,7 @@ public interface ThirdSystemMapper {
 
     List<ThirdSystem> selectBySystemType(String type);
 
-    List<ThirdSystem> selectByNameLike(String systemName);
+    List<ThirdSystem> selectByNameLike(@Param("systemName") String systemName, @Param("systemType")String systemType);
 
     int updateByPrimaryKeySelective(ThirdSystem record);
 
