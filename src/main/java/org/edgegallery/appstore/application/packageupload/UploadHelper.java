@@ -104,7 +104,7 @@ public class UploadHelper {
                 if (ret.getInteger("retCode") == -1) {
                     progress.setStatus("fail");
                     progressFacade.updateProgress(progress);
-                    LOGGER.error("upload failed: %s", ret.toString());
+                    LOGGER.error("upload failed: {}", ret.toString());
                     return ret;
                 }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
@@ -123,7 +123,7 @@ public class UploadHelper {
             byte[] ednBuffer = new byte[(int) length];
             int readCount = input.read(ednBuffer);
             if (readCount == -1) {
-                LOGGER.error("upload failed: %s", ret.toString());
+                LOGGER.error("upload failed: {}", ret.toString());
                 return ret;
             }
             header.put("Content-Length", length);
@@ -155,7 +155,7 @@ public class UploadHelper {
         progress.setStatus("fail");
         progressFacade.updateProgress(progress);
         ret.put("retCode", -1);
-        LOGGER.error("upload failed: %s", ret.toString());
+        LOGGER.error("upload failed: {}", ret.toString());
         return ret;
     }
 }

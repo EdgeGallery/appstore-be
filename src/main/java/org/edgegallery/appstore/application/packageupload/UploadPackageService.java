@@ -70,7 +70,7 @@ public class UploadPackageService {
         }
 
         String meaoUrl = meaoInfo.getUrl();
-        LOGGER.info("meaoUrl: %s", meaoUrl);
+        LOGGER.info("meaoUrl: {}", meaoUrl);
         JSONObject session = Utils.getSessionCookie(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword());
         JSONObject cookieInfo = JSON.parseObject(session.getString("body"));
         String csrfToken = cookieInfo.getString("csrfToken");
