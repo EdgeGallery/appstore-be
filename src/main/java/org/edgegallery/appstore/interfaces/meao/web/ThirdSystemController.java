@@ -88,14 +88,15 @@ public class ThirdSystemController {
     /**
      * query thirdSystem by like name.
      */
-    @GetMapping(value = "/nameLike/{name}", produces = MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/nameLike/{name}/systemType/{type}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "query thirdSystem by like name", response = ThirdSystem.class)
     @ApiResponses(value = {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     public ResponseEntity<List<ThirdSystem>> getThirdSystemByLikeNmae(
-        @ApiParam(value = "name") @PathVariable("name") String name) {
-        return thirdSystemFacade.selectByNameLike(name);
+        @ApiParam(value = "name") @PathVariable("name") String name,
+        @ApiParam(value = "type") @PathVariable("type") String type) {
+        return thirdSystemFacade.selectByNameLike(name, type);
     }
 
     /**

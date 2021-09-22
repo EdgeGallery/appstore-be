@@ -120,6 +120,9 @@
             <if test="systemName != null and systemName != ''">
                 system_name ilike '%' || #{systemName} || '%'
             </if>
+            <if test="systemType != null and systemType != ''">
+                and system_type = #{systemType}
+            </if>
         </where>
     </select>
 
