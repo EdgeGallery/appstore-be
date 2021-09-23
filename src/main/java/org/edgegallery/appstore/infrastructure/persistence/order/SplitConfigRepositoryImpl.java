@@ -39,9 +39,9 @@ public class SplitConfigRepositoryImpl implements SplitConfigRepository {
     }
 
     @Override
-    public void updateSplitConfig(SplitConfig splitConfig) {
+    public int updateSplitConfig(SplitConfig splitConfig) {
         SplitConfigPo splitConfigPo = SplitConfigPo.of(splitConfig);
-        splitConfigMapper.update(splitConfigPo);
+        return splitConfigMapper.update(splitConfigPo);
     }
 
     @Override

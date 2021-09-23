@@ -16,13 +16,136 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
+import org.edgegallery.appstore.domain.model.order.BillRepository;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
+import org.edgegallery.appstore.domain.shared.Page;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.interfaces.order.facade.dto.BillDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.QueryBillsReqDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.StatOverallReqDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.StatOverallResultDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.TopOrderAppReqDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.TopOrderAppResultDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.TopSaleAppReqDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.TopSaleAppResultDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service("BillStatServiceFacade")
 public class BillStatServiceFacade {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(BillStatServiceFacade.class);
+
+    @Autowired
+    private BillRepository billRepository;
+
+    /**
+     * query bill list.
+     *
+     * @param userId user id
+     * @param userName user name
+     * @param queryBillsReqDto query request dto
+     * @return bill list
+     */
+    public ResponseEntity<Page<BillDto>> queryBillList(String userId, String userName,
+        QueryBillsReqDto queryBillsReqDto) {
+        LOGGER.info("query bill list.");
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("userId", userId);
+        queryParams.put("startTime", queryBillsReqDto.getStartTime());
+        queryParams.put("endTime", queryBillsReqDto.getEndTime());
+        queryParams.put("queryCtrl", queryBillsReqDto.getQueryCtrl());
+        List<BillDto> billDtos = billRepository.queryBillList(queryParams).stream().map(BillDto::of)
+            .collect(Collectors.toList());
+        long totalCount = billRepository.queryBillCount(queryParams);
+
+        LOGGER.info("query bill list succeed.");
+        return ResponseEntity.ok(new Page<>(billDtos, queryBillsReqDto.getQueryCtrl().getLimit(),
+            queryBillsReqDto.getQueryCtrl().getOffset(), totalCount));
+    }
+
+    /**
+     * statistic overall income and expenditure.
+     *
+     * @param userId user id
+     * @param userName user name
+     * @param statOverallReqDto stat request dto
+     * @return stat result
+     */
+    public ResponseEntity<ResponseObject> statOverall(String userId, String userName,
+        StatOverallReqDto statOverallReqDto) {
+        LOGGER.info("statistic overall income and expenditure.");
+        Map<String, Object> statParams = new HashMap<>();
+        statParams.put("userId", userId);
+        statParams.put("startTime", statOverallReqDto.getStartTime());
+        statParams.put("endTime", statOverallReqDto.getEndTime());
+        double incomeNum = billRepository.statOverallIncome(statParams);
+        double expendNum = billRepository.statOverallExpend(statParams);
+
+        LOGGER.info("statistic overall income and expenditure succeed.");
+        ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(new StatOverallResultDto(incomeNum, expendNum), resultMsg,
+            "statistic overall income and expenditure succeed."));
+    }
+
+    /**
+     * statistic top sale app.
+     *
+     * @param userId user id
+     * @param userName user name
+     * @param topSaleAppReqDto stat request dto
+     * @return stat result
+     */
+    public ResponseEntity<ResponseObject> statTopSaleApp(String userId, String userName,
+        TopSaleAppReqDto topSaleAppReqDto) {
+        LOGGER.info("statistic top sale app.");
+        Map<String, Object> statParams = new HashMap<>();
+        statParams.put("userId", userId);
+        statParams.put("startTime", topSaleAppReqDto.getStartTime());
+        statParams.put("endTime", topSaleAppReqDto.getEndTime());
+        statParams.put("sortType", topSaleAppReqDto.getSortType());
+        statParams.put("topNum", topSaleAppReqDto.getTopNum());
+        List<AppSaleStatInfo> appSaleStatInfoList = "SaleAmount".equalsIgnoreCase(topSaleAppReqDto.getTopCriterion())
+            ? billRepository.statAppSaleAmount(statParams)
+            : billRepository.statAppSaleCount(statParams);
+        List<TopSaleAppResultDto> respDataDto = appSaleStatInfoList.stream()
+            .map(TopSaleAppResultDto::of).collect(Collectors.toList());
+
+        LOGGER.info("statistic top sale app succeed.");
+        ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "statistic top sale app succeed."));
+    }
+
+    /**
+     * statistic top order app.
+     *
+     * @param userId user id
+     * @param userName user name
+     * @param topOrderAppReqDto stat request dto
+     * @return stat result
+     */
+    public ResponseEntity<ResponseObject> statTopOrderApp(String userId, String userName,
+        TopOrderAppReqDto topOrderAppReqDto) {
+        LOGGER.info("statistic top order app.");
+        Map<String, Object> statParams = new HashMap<>();
+        statParams.put("userId", userId);
+        statParams.put("startTime", topOrderAppReqDto.getStartTime());
+        statParams.put("endTime", topOrderAppReqDto.getEndTime());
+        List<TopOrderAppResultDto> respDataDto = billRepository.statAppOrderAmount(statParams).stream()
+            .map(TopOrderAppResultDto::of).collect(Collectors.toList());
+
+        LOGGER.info("statistic top order app succeed.");
+        ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "statistic top order app succeed."));
+    }
 
 }

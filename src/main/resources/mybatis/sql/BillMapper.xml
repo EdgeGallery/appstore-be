@@ -17,14 +17,118 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.order.BillMapper">
+    <resultMap id="BillExtendInfoMap" type="org.edgegallery.appstore.domain.model.order.BillExtendEntity">
+        <id property="billId" column="billid"/>
+        <result property="orderId" column="orderid"/>
+        <result property="orderNum" column="ordernum"/>
+        <result property="orderUserId" column="userid_order"/>
+        <result property="orderUserName" column="username_order"/>
+        <result property="billUserId" column="userid_bill"/>
+        <result property="billUserName" column="username_bill"/>
+        <result property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="provider" column="provider"/>
+        <result property="createTime" column="createtime"/>
+        <result property="billType" column="billtype"/>
+        <result property="billSubType" column="billsubtype"/>
+        <result property="billAmount" column="billamount"/>
+        <result property="operatorFee" column="operatorfee"/>
+        <result property="supplierFee" column="supplierfee"/>
+    </resultMap>
+
+    <resultMap id="AppSaleStatInfo" type="org.edgegallery.appstore.domain.model.order.AppSaleStatInfo">
+        <id property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="saleAmount" column="saleamount"/>
+        <result property="saleCount" column="salecount"/>
+    </resultMap>
+
+    <resultMap id="AppOrderStatInfo" type="org.edgegallery.appstore.domain.model.order.AppOrderStatInfo">
+        <id property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="orderAmount" column="orderamount"/>
+    </resultMap>
 
     <insert id="insert"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.BillPo">
         insert into app_bill
         (billId, orderId, createTime, userId, userName,
-        billFlag, billAmount, operatorFee, supplierFee)
+        billType, billSubType, billAmount, operatorFee, supplierFee)
         VALUES (#{billId}, #{orderId}, now(), #{userId}, #{userName},
-        #{billFlag}, #{billAmount}, #{operatorFee}, #{supplierFee})
+        #{billType}, #{billSubType}, #{billAmount}, #{operatorFee}, #{supplierFee})
     </insert>
+
+    <select id="queryBillList" parameterType="java.util.Map" resultMap="BillExtendInfoMap">
+        select billid, orderTab.orderid, orderTab.ordernum, orderTab.userid userid_order, orderTab.username username_order,
+        billTab.userid userid_bill, billTab.username username_bill,
+        appTab.appId, appName, appTab.provider,
+        billTab.createTime, billType, billSubType, billAmount, operatorFee, supplierFee
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            <if test="userId != null and userId !=''">
+                and billTab.userId = #{userId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            </if>
+        </where>
+        <if test="queryCtrl != null">
+            <if test="queryCtrl.sortItem != null and queryCtrl.sortItem != '' and queryCtrl.sortType != null and queryCtrl.sortType != ''">
+                order by ${queryCtrl.sortItem} ${queryCtrl.sortType}
+            </if>
+            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
+                offset #{queryCtrl.offset} limit #{queryCtrl.limit}
+            </if>
+        </if>
+    </select>
+
+    <select id="queryBillCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1) from app_bill
+        <where>
+            <if test="userId != null and userId !=''">
+                and userId = #{userId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="statOverallIncome" parameterType="java.util.Map" resultType="java.lang.Double">
+        select sum(billAmount) from app_bill where billType='IN' and userId = #{userId}
+        <if test="startTime != null and startTime != ''">
+            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+        </if>
+        <if test="endTime != null and endTime != ''">
+            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+        </if>
+    </select>
+
+    <select id="statOverallExpend" parameterType="java.util.Map" resultType="java.lang.Double">
+        select sum(billAmount) from app_bill where billType='OUT' and userId = #{userId}
+        <if test="startTime != null and startTime != ''">
+            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+        </if>
+        <if test="endTime != null and endTime != ''">
+            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+        </if>
+    </select>
+
+    <select id="statAppSaleAmount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+    </select>
+
+    <select id="statAppSaleCount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+    </select>
+
+    <select id="statAppOrderAmount" parameterType="java.util.Map" resultMap="AppOrderStatInfo">
+    </select>
 
 </mapper>

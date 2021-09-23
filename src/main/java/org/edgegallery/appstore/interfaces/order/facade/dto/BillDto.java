@@ -15,13 +15,13 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.model.order.BillExtendEntity;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-@Builder
 public class BillDto {
     private String billId;
 
@@ -29,9 +29,9 @@ public class BillDto {
 
     private String orderNum;
 
-    private String userId;
+    private String orderUserId;
 
-    private String userName;
+    private String orderUserName;
 
     private String billUserId;
 
@@ -45,11 +45,25 @@ public class BillDto {
 
     private String createTime;
 
-    private String billFlag;
+    private String billType;
+
+    private String billSubType;
 
     private double billAmount;
 
     private double operatorFee;
 
     private double supplierFee;
+
+    /**
+     * convert bill extend entity to dto object.
+     *
+     * @param billExtendEntity bill extend entity
+     * @return dto object
+     */
+    public static BillDto of(BillExtendEntity billExtendEntity) {
+        BillDto billDto = new BillDto();
+        BeanUtils.copyProperties(billExtendEntity, billDto);
+        return billDto;
+    }
 }

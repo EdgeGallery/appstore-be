@@ -16,7 +16,12 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.order;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
+import org.edgegallery.appstore.domain.model.order.AppOrderStatInfo;
+import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
+import org.edgegallery.appstore.domain.model.order.BillExtendEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,4 +30,17 @@ public interface BillMapper {
 
     void insert(BillPo billPo);
 
+    List<BillExtendEntity> queryBillList(Map<String, Object> queryParams);
+
+    Integer queryBillCount(Map<String, Object> queryParams);
+
+    double statOverallIncome(Map<String, Object> statParams);
+
+    double statOverallExpend(Map<String, Object> statParams);
+
+    List<AppSaleStatInfo> statAppSaleAmount(Map<String, Object> statParams);
+
+    List<AppSaleStatInfo> statAppSaleCount(Map<String, Object> statParams);
+
+    List<AppOrderStatInfo> statAppOrderAmount(Map<String, Object> statParams);
 }

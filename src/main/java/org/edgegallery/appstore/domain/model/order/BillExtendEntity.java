@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.domain.model.order;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,13 +24,39 @@ import org.edgegallery.appstore.domain.shared.Entity;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SplitConfig implements Entity {
+public class BillExtendEntity implements Entity {
+
+    private String billId;
+
+    private String orderId;
+
+    private String orderNum;
+
+    private String orderUserId;
+
+    private String orderUserName;
+
+    private String billUserId;
+
+    private String billUserName;
 
     private String appId;
 
-    private double splitRatio;
+    private String appName;
 
+    private String provider;
+
+    private String createTime;
+
+    private String billType;
+
+    private String billSubType;
+
+    private double billAmount;
+
+    private double operatorFee;
+
+    private double supplierFee;
 }

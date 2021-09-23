@@ -23,7 +23,7 @@ public interface SplitConfigRepository {
 
     void addSplitConfig(SplitConfig splitConfig);
 
-    void updateSplitConfig(SplitConfig splitConfig);
+    int updateSplitConfig(SplitConfig splitConfig);
 
     void deleteSplitConfig(String appId);
 

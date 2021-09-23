@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.order.Bill;
 import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
@@ -49,8 +50,11 @@ public class BillPo implements PersistenceObject<Bill> {
     @Column(name = "USERNAME")
     private String userName;
 
-    @Column(name = "BILLFLAG")
-    private String billFlag;
+    @Column(name = "BILLTYPE")
+    private String billType;
+
+    @Column(name = "BILLSUBTYPE")
+    private String billSubType;
 
     @Column(name = "BILLAMOUNT")
     private double billAmount;
@@ -67,16 +71,7 @@ public class BillPo implements PersistenceObject<Bill> {
 
     static BillPo of(Bill bill) {
         BillPo po = new BillPo();
-        po.billId = bill.getBillId();
-        po.orderId = bill.getOrderId();
-        po.createTime = bill.getCreateTime();
-        po.userId = bill.getUserId();
-        po.userName = bill.getUserName();
-        po.billFlag = bill.getBillFlag();
-        po.billAmount = bill.getBillAmount();
-        po.operatorFee = bill.getOperatorFee();
-        po.supplierFee = bill.getSupplierFee();
-
+        BeanUtils.copyProperties(bill, po);
         return po;
     }
 
@@ -88,7 +83,8 @@ public class BillPo implements PersistenceObject<Bill> {
             .createTime(createTime)
             .userId(userId)
             .userName(userName)
-            .billFlag(billFlag)
+            .billType(billType)
+            .billSubType(billSubType)
             .billAmount(billAmount)
             .operatorFee(operatorFee)
             .supplierFee(supplierFee)

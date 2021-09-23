@@ -16,25 +16,23 @@
 
 package org.edgegallery.appstore.domain.model.order;
 
-import java.util.List;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.edgegallery.appstore.domain.shared.Entity;
 
-public interface BillRepository {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AppSaleStatInfo implements Entity {
 
-    void addBill(Bill billData);
+    private String appId;
 
-    List<BillExtendEntity> queryBillList(Map<String, Object> queryParams);
+    private String appName;
 
-    long queryBillCount(Map<String, Object> queryParams);
+    private double saleAmount;
 
-    double statOverallIncome(Map<String, Object> statParams);
-
-    double statOverallExpend(Map<String, Object> statParams);
-
-    List<AppSaleStatInfo> statAppSaleAmount(Map<String, Object> statParams);
-
-    List<AppSaleStatInfo> statAppSaleCount(Map<String, Object> statParams);
-
-    List<AppOrderStatInfo> statAppOrderAmount(Map<String, Object> statParams);
-
+    private long saleCount;
 }

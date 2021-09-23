@@ -21,16 +21,20 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.order.facade.SplitConfigServiceFacade;
 import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigOperReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -65,9 +69,15 @@ public class SplitConfigController {
     })
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<ResponseObject> querySplitConfigs(
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId) {
+    public ResponseEntity<ResponseObject> querySplitConfigs(HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query split configs.");
+        String userName = (String) httpServletRequest.getAttribute(Consts.USERNAME);
+        if (!Consts.SUPER_ADMIN_NAME.equalsIgnoreCase(userName)) {
+            LOGGER.error("forbidden to query split configs.");
+            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseObject(null, resultMsg, "forbidden to query split configs."));
+        }
         return splitConfigServiceFacade.queryAllSplitConfigs();
     }
 
@@ -81,10 +91,17 @@ public class SplitConfigController {
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> addSplitConfigs(
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
+        HttpServletRequest httpServletRequest,
         @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
             SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter add split configs.");
+        String userName = (String) httpServletRequest.getAttribute(Consts.USERNAME);
+        if (!Consts.SUPER_ADMIN_NAME.equalsIgnoreCase(userName)) {
+            LOGGER.error("forbidden to add split configs.");
+            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseObject(null, resultMsg, "forbidden to add split configs."));
+        }
         return splitConfigServiceFacade.addSplitConfig(splitConfigOperReqDto);
     }
 
@@ -98,11 +115,18 @@ public class SplitConfigController {
     @PutMapping(value = "/{appId}", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> modifySplitConfigs(
+        HttpServletRequest httpServletRequest,
         @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
             SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter modify split configs.");
+        String userName = (String) httpServletRequest.getAttribute(Consts.USERNAME);
+        if (!Consts.SUPER_ADMIN_NAME.equalsIgnoreCase(userName)) {
+            LOGGER.error("forbidden to modify split configs.");
+            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseObject(null, resultMsg, "forbidden to modify split configs."));
+        }
         return splitConfigServiceFacade.modifySplitConfig(appId, splitConfigOperReqDto);
     }
 
@@ -116,10 +140,17 @@ public class SplitConfigController {
     @DeleteMapping(value = "", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> deleteSplitConfigs(
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
+        HttpServletRequest httpServletRequest,
         @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
             SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter delete split configs.");
+        String userName = (String) httpServletRequest.getAttribute(Consts.USERNAME);
+        if (!Consts.SUPER_ADMIN_NAME.equalsIgnoreCase(userName)) {
+            LOGGER.error("forbidden to delete split configs.");
+            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ResponseObject(null, resultMsg, "forbidden to delete split configs."));
+        }
         return splitConfigServiceFacade.deleteSplitConfig(splitConfigOperReqDto);
     }
 }

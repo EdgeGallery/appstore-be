@@ -59,9 +59,7 @@ public class MecmWrapperController {
     })
     @GetMapping(value = "/mechosts", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<ResponseObject> queryMecmHosts(
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
-        HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseObject> queryMecmHosts(HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
         return mecmWrapperServiceFacade
             .getAllMecmHosts((String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR));

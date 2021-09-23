@@ -16,7 +16,12 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.order;
 
+import java.util.List;
+import java.util.Map;
+import org.edgegallery.appstore.domain.model.order.AppOrderStatInfo;
+import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
 import org.edgegallery.appstore.domain.model.order.Bill;
+import org.edgegallery.appstore.domain.model.order.BillExtendEntity;
 import org.edgegallery.appstore.domain.model.order.BillRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,5 +40,40 @@ public class BillRepositoryImpl implements BillRepository {
     public void addBill(Bill billData) {
         BillPo billPo = BillPo.of(billData);
         billMapper.insert(billPo);
+    }
+
+    @Override
+    public List<BillExtendEntity> queryBillList(Map<String, Object> queryParams) {
+        return billMapper.queryBillList(queryParams);
+    }
+
+    @Override
+    public long queryBillCount(Map<String, Object> queryParams) {
+        return billMapper.queryBillCount(queryParams).longValue();
+    }
+
+    @Override
+    public double statOverallIncome(Map<String, Object> statParams) {
+        return billMapper.statOverallIncome(statParams);
+    }
+
+    @Override
+    public double statOverallExpend(Map<String, Object> statParams) {
+        return billMapper.statOverallExpend(statParams);
+    }
+
+    @Override
+    public List<AppSaleStatInfo> statAppSaleAmount(Map<String, Object> statParams) {
+        return billMapper.statAppSaleAmount(statParams);
+    }
+
+    @Override
+    public List<AppSaleStatInfo> statAppSaleCount(Map<String, Object> statParams) {
+        return billMapper.statAppSaleCount(statParams);
+    }
+
+    @Override
+    public List<AppOrderStatInfo> statAppOrderAmount(Map<String, Object> statParams) {
+        return billMapper.statAppOrderAmount(statParams);
     }
 }

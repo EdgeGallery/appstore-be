@@ -14,26 +14,30 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.infrastructure.persistence.order;
+package org.edgegallery.appstore.application.inner;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.appstore.domain.model.order.SplitConfig;
-import org.springframework.stereotype.Component;
+import org.edgegallery.appstore.domain.model.order.BillRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Component
-@Mapper
-public interface SplitConfigMapper {
+@Service("BillService")
+public class BillService {
 
-    void insert(SplitConfigPo splitConfigPo);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BillService.class);
 
-    int update(SplitConfigPo splitConfigPo);
+    @Autowired
+    private AppService appService;
 
-    void delete(String appId);
+    @Autowired
+    private BillRepository billRepository;
 
-    Optional<SplitConfigPo> findByAppId(String appId);
+    /**
+     * generate bill.
+     */
+    public void generateBill() {
+        LOGGER.info("start generate bills.");
 
-    List<SplitConfigPo> findAll();
-
+    }
 }

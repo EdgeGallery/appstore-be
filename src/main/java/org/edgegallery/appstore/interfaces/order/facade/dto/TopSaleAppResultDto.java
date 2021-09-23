@@ -15,13 +15,13 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-@Builder
 public class TopSaleAppResultDto {
     private String appId;
 
@@ -30,4 +30,16 @@ public class TopSaleAppResultDto {
     private double saleAmount;
 
     private long saleCount;
+
+    /**
+     * convert entity to dto object.
+     *
+     * @param appSaleStatInfo entity object
+     * @return dto object
+     */
+    public static TopSaleAppResultDto of(AppSaleStatInfo appSaleStatInfo) {
+        TopSaleAppResultDto dto = new TopSaleAppResultDto();
+        BeanUtils.copyProperties(appSaleStatInfo, dto);
+        return dto;
+    }
 }

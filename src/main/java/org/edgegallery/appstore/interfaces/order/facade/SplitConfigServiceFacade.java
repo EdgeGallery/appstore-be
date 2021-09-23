@@ -16,15 +16,19 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.order.SplitConfig;
 import org.edgegallery.appstore.domain.model.order.SplitConfigRepository;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigOperReqDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigDto;
+import org.edgegallery.appstore.interfaces.order.facade.dto.SplitConfigOperReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +41,15 @@ public class SplitConfigServiceFacade {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigServiceFacade.class);
 
+    private static final String APPID_GLOBAL = "ALL";
+
+    private static final double SPLITRATIO_GLOBAL = 0.15;
+
     @Autowired
     private SplitConfigRepository splitConfigRepository;
+
+    @Autowired
+    private AppRepository appRepository;
 
     /**
      * query all split config.
@@ -46,8 +57,24 @@ public class SplitConfigServiceFacade {
      * @return all split config
      */
     public ResponseEntity<ResponseObject> queryAllSplitConfigs() {
-        List<SplitConfigDto> respDataDto = null;
-        // TODO
+        LOGGER.info("query all split configs.");
+        List<SplitConfig> splitConfigList = splitConfigRepository.getAllSplitConfigs();
+        if (!splitConfigList.stream().anyMatch(item -> APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
+            splitConfigList.add(new SplitConfig(APPID_GLOBAL, SPLITRATIO_GLOBAL));
+        }
+
+        LOGGER.info("query all apps.");
+        List<App> allApps = appRepository.queryV2(new HashMap<>());
+        Map<String, App> appFinder = allApps.stream().collect(Collectors.toMap(App::getAppId, app -> app));
+
+        LOGGER.info("convert split config data result.");
+        List<SplitConfigDto> respDataDto = splitConfigList.stream().map(
+            splitConfig -> new SplitConfigDto(splitConfig.getAppId(),
+                appFinder.get(splitConfig.getAppId()) != null ? appFinder.get(splitConfig.getAppId()).getAppName() : "",
+                appFinder.get(splitConfig.getAppId()) != null ? appFinder.get(splitConfig.getAppId()).getProvider() : "",
+                splitConfig.getSplitRatio())).collect(Collectors.toList());
+
+        LOGGER.info("query all split configs success.");
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "query split config success."));
     }
@@ -60,10 +87,15 @@ public class SplitConfigServiceFacade {
      */
     public ResponseEntity<ResponseObject> addSplitConfig(SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("add split config.");
-        for (String appId : splitConfigOperReqDto.getAppIds()) {
-            SplitConfig splitConfig = new SplitConfig(appId, splitConfigOperReqDto.getSplitRatio());
-            splitConfigRepository.addSplitConfig(splitConfig);
+        if (CollectionUtils.isEmpty(splitConfigOperReqDto.getAppIds())) {
+            LOGGER.error("invalid add request parameter.");
+            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+            return ResponseEntity.badRequest()
+                .body(new ResponseObject(null, resultMsg, "invalid add request parameter."));
         }
+
+        splitConfigOperReqDto.getAppIds().forEach(appId -> splitConfigRepository
+            .addSplitConfig(new SplitConfig(appId, splitConfigOperReqDto.getSplitRatio())));
 
         LOGGER.info("add split config success.");
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -78,11 +110,26 @@ public class SplitConfigServiceFacade {
      * @return modify result
      */
     public ResponseEntity<ResponseObject> modifySplitConfig(String appId, SplitConfigOperReqDto splitConfigOperReqDto) {
-        LOGGER.info("modify split config.");
+        LOGGER.info("modify split config, appId = {}", appId);
+        boolean needAddGlobalConfig = false;
         SplitConfig splitConfig = new SplitConfig(appId, splitConfigOperReqDto.getSplitRatio());
-        splitConfigRepository.updateSplitConfig(splitConfig);
+        if (splitConfigRepository.updateSplitConfig(splitConfig) <= 0) {
+            needAddGlobalConfig = APPID_GLOBAL.equalsIgnoreCase(appId);
+            if (!needAddGlobalConfig) {
+                LOGGER.error("invalid modify request parameter, appId = {}", appId);
+                ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
+                return ResponseEntity.badRequest()
+                    .body(new ResponseObject(null, resultMsg, "invalid modify request parameter."));
+            }
+        }
 
-        LOGGER.info("modify split config success.");
+        if (needAddGlobalConfig) {
+            LOGGER.info("add global split config.");
+            splitConfigRepository
+                .addSplitConfig(new SplitConfig(APPID_GLOBAL, splitConfigOperReqDto.getSplitRatio()));
+        }
+
+        LOGGER.info("modify split config success, appId = {}", appId);
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(null, resultMsg, "modify split config success."));
     }

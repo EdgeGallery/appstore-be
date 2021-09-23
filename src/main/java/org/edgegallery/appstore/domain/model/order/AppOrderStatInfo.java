@@ -14,23 +14,23 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.application.inner;
+package org.edgegallery.appstore.domain.model.order;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.edgegallery.appstore.domain.shared.Entity;
 
-@Service("SplitConfigService")
-public class SplitConfigService {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AppOrderStatInfo implements Entity {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigService.class);
+    private String appId;
 
-    @Autowired
-    private SplitConfigService splitConfigService;
+    private String appName;
 
-
-    public void addSplitConfig() {
-
-    }
+    private double orderAmount;
 }
