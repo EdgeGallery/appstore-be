@@ -265,7 +265,7 @@ public class SystemService {
         } else {
             body.setVim("K8s");
         }
-        body.setOrigin("developer");
+        body.setOrigin("appstore");
         //add headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
