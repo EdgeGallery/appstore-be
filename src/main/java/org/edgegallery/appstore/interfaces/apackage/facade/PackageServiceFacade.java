@@ -187,7 +187,8 @@ public class PackageServiceFacade {
      * @return ResponseEntity
      * @throws IOException IOException
      */
-    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String token) throws IOException {
+    public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
+        throws IOException {
         Release release = appService.download(appId, packageId);
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
@@ -202,7 +203,7 @@ public class PackageServiceFacade {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, "").toString();
+                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString();
             }
         }).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

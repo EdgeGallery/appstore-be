@@ -93,8 +93,8 @@ public class ThirdSystemFacade {
      * @param name name
      * @return ThirdSystem
      */
-    public ResponseEntity<List<ThirdSystem>> selectByNameLike(String name) {
-        List<ThirdSystem> ret = thirdSystemMapper.selectByNameLike(name);
+    public ResponseEntity<List<ThirdSystem>> selectByNameLike(String name, String type) {
+        List<ThirdSystem> ret = thirdSystemMapper.selectByNameLike(name, type);
         if (ret != null) {
             return ResponseEntity.ok(ret);
         } else {
