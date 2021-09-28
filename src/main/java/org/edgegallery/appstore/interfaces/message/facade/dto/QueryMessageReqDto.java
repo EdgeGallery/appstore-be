@@ -40,4 +40,6 @@ public class QueryMessageReqDto {
 
     private boolean readable;
 
+    private boolean allMessage;
+
 }

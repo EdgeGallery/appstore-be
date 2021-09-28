@@ -73,7 +73,7 @@ public class PackageServiceFacade {
     /**
      * scheduled clean up tempPackage more than 24 hours.
      */
-    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
+    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 30;
 
     @Autowired
     private AppService appService;
@@ -307,7 +307,10 @@ public class PackageServiceFacade {
      */
     public void scheduledDeletePackage() {
         File tempZip = new File(packageDir);
+        LOGGER.error("Start schedule delete temp file path {}", packageDir);
+
         File[] files = tempZip.listFiles();
+        LOGGER.error("Schedule delete temp folder list is {}", files);
         if (files != null && files.length > 0) {
             for (File folderFile : files) {
                 File[] tempFiles = folderFile.listFiles();
@@ -316,6 +319,7 @@ public class PackageServiceFacade {
                         if (zipFile.getName().startsWith(TEMP_EXPIRE_PREFIX)) {
                             long expireTime = getExpirTime(zipFile);
                             if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                                LOGGER.error("Start schedule delete temp file is {}", zipFile);
                                 FileUtils.deleteQuietly(zipFile);
                             }
                         }
@@ -323,6 +327,7 @@ public class PackageServiceFacade {
                 }
             }
         }
+        LOGGER.info("End schedule delete temp file.");
     }
 
     /**

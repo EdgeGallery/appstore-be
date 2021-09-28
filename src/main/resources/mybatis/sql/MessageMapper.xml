@@ -72,8 +72,13 @@
             <if test="timeFlag != null and timeFlag != ''">
                 and time >= #{timeFlag}
             </if>
-            <if test="readable != null and readable != ''">
-                and readed = #{readable}
+            <if test="readable != null and readable.toString() != '' ">
+                <if test="!readable">
+                    and readed = false
+                </if>
+                <if test="readable">
+                    and readed = true
+                </if>
             </if>
         </where>
         <if test="sortType != null and sortType != '' and sortItem != '' and sortItem != null">
@@ -95,8 +100,13 @@
             <if test="timeFlag != null and timeFlag != ''">
                 and time >= #{timeFlag}
             </if>
-            <if test="readable != null and readable != ''">
-                and readed = #{readable}
+            <if test="readable != null and readable.toString() != '' ">
+                <if test="!readable">
+                    and readed = false
+                </if>
+                <if test="readable">
+                    and readed = true
+                </if>
             </if>
         </where>
     </select>

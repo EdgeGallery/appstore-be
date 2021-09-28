@@ -116,7 +116,9 @@ public class MessageServiceFacade {
         params.put("offset", queryMessageReqDto.getOffset());
         params.put("sortItem", queryMessageReqDto.getSortItem());
         params.put("sortType", queryMessageReqDto.getSortType());
-        params.put("readable", queryMessageReqDto.isReadable());
+        if (!queryMessageReqDto.isAllMessage()) {
+            params.put("readable", queryMessageReqDto.isReadable());
+        }
         List<Message> messages = messageService.getAllMessagesV2(params);
         long total = messageService.getAllMessageCount(params);
         return new Page<>(messages.stream().map(MessageRespDto::of).collect(Collectors.toList()),
