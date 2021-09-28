@@ -574,17 +574,17 @@ public class ProjectService {
         return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url success."));
     }
 
-    public  List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
+    public List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
         List<Experience> experienceInfoList = new ArrayList<>();
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
         String uploadData = jsonObjects.get("data").getAsString();
         JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
         JsonArray array = jsonCode.get("services").getAsJsonArray();
         int count = array.size();
-        for (int i = 0; i<array.size(); i++) {
+        for (int i = 0; i < array.size(); i++) {
             String serviceName = array.get(i).getAsJsonObject().get("serviceName").getAsString();
-            String nodePort = array.get(i).getAsJsonObject().get("ports").getAsJsonArray().get(0)
-                .getAsJsonObject().get("nodePort").getAsString();
+            String nodePort = array.get(i).getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject()
+                .get("nodePort").getAsString();
             experienceInfoList.add(new Experience(serviceName, nodePort, mepHost.getMecHost()));
         }
         return experienceInfoList;
