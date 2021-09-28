@@ -117,12 +117,13 @@ public class UploadFileUtil {
 
 
     /**
-     *  upload file to file server.
+     * upload file to file server.
+     *
      * @param userId userId.
      * @param absolutionFilePath absolutionFilePath.
      * @return
      */
-    public String uploadFile(String userId, String absolutionFilePath) throws IOException {
+    public String uploadFile(String userId, String absolutionFilePath) {
         String imageId = "";
         File sourceFile = new File(absolutionFilePath);
         String tempFolder = new File(absolutionFilePath).getParent();
@@ -151,10 +152,10 @@ public class UploadFileUtil {
                 if (!sliceUploadFile(identifier, targetFile)) {
                     LOGGER.error("upload to remote file server failed.");
                     FileUtils.deleteQuietly(new File(targetFile));
-                    throw new AppException("upload to remote file server failed.",
-                        ResponseConst.RET_UPLOAD_FILE_FAILED);
                 }
             }
+        } catch (IOException e) {
+            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
         }
 
         if (chunkTotal == chunkCount) {
