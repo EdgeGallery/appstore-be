@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
@@ -41,10 +42,6 @@ public class SplitConfigServiceFacade {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigServiceFacade.class);
 
-    private static final String APPID_GLOBAL = "ALL";
-
-    private static final double SPLITRATIO_GLOBAL = 0.15;
-
     @Autowired
     private SplitConfigRepository splitConfigRepository;
 
@@ -59,8 +56,9 @@ public class SplitConfigServiceFacade {
     public ResponseEntity<ResponseObject> queryAllSplitConfigs() {
         LOGGER.info("query all split configs.");
         List<SplitConfig> splitConfigList = splitConfigRepository.getAllSplitConfigs();
-        if (!splitConfigList.stream().anyMatch(item -> APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
-            splitConfigList.add(new SplitConfig(APPID_GLOBAL, SPLITRATIO_GLOBAL));
+        if (!splitConfigList.stream()
+            .anyMatch(item -> Consts.SPLITCONFIG_APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
+            splitConfigList.add(new SplitConfig(Consts.SPLITCONFIG_APPID_GLOBAL, Consts.SPLITCONFIG_SPLITRATIO_GLOBAL));
         }
 
         LOGGER.info("query all apps.");
@@ -114,7 +112,7 @@ public class SplitConfigServiceFacade {
         boolean needAddGlobalConfig = false;
         SplitConfig splitConfig = new SplitConfig(appId, splitConfigOperReqDto.getSplitRatio());
         if (splitConfigRepository.updateSplitConfig(splitConfig) <= 0) {
-            needAddGlobalConfig = APPID_GLOBAL.equalsIgnoreCase(appId);
+            needAddGlobalConfig = Consts.SPLITCONFIG_APPID_GLOBAL.equalsIgnoreCase(appId);
             if (!needAddGlobalConfig) {
                 LOGGER.error("invalid modify request parameter, appId = {}", appId);
                 ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
@@ -125,8 +123,8 @@ public class SplitConfigServiceFacade {
 
         if (needAddGlobalConfig) {
             LOGGER.info("add global split config.");
-            splitConfigRepository
-                .addSplitConfig(new SplitConfig(APPID_GLOBAL, splitConfigOperReqDto.getSplitRatio()));
+            splitConfigRepository.addSplitConfig(
+                new SplitConfig(Consts.SPLITCONFIG_APPID_GLOBAL, splitConfigOperReqDto.getSplitRatio()));
         }
 
         LOGGER.info("modify split config success, appId = {}", appId);

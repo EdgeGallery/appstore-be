@@ -185,9 +185,9 @@ public class OrderServiceFacade {
             params.put("userId", userId);
         }
         params.put("appId", queryOrdersReqDto.getAppId());
-        params.put("oderNum", queryOrdersReqDto.getOrderNum());
+        params.put("orderNum", queryOrdersReqDto.getOrderNum());
         params.put("status", queryOrdersReqDto.getStatus());
-        params.put("oderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
+        params.put("orderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
         params.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
         params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
         List<OrderDto> orderList = orderService.queryOrders(params, token);

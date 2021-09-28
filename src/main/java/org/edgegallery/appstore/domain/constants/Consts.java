@@ -26,7 +26,13 @@ public final class Consts {
 
     public static final String AUTIORITIES = "authorities";
 
+    public static final String SUPER_ADMIN_ID = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+
     public static final String SUPER_ADMIN_NAME = "admin";
+
+    public static final String SPLITCONFIG_APPID_GLOBAL = "ALL";
+
+    public static final double SPLITCONFIG_SPLITRATIO_GLOBAL = 0.15;
 
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
