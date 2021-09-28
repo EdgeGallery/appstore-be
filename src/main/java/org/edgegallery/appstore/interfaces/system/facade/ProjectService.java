@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.interfaces.system.facade;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -34,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +61,7 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.MepHost;
+import org.edgegallery.appstore.domain.model.system.lcm.Experience;
 import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
@@ -493,19 +496,18 @@ public class ProjectService {
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
             }
         }
+        List<Experience> experienceInfoList = new ArrayList<>();
         if (status == STATUS_SUCCESS && appReleasePo.getDeployMode().equals(CONTAINER)) {
-            serviceName = getServiceName(workStatus);
-            nodePort = String.valueOf(getNodePort(workStatus));
-            mecHost = mapHosts.get(0).getMecHost();
+            experienceInfoList = getExperienceInfo(workStatus, mapHosts.get(0));
 
         } else {
             serviceName = appReleasePo.getAppName();
             mecHost = appReleasePo.getExperienceableIp();
+            experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
 
         }
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
+        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url success."));
     }
 
     /**
@@ -543,6 +545,7 @@ public class ProjectService {
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         List<MepHost> mapHosts = judgeHost(name, ip, appReleasePo.getDeployMode());
+        List<Experience> experienceInfoList = new ArrayList<>();
         if (CollectionUtils.isEmpty(mapHosts)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
@@ -554,21 +557,37 @@ public class ProjectService {
                 .isEmpty(token)) {
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this pacakge not instantiate"));
             }
+
             if (appReleasePo.getDeployMode().equals(VM)) {
                 serviceName = appReleasePo.getAppName();
                 mecHost = getVmExperienceIp(mapHosts.get(0).getParameter());
+                experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
             } else {
                 workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mapHosts.get(0), token);
             }
         }
+
         if (StringUtils.isNotEmpty(workStatus)) {
-            serviceName = getServiceName(workStatus);
-            nodePort = String.valueOf(getNodePort(workStatus));
-            mecHost = mapHosts.get(0).getMecHost();
+            experienceInfoList = getExperienceInfo(workStatus, mapHosts.get(0));
         }
-        showInfo = stringBuilder(serviceName, COLON, nodePort, COLON, mecHost).toString();
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app url success."));
+        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url success."));
+    }
+
+    public  List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
+        List<Experience> experienceInfoList = new ArrayList<>();
+        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
+        String uploadData = jsonObjects.get("data").getAsString();
+        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
+        JsonArray array = jsonCode.get("services").getAsJsonArray();
+        int count = array.size();
+        for (int i = 0; i<array.size(); i++) {
+            String serviceName = array.get(i).getAsJsonObject().get("serviceName").getAsString();
+            String nodePort = array.get(i).getAsJsonObject().get("ports").getAsJsonArray().get(0)
+                .getAsJsonObject().get("nodePort").getAsString();
+            experienceInfoList.add(new Experience(serviceName, nodePort, mepHost.getMecHost()));
+        }
+        return experienceInfoList;
     }
 
     /**

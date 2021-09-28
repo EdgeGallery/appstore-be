@@ -150,7 +150,7 @@ public class UploadFileUtil {
                 builder.addPart(targetFile, bin);
                 if (!sliceUploadFile(identifier, targetFile)) {
                     LOGGER.error("upload to remote file server failed.");
-                    FileUtils.deleteDirectory(new File(targetFile));
+                    FileUtils.deleteQuietly(new File(targetFile));
                     throw new AppException("upload to remote file server failed.",
                         ResponseConst.RET_UPLOAD_FILE_FAILED);
                 }

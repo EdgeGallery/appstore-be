@@ -38,7 +38,8 @@ public class ScheduleTask {
         projectService.cleanUnreleasedEnv();
     }
 
-    @Scheduled(cron = "0 0 0 * * ? ")
+    // @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "30 40 16 * * ? ")
     public void processCleanTempPackage() {
         packageServiceFacade.scheduledDeletePackage();
     }
