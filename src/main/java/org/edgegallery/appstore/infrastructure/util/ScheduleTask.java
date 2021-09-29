@@ -39,7 +39,7 @@ public class ScheduleTask {
     }
 
     // @Scheduled(cron = "0 0 0 * * ? ")
-    @Scheduled(cron = "30 20 11 * * ? ")
+    @Scheduled(cron = "30 35 11 * * ? ")
     public void processCleanTempPackage() {
         packageServiceFacade.scheduledDeletePackage();
     }
