@@ -324,6 +324,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            LOGGER.info("APPlCM terminateAppInstance log:{}", response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to get workload status which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
