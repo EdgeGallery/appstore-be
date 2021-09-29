@@ -17,8 +17,10 @@
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -303,34 +305,6 @@ public class PackageServiceFacade {
     }
 
     /**
-     * schedule delete compressed temporary directory files.
-     */
-    public void scheduledDeletePackage() {
-        File tempZip = new File(packageDir);
-        LOGGER.error("Start schedule delete temp file path {}", packageDir);
-
-        File[] files = tempZip.listFiles();
-        LOGGER.error("Schedule delete temp folder list is {}", files);
-        if (files != null && files.length > 0) {
-            for (File folderFile : files) {
-                File[] tempFiles = folderFile.listFiles();
-                if (tempFiles != null && tempFiles.length > 0) {
-                    for (File zipFile : tempFiles) {
-                        if (zipFile.getName().startsWith(TEMP_EXPIRE_PREFIX)) {
-                            long expireTime = getExpirTime(zipFile);
-                            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
-                                LOGGER.error("Start schedule delete temp file is {}", zipFile);
-                                FileUtils.deleteQuietly(zipFile);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        LOGGER.info("End schedule delete temp file.");
-    }
-
-    /**
      * get expire time for pacakge.
      *
      * @param tempZip tempZip file.
@@ -341,4 +315,62 @@ public class PackageServiceFacade {
         long endTime = new Date().getTime();
         return endTime - startTime;
     }
+
+    /**
+     * Search for the file containing the keyword in the specified directory.
+     *
+     * @param folder resource folder.
+     * @param keyword keyword.
+     * @return
+     */
+    public static List<File> searchTempFiles(File folder, String keyword) {
+        List<File> result = new ArrayList<File>();
+        if (folder.isFile()) {
+            result.add(folder);
+        }
+
+        File[] subFolders = folder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                if (file.isDirectory()) {
+                    return true;
+                }
+                if (file.getName().startsWith(keyword)) {
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        if (subFolders != null) {
+            for (File file : subFolders) {
+                if (file.isFile()) {
+                    // add result list if  it is file
+                    result.add(file);
+                } else {
+                    // If it is a folder, call this method recursively, and then add all files to the result list
+                    result.addAll(searchTempFiles(file, keyword));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * schedule delete compressed temporary directory files.
+     */
+    public void scheduledDeletePackage() {
+        LOGGER.info("Start schedule delete temp file path {}", packageDir);
+        List<File> files = searchTempFiles(new File(packageDir), TEMP_EXPIRE_PREFIX);
+        LOGGER.info("schedule find temp file count is {}", files.size());
+        for (File tempFile : files) {
+            long expireTime = getExpirTime(tempFile);
+            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                LOGGER.info("Start schedule delete temp file is {}", tempFile);
+                FileUtils.deleteQuietly(tempFile);
+            }
+        }
+        LOGGER.info("End schedule delete temp file.");
+    }
+
 }

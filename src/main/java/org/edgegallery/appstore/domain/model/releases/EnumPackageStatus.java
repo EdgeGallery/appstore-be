@@ -80,7 +80,7 @@ public enum EnumPackageStatus {
     }
 
     public static boolean needRefresh(EnumPackageStatus status) {
-        return status == Test_created || status == Test_running || status == Test_waiting;
+        return status != Published && status != Test_success && status != Upload;
     }
 
     public String getText() {
