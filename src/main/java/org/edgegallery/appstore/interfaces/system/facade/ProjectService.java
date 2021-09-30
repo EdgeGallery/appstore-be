@@ -669,7 +669,7 @@ public class ProjectService {
             CloseableHttpResponse res = client.execute(httpGet);
             InputStream inputStream = res.getEntity().getContent();
             byte[] bytes = new byte[inputStream.available()];
-            while (inputStream.read(bytes) > 0) {
+            if (inputStream.read(bytes) > 0) {
                 String authResult = new String(bytes, StandardCharsets.UTF_8);
                 LOGGER.info("response token length: {}", authResult.length());
                 return authResult;
