@@ -87,8 +87,6 @@ public class ProjectService {
 
     private static final int CLEAN_ENV_WAIT_TIME = 24;
 
-    private static final String COLON = ":";
-
     /**
      * get worksrtatus wait 5 minites.
      */
@@ -97,8 +95,6 @@ public class ProjectService {
     /**
      * get terminate app result wait 2 minites.
      */
-
-    private static final int GET_TERMINATE_RESULT_TIME = 2 * 1000 * 60;
 
     private static final int STATUS_SUCCESS = 0;
 
@@ -256,7 +252,6 @@ public class ProjectService {
      *
      * @param parameter parameter.
      * @param mecHost mecHost.
-     * @return
      */
     public Map<String, String> getInputParams(String parameter, String mecHost) {
 
@@ -322,7 +317,6 @@ public class ProjectService {
      * @param name host name.
      * @param ip host ip.
      * @param deployMode deployMode.
-     * @return
      */
     public List<MepHost> judgeHost(String name, String ip, String deployMode) {
         String os = "";
@@ -355,7 +349,6 @@ public class ProjectService {
      * parse uninstall result.
      *
      * @param status status.
-     * @return
      */
     public static int parseStatus(String status) {
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
@@ -371,7 +364,6 @@ public class ProjectService {
      * @param appInstanceId appInstanceId
      * @param pkgId pkgId.
      * @param token token.
-     * @return
      */
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
@@ -485,7 +477,6 @@ public class ProjectService {
      * get vm experience ip.
      *
      * @param parameter mapHost parameter.
-     * @return
      */
     private String getVmExperienceIp(String parameter) {
         String[] parameters = parameter.split(VM_SEMICOLON);
@@ -549,7 +540,6 @@ public class ProjectService {
      * get Experience Information.
      * @param workStatus workStatus.
      * @param mepHost mepHost.
-     * @return
      */
     public List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
         List<Experience> experienceInfoList = new ArrayList<>();
@@ -679,14 +669,15 @@ public class ProjectService {
             CloseableHttpResponse res = client.execute(httpGet);
             InputStream inputStream = res.getEntity().getContent();
             byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes);
-            String authResult = new String(bytes, StandardCharsets.UTF_8);
-            LOGGER.info("response token length: {}", authResult.length());
-            return authResult;
+            while (inputStream.read(bytes) > 0) {
+                String authResult = new String(bytes, StandardCharsets.UTF_8);
+                LOGGER.info("response token length: {}", authResult.length());
+                return authResult;
+            }
         } catch (IOException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
-            return null;
         }
+        return null;
     }
 
 }

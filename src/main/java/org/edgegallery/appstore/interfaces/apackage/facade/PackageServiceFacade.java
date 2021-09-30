@@ -74,7 +74,7 @@ public class PackageServiceFacade {
     /**
      * scheduled clean up tempPackage more than 24 hours.
      */
-    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 30;
+    private static final long CLEAN_ENV_WAIT_TIME = 1000L * 60 * 30;
 
     @Autowired
     private AppService appService;
