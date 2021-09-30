@@ -103,7 +103,7 @@ public class UploadHelper {
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
                     updateProgressStatus(progress, "failed");
-                    LOGGER.error("upload failed: {}", ret.toString());
+                    LOGGER.error("upload failed: {}", ret);
                     return ret;
                 }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);

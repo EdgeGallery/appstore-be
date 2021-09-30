@@ -35,7 +35,9 @@ public interface ThirdSystemMapper {
 
     List<ThirdSystem> selectBySystemType(String type);
 
-    List<ThirdSystem> selectByNameLike(@Param("systemName") String systemName, @Param("systemType")String systemType);
+    List<ThirdSystem> selectByNameLike(@Param("systemName") String systemName, @Param("systemType") String systemType);
+
+    int countThirdSystems(@Param("systemType") String systemType, @Param("status") String status);
 
     int updateByPrimaryKeySelective(ThirdSystem record);
 
