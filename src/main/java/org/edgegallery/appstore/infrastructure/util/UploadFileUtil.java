@@ -32,10 +32,8 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -55,12 +53,7 @@ public class UploadFileUtil {
 
     private static final int chunkSize = 50 * 1024 * 1024;
 
-    private static final RestTemplate restTemplate = new RestTemplate();
-
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-
-    @Autowired
-    private PackageMapper packageMapper;
 
     @Value("${appstore-be.filesystem-address:}")
     private String fileSystemAddress;
