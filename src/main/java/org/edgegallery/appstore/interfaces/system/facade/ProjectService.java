@@ -375,7 +375,6 @@ public class ProjectService {
      */
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            long from = new Date().getTime();
             boolean uninstallApp = HttpClientUtil
                 .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
                     token);
