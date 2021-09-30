@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.domain.model.system.lcm;
 
-import jdk.nashorn.internal.objects.annotations.Constructor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

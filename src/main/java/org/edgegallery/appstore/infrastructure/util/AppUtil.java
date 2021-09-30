@@ -95,8 +95,6 @@ public class AppUtil {
 
     private static final String JSON_EXTENSION = "Image/SwImageDesc.json";
 
-    private static final String CONTAINER = "container";
-
     private static final String COLON = ":";
 
     private static final String IMAGE = "Image";
