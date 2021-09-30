@@ -48,10 +48,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Validated
 public class OrderController {
 
-    private static final String USERID = "userId";
-
-    private static final String USERNAME = "userName";
-
     private static final String REG_ORDER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -73,7 +69,8 @@ public class OrderController {
     public ResponseEntity<ResponseObject> createOrder(
         @ApiParam(value = "CreateOrderReqDto", required = true) @RequestBody CreateOrderReqDto createOrderReqDto,
         HttpServletRequest request) {
-        return orderServiceFacade.createOrder((String) request.getAttribute(USERID), createOrderReqDto,
+        return orderServiceFacade.createOrder((String) request.getAttribute(Consts.USERID),
+            (String) request.getAttribute(Consts.USERNAME), createOrderReqDto,
             request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
@@ -93,8 +90,8 @@ public class OrderController {
     public ResponseEntity<ResponseObject> deactivateOrder(
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
-        return orderServiceFacade.deactivateOrder((String)request.getAttribute(USERID),
-            (String)request.getAttribute(USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.deactivateOrder((String)request.getAttribute(Consts.USERID),
+            (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -113,8 +110,8 @@ public class OrderController {
     public ResponseEntity<ResponseObject> activateOrder(
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
-        return orderServiceFacade.activateOrder((String)request.getAttribute(USERID),
-            (String)request.getAttribute(USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.activateOrder((String)request.getAttribute(Consts.USERID),
+            (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -133,8 +130,8 @@ public class OrderController {
     public ResponseEntity<Page<OrderDto>> queryOrders(
         @ApiParam(value = "QueryOrdersReqDto", required = true) @RequestBody QueryOrdersReqDto queryOrdersReqDto,
         HttpServletRequest request) {
-        return orderServiceFacade.queryOrders((String)request.getAttribute(USERID),
-            (String)request.getAttribute(USERNAME), queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.queryOrders((String)request.getAttribute(Consts.USERID),
+            (String)request.getAttribute(Consts.USERNAME), queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
 

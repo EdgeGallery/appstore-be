@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.appstore.application.inner.OrderService;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
@@ -57,15 +58,17 @@ public class OrderServiceFacade {
      * create order.
      *
      * @param userId user id
+     * @param userName user name
      * @param addOrderReqDto request body
      * @param token token
      * @return result
      */
-    public ResponseEntity<ResponseObject> createOrder(String userId, CreateOrderReqDto addOrderReqDto, String token) {
+    public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
+        String token) {
         try {
-            String oderId = UUID.randomUUID().toString();
+            String orderId = UUID.randomUUID().toString();
             String orderNum = orderService.generateOrderNum();
-            Order order = new Order(oderId, orderNum, userId, addOrderReqDto);
+            Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
             orderRepository.addOrder(order);
 
             // TODO
@@ -78,7 +81,7 @@ public class OrderServiceFacade {
             order.setOperateTime(new Date());
             orderRepository.updateOrderStatus(order);
 
-            CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(oderId).orderNum(orderNum).build();
+            CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
             return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
         } catch (InterruptedException e) {
@@ -104,7 +107,7 @@ public class OrderServiceFacade {
                 throw new AppException("inactivated orders can't be deactivated.",
                     ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
             }
-            if (userId.equals(order.getUserId()) || "admin".equals(userName)) {
+            if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.DEACTIVATING);
                 orderRepository.updateOrderStatus(order);
                 // TODO
@@ -145,7 +148,7 @@ public class OrderServiceFacade {
                 throw new AppException("unsubscribed orders can't be activated.",
                     ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
             }
-            if (userId.equals(order.getUserId()) || "admin".equals(userName)) {
+            if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.ACTIVATING);
                 orderRepository.updateOrderStatus(order);
                 // TODO
@@ -181,7 +184,7 @@ public class OrderServiceFacade {
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
         QueryOrdersReqDto queryOrdersReqDto, String token) {
         Map<String, Object> params = new HashMap<>();
-        if (!"admin".equals(userName)) {
+        if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             params.put("userId", userId);
         }
         params.put("appId", queryOrdersReqDto.getAppId());

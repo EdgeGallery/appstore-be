@@ -116,7 +116,7 @@ public class SplitConfigController {
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> modifySplitConfigs(
         HttpServletRequest httpServletRequest,
-        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @ApiParam(value = "appId") @PathVariable("appId") String appId,
         @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
             SplitConfigOperReqDto splitConfigOperReqDto) {
         LOGGER.info("enter modify split configs.");

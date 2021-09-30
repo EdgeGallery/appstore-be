@@ -15,17 +15,15 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class CreateOrderReqDto {
     private String appId;
 
-    private String packageId;
+    private String appPackageId;
 
     private String mecHostIp;
 }

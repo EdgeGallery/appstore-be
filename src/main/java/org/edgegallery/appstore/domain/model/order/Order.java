@@ -58,14 +58,15 @@ public class Order implements Entity {
 
     private String mecInstanceId;
 
-    public Order(String orderId, String orderNum, String userId, CreateOrderReqDto dto) {
+    public Order(String orderId, String orderNum, String userId, String userName, CreateOrderReqDto dto) {
         this.orderId = orderId;
         this.orderNum = orderNum;
         this.userId = userId;
+        this.userName = userName;
         this.appId = dto.getAppId();
-        this.packageId = dto.getPackageId();
+        this.packageId = dto.getAppPackageId();
         this.orderTime = new Date();
-        this.operateTime = null;
+        this.operateTime = this.orderTime;
         this.status = EnumOrderStatus.ACTIVATING;
         this.mecHostIp = dto.getMecHostIp();
     }

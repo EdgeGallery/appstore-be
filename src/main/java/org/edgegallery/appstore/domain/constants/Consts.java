@@ -30,7 +30,7 @@ public final class Consts {
 
     public static final String SUPER_ADMIN_NAME = "admin";
 
-    public static final String SPLITCONFIG_APPID_GLOBAL = "ALL";
+    public static final String SPLITCONFIG_APPID_GLOBAL = "all";
 
     public static final double SPLITCONFIG_SPLITRATIO_GLOBAL = 0.15;
 

@@ -28,7 +28,7 @@
     <update id="update"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.SplitConfigPo">
         update app_split_config
-        SET splitRatio = #{splitRatio},
+        SET splitRatio = #{splitRatio}
         WHERE appId = #{appId}
     </update>
 

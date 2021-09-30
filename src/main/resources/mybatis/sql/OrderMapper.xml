@@ -39,8 +39,8 @@
             parameterType="java.util.Map">
         select count(*) from app_order
         <where>
-            <if test="orderId != null and orderId != '' ">
-                and orderId = #{orderId}
+            <if test="appId != null and appId != '' ">
+                and appId = #{appId}
             </if>
             <if test="orderNum != null and orderNum != '' ">
                 and orderNum = #{orderNum}
@@ -48,8 +48,8 @@
             <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
-            <if test="oderBeginTime != null and oderBeginTime != '' and orderEndTime != null and orderEndTime != ''">
-                and orderTime between #{oderBeginTime} and #{orderEndTime}
+            <if test="orderBeginTime != null and orderBeginTime != '' and orderEndTime != null and orderEndTime != ''">
+                and orderTime between #{orderBeginTime} and #{orderEndTime}
             </if>
             <if test="userId != null and userId != '' ">
                 and userId= #{userId}

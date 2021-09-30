@@ -56,7 +56,12 @@ public class OrderService {
         List<Order> orders = orderRepository.queryOrders(params);
         List<OrderDto> dtoList = new ArrayList<>();
         for (Order order : orders) {
-            Release release = appService.getRelease(order.getAppId(), order.getPackageId());
+            Release release = null;
+            try {
+                release = appService.getRelease(order.getAppId(), order.getPackageId());
+            } catch (Exception e) {
+                LOGGER.warn("app not found! appId = {}", order.getAppId());
+            }
             // query mec host info
             String mecHostIp = order.getMecHostIp();
             String mecHostName = "";
@@ -69,8 +74,8 @@ public class OrderService {
                 mecHostCity = mecHostInfo.get(mecHostIp).getCity();
             }
 
-            OrderDto dto = new OrderDto(order, release.getAppBasicInfo().getAppName(),
-                release.getAppBasicInfo().getVersion(), mecHostName, mecHostCity);
+            OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
+                release != null ? release.getAppBasicInfo().getVersion() : "", mecHostName, mecHostCity);
             dtoList.add(dto);
         }
         return dtoList;

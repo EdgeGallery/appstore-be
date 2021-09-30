@@ -15,14 +15,12 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
 
 @Getter
 @Setter
-@Builder
 public class QueryOrdersReqDto {
     private String appId;
 

@@ -27,6 +27,7 @@ import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.order.Bill;
 import org.edgegallery.appstore.domain.model.order.BillRepository;
+import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.order.SplitConfig;
@@ -59,7 +60,7 @@ public class BillService {
     public void generateBill() {
         LOGGER.info("generate bills begin.");
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("status", "ACTIVATED");
+        queryParams.put("status", EnumOrderStatus.ACTIVATED.toString());
         List<Order> activeOrderList = orderRepository.queryOrders(queryParams);
 
         LOGGER.info("generate bills for {} active order(s).", activeOrderList.size());

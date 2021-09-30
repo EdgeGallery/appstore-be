@@ -123,12 +123,71 @@
     </select>
 
     <select id="statAppSaleAmount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+        select appTab.appId appid, appname,
+        sum(billAmount) saleamount
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null and billsubtype='APPSUPPLY'
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by saleamount ${sortType}
+        limit #{topNum}
     </select>
 
     <select id="statAppSaleCount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+        select appTab.appId appid, appname,
+        count(orderid) salecount
+        from app_order orderTab
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and orderTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and orderTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by salecount ${sortType}
+        limit #{topNum}
     </select>
 
     <select id="statAppOrderAmount" parameterType="java.util.Map" resultMap="AppOrderStatInfo">
+        select appTab.appId appid, appname,
+        sum(billAmount) orderamount
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null and billtype='OUT'
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by orderamount desc
+        limit #{topNum}
     </select>
 
 </mapper>

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
 import org.edgegallery.appstore.domain.model.order.BillRepository;
@@ -109,7 +110,9 @@ public class BillStatServiceFacade {
         TopSaleAppReqDto topSaleAppReqDto) {
         LOGGER.info("statistic top sale app.");
         Map<String, Object> statParams = new HashMap<>();
-        statParams.put("userId", userId);
+        if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
+            statParams.put("userIdOfApp", userId);
+        }
         statParams.put("startTime", topSaleAppReqDto.getStartTime());
         statParams.put("endTime", topSaleAppReqDto.getEndTime());
         statParams.put("sortType", topSaleAppReqDto.getSortType());
@@ -137,9 +140,12 @@ public class BillStatServiceFacade {
         TopOrderAppReqDto topOrderAppReqDto) {
         LOGGER.info("statistic top order app.");
         Map<String, Object> statParams = new HashMap<>();
-        statParams.put("userId", userId);
+        if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
+            statParams.put("userIdOfApp", userId);
+        }
         statParams.put("startTime", topOrderAppReqDto.getStartTime());
         statParams.put("endTime", topOrderAppReqDto.getEndTime());
+        statParams.put("topNum", 5);
         List<TopOrderAppResultDto> respDataDto = billRepository.statAppOrderAmount(statParams).stream()
             .map(TopOrderAppResultDto::of).collect(Collectors.toList());
 
