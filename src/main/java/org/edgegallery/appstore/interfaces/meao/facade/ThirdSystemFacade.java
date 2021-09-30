@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.interfaces.meao.facade;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -70,6 +72,29 @@ public class ThirdSystemFacade {
         } else {
             throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
         }
+    }
+
+    /**
+     * count all thirdSystems.
+     *
+     * @param types types
+     * @return count
+     */
+    public ResponseEntity<JSONArray> countThirdSystem(String[] types) {
+        JSONArray result = new JSONArray();
+        for (String type : types) {
+            int totalNum = thirdSystemMapper.countThirdSystems(type, null);
+            int activeNum = thirdSystemMapper.countThirdSystems(type, "active");
+            int inactiveNum = totalNum - activeNum;
+            JSONObject numObj = new JSONObject();
+            numObj.put("totalNum", totalNum);
+            numObj.put("activeNum", activeNum);
+            numObj.put("inactiveNum", inactiveNum);
+            JSONObject typeObj = new JSONObject();
+            typeObj.put(type, numObj);
+            result.add(typeObj);
+        }
+        return ResponseEntity.ok(result);
     }
 
     /**

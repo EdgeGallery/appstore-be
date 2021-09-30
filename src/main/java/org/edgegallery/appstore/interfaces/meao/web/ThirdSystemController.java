@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.meao.web;
 
+import com.alibaba.fastjson.JSONArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -70,6 +71,19 @@ public class ThirdSystemController {
     public ResponseEntity<ThirdSystem> getThirdSystem(
         @ApiParam(value = "thirdSystemId") @PathVariable("thirdSystemId") String thirdSystemId) {
         return thirdSystemFacade.getThirdSystemById(thirdSystemId);
+    }
+
+    /**
+     * count all thirdSystems.
+     */
+    @PostMapping(value = "/count", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "list thirdSystems", response = ThirdSystem.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    public ResponseEntity<JSONArray> getThirdSystemList(
+        @ApiParam(value = "types", required = true) @RequestBody String[] types) {
+        return thirdSystemFacade.countThirdSystem(types);
     }
 
     /**
