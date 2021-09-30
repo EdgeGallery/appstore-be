@@ -383,26 +383,6 @@ public class ProjectService {
                 LOGGER.error("uninstall AppInstance failed.");
                 return false;
             }
-            String workStatus = HttpClientUtil
-                .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token);
-            int status = parseStatus(workStatus);
-            long to;
-            while (status != STATUS_SUCCESS) {
-                try {
-                    Thread.sleep(3000);
-                    workStatus = HttpClientUtil
-                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
-                            token);
-                } catch (InterruptedException e) {
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-                to = new Date().getTime();
-                if ((to - from) > GET_TERMINATE_RESULT_TIME) {
-                    LOGGER.error("uninstall AppInstance failed.");
-                    return false;
-                }
-            }
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
                 .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId,
