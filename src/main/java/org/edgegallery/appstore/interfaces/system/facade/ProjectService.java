@@ -375,7 +375,7 @@ public class ProjectService {
      */
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            boolean uninstallApp = HttpClientUtil
+            HttpClientUtil
                 .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
                     token);
             // delete hosts
@@ -385,6 +385,10 @@ public class ProjectService {
             // delete pkg
             boolean deletePkgRes = HttpClientUtil
                 .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId);
+            if (!deleteHostRes || !deletePkgRes) {
+                LOGGER.error("delete package failed after instantiateApp.");
+                return false;
+            }
         }
         return true;
     }
