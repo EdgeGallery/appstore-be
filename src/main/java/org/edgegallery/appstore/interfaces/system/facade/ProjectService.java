@@ -378,25 +378,13 @@ public class ProjectService {
             boolean uninstallApp = HttpClientUtil
                 .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
                     token);
-            if (!uninstallApp) {
-                LOGGER.error("uninstall AppInstance failed.");
-                return false;
-            }
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
                 .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId,
                     host.getMecHost());
-            if (!deleteHostRes) {
-                LOGGER.error("delete host records failed after instantiateApp.");
-                return false;
-            }
             // delete pkg
             boolean deletePkgRes = HttpClientUtil
                 .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId);
-            if (!deletePkgRes) {
-                LOGGER.error("delete package failed after instantiateApp.");
-                return false;
-            }
         }
         return true;
     }
