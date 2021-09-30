@@ -44,7 +44,6 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
@@ -91,9 +90,6 @@ public class PackageServiceFacade {
 
     @Autowired
     private AppUtil appUtil;
-
-    @Autowired
-    private PackageMapper packageMapper;
 
     @Autowired
     private UploadPackageService uploadPackageService;

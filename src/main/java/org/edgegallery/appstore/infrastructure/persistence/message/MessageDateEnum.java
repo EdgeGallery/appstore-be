@@ -26,7 +26,7 @@ public enum MessageDateEnum {
 
     public final int dayValue;
 
-    private MessageDateEnum(int dayValue) {
+    MessageDateEnum(int dayValue) {
         this.dayValue = dayValue;
     }
 }

@@ -113,11 +113,11 @@ public class Signature {
                 CMSTypedData msg = new CMSProcessableByteArray(srcMsg.getBytes(StandardCharsets.UTF_8));
                 Store certs = new JcaCertStore(certList);
                 CMSSignedDataGenerator cmsSignedDataGenerator = new CMSSignedDataGenerator();
-                ContentSigner sha1Signer = (new JcaContentSignerBuilder("SHA256withRSA")).setProvider("BC")
+                ContentSigner sha1Signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC")
                     .build(privateKey);
                 cmsSignedDataGenerator.addSignerInfoGenerator(
-                    (new JcaSignerInfoGeneratorBuilder((new JcaDigestCalculatorProviderBuilder())
-                        .setProvider("BC").build())).build(sha1Signer, certX509));
+                    new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder()
+                        .setProvider("BC").build()).build(sha1Signer, certX509));
                 cmsSignedDataGenerator.addCertificates(certs);
                 CMSSignedData signedData = cmsSignedDataGenerator.generate(msg, true);
                 return Optional.of(Base64.encode(signedData.getEncoded()));
