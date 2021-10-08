@@ -175,6 +175,22 @@ public class PackageServiceFacade {
     }
 
     /**
+     * download icon by package id.
+     *
+     * @param appId app id.
+     * @param packageId package id.
+     */
+    public ResponseEntity<InputStreamResource> downloadIcon(String appId, String packageId) throws IOException {
+        Release release = appService.download(appId, packageId);
+        String fileName = appUtil.getFileName(release, release.getIcon());
+        InputStream ins = fileService.get(release.getIcon());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    /**
      * sysc package to meao.
      *
      * @param appId appId
