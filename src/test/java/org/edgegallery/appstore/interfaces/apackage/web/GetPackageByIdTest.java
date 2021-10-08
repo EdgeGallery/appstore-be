@@ -15,9 +15,14 @@
 
 package org.edgegallery.appstore.interfaces.apackage.web;
 
+import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,6 +31,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 public class GetPackageByIdTest extends AppTest {
+
+    @Autowired
+    private PackageServiceFacade packageServiceFacade;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -57,6 +65,20 @@ public class GetPackageByIdTest extends AppTest {
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void queryPackageByCond() throws Exception {
+        QueryAppCtrlDto ctrDto = new QueryAppCtrlDto();
+        ctrDto.setLimit(15);
+        ctrDto.setOffset(0);
+        ctrDto.setSortItem("createTime");
+        ctrDto.setSortType("desc");
+        Page<PackageDto> page = packageServiceFacade.getPackageByUserIdV2(userId, "", null, ctrDto, "");
+        Assert.assertNotSame(0, page.getResults().size());
+        String s = "";
+
     }
 
 }
