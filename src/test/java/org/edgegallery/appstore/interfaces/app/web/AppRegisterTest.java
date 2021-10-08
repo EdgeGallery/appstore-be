@@ -366,7 +366,7 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void test_merge() {
-        ResponseEntity<String> res  = appServiceFacade.merge("fileName","test_guid_01");
+        ResponseEntity<String> res  = appServiceFacade.merge("fileName","");
         HttpStatus ss = res.getStatusCode();
         Assert.assertEquals("200 OK", res.getStatusCode().toString());
     }
