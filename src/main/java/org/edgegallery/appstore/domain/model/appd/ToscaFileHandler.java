@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class ToscaFileHandler implements IAppdFile {
     public void load(File file) {
         paramsHandlerList = new ArrayList<>();
         List<String> lines = getLines(file);
-        if (lines == null || lines.size() <= 0) {
+        if (lines == null || lines.isEmpty()) {
             return;
         }
         // split list by empty line
@@ -113,7 +114,7 @@ public class ToscaFileHandler implements IAppdFile {
             return Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("failed to read file {}", file.getPath());
-            return null;
+            return Collections.emptyList();
         }
     }
 

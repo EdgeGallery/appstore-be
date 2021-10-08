@@ -23,9 +23,9 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
  */
 @Getter
 public enum ManifestFiledataContent implements IAppdContentEnum {
-    Source("Source", true),
-    Algorithm("Algorithm", true),
-    Hash("Hash", true);
+    SOURCE("Source", true),
+    ALGORITHM("Algorithm", true),
+    HASH("Hash", true);
 
     private final String name;
 

@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -173,11 +171,8 @@ public class ProjectService {
 
     private static CloseableHttpClient createIgnoreSslHttpClient() {
         try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    return true;
-                }
-            }).build();
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+                (TrustStrategy) (chain, authType) -> true).build();
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 NoopHostnameVerifier.INSTANCE);
 

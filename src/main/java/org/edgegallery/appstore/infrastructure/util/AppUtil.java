@@ -398,13 +398,13 @@ public class AppUtil {
         File mfFile = getFile(fileParent, "mf");
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         fileHandlerMf.load(mfFile);
-        fileHandlerMf.delContentByTypeAndValue(ManifestFiledataContent.Source, target);
+        fileHandlerMf.delContentByTypeAndValue(ManifestFiledataContent.SOURCE, target);
         writeFile(mfFile, fileHandlerMf.toString());
         String toscaMeta = fileParent + "/TOSCA-Metadata/TOSCA.meta";
         File metaFile = new File(toscaMeta);
         IAppdFile fileHandlerTosca = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.TOSCA_META_FILE);
         fileHandlerTosca.load(metaFile);
-        fileHandlerTosca.delContentByTypeAndValue(ToscaSourceContent.Name, target);
+        fileHandlerTosca.delContentByTypeAndValue(ToscaSourceContent.NAME, target);
         writeFile(metaFile, fileHandlerTosca.toString());
 
     }

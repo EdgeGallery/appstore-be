@@ -23,10 +23,10 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
  */
 @Getter
 public enum ToscaMetadataContent implements IAppdContentEnum {
-    TOSCA_Meta_File_Version("TOSCA-Meta-File-Version", true),
-    CSAR_Version("CSAR-Version", true),
-    Created_by("Created-by", true),
-    Entry_Definitions("Entry-Definitions", true);
+    TOSCA_META_FILE_VERSION("TOSCA-Meta-File-Version", true),
+    CSAR_VERSION("CSAR-Version", true),
+    CREATED_BY("Created-by", true),
+    ENTRY_DEFINITIONS("Entry-Definitions", true);
 
     private final String name;
 

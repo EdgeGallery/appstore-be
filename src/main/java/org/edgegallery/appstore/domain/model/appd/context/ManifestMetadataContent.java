@@ -23,14 +23,14 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
  */
 @Getter
 public enum ManifestMetadataContent implements IAppdContentEnum {
-    metadata("metadata", true),
-    app_product_name("app_product_name", true),
-    app_provider_id("app_provider_id", true),
-    app_package_version("app_package_version", true),
-    app_release_data_time("app_release_data_time", true),
-    app_type("app_type", false),
-    app_class("app_class", true),
-    app_package_description("app_package_description", false);
+    METADATA("metadata", true),
+    APP_PRODUCT_NAME("app_product_name", true),
+    APP_PROVIDER_ID("app_provider_id", true),
+    APP_PACKAGE_VERSION("app_package_version", true),
+    APP_RELEASE_DATA_TIME("app_release_data_time", true),
+    APP_TYPE("app_type", false),
+    APP_CLASS("app_class", true),
+    APP_PACKAGE_DESCRIPTION("app_package_description", false);
 
     private final String name;
 
