@@ -17,6 +17,8 @@
 package org.edgegallery.appstore.application.packageupload;
 
 public class AppConfig {
+    private AppConfig() {
+    }
 
     public static final int FILE_SIZE = 9437980;
 

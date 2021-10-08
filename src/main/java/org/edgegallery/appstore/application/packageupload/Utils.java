@@ -62,6 +62,9 @@ public class Utils {
 
     public static final String BSP_SESSION_PREFIX = "bspsession=";
 
+    private Utils() {
+    }
+
     /**
      * Get cookie info.
      *
@@ -128,7 +131,7 @@ public class Utils {
             String sessionCookie = redirectStrategy.session;
             LOGGER.info("sessionCookie: " + sessionCookie);
 
-            if (redirectStrategy.isLicenselogin) {
+            if (Boolean.TRUE.equals(redirectStrategy.isLicenselogin)) {
                 String redirectUrlParam = URLEncoder.encode("service=/unisess/v1/auth?service=/", "UTF-8");
                 String licenseDirectLoginUrl = String
                     .format("%s/plat/licapp/v1/licensedirectlogin?%s&_=%s", hostIp, redirectUrlParam,
@@ -183,17 +186,17 @@ public class Utils {
             sslSf = new SSLConnectionSocketFactory(sslContext, new X509HostnameVerifier() {
                 @Override
                 public void verify(String s, SSLSocket sslSocket) throws IOException {
-
+                    // not need implement
                 }
 
                 @Override
                 public void verify(String s, X509Certificate x509Certificate) throws SSLException {
-
+                    // not need implement
                 }
 
                 @Override
                 public void verify(String s, String[] strings, String[] strings1) throws SSLException {
-
+                    // not need implement
                 }
 
                 @Override

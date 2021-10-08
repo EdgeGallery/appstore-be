@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.http.HttpEntity;
@@ -51,6 +50,9 @@ import org.slf4j.LoggerFactory;
 
 public class Connection {
     public static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
+
+    private Connection() {
+    }
 
     /**
      * Shard to upload.
@@ -93,9 +95,6 @@ public class Connection {
 
             multiBuilder.setBoundary(boundary);
             multiBuilder.addTextBody("vnfpackageInfo", req.getString("vnfpackageInfo"));
-
-            // multiBuilder.setBoundary(boundary);
-            // multiBuilder.addTextBody("catalogShareInfo", req.getString("catalogShareInfo"));
 
             multiBuilder.setBoundary(boundary);
             multiBuilder.addBinaryBody("serviceDefFile", postData, ContentType.APPLICATION_OCTET_STREAM, "blob");
@@ -140,12 +139,7 @@ public class Connection {
 
     private static void trustEveryone() {
         try {
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, new X509TrustManager[] {
@@ -153,13 +147,13 @@ public class Connection {
                     @Override
                     public void checkClientTrusted(X509Certificate[] chain, String authType)
                         throws CertificateException {
-
+                        // not need implement
                     }
 
                     @Override
                     public void checkServerTrusted(X509Certificate[] chain, String authType)
                         throws CertificateException {
-
+                        // not need implement
                     }
 
                     @Override
@@ -184,18 +178,11 @@ public class Connection {
             .register("https", new SSLConnectionSocketFactory(sslContext, ignoreVerifier)).build();
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socket);
 
-        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-        return httpClient;
+        return HttpClients.custom().setConnectionManager(connectionManager).build();
     }
 
     private static HostnameVerifier createHostnameVerifier() {
-        HostnameVerifier verifier = new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
-        return verifier;
+        return (hostname, session) -> true;
     }
 
     private static SSLContext createIgnoreVerifySsl() {
@@ -209,12 +196,12 @@ public class Connection {
         X509TrustManager trustManager = new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] chain, String authType) {
-
+                // not need implement
             }
 
             @Override
             public void checkServerTrusted(X509Certificate[] chain, String authType) {
-
+                // not need implement
             }
 
             @Override
