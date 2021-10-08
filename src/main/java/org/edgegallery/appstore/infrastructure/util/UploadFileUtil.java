@@ -20,9 +20,6 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
@@ -51,32 +48,12 @@ import org.springframework.web.client.RestTemplate;
 public class UploadFileUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
 
-    private static final int chunkSize = 50 * 1024 * 1024;
+    private static final int CHUNK_SIZE = 50 * 1024 * 1024;
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     @Value("${appstore-be.filesystem-address:}")
     private String fileSystemAddress;
-
-    /**
-     * encrypted identifier.
-     * @param originString identifier.
-     * @return
-     */
-    public static String encryptedByMD5(String originString) {
-        try {
-            //Create information digest with MD5 algorithm.
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            //Use the specified byte array to make the final update to the summary, complete the summary calculation.
-            byte[] bytes = md.digest(originString.getBytes(Charset.forName("UTF-8")));
-            //Turn the resulting byte array into a string and return.
-            String s = byteArrayToHex(bytes);
-            return s.toUpperCase();
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("upload to remote file server failed.");
-            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
-        }
-    }
 
     /**
      * Convert the byte array to hexadecimal and return it as a string.
@@ -85,10 +62,9 @@ public class UploadFileUtil {
      * written as a hexadecimal number, it becomes 128/4=32 bits.
      *
      * @param b bytes.
-     * @return
      */
     private static String byteArrayToHex(byte[] b) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; i++) {
             sb.append(byteToHex(b[i]));
         }
@@ -98,7 +74,6 @@ public class UploadFileUtil {
     /**
      *Convert a byte to hexadecimal and return it as a string.
      * @param b bytes.
-     * @return
      */
     public static String byteToHex(byte b) {
         String hex = Integer.toHexString(b & 0xFF);
@@ -114,7 +89,6 @@ public class UploadFileUtil {
      *
      * @param userId userId.
      * @param absolutionFilePath absolutionFilePath.
-     * @return
      */
     public String uploadFile(String userId, String absolutionFilePath) {
         String imageId = "";
@@ -122,12 +96,12 @@ public class UploadFileUtil {
         String tempFolder = new File(absolutionFilePath).getParent();
         long fileLength = sourceFile.length();
 
-        long chunkTotal = fileLength / chunkSize;
-        if (fileLength % chunkSize != 0) {
+        long chunkTotal = fileLength / CHUNK_SIZE;
+        if (fileLength % CHUNK_SIZE != 0) {
             chunkTotal++;
         }
 
-        byte[] buf = new byte[chunkSize];
+        byte[] buf = new byte[CHUNK_SIZE];
         int chunkCount = 0;
         int currentChunkSize = -1;
         String identifier = UUID.randomUUID().toString().replace("-", "");
@@ -226,7 +200,6 @@ public class UploadFileUtil {
             LOGGER.error("slice upload file failed!");
             return false;
         }
-
         return true;
     }
 
@@ -237,7 +210,6 @@ public class UploadFileUtil {
      * @param fileName File name.
      * @param identifier File Identifier.
      * @param userId User ID.
-     * @return
      */
     public String sliceMergeFile(String identifier, String fileName, String userId) {
         LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);

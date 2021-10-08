@@ -24,6 +24,10 @@ public class IpCalculateUtil {
 
     private static final int INT_CAPACITY = 4;
 
+    private IpCalculateUtil() {
+
+    }
+
     /**
      * Calculate the mask based on the number of mask bits.
      * @param maskIndex mask bit.
@@ -35,7 +39,7 @@ public class IpCalculateUtil {
         try {
             inetMask = Integer.parseInt(maskIndex);
         } catch (NumberFormatException e) {
-            throw new HostException("get ip number error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
+            throw new HostException("get internet mask error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
         }
         if (inetMask > PARSE_IP_NUMBER) {
             return null;
@@ -73,7 +77,7 @@ public class IpCalculateUtil {
      * @return starting IP
      */
     public static String getStartIp(String segment, int range) {
-        StringBuffer startIp = new StringBuffer();
+        StringBuilder startIp = new StringBuilder();
         if (segment == null) {
             return null;
         }
@@ -101,68 +105,9 @@ public class IpCalculateUtil {
                     startIp.append(ipArray[i] + ".");
                 }
             } catch (NumberFormatException e) {
-                throw new HostException("get ip number error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
+                throw new HostException("get start ip error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
             }
         }
         return startIp.toString();
     }
-
-    /**
-     * It can be seen that the network segment calculation ends IP.
-     * @param segment segment.
-     * @return end IP
-     */
-    public static String getEndIp(String segment) {
-        StringBuffer endIp = new StringBuffer();
-        String startIp = getStartIp(segment,0);
-        if (segment == null) {
-            return null;
-        }
-        String[] arr = segment.split("/");
-        String maskIndex = arr[1];
-        //Number of IPs actually needed.
-        int hostNumber = 0;
-        int[] startIpArray = new int[INT_CAPACITY];
-        try {
-            hostNumber = 1 << PARSE_IP_NUMBER - (Integer.parseInt(maskIndex));
-            for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
-                startIpArray[i] = Integer.parseInt(startIp.split("\\.")[i]);
-                if (i == PARSE_HOST_IP_INDEX) {
-                    startIpArray[i] = startIpArray[i] - 1;
-                    break;
-                }
-            }
-            startIpArray[PARSE_HOST_IP_INDEX] = startIpArray[PARSE_HOST_IP_INDEX] + (hostNumber - 1);
-        } catch (NumberFormatException e) {
-            throw new HostException("get ip number error", ResponseConst.RET_GET_IP_NUMBER_ERROR);
-        }
-
-        if (startIpArray[PARSE_HOST_IP_INDEX] > PARSE_IP_NETWORK_SEGMENT) {
-            int k = startIpArray[PARSE_HOST_IP_INDEX] / PARSE_IP_SUBNETWORK_SEGMENT;
-            startIpArray[PARSE_HOST_IP_INDEX] = startIpArray[PARSE_HOST_IP_INDEX] % PARSE_IP_SUBNETWORK_SEGMENT;
-            startIpArray[PARSE_SUBNETWORK_INDEX] = startIpArray[2] + k;
-        }
-        if (startIpArray[PARSE_SUBNETWORK_INDEX] > PARSE_IP_NETWORK_SEGMENT) {
-            int j = startIpArray[PARSE_SUBNETWORK_INDEX] / PARSE_IP_SUBNETWORK_SEGMENT;
-            startIpArray[PARSE_SUBNETWORK_INDEX] = startIpArray[PARSE_SUBNETWORK_INDEX] % PARSE_IP_SUBNETWORK_SEGMENT;
-            startIpArray[1] = startIpArray[1] + j;
-            if (startIpArray[1] > PARSE_IP_NETWORK_SEGMENT) {
-                int k = startIpArray[1] / PARSE_IP_SUBNETWORK_SEGMENT;
-                startIpArray[1] = startIpArray[1] % PARSE_IP_SUBNETWORK_SEGMENT;
-                startIpArray[0] = startIpArray[0] + k;
-            }
-        }
-        for (int i = 0; i < PARSE_IP_BITS_FOUR; i++) {
-            if (i == PARSE_HOST_IP_INDEX) {
-                startIpArray[i] = startIpArray[i] - 1;
-            }
-            if ("".equals(endIp.toString()) || endIp.length() == 0) {
-                endIp.append(startIpArray[i]);
-            } else {
-                endIp.append("." + startIpArray[i]);
-            }
-        }
-        return endIp.toString();
-    }
-
 }

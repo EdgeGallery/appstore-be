@@ -118,6 +118,10 @@ public class ProjectService {
 
     private static final int IP_CALCULATE_BASE = 2;
 
+    private static final String SLEEP_FAILED = "sleep fail! {}";
+
+    private static final String SERVICES = "services";
+
     private static final CookieStore cookieStore = new BasicCookieStore();
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
@@ -204,7 +208,7 @@ public class ProjectService {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOGGER.error("sleep fail! {}", e.getMessage());
+            LOGGER.error(SLEEP_FAILED, e.getMessage());
         }
         LOGGER.info("upload res {}", uploadRes);
         appReleasePo.setMecHost(mepHost.getMecHost());
@@ -234,7 +238,7 @@ public class ProjectService {
             Thread.sleep(50000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOGGER.error("sleep fail! {}", e.getMessage());
+            LOGGER.error(SLEEP_FAILED, e.getMessage());
         }
 
         boolean instantRes = HttpClientUtil
@@ -258,23 +262,21 @@ public class ProjectService {
         List<Release> mecHostPackage = packageRepository.findReleaseByMecHost(mecHost);
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         int count = 0;
-        String n6Range = vmInputParams.get("app_n6_ip");
+        String n6Range = vmInputParams.get(VM_EXPERIENCE_IP);
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
         int ipCount = getIpCount(n6Range);
         for (Release mecRelease : mecHostPackage) {
             if (mecRelease.getExperienceableIp() == null) {
                 continue;
             }
-            if (!mecRelease.getExperienceableIp().equals(temN6Ip) && count < ipCount) {
-                continue;
-            } else {
+            if (mecRelease.getExperienceableIp().equals(temN6Ip) || count >= ipCount) {
                 count++;
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
         }
         String mepRange = vmInputParams.get("app_mp1_ip");
         String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put("app_n6_ip", temN6Ip);
+        vmInputParams.put(VM_EXPERIENCE_IP, temN6Ip);
         vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
         vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
         vmInputParams.put("app_n6_mask", IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
@@ -394,7 +396,7 @@ public class ProjectService {
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
         String uploadData = jsonObjects.get("data").getAsString();
         JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        return jsonCode.get("services").getAsJsonArray().get(0).getAsJsonObject().get("ports").getAsJsonArray().get(0)
+        return jsonCode.get(SERVICES).getAsJsonArray().get(0).getAsJsonObject().get("ports").getAsJsonArray().get(0)
             .getAsJsonObject().get("nodePort").getAsInt();
 
     }
@@ -451,7 +453,7 @@ public class ProjectService {
                 Thread.sleep(3000);
                 workStatus = getWorkStatus(appInstanceId, userId, mapHosts.get(0), token);
             } catch (InterruptedException e) {
-                LOGGER.error("sleep fail! {}", e.getMessage());
+                LOGGER.error(SLEEP_FAILED, e.getMessage());
                 Thread.currentThread().interrupt();
             }
             to = new Date().getTime();
@@ -460,7 +462,7 @@ public class ProjectService {
             }
         }
         List<Experience> experienceInfoList = new ArrayList<>();
-        if (status == STATUS_SUCCESS && appReleasePo.getDeployMode().equals(CONTAINER)) {
+        if (appReleasePo.getDeployMode().equals(CONTAINER)) {
             experienceInfoList = getExperienceInfo(workStatus, mapHosts.get(0));
 
         } else {
@@ -546,7 +548,7 @@ public class ProjectService {
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
         String uploadData = jsonObjects.get("data").getAsString();
         JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        JsonArray array = jsonCode.get("services").getAsJsonArray();
+        JsonArray array = jsonCode.get(SERVICES).getAsJsonArray();
         for (int i = 0; i < array.size(); i++) {
             String serviceName = array.get(i).getAsJsonObject().get("serviceName").getAsString();
             String nodePort = array.get(i).getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject()
@@ -565,7 +567,7 @@ public class ProjectService {
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
         String uploadData = jsonObjects.get("data").getAsString();
         JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        return jsonCode.get("services").getAsJsonArray().get(0).getAsJsonObject().get("serviceName").getAsString();
+        return jsonCode.get(SERVICES).getAsJsonArray().get(0).getAsJsonObject().get("serviceName").getAsString();
     }
 
     /**
@@ -604,14 +606,12 @@ public class ProjectService {
             }
         } catch (ParseException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
-            return;
         }
 
     }
 
     private String getAccessToken() {
         int count = 0;
-        String accessToken = "";
         CloseableHttpClient client = createIgnoreSslHttpClient();
         if (client == null) {
             LOGGER.error("call client interface occur error");
@@ -620,16 +620,9 @@ public class ProjectService {
         while (count < 10) {
             String authResult = getAuthResult(client);
             if (StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
-                String[] authResults = authResult.split(",");
-                for (String authRes : authResults) {
-                    if (authRes.contains("accessToken")) {
-                        String[] tokenArr = authRes.split(":");
-                        if (tokenArr != null && tokenArr.length > 1) {
-                            accessToken = tokenArr[1].substring(1, tokenArr[1].length() - 1);
-                            return accessToken;
-
-                        }
-                    }
+                String tokenArr = getTokenString(authResult);
+                if (tokenArr != null) {
+                    return tokenArr;
                 }
             } else {
                 count++;
@@ -637,11 +630,24 @@ public class ProjectService {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    LOGGER.error("sleep fail! {}", e.getMessage());
+                    LOGGER.error(SLEEP_FAILED, e.getMessage());
                 }
             }
         }
-        return accessToken;
+        return "";
+    }
+
+    private String getTokenString(String authResult) {
+        String[] authResults = authResult.split(",");
+        for (String authRes : authResults) {
+            if (authRes.contains("accessToken")) {
+                String[] tokenArr = authRes.split(":");
+                if (tokenArr != null && tokenArr.length > 1) {
+                    return tokenArr[1].substring(1, tokenArr[1].length() - 1);
+                }
+            }
+        }
+        return null;
     }
 
     private String getAuthResult(CloseableHttpClient client) {

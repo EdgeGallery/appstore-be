@@ -37,6 +37,10 @@ import org.springframework.stereotype.Repository;
 public class PushablePackageRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageRepository.class);
 
+    private static final String LATEST_PUSH_TIME = "latestPushTime";
+
+    private static final String CREATE_TIME = "createTime";
+
     @Autowired
     private PushablePackageMapper pushablePackageMapper;
 
@@ -55,9 +59,9 @@ public class PushablePackageRepository {
         params.put("offset", offset);
         params.put("appName", appName);
         if ("push".equals(shareType)) {
-            params.put("latestPushTime", "latestPushTime");
+            params.put(LATEST_PUSH_TIME, LATEST_PUSH_TIME);
         } else {
-            params.put("createTime", "createTime");
+            params.put(CREATE_TIME, CREATE_TIME);
         }
         params.put("sortItem", sortItem);
         params.put("sortType", sortType);
@@ -78,9 +82,9 @@ public class PushablePackageRepository {
         Map<String, Object> params = new HashMap<>();
         params.put("appName", appName);
         if ("push".equals(shareType)) {
-            params.put("latestPushTime", "latestPushTime");
+            params.put(LATEST_PUSH_TIME, LATEST_PUSH_TIME);
         } else {
-            params.put("createTime", "createTime");
+            params.put(CREATE_TIME, CREATE_TIME);
         }
         params.put("sortItem", sortItem);
         params.put("sortType", sortType);

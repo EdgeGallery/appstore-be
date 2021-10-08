@@ -113,6 +113,8 @@ public class AppUtil {
 
     private static final String DOWNLOAD_ZIP_IMAGE = "?isZip=true";
 
+    private static final String ADD_IMAGE_FILE_FAILED = "failed to add image zip to package.";
+
     @Value("${appstore-be.encrypted-key-path:}")
     private String keyPath;
 
@@ -266,6 +268,9 @@ public class AppUtil {
      * load file and analyse file list.
      */
     public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId) {
+        if (!StringUtils.isEmpty(appClass) && appClass.equals("container")) {
+            return;
+        }
         File file = new File(fileParent);
         File[] files = file.listFiles();
         if (files != null && files.length > 0) {
@@ -307,8 +312,7 @@ public class AppUtil {
                 organizedFile(fileParent);
             } catch (IOException e) {
                 LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
-                throw new AppException("failed to add image zip to package.",
-                    ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
+                throw new AppException(ADD_IMAGE_FILE_FAILED, ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
             }
         }
 
@@ -365,27 +369,21 @@ public class AppUtil {
         String outPath = imageFolder.getCanonicalPath();
         List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
-            try {
-                String imageName = imageDesc.getName();
-                //get image name
-                File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-                imagePath = fileImage.getCanonicalPath();
-                //upload image file
-                imageId = uploadFileUtil.uploadFile(userId, imagePath);
-                if (StringUtils.isEmpty(imageId)) {
-                    LOGGER.error("upload to remote file server failed.");
-                    throw new AppException("upload to remote file server failed.",
-                        ResponseConst.RET_UPLOAD_FILE_FAILED);
-                }
-                //update swImageJson file
-                String newPathName = fileSystemAddress + "/image-management/v1/images/" + imageId + "/action/download";
-                updateJsonFileServer(imageDesc, imgDecsLists, fileParent, newPathName);
-                updateRelationalFile(fileParent, imageName);
-            } catch (IOException e) {
-                LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
-                throw new AppException("failed to add image zip to package.",
-                    ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
+            String imageName = imageDesc.getName();
+            //get image name
+            File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
+            imagePath = fileImage.getCanonicalPath();
+            //upload image file
+            imageId = uploadFileUtil.uploadFile(userId, imagePath);
+            if (StringUtils.isEmpty(imageId)) {
+                LOGGER.error("upload to remote file server failed.");
+                throw new AppException("upload to remote file server failed.",
+                    ResponseConst.RET_UPLOAD_FILE_FAILED);
             }
+            //update swImageJson file
+            String newPathName = fileSystemAddress + "/image-management/v1/images/" + imageId + DOWNLOAD_IMAGE_TAG;
+            updateJsonFileServer(imageDesc, imgDecsLists, fileParent, newPathName);
+            updateRelationalFile(fileParent, imageName);
         }
     }
 
@@ -395,8 +393,8 @@ public class AppUtil {
      * @param fileParent fileParent folder.
      * @param imageName image Name.
      */
-    public void updateRelationalFile(String fileParent, String imageName) throws IOException {
-        String target = "Image" + File.separator + imageName + ZIP_EXTENSION;
+    public void updateRelationalFile(String fileParent, String imageName) {
+        String target = IMAGE + File.separator + imageName + ZIP_EXTENSION;
         File mfFile = getFile(fileParent, "mf");
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         fileHandlerMf.load(mfFile);
@@ -534,7 +532,7 @@ public class AppUtil {
             }
         }  catch (IOException e) {
             LOGGER.error("failed to add image zip to package {} ", e.getMessage());
-            throw new AppException("failed to add image zip to package.", ResponseConst.RET_IMAGE_TO_PACKAGE_FAILED);
+            throw new AppException(ADD_IMAGE_FILE_FAILED, ResponseConst.RET_IMAGE_TO_PACKAGE_FAILED);
         }
     }
 
