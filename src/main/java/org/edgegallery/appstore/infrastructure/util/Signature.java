@@ -160,7 +160,7 @@ public class Signature {
      * @throws CMSException CMSException
      */
     private Boolean validateSignature(ZipFile zipFile, ZipEntry entry) throws CMSException {
-        StringBuffer signData = new StringBuffer();
+        StringBuilder signData = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
             new InputStreamReader(zipFile.getInputStream(entry), StandardCharsets.UTF_8))) {
             String line = "";
@@ -195,15 +195,15 @@ public class Signature {
      */
     public boolean signedDataVerify(byte[] signedData) throws CMSException {
         CMSSignedData cmsData = new CMSSignedData(Base64.decode(signedData));
-        Store store = cmsData.getCertificates();
+        Store<X509CertificateHolder> store = cmsData.getCertificates();
         SignerInformationStore signerInfo = cmsData.getSignerInfos();
-        Collection signers = signerInfo.getSigners();
-        Iterator iterator = signers.iterator();
+        Collection<SignerInformation> signers = signerInfo.getSigners();
+        Iterator<SignerInformation> iterator = signers.iterator();
         while (iterator.hasNext()) {
-            SignerInformation signer = (SignerInformation) iterator.next();
-            Collection certs = store.getMatches(signer.getSID());
-            Iterator certIterator = certs.iterator();
-            X509CertificateHolder certHolder = (X509CertificateHolder) certIterator.next();
+            SignerInformation signer = iterator.next();
+            Collection<X509CertificateHolder> certs = store.getMatches(signer.getSID());
+            Iterator<X509CertificateHolder> certIterator = certs.iterator();
+            X509CertificateHolder certHolder = certIterator.next();
             X509Certificate cert = null;
             try {
                 cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);

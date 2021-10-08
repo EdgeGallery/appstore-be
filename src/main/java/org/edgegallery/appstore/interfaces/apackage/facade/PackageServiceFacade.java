@@ -17,15 +17,16 @@
 package org.edgegallery.appstore.interfaces.apackage.facade;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -66,7 +67,7 @@ public class PackageServiceFacade {
 
     private static final String ZIP_POINT = ".";
 
-    private static String TEMP_EXPIRE_PREFIX = "tempExpire";
+    private static final String TEMP_EXPIRE_PREFIX = "tempExpire";
 
     @Value("${appstore-be.package-path}")
     private String packageDir;
@@ -197,12 +198,8 @@ public class PackageServiceFacade {
         }
 
         // start a thread to upload package to meao
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString();
-            }
-        }).start();
+        new Thread(() -> uploadPackageService
+            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString()).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
@@ -304,7 +301,6 @@ public class PackageServiceFacade {
      * get expire time for pacakge.
      *
      * @param tempZip tempZip file.
-     * @return
      */
     public long getExpirTime(File tempZip) {
         long startTime = tempZip.lastModified();
@@ -317,36 +313,23 @@ public class PackageServiceFacade {
      *
      * @param folder resource folder.
      * @param keyword keyword.
-     * @return
      */
     public static List<File> searchTempFiles(File folder, String keyword) {
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         if (folder.isFile()) {
             result.add(folder);
         }
+        List<File> subFolders = Arrays.stream(Objects.requireNonNull(folder.listFiles()))
+            .filter(file -> file.isDirectory() || file.getName().startsWith(keyword))
+            .collect(Collectors.toList());
 
-        File[] subFolders = folder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                if (file.isDirectory()) {
-                    return true;
-                }
-                if (file.getName().startsWith(keyword)) {
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        if (subFolders != null) {
-            for (File file : subFolders) {
-                if (file.isFile()) {
-                    // add result list if  it is file
-                    result.add(file);
-                } else {
-                    // If it is a folder, call this method recursively, and then add all files to the result list
-                    result.addAll(searchTempFiles(file, keyword));
-                }
+        for (File file : subFolders) {
+            if (file.isFile()) {
+                // add result list if  it is file
+                result.add(file);
+            } else {
+                // If it is a folder, call this method recursively, and then add all files to the result list
+                result.addAll(searchTempFiles(file, keyword));
             }
         }
         return result;
