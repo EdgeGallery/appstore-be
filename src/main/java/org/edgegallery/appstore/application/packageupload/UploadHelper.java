@@ -38,9 +38,9 @@ public class UploadHelper {
     @Autowired
     ProgressFacade progressFacade;
 
-    private String FAILED = "failed";
+    public static final String FAILED = "failed";
 
-    private String SUCCESS = "success";
+    public static final String SUCCESS = "success";
 
     /**
      * upload Big Software.
