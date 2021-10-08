@@ -20,13 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -319,17 +317,16 @@ public class PackageServiceFacade {
         if (folder.isFile()) {
             result.add(folder);
         }
-        List<File> subFolders = Arrays.stream(Objects.requireNonNull(folder.listFiles()))
-            .filter(file -> file.isDirectory() || file.getName().startsWith(keyword))
-            .collect(Collectors.toList());
-
-        for (File file : subFolders) {
-            if (file.isFile()) {
-                // add result list if  it is file
-                result.add(file);
-            } else {
-                // If it is a folder, call this method recursively, and then add all files to the result list
-                result.addAll(searchTempFiles(file, keyword));
+        File[] subFolders = folder.listFiles(file -> file.isDirectory() || file.getName().startsWith(keyword));
+        if (subFolders != null) {
+            for (File file : subFolders) {
+                if (file.isFile()) {
+                    // add result list if  it is file
+                    result.add(file);
+                } else {
+                    // If it is a folder, call this method recursively, and then add all files to the result list
+                    result.addAll(searchTempFiles(file, keyword));
+                }
             }
         }
         return result;

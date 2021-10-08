@@ -204,7 +204,7 @@ public class Signature {
             Collection<X509CertificateHolder> certs = store.getMatches(signer.getSID());
             Iterator<X509CertificateHolder> certIterator = certs.iterator();
             X509CertificateHolder certHolder = certIterator.next();
-            X509Certificate cert = null;
+            X509Certificate cert;
             try {
                 cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
                 if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(cert))) {
