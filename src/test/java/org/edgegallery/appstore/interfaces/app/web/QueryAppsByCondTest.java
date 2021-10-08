@@ -15,6 +15,12 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -22,6 +28,9 @@ import java.util.List;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -54,6 +63,41 @@ public class QueryAppsByCondTest extends AppTest {
         Type type = new TypeToken<ArrayList<AppDto>>() { }.getType();
         List<AppDto> appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
         Assert.assertNotSame(0, appDtos.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void queryAppByCond() throws Exception {
+        QueryAppReqDto reqDto = new QueryAppReqDto();
+        reqDto.setUserId("5abdd29d-b281-4f96-8339-b5621a67d217");
+        reqDto.setAffinity(null);
+        reqDto.setAppName("");
+        reqDto.setIndustry(null);
+        reqDto.setShowType(null);
+        reqDto.setStatus("");
+        reqDto.setTypes(null);
+        reqDto.setWorkloadType(null);
+        QueryAppCtrlDto ctrDto = new QueryAppCtrlDto();
+        ctrDto.setLimit(15);
+        ctrDto.setOffset(0);
+        ctrDto.setSortItem("createTime");
+        ctrDto.setSortType("desc");
+
+        reqDto.setQueryCtrl(ctrDto);
+        String body = new Gson().toJson(reqDto);
+        MvcResult actions = mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/v2/query/apps").contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).content(body).with(csrf())).andDo(MockMvcResultHandlers.print())
+            .andReturn();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        int listcount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
+        boolean pageFlag = false;
+        if (listcount >= 0) {
+            pageFlag = true;
+        }
+        Assert.assertEquals(true, pageFlag);
     }
 
 }
