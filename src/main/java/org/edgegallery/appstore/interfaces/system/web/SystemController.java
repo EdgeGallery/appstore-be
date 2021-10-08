@@ -73,8 +73,8 @@ public class SystemController {
     @RequestMapping(value = "/hosts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHost>> getAllHosts(
-        @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
-        @ApiParam(value = "ip", required = false) @RequestParam(value = "ip", required = false) String ip) {
+        @ApiParam(value = "name") @RequestParam(value = "name", required = false) String name,
+        @ApiParam(value = "ip") @RequestParam(value = "ip", required = false) String ip) {
         return ResponseEntity.ok(systemService.getAllHosts(name, ip));
     }
 
