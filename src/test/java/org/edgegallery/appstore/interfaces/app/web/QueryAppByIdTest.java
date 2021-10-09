@@ -15,10 +15,12 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,6 +29,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 public class QueryAppByIdTest extends AppTest {
+
+    @Autowired
+    private IpCalculateUtil ipCalculateUtil;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -46,6 +51,14 @@ public class QueryAppByIdTest extends AppTest {
             MockMvcRequestBuilders.get("/mec/appstore/v1/apps/" + appId).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void should_success_ip() {
+        String segment = "192.168.225.0/24";
+        int range = 1;
+        String res  = ipCalculateUtil.getStartIp(segment, range);
+        Assert.assertEquals("192.168.225.4", res);
     }
 
 }
