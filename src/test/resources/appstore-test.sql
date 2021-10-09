@@ -4,6 +4,7 @@ drop table IF EXISTS CSAR_PACKAGE_SCORE;
 drop table IF EXISTS app_store_table;
 drop table IF EXISTS PUSHABLE_PACKAGE_TABLE;
 drop table IF EXISTS message_table;
+DROP TABLE IF  EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE;
 
     create TABLE if not exists catalog_package_table (
         PACKAGEID                VARCHAR(200)       NOT NULL,
@@ -142,9 +143,7 @@ drop table IF EXISTS message_table;
       parameter text DEFAULT NULL,
       delete boolean DEFAULT NULL,
       ip_count INTEGER DEFAULT 0
-    )
-
-    ;
+    );
 
    create TABLE IF NOT EXISTS tbl_uploaded_file (
       file_id varchar(50)  NOT NULL DEFAULT NULL,
@@ -156,6 +155,16 @@ drop table IF EXISTS message_table;
       CONSTRAINT tbl_uploaded_file_pkey PRIMARY KEY (file_id)
 )
 ;
+
+CREATE TABLE IF NOT EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE (
+  ID VARCHAR(100) NOT NULL,
+  PACKAGE_ID VARCHAR(100) DEFAULT NULL,
+  MEAO_ID VARCHAR(100) DEFAULT NULL,
+  STATUS VARCHAR(100) DEFAULT NULL,
+  PROGRESS VARCHAR(100) DEFAULT NULL,
+  CREATE_TIME TIMESTAMP DEFAULT NULL,
+  CONSTRAINT PACKAGE_UPLOAD_PROGRESS_TABLE_PKEY PRIMARY KEY (ID)
+  );
 
 insert into app_table(
     appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS, ISHOTAPP)
@@ -204,3 +213,4 @@ merge into tbl_service_host (host_id, name, address, architecture, status, lcm_i
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
 
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245fff', 'package-1', 'meao-1', 'NORMAL','start','2020-01-01 00:00:00.000000');
