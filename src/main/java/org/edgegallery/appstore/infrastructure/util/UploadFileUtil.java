@@ -56,22 +56,6 @@ public class UploadFileUtil {
     private String fileSystemAddress;
 
     /**
-     * Convert the byte array to hexadecimal and return it as a string.
-     * 128 bits refer to binary bits. Binary is too long, so it is generally rewritten into hexadecimal.
-     * Each hexadecimal number can replace a 4-bit binary number, so if a 128-bit binary number is.
-     * written as a hexadecimal number, it becomes 128/4=32 bits.
-     *
-     * @param b bytes.
-     */
-    private static String byteArrayToHex(byte[] b) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < b.length; i++) {
-            sb.append(byteToHex(b[i]));
-        }
-        return sb.toString();
-    }
-
-    /**
      *Convert a byte to hexadecimal and return it as a string.
      * @param b bytes.
      */
