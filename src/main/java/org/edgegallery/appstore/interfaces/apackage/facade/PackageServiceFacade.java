@@ -73,7 +73,7 @@ public class PackageServiceFacade {
     /**
      * scheduled clean up tempPackage more than 24 hours.
      */
-    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
+    private static final long CLEAN_ENV_WAIT_TIME = 1000L * 60 * 60 * 24;
 
     @Autowired
     private AppService appService;
@@ -181,7 +181,7 @@ public class PackageServiceFacade {
      * @param packageId package id.
      */
     public ResponseEntity<InputStreamResource> downloadIcon(String appId, String packageId) throws IOException {
-        Release release = appService.download(appId, packageId);
+        Release release = appService.getRelease(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getIcon());
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
