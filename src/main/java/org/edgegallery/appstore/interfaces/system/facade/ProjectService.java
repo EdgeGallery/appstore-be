@@ -64,7 +64,6 @@ import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.domain.shared.exceptions.HostException;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
