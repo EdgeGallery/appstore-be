@@ -169,7 +169,6 @@ public class UploadFileUtil {
 
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
         } catch (CustomException e) {
             String errorLog = e.getBody();
@@ -213,7 +212,6 @@ public class UploadFileUtil {
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("slice merge file success, resp = {}", response);
         } catch (CustomException e) {

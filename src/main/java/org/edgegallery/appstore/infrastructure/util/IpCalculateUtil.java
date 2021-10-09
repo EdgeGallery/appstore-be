@@ -2,8 +2,9 @@ package org.edgegallery.appstore.infrastructure.util;
 
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.HostException;
+import org.springframework.stereotype.Service;
 
-
+@Service("ipCalculateUtil")
 public class IpCalculateUtil {
 
     private static final int PARSE_HOST_IP_INDEX = 3;
@@ -106,4 +107,5 @@ public class IpCalculateUtil {
         }
         return startIp.toString();
     }
+
 }

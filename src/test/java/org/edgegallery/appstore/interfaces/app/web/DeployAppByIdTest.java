@@ -17,6 +17,7 @@ package org.edgegallery.appstore.interfaces.app.web;
 
 import com.spencerwi.either.Either;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
@@ -40,6 +41,9 @@ public class DeployAppByIdTest extends AppTest {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private IpCalculateUtil ipCalculateUtil;
+
     @Before
     public void init() {
         System.out.println("start to test");
@@ -59,6 +63,15 @@ public class DeployAppByIdTest extends AppTest {
         expectedEx.expect(NullPointerException.class);
         ResponseEntity<ResponseObject> res  = projectService.deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1", "", "access_token");
         Assert.assertEquals(null, res.getBody().getMessage());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_get_ip() {
+        String segment = "192.168.225.0/24";
+        int range = 1;
+        String res  = ipCalculateUtil.getStartIp(segment, range);
+        Assert.assertEquals("192.168.225.4", res);
     }
 
 }

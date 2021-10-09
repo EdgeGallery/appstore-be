@@ -42,9 +42,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.HostException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
-import org.edgegallery.appstore.infrastructure.util.AppStoreFileUtils;
 import org.edgegallery.appstore.infrastructure.util.BusinessConfigUtil;
-import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -271,7 +269,6 @@ public class SystemService {
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("add mec host to lcm log:{}", response);
         } catch (CustomException e) {
@@ -332,31 +329,5 @@ public class SystemService {
         return Either.right(result);
     }
 
-    /**
-     * delete template files. If uploaded files have not been used over 30min, should be deleted.
-     */
-    public void deleteTempFile() {
-        LOGGER.info("Begin delete temp file.");
-        Date now = new Date();
-        List<String> tempIds = uploadedFileMapper.getAllTempFiles();
-        if (tempIds == null) {
-            return;
-        }
-        for (String tempId : tempIds) {
-            UploadedFile tempFile = uploadedFileMapper.getFileById(tempId);
-            Date uploadDate = tempFile.getUploadDate();
-            if ((int) ((now.getTime() - uploadDate.getTime()) / Consts.MINUTE) < Consts.TEMP_FILE_TIMEOUT) {
-                continue;
-            }
-
-            String realPath = InitConfigUtil.getWorkSpaceBaseDir() + tempFile.getFilePath();
-            File temp = new File(realPath);
-            if (temp.exists()) {
-                AppStoreFileUtils.deleteTempFile(temp);
-                uploadedFileMapper.deleteFile(tempId);
-                LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
-            }
-        }
-    }
 
 }
