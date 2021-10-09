@@ -19,13 +19,19 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import com.github.dockerjava.api.exception.DockerClientException;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.app.Chunk;
+import org.edgegallery.appstore.domain.model.app.SwImgDesc;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
@@ -48,7 +54,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class AppRegisterTest extends AppTest {
 
     @Autowired
-    private AppServiceFacade appServiceFacade ;
+    private AppServiceFacade appServiceFacade;
+
+    @Autowired
+    private AppService appService;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -369,6 +378,77 @@ public class AppRegisterTest extends AppTest {
         ResponseEntity<String> res  = appServiceFacade.merge("fileName","test_guid_01");
         HttpStatus ss = res.getStatusCode();
         Assert.assertEquals("200 OK", res.getStatusCode().toString());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_merge_should_falied_no_guid() {
+        try {
+            appServiceFacade.merge("", "").getBody();
+        } catch (FileOperateException e) {
+            Assert.assertThrows("can not merge parts to file", NullPointerException.class, null);
+        }
+
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_updateImgInRepo_should_failed_error_info() {
+        List<SwImgDesc> imageInfoList = new ArrayList<>();
+        SwImgDesc swImgDesc = new SwImgDesc();
+        swImgDesc.setId("2b490b5d8a45460ebe1a19892578eab8");
+        swImgDesc.setName("ubuntu_test");
+        swImgDesc.setVersion("18.04");
+        swImgDesc.setChecksum("36fcf66940532088b6081512557528b3");
+        swImgDesc.setContainerFormat("bare");
+        swImgDesc.setDiskFormat("qcow2");
+        swImgDesc.setMinDisk(6);
+        swImgDesc.setMinRam(3);
+        swImgDesc.setArchitecture("x86_64");
+        swImgDesc.setSize(688390);
+        swImgDesc.setSwImage(
+            "http://192.168.100.106:80/image-management/v1/images/2b490b5d8a45460ebe1a19892578eab8/action/download");
+        swImgDesc.setHwDiskBus("scsi");
+        swImgDesc.setHwScsiModel("virtio-scsi");
+        swImgDesc.setOperatingSystem("ubuntu");
+        swImgDesc.setSupportedVirtualisationEnvironment("linux");
+        imageInfoList.add(swImgDesc);
+        try {
+            appService.updateImgInRepo(imageInfoList);
+        } catch (DockerClientException e) {
+            Assert.assertThrows("can not merge parts to file", NullPointerException.class, null);
+        }
+
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_uploadAppImage_should_failed_error_info() {
+        List<SwImgDesc> imageInfoList = new ArrayList<>();
+        SwImgDesc swImgDesc = new SwImgDesc();
+        swImgDesc.setId("2b490b5d8a45460ebe1a19892578eab8");
+        swImgDesc.setName("ubuntu_test");
+        swImgDesc.setVersion("18.04");
+        swImgDesc.setChecksum("36fcf66940532088b6081512557528b3");
+        swImgDesc.setContainerFormat("bare");
+        swImgDesc.setDiskFormat("qcow2");
+        swImgDesc.setMinDisk(6);
+        swImgDesc.setMinRam(3);
+        swImgDesc.setArchitecture("x86_64");
+        swImgDesc.setSize(688390);
+        swImgDesc.setSwImage(
+            "http://192.168.100.106:80/image-management/v1/images/2b490b5d8a45460ebe1a19892578eab8/action/download");
+        swImgDesc.setHwDiskBus("scsi");
+        swImgDesc.setHwScsiModel("virtio-scsi");
+        swImgDesc.setOperatingSystem("ubuntu");
+        swImgDesc.setSupportedVirtualisationEnvironment("linux");
+        imageInfoList.add(swImgDesc);
+        try {
+            appService.uploadAppImage(imageInfoList);
+        } catch (DockerClientException e) {
+            Assert.assertThrows("can not merge parts to file", NullPointerException.class, null);
+        }
+
     }
 
 }
