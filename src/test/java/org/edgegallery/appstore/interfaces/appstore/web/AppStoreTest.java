@@ -111,4 +111,14 @@ public class AppStoreTest {
             .file(new MockMultipartFile("description", "", MediaType.TEXT_PLAIN_VALUE, "test".getBytes())).with(csrf())).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_appstore_should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v2/appstores").param("appStoreName", "test name").param("limit", "12").param("offset", "0")
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
 }
