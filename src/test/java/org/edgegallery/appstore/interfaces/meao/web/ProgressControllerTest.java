@@ -65,7 +65,7 @@ public class ProgressControllerTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void should_success_get_progress() throws Exception {
-        String progressId = "c8aac2b2-4162-40fe-9d99-0630e3245fff";
+        String progressId = "c8aac2b2-4162-40fe-9d99-0630e3245bbb";
         MvcResult actions = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/upload_progress/%s", progressId)).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
@@ -79,8 +79,8 @@ public class ProgressControllerTest extends AppTest {
         PackageUploadProgress progress = new PackageUploadProgress();
         progress.setPackageId("packageId");
         progress.setStatus("start");
-        progress.setId("c8aac2b2-4162-40fe-9d99-0630e3245fff");
-        progress.setMeaoId("meaoId-2");
+        progress.setId("c8aac2b2-4162-40fe-9d99-0630e3245aaa");
+        progress.setMeaoId("meaoId-6");
         String body = new Gson().toJson(progress);
         MvcResult actions = mvc.perform(
             MockMvcRequestBuilders.put("/mec/appstore/v1/upload_progress").contentType(MediaType.APPLICATION_JSON)

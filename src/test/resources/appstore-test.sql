@@ -214,3 +214,5 @@ merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
 
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245fff', 'package-1', 'meao-1', 'NORMAL','start','2020-01-01 00:00:00.000000');
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245aaa', 'package-2', 'meao-2', 'NORMAL','start','2020-01-02 00:00:00.000000');
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245bbb', 'package-3', 'meao-3', 'NORMAL','start','2020-01-03 00:00:00.000000');
