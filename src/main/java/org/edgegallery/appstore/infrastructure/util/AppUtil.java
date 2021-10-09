@@ -267,7 +267,8 @@ public class AppUtil {
     /**
      * load file and analyse file list.
      */
-    public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId) {
+    public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId,
+        String fileNameExtension) {
         if (!StringUtils.isEmpty(appClass) && appClass.equals("container")) {
             return;
         }
@@ -281,14 +282,14 @@ public class AppUtil {
                         throw new AppException("there is no file in path /Image", ResponseConst.RET_FILE_NOT_FOUND,
                             "/Image");
                     }
-                    checkImageExist(atpMetadata, fileParent, filezipArrays, userId, fl);
+                    checkImageExist(atpMetadata, fileParent, filezipArrays, userId, fl, fileNameExtension);
                 }
             }
         }
     }
 
     private void checkImageExist(AtpMetadata atpMetadata, String fileParent, File[] filezipArrays, String userId,
-        File imageFolder) {
+        File imageFolder, String fileNameExtension) {
         boolean presentZip = Arrays.asList(filezipArrays).stream()
             .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
         if (!presentZip) {
@@ -309,7 +310,7 @@ public class AppUtil {
         } else {
             try {
                 uploadFileToFileServer(userId, fileParent, imageFolder);
-                organizedFile(fileParent);
+                organizedFile(fileParent, fileNameExtension);
             } catch (IOException e) {
                 LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
                 throw new AppException(ADD_IMAGE_FILE_FAILED, ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
@@ -323,14 +324,14 @@ public class AppUtil {
      *
      * @param fileParent fileParent.
      */
-    public void deleteTempFolder(String fileParent) {
+    public void deleteTempFolder(String fileParent, String fileNameExtension) {
         File file = new File(fileParent);
         String parent = file.getParent();
         File parentDir = new File(parent);
         File[] files = parentDir.listFiles();
         if (files != null && files.length > 0) {
             for (File tempFile : files) {
-                if (tempFile.getName().endsWith(CSAR_EXTENSION) || tempFile.getName().endsWith(PNG_EXTENSION)
+                if (tempFile.getName().endsWith(fileNameExtension) || tempFile.getName().endsWith(PNG_EXTENSION)
                     || tempFile.getName().endsWith(VIDIO_EXTENSION)) {
                     continue;
                 }
@@ -345,14 +346,14 @@ public class AppUtil {
      *
      * @param fileParent fileParent.
      */
-    public void organizedFile(String fileParent) {
-        String zipFileName = fileParent.concat(CSAR_EXTENSION);
+    public void organizedFile(String fileParent, String fileNameExtension) {
+        String zipFileName = fileParent.concat(fileNameExtension);
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             createCompressedFile(out, new File(fileParent), "");
         } catch (IOException e) {
             throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
         }
-        deleteTempFolder(fileParent);
+        deleteTempFolder(fileParent, fileNameExtension);
 
     }
 
