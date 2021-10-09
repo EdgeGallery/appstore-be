@@ -6,8 +6,6 @@ import org.edgegallery.appstore.domain.shared.exceptions.HostException;
 
 public class IpCalculateUtil {
 
-    private static final int PARSE_SUBNETWORK_INDEX = 2;
-
     private static final int PARSE_HOST_IP_INDEX = 3;
 
     private static final int PARSE_IP_BITS_FOUR = 4;
@@ -19,8 +17,6 @@ public class IpCalculateUtil {
     private static final int PARSE_IP_NUMBER = 32;
 
     private static final int PARSE_IP_NETWORK_SEGMENT = 255;
-
-    private static final int PARSE_IP_SUBNETWORK_SEGMENT = 256;
 
     private static final int INT_CAPACITY = 4;
 
