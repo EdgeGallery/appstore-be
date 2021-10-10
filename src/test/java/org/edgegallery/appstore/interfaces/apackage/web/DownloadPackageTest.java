@@ -74,4 +74,23 @@ public class DownloadPackageTest extends AppTest {
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_download_icon() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/icon", appId, packageId))
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_sync_package() throws Exception {
+        String meaoId = "c5758730b9044a588852221245699766";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/meao/%s/action/sync", appId, packageId, meaoId))
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
 }
