@@ -216,6 +216,8 @@ merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('9f1f13a0-8554-4dfa-90a7-d2765238fca7', 'Traffic service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/9f1f13a0-8554-4dfa-90a7-d2765238fca7');
 
 
+merge into tbl_service_host (host_id, name, address, architecture, status, lcm_ip, mec_host, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id)
+VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da777', 'Node2', 'XIAN', 'X86', 'NORMAL', 'localhost', 'localhost', 'K8S', 30000, 32767, 30201, 'http', null);
 merge into tbl_service_host (host_id, name, address, architecture, status, lcm_ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '127.0.0.1', 'Ubuntu', 30000, 32767, 30201, 'http', null);
 
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
