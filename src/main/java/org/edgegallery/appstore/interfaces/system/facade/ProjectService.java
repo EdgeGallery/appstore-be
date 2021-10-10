@@ -676,11 +676,6 @@ public class ProjectService {
                 LOGGER.info("response token length: {}", buf.length());
                 return buf.toString();
             }
-            // if (inputStream.read(bytes) > 0) {
-            //     String authResult = new String(bytes, StandardCharsets.UTF_8);
-            //     LOGGER.info("response token length: {}", authResult.length());
-            //     return authResult;
-            // }
         } catch (IOException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
         }
