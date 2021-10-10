@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -131,6 +132,12 @@ public class ProjectService {
     @Value("${client.client-secret:}")
     private String clientPW;
 
+    @Setter
+    private int instantiateAppSleepTime = 50000;
+
+    @Setter
+    private int uploadPkgSleepTime = 5000;
+
     @Autowired
     private PackageMapper packageMapper;
 
@@ -200,7 +207,7 @@ public class ProjectService {
             return false;
         }
         try {
-            Thread.sleep(5000);
+            Thread.sleep(uploadPkgSleepTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error(SLEEP_FAILED, e.getMessage());
@@ -230,7 +237,7 @@ public class ProjectService {
         LOGGER.info("distribute res {}", distributeRes);
         // instantiate application
         try {
-            Thread.sleep(50000);
+            Thread.sleep(instantiateAppSleepTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error(SLEEP_FAILED, e.getMessage());
@@ -318,7 +325,7 @@ public class ProjectService {
     public List<MepHost> judgeHost(String name, String ip, String deployMode) {
         String os = "";
         List<MepHost> mapHosts = null;
-        if (deployMode.equals(CONTAINER)) {
+        if (CONTAINER.equalsIgnoreCase(deployMode)) {
             os = K8S;
         } else {
             os = OPENSTACK;
@@ -538,7 +545,7 @@ public class ProjectService {
      * @param workStatus workStatus.
      * @param mepHost mepHost.
      */
-    public List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
+    private List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
         List<Experience> experienceInfoList = new ArrayList<>();
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
         String uploadData = jsonObjects.get("data").getAsString();
@@ -551,18 +558,6 @@ public class ProjectService {
             experienceInfoList.add(new Experience(serviceName, nodePort, mepHost.getMecHost()));
         }
         return experienceInfoList;
-    }
-
-    /**
-     * get serviceName.
-     *
-     * @param workStatus workStatus.
-     */
-    public String getServiceName(String workStatus) {
-        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
-        String uploadData = jsonObjects.get("data").getAsString();
-        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        return jsonCode.get(SERVICES).getAsJsonArray().get(0).getAsJsonObject().get("serviceName").getAsString();
     }
 
     /**
