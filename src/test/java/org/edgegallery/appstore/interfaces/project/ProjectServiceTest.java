@@ -9,9 +9,21 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.net.ssl.SSLContext;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
@@ -28,9 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 
-// @RunWith(SpringRunner.class)
-// @SpringBootTest(classes = AppstoreApplicationTest.class)
-// @AutoConfigureMockMvc
 public class ProjectServiceTest extends AppTest {
 
     @Autowired
@@ -179,10 +188,49 @@ public class ProjectServiceTest extends AppTest {
         Assert.assertEquals(200, response.getStatusCode().value());
         Assert.assertEquals("get app url success.", Objects.requireNonNull(response.getBody()).getMessage());
     }
-    //
-    // @Test
-    // @WithMockUser(roles = "APPSTORE_TENANT")
-    // public void should_success_when_clean_env() {
-    // }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_when_get_node_status_not_instantiate() {
+        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "Node2", "localhost", "123456789");
+        Assert.assertEquals(200, ret.getStatusCode().value());
+        System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
+        Assert.assertEquals("this pacakge not instantiate", Objects.requireNonNull(ret.getBody()).getMessage());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_when_get_node_status() {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Published.toString());
+            r.setAppId("appid-test-0001");
+            r.setAppInstanceId("3f50936d-f10f-41ff-9c05-bdf5da951b53");
+            try {
+                File csarFIle = Resources.getResourceAsFile("testfile/new_csar.csar");
+                r.setPackageAddress(csarFIle.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            packageMapper.updateRelease(r);
+            packageMapper.updateAppInstanceApp(r);
+        });
+        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "Node2", "localhost", "123456789");
+        Assert.assertEquals(200, ret.getStatusCode().value());
+        System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
+        Assert.assertEquals("get app url success.", Objects.requireNonNull(ret.getBody()).getMessage());
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+                (TrustStrategy) (chain, authType) -> true).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(new BasicCookieStore()).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+        }
+        return null;
+    }
 }

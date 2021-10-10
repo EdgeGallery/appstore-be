@@ -40,6 +40,7 @@ security:
     resource:
       jwt:
         key-value: test
+        key-uri: http://localhost:38067/oauth/token_key
 
 appstore-be:
   temp-path: usr/apptest/temp
