@@ -15,13 +15,16 @@
 
 package org.edgegallery.appstore.interfaces.apackage.web;
 
-import org.edgegallery.appstore.domain.shared.Page;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
+import java.util.Optional;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
-import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,7 +72,7 @@ public class GetPackageByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_success_get_packages_v2() throws Exception {
+    public void should_success_packageId_v2() throws Exception {
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v2/apps/%s/packages/%s", appId, packageId))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
@@ -79,14 +82,40 @@ public class GetPackageByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void queryPackageByCond() {
-        QueryAppCtrlDto ctrDto = new QueryAppCtrlDto();
-        ctrDto.setLimit(15);
-        ctrDto.setOffset(0);
-        ctrDto.setSortItem("createTime");
-        ctrDto.setSortType("desc");
-        Page<PackageDto> page = packageServiceFacade.getPackageByUserIdV2(userId, "", null, ctrDto, "");
-        Assert.assertNotSame(0, page.getResults().size());
+    public void should_success_packages() throws Exception {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Test_failed.toString());
+            packageMapper.updateRelease(r);
+        });
+        Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.nullable(String.class))).thenReturn("created");
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v1/packages")
+            .param("userId", userId).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_packages_v2() throws Exception {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Test_failed.toString());
+            packageMapper.updateRelease(r);
+        });
+        Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.nullable(String.class))).thenReturn("created");
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v2/packages")
+            .param("userId", userId)
+            .param("limit", String.valueOf(10))
+            .param("offset", String.valueOf(0))
+            .param("sortType", "desc")
+            .param("sortItem", "createTime")
+            .param("appName", "")
+            .param("status", "")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
 }
