@@ -199,6 +199,14 @@ insert into app_store_table(
     appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
     values ('02ef9eeb-d50e-4835-8d05-e5fdb87b7596', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
 
+merge into message_table (MESSAGEID,RESULT,READED,NAME,PROVIDER,VERSION,MESSAGETYPE,SOURCEAPPSTORE,TARGETAPPSTORE,TIME
+,DESCRIPTION,ATPTESTSTATUS,ATPTESTTASKID,ATPTESTREPORTURL,PACKAGEDOWNLOADURL,ICONDOWNLOADURL,AFFINITY,SHORTDESC,TYPE,DEMOVIDEODOWNLOADURL
+)values ('j2417aef-c916-4c92-a518-d29c4804acdf','acept',true,'appname','laintong','1.1','NOTICE','EdgeGallery AppStore'
+,'EdgeGallery AppStore','2021-08-31 16:54:49','tweest','success','apt-taskid-0001',
+'http://127.0.0.1:8073/atpreport?taskId=apt-taskid-0001'
+,'http://127.0.0.1:8099/mec/appstore/v1/packages/packageid-0002/action/download-package'
+,'http://127.0.0.1:8099/mec/appstore/v1/packages/b415e520e00a48ed9721fefa99187f02/action/download-icon','test','test','game','');
+
 
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'Face Recognition service plus.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('d0f8fa57-2f4c-4182-be33-0a508964d04a', 'Face Recognition service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/d0f8fa57-2f4c-4182-be33-0a508964d04a');

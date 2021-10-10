@@ -220,7 +220,17 @@ public class SystemService {
         }
     }
 
-    private boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost,
+    /**
+     * uploadFileToLcm.
+     * @param protocol protocol.
+     * @param lcmIp lcmIp.
+     * @param port port.
+     * @param filePath filePath.
+     * @param mecHost mecHost.
+     * @param token token.
+     * @return
+     */
+    public boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost,
         String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();
