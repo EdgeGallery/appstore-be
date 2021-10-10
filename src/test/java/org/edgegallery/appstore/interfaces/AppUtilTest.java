@@ -16,9 +16,11 @@
 
 package org.edgegallery.appstore.interfaces;
 
+import java.io.File;
+import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +36,10 @@ public class AppUtilTest {
     @Autowired
     public AppUtil appUtil;
 
-    @Test
+    @Test(expected = AppException.class)
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void should_success_download_image() {
-        String imgZipPath = "src/test/resources/appd/";
-        String parentDir = "src/test/resources/appd/";
-        try {
-            appUtil.addImageFileInfo(parentDir, imgZipPath);
-        } catch (AppException e) {
-            Assert.assertThrows("failed to add image info to package.", NullPointerException.class, null);
-        }
+    public void should_exception_rewrite_mf() throws Exception {
+        File mfFile = Resources.getResourceAsFile("testfile/csar/test_csar.mf");
+        new BasicInfo().rewriteManifestWithImage(mfFile, "", "src/test/resources/keys/public.p12", "Test12345_");
     }
 }
