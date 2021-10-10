@@ -128,7 +128,13 @@ public class PushablePackageService {
         return results;
     }
 
-    private MessageReqDto generatorMessageRequest(String appStoreName, PushablePackageDto packageDto) {
+    /**
+     * generator Message Request.
+     * @param appStoreName appStoreName.
+     * @param packageDto packageDto.
+     * @return
+     */
+    public MessageReqDto generatorMessageRequest(String appStoreName, PushablePackageDto packageDto) {
         MessageReqDto requestDto = new MessageReqDto(packageDto);
         requestDto.setSourceAppStore(context.platformName);
         requestDto.setTargetAppStore(appStoreName);

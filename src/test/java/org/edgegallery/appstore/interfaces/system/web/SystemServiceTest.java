@@ -142,7 +142,7 @@ public class SystemServiceTest {
         expectedEx.expectMessage( "add mec host to lcm fail.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
-        // Assert.assertTrue(res.isLeft());
+        Assert.assertTrue(res.isLeft());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class SystemServiceTest {
     public void testDeleteHostWithErrorId() {
         expectedEx.expectMessage( "Delete host failed.");
         Either<ResponseObject, Boolean> res = systemService.deleteHost("hostId");
-        // Assert.assertTrue(res.isLeft());
+        Assert.assertTrue(res.isLeft());
     }
 
     @Test
@@ -211,6 +211,18 @@ public class SystemServiceTest {
         Assert.assertTrue(res.isRight());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void testUploadFileToLcm_Failed_error_lcmIp() {
+        String protocol = "https";
+        String lcmIp = "127.0.0.1";
+        int port = 30052;
+        String filePath = "";
+        String mecHost = "127.0.0.1";
+        String token = "";
+        Boolean res = systemService.uploadFileToLcm(protocol, lcmIp, port, filePath, mecHost, token);
+        Assert.assertFalse(res);
+    }
 
 
 

@@ -20,8 +20,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.dockerjava.api.exception.DockerClientException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +32,13 @@ import java.util.Map;
 import org.edgegallery.appstore.application.inner.MessageService;
 import org.edgegallery.appstore.domain.model.message.BasicMessageInfo;
 import org.edgegallery.appstore.domain.model.message.EnumMessageType;
+import org.edgegallery.appstore.domain.model.user.User;
+import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.persistence.message.MessageDateEnum;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
+import org.edgegallery.appstore.interfaces.message.facade.MessageServiceFacade;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.edgegallery.appstore.interfaces.message.facade.dto.QueryMessageReqDto;
@@ -43,6 +50,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,6 +70,9 @@ public class MessageTest {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private MessageServiceFacade messageServiceFacade;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -102,7 +113,7 @@ public class MessageTest {
         Type type = new TypeToken<ArrayList<MessageRespDto>>() { }.getType();
         Gson gson = new Gson();
         List<MessageRespDto> appDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
-        Assert.assertEquals(0, appDtos.size());
+        Assert.assertNotEquals(0, appDtos.size());
     }
 
     @Test
@@ -178,7 +189,7 @@ public class MessageTest {
         int listcount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
         int count = (int) should_success_query_count();
         boolean pageFlag = false;
-        if (listcount >= (count - 2)) {
+        if (listcount <= (count - 2)) {
             pageFlag = true;
         }
         Assert.assertEquals(true, pageFlag);
@@ -207,6 +218,48 @@ public class MessageTest {
             }
         }
         Assert.assertEquals(false, dateFlag);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void add_success_should_success() throws Exception {
+
+        ResponseEntity<ResponseObject> result= addMessageV2();
+        // File tempDemoVideo = fileService.downloadFile("", "parentPath", "targetAppstore");
+        Assert.assertEquals("200 OK", result.getStatusCode().toString());
+    }
+    public ResponseEntity<ResponseObject> addMessageV2(){
+        MessageReqDto reqDto = new MessageReqDto();
+        reqDto.setSourceAppStore("source appstore");
+        reqDto.setAtpTestStatus("success");
+        reqDto.setAtpTestTaskId("task id");
+        reqDto.setAtpTestReportUrl("report url");
+        reqDto.setIconDownloadUrl("icon download url");
+        reqDto.setPackageDownloadUrl("package download url");
+        BasicMessageInfo basicInfo = new BasicMessageInfo();
+        basicInfo.setName("app name");
+        basicInfo.setProvider("app provider");
+        basicInfo.setVersion("v1");
+        basicInfo.setShortDesc("test");
+        basicInfo.setAffinity("X86");
+        basicInfo.setIndustry("smart city");
+        basicInfo.setType("Video");
+        reqDto.setBasicInfo(basicInfo);
+        User user = new User("","",null,"","","");
+        return messageServiceFacade.addMessageV2(reqDto);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void download_from_message_should_failed_error_meesageId() throws Exception {
+        String messageId = "j2417aef-c916-4c92-a518-d29c4804acdf";
+        User user = new User("","",null,"","","");
+        try {
+            ResponseEntity<String> result= messageServiceFacade.downloadFromMessage(messageId,user);
+            // File tempDemoVideo = fileService.downloadFile("", "parentPath", "targetAppstore");
+        } catch (AppException e) {
+            Assert.assertThrows("download file failed", NullPointerException.class, null);
+        }
     }
 
 }

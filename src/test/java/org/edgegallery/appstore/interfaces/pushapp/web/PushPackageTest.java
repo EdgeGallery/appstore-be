@@ -26,10 +26,12 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
+import org.edgegallery.appstore.application.inner.PushablePackageService;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushTargetAppStoreDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.MessageReqDto;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +64,9 @@ public class PushPackageTest {
 
     @Autowired
     private PullablePackageService pullablePackageService;
+
+    @Autowired
+    private PushablePackageService pushablePackageService;
 
     private Gson gson = new Gson();
 
@@ -129,5 +134,14 @@ public class PushPackageTest {
         Assert.assertEquals("200 OK", res.getStatusCode().toString());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_generatorMessageRequest() {
+        String appStoreName = "testAppStoreName";
+        PushablePackageDto packageDto = new PushablePackageDto();
+        packageDto.setAtpTestTaskId("test_apt_task_id");
+        MessageReqDto res  = pushablePackageService.generatorMessageRequest(appStoreName,packageDto);
+        Assert.assertEquals("test_apt_task_id", res.getAtpTestTaskId().toString());
+    }
 
 }
