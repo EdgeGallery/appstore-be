@@ -457,7 +457,7 @@ public class AppUtil {
         writeFile(swImageDesc, new Gson().toJson(imgDecsLists));
     }
 
-    private void addImageFileInfo(String parentDir, String imgZipPath) {
+    public void addImageFileInfo(String parentDir, String imgZipPath) {
         if (!StringUtils.isEmpty(imgZipPath)) {
             try {
                 // add image zip to mf file
