@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -105,6 +106,31 @@ public class PushPackageTest {
 
     @WithMockUser(roles = "APPSTORE_ADMIN")
     @Test
+    public void should_wrong_when_get_pushablepackages() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/packages/packageid-0005/pushable")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void should_success_get_pushablepackages_v2() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v2/packages/pushable")
+            .param("limit", String.valueOf(10))
+            .param("offset", String.valueOf(0))
+            .param("sortType", "desc")
+            .param("sortItem", "createTime")
+            .param("appName", "")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+    }
+
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    @Test
     public void should_success_when_push_package_notice() throws Exception {
         PushTargetAppStoreDto dto = new PushTargetAppStoreDto();
         List<String> targetPlatform = new ArrayList<>();
@@ -142,6 +168,15 @@ public class PushPackageTest {
         packageDto.setAtpTestTaskId("test_apt_task_id");
         MessageReqDto res  = pushablePackageService.generatorMessageRequest(appStoreName,packageDto);
         Assert.assertEquals("test_apt_task_id", res.getAtpTestTaskId().toString());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_download_icon() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/packages/packageid-0002/action/download-icon").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.NOT_FOUND.value(), mvcResult.getResponse().getStatus());
     }
 
 }

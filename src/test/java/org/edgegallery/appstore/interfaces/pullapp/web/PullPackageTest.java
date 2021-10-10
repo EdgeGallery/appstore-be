@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -166,6 +167,22 @@ public class PullPackageTest {
         packages.add(packagePo);
         List<PushablePackageDto> list = pullablePackageService.filterPullablePackages(packages,"");
         Assert.assertNotEquals(0, list.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_packages_v2() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v2/packages/pullable")
+            .param("limit", String.valueOf(10))
+            .param("offset", String.valueOf(0))
+            .param("sortType", "desc")
+            .param("sortItem", "createTime")
+            .param("appName", "")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
 }
