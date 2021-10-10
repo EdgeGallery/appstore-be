@@ -123,6 +123,8 @@ public class ProjectService {
 
     private static final CookieStore cookieStore = new BasicCookieStore();
 
+    private static final int READ_BUFFER_SIZE = 256;
+
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
 
@@ -178,8 +180,8 @@ public class ProjectService {
 
     private static CloseableHttpClient createIgnoreSslHttpClient() {
         try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
-                (TrustStrategy) (chain, authType) -> true).build();
+            SSLContext sslContext = new SSLContextBuilder()
+                .loadTrustMaterial(null, (TrustStrategy) (chain, authType) -> true).build();
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 NoopHostnameVerifier.INSTANCE);
 
@@ -542,6 +544,7 @@ public class ProjectService {
 
     /**
      * get Experience Information.
+     *
      * @param workStatus workStatus.
      * @param mepHost mepHost.
      */
@@ -563,19 +566,18 @@ public class ProjectService {
     /**
      * cleanUnreleasedEnv.
      */
-    public void cleanUnreleasedEnv() {
+    public boolean cleanUnreleasedEnv() {
         List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
         if (CollectionUtils.isEmpty(packageList)) {
             LOGGER.error("get package List is empty");
-            return;
-
+            return false;
         }
         //Call by service nameuser-mgmtLogin interface
         try {
             String accessToken = getAccessToken();
             if (StringUtils.isEmpty(accessToken)) {
                 LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
-                return;
+                return false;
             }
             String name = "";
             String ip = "";
@@ -597,7 +599,7 @@ public class ProjectService {
         } catch (ParseException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
         }
-
+        return true;
     }
 
     private String getAccessToken() {
@@ -664,11 +666,15 @@ public class ProjectService {
             httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
             CloseableHttpResponse res = client.execute(httpGet);
             InputStream inputStream = res.getEntity().getContent();
-            byte[] bytes = new byte[inputStream.available()];
-            if (inputStream.read(bytes) > 0) {
-                String authResult = new String(bytes, StandardCharsets.UTF_8);
-                LOGGER.info("response token length: {}", authResult.length());
-                return authResult;
+            byte[] bytes = new byte[READ_BUFFER_SIZE];
+            StringBuilder buf = new StringBuilder();
+            int len = 0;
+            while ((len = inputStream.read(bytes)) != -1) {
+                buf.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
+            }
+            if (buf.length() > 0) {
+                LOGGER.info("response token length: {}", buf.length());
+                return buf.toString();
             }
         } catch (IOException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
