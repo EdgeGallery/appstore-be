@@ -18,14 +18,13 @@ package org.edgegallery.appstore.interfaces.apackage.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
-import org.edgegallery.appstore.application.external.atp.AtpService;
-import org.edgegallery.appstore.application.external.atp.AtpUtil;
+import java.util.Optional;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
+import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -46,6 +45,20 @@ public class TestPackageTest extends AppTest {
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_when_test_package() throws Exception {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Published.toString());
+            packageMapper.updateRelease(r);
+        });
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/test", appId, unPublishedPackageId)).with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
 }
