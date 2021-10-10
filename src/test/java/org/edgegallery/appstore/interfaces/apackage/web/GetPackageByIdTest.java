@@ -69,7 +69,17 @@ public class GetPackageByIdTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void queryPackageByCond() throws Exception {
+    public void should_success_get_packages_v2() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v2/apps/%s/packages/%s", appId, packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void queryPackageByCond() {
         QueryAppCtrlDto ctrDto = new QueryAppCtrlDto();
         ctrDto.setLimit(15);
         ctrDto.setOffset(0);
@@ -77,8 +87,6 @@ public class GetPackageByIdTest extends AppTest {
         ctrDto.setSortType("desc");
         Page<PackageDto> page = packageServiceFacade.getPackageByUserIdV2(userId, "", null, ctrDto, "");
         Assert.assertNotSame(0, page.getResults().size());
-        String s = "";
-
     }
 
 }
