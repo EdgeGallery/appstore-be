@@ -2,12 +2,10 @@ package org.edgegallery.appstore.infrastructure.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class InputParameterUtil {
-
-    private InputParameterUtil() {
-        throw new IllegalStateException("Utility class");
-    }
 
     /**
      * getParams.

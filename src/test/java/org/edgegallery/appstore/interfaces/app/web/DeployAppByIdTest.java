@@ -15,7 +15,9 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
+import java.util.Map;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
@@ -71,5 +73,14 @@ public class DeployAppByIdTest extends AppTest {
         String res  = ipCalculateUtil.getStartIp(segment, range);
         Assert.assertEquals("192.168.225.4", res);
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_get_params() {
+        String param = "app_mp1_ip=192.168.223.0/24;app_n6_ip=192.168.226.0/24;app_internet_ip=192.168.225.0/24";
+        Map<String, String> paramMap = new InputParameterUtil().getParams(param);
+        Assert.assertEquals("192.168.223.0/24", paramMap.get("app_mp1_ip"));
+    }
+
 
 }
