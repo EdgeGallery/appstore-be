@@ -92,8 +92,6 @@ public class BasicInfo {
 
     public static final String MF_NEWLINE = "\n";
 
-    public static final String MF_APP_CONTACT = "app_contact";
-
     public static final String CSAR_EXTENSION = ".csar";
 
     private static final String ZIP_EXTENSION = ".zip";
@@ -354,11 +352,6 @@ public class BasicInfo {
             if (meta.equalsIgnoreCase(MF_ALGORITHM_CHECK)) {
                 int count = tempString.indexOf(':') + 1;
                 hashAlgorithm = tempString.substring(count).trim();
-            }
-            // Check for package contact
-            if (meta.equalsIgnoreCase(MF_APP_CONTACT)) {
-                int count = tempString.indexOf(':') + 1;
-                contact = tempString.substring(count).trim();
             }
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.error("Nonstandard format: {}", e.getMessage());
