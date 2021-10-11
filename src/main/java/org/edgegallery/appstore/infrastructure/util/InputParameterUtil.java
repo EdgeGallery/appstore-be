@@ -5,10 +5,6 @@ import java.util.Map;
 
 public class InputParameterUtil {
 
-    private InputParameterUtil() {
-        throw new IllegalStateException("Utility class");
-    }
-
     /**
      * getParams.
      *

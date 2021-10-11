@@ -16,6 +16,8 @@
 
 package org.edgegallery.appstore.interfaces.comment.web;
 
+import java.util.Date;
+import org.edgegallery.appstore.infrastructure.persistence.comment.CommentPo;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,5 +39,13 @@ public class GetCommentsTest extends AppTest {
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/comments", appId)).param("limit", "12").param("offset", "0").contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_CommentPo() throws Exception {
+
+        CommentPo po = new CommentPo(123456,"fdsf","fdf","fdfd","fdsfd",1.31,new Date());
+        Assert.assertEquals(123456, po.getCommentId());
     }
 }
