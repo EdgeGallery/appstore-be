@@ -2,16 +2,17 @@ package org.edgegallery.appstore.infrastructure.util;
 
 import java.util.HashMap;
 import java.util.Map;
+
 public class InputParameterUtil {
 
     private InputParameterUtil() {
         throw new IllegalStateException("Utility class");
     }
+
     /**
      * getParams.
      *
      * @param str str
-     * @return
      */
     public static Map<String, String> getParams(String str) {
         String[] arr = str.split(";");
@@ -26,7 +27,5 @@ public class InputParameterUtil {
             params.put(key, value);
         }
         return params;
-
     }
-
 }
