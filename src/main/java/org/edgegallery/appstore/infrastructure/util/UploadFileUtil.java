@@ -213,20 +213,18 @@ public class UploadFileUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("slice merge file success, resp = {}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("slice merge file exception", errorLog);
+            LOGGER.error("slice merge file CustomException: {}", errorLog);
             return null;
         } catch (RestClientException e) {
-            LOGGER.error("slice merge file exception", e.getMessage());
+            LOGGER.error("slice merge file RestClientException: {}", e.getMessage());
             return null;
         }
 
-        if (response == null || response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("slice merge file failed");
+        if (response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("slice merge file failed, response = {}", response);
             return null;
-
         }
 
         LOGGER.info("slice merge file success, resp = {}", response);
