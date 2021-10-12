@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Objects;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class AtpUtil {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = createTaskUrl;
@@ -106,7 +107,7 @@ public class AtpUtil {
             return "";
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         String url = String.format(queryTaskUrl, taskId);
@@ -147,7 +148,7 @@ public class AtpUtil {
             return;
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         // the delete and query task URL is the same, just method is different.

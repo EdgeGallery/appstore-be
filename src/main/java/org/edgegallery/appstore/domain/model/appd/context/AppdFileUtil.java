@@ -18,6 +18,8 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 
 public class AppdFileUtil {
 
+    private AppdFileUtil() {}
+
     public static boolean toCheckData() {
         return false;
     }

@@ -210,6 +210,7 @@ public class AppServiceFacade {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
         }
         packageAFile.setFileSize(packageFile.getSize());
+        String fileNameExtension = fileStoreageAddress.substring(fileStoreageAddress.lastIndexOf("."));
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -217,7 +218,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId());
+        appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
@@ -237,7 +238,7 @@ public class AppServiceFacade {
         String fileParent = dir + File.separator + fileDir;
         fileAddress = dir + File.separator + fileAddress;
         MultipartFile multipartFile = null;
-        FileItem fileItem = appUtil.createFileItem(fileAddress);
+        FileItem fileItem = AppUtil.createFileItem(fileAddress);
         multipartFile = new CommonsMultipartFile(fileItem);
         AbstractFileChecker fileChecker = new PackageChecker(fileParent);
         File file = fileChecker.check(multipartFile);
@@ -256,12 +257,13 @@ public class AppServiceFacade {
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
+        String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
-        appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId());
+        appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);

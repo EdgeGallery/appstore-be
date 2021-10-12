@@ -24,18 +24,21 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.appstore.application.inner.PullablePackageService;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PullAppReqDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -131,5 +134,55 @@ public class PullPackageTest {
         assertTrue(res.getBody().getResults().isEmpty());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_add_message (){
+        PushablePackageDto packagePo = new PushablePackageDto();
+        packagePo.setAppId("2bc69d567b3740208306ea192a591209");
+        packagePo.setPackageId("3bc69d567b3740208306ea192a591209");
+        packagePo.setAtpTestReportUrl("127.0.0.1");
+        packagePo.setSourcePlatform("127.0.0.1");
+        packagePo.setAffinity("affinity");
+        packagePo.setAtpTestStatus("success");
+        packagePo.setAtpTestTaskId("testId");
+        packagePo.setCreateTime("2021-04-13 18:32:09");
+        packagePo.setAtpTestStatus("success");
+        pullablePackageService.addPullMessage(packagePo);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void test_filter_pullablepackages (){
+        List<PushablePackageDto> packages = new ArrayList<>();
+        PushablePackageDto packagePo = new PushablePackageDto();
+        packagePo.setAppId("2bc69d567b3740208306ea192a591209");
+        packagePo.setPackageId("3bc69d567b3740208306ea192a591209");
+        packagePo.setAtpTestReportUrl("127.0.0.1");
+        packagePo.setSourcePlatform("127.0.0.1");
+        packagePo.setAffinity("affinity");
+        packagePo.setAtpTestStatus("success");
+        packagePo.setAtpTestTaskId("testId");
+        packagePo.setCreateTime("2021-04-13 18:32:09");
+        packagePo.setAtpTestStatus("success");
+        packages.add(packagePo);
+        List<PushablePackageDto> list = pullablePackageService.filterPullablePackages(packages,"");
+        Assert.assertNotEquals(0, list.size());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_packages_v2() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v2/packages/pullable")
+            .param("limit", String.valueOf(10))
+            .param("offset", String.valueOf(0))
+            .param("sortType", "desc")
+            .param("sortItem", "createTime")
+            .param("appName", "")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+    }
 
 }

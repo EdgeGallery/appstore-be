@@ -15,10 +15,12 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;

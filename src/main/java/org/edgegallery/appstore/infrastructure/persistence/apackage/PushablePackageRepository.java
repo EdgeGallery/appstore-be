@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.edgegallery.appstore.config.ApplicationContext;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
-import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PushablePackageDto;
@@ -33,11 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class PushablePackageRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushablePackageRepository.class);
+
+    private static final String LATEST_PUSH_TIME = "latestPushTime";
+
+    private static final String CREATE_TIME = "createTime";
 
     @Autowired
     private PushablePackageMapper pushablePackageMapper;
@@ -57,9 +59,9 @@ public class PushablePackageRepository {
         params.put("offset", offset);
         params.put("appName", appName);
         if ("push".equals(shareType)) {
-            params.put("latestPushTime", "latestPushTime");
+            params.put(LATEST_PUSH_TIME, LATEST_PUSH_TIME);
         } else {
-            params.put("createTime", "createTime");
+            params.put(CREATE_TIME, CREATE_TIME);
         }
         params.put("sortItem", sortItem);
         params.put("sortType", sortType);
@@ -80,9 +82,9 @@ public class PushablePackageRepository {
         Map<String, Object> params = new HashMap<>();
         params.put("appName", appName);
         if ("push".equals(shareType)) {
-            params.put("latestPushTime", "latestPushTime");
+            params.put(LATEST_PUSH_TIME, LATEST_PUSH_TIME);
         } else {
-            params.put("createTime", "createTime");
+            params.put(CREATE_TIME, CREATE_TIME);
         }
         params.put("sortItem", sortItem);
         params.put("sortType", sortType);

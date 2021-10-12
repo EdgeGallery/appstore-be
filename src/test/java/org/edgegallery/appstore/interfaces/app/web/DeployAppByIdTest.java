@@ -15,10 +15,9 @@
 
 package org.edgegallery.appstore.interfaces.app.web;
 
-import com.spencerwi.either.Either;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
-import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,18 +26,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 public class DeployAppByIdTest extends AppTest {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private IpCalculateUtil ipCalculateUtil;
 
     @Before
     public void init() {
@@ -56,9 +53,23 @@ public class DeployAppByIdTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed_no_appInstanceId() {
-        expectedEx.expect(NullPointerException.class);
-        ResponseEntity<ResponseObject> res  = projectService.deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1", "", "access_token");
-        Assert.assertEquals(null, res.getBody().getMessage());
+        try {
+            ResponseEntity<ResponseObject> res = projectService
+                .deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1",
+                    "", "access_token");
+            Assert.assertEquals("please register host.", res.getBody().getMessage());
+        } catch (NullPointerException e) {
+            Assert.assertThrows("please register host.", NullPointerException.class, null);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_get_ip() {
+        String segment = "192.168.225.0/24";
+        int range = 1;
+        String res  = ipCalculateUtil.getStartIp(segment, range);
+        Assert.assertEquals("192.168.225.4", res);
     }
 
 }

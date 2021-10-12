@@ -23,8 +23,8 @@ import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
  */
 @Getter
 public enum ToscaSourceContent implements IAppdContentEnum {
-    Name("Name", true),
-    Content_Type("Content-Type", true);
+    NAME("Name", true),
+    CONTENT_TYPE("Content-Type", true);
 
     private final String name;
 

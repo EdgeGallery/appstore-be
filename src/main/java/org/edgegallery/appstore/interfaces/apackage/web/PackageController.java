@@ -136,6 +136,20 @@ public class PackageController {
             .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
     }
 
+    @GetMapping(value = "/apps/{appId}/packages/{packageId}/icon", produces = "application/octet-stream")
+    @ApiOperation(value = "get app icon by appId.", response = File.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<InputStreamResource> downloadIcon(
+        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) throws IOException {
+        return packageServiceFacade.downloadIcon(appId, packageId);
+    }
+
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/meao/{meaoId}/action/sync",
         produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "sync the package to meao.", response = String.class)

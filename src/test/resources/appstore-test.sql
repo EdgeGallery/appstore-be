@@ -4,6 +4,7 @@ drop table IF EXISTS CSAR_PACKAGE_SCORE;
 drop table IF EXISTS app_store_table;
 drop table IF EXISTS PUSHABLE_PACKAGE_TABLE;
 drop table IF EXISTS message_table;
+DROP TABLE IF  EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE;
 
     create TABLE if not exists catalog_package_table (
         PACKAGEID                VARCHAR(200)       NOT NULL,
@@ -144,9 +145,7 @@ drop table IF EXISTS message_table;
       parameter text DEFAULT NULL,
       delete boolean DEFAULT NULL,
       ip_count INTEGER DEFAULT 0
-    )
-
-    ;
+    );
 
    create TABLE IF NOT EXISTS tbl_uploaded_file (
       file_id varchar(50)  NOT NULL DEFAULT NULL,
@@ -158,6 +157,16 @@ drop table IF EXISTS message_table;
       CONSTRAINT tbl_uploaded_file_pkey PRIMARY KEY (file_id)
 )
 ;
+
+CREATE TABLE IF NOT EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE (
+  ID VARCHAR(100) NOT NULL,
+  PACKAGE_ID VARCHAR(100) DEFAULT NULL,
+  MEAO_ID VARCHAR(100) DEFAULT NULL,
+  STATUS VARCHAR(100) DEFAULT NULL,
+  PROGRESS VARCHAR(100) DEFAULT NULL,
+  CREATE_TIME TIMESTAMP DEFAULT NULL,
+  CONSTRAINT PACKAGE_UPLOAD_PROGRESS_TABLE_PKEY PRIMARY KEY (ID)
+  );
 
 insert into app_table(
     appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS, ISHOTAPP)
@@ -192,6 +201,14 @@ insert into app_store_table(
     appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
     values ('02ef9eeb-d50e-4835-8d05-e5fdb87b7596', '移动', 'v1.0', '移动', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');
 
+merge into message_table (MESSAGEID,RESULT,READED,NAME,PROVIDER,VERSION,MESSAGETYPE,SOURCEAPPSTORE,TARGETAPPSTORE,TIME
+,DESCRIPTION,ATPTESTSTATUS,ATPTESTTASKID,ATPTESTREPORTURL,PACKAGEDOWNLOADURL,ICONDOWNLOADURL,AFFINITY,SHORTDESC,TYPE,DEMOVIDEODOWNLOADURL
+)values ('j2417aef-c916-4c92-a518-d29c4804acdf','acept',true,'appname','laintong','1.1','NOTICE','EdgeGallery AppStore'
+,'EdgeGallery AppStore','2021-08-31 16:54:49','tweest','success','apt-taskid-0001',
+'http://127.0.0.1:8073/atpreport?taskId=apt-taskid-0001'
+,'http://127.0.0.1:8099/mec/appstore/v1/packages/packageid-0002/action/download-package'
+,'http://127.0.0.1:8099/mec/appstore/v1/packages/b415e520e00a48ed9721fefa99187f02/action/download-icon','test','test','game','');
+
 
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'Face Recognition service plus.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('d0f8fa57-2f4c-4182-be33-0a508964d04a', 'Face Recognition service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/d0f8fa57-2f4c-4182-be33-0a508964d04a');
@@ -201,8 +218,13 @@ merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 merge into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('9f1f13a0-8554-4dfa-90a7-d2765238fca7', 'Traffic service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/9f1f13a0-8554-4dfa-90a7-d2765238fca7');
 
 
+merge into tbl_service_host (host_id, name, address, architecture, status, lcm_ip, mec_host, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id)
+VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da777', 'Node2', 'XIAN', 'X86', 'NORMAL', 'localhost', 'localhost', 'K8S', 30000, 32767, 30201, 'http', null);
 merge into tbl_service_host (host_id, name, address, architecture, status, lcm_ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '127.0.0.1', 'Ubuntu', 30000, 32767, 30201, 'http', null);
 
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
 merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
 
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245fff', 'package-1', 'meao-1', 'NORMAL','start','2020-01-01 00:00:00.000000');
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245aaa', 'package-2', 'meao-2', 'NORMAL','start','2020-01-02 00:00:00.000000');
+merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245bbb', 'package-3', 'meao-3', 'NORMAL','start','2020-01-03 00:00:00.000000');

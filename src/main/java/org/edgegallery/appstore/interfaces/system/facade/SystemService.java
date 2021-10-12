@@ -42,9 +42,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.HostException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.persistence.system.UploadedFileMapper;
-import org.edgegallery.appstore.infrastructure.util.AppStoreFileUtils;
 import org.edgegallery.appstore.infrastructure.util.BusinessConfigUtil;
-import org.edgegallery.appstore.infrastructure.util.CustomResponseErrorHandler;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -80,9 +78,6 @@ public class SystemService {
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
 
-    @Autowired
-    private ProjectService projectService;
-
     private static String getUrlPrefix(String protocol, String ip, int port) {
         return protocol + "://" + ip + ":" + port;
     }
@@ -105,7 +100,6 @@ public class SystemService {
      */
     @Transactional
     public Either<ResponseObject, Boolean> createHost(MepCreateHost host, String token) {
-        ErrorMessage errMsg = null;
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
             throw new EntityNotFoundException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
@@ -120,7 +114,8 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                uploadedFile.getFilePath(), host.getMecHost(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -181,7 +176,8 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                uploadedFile.getFilePath(), host.getMecHost(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -224,19 +220,30 @@ public class SystemService {
         }
     }
 
-    private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
+    /**
+     * uploadFileToLcm.
+     * @param protocol protocol.
+     * @param lcmIp lcmIp.
+     * @param port port.
+     * @param filePath filePath.
+     * @param mecHost mecHost.
+     * @param token token.
+     * @return
+     */
+    public boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost,
+        String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("configFile", new FileSystemResource(file));
-        body.add("hostIp", hostIp);
+        body.add("hostIp", mecHost);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response;
         try {
-            String url = getUrlPrefix("https", hostIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+            String url = getUrlPrefix(protocol, lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
             LOGGER.info(" upload file url is {}", url);
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("upload file lcm log:{}", response);
@@ -257,8 +264,12 @@ public class SystemService {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHost());
         body.setMechostName(host.getName());
-        body.setVim(host.getOs());
-        body.setOrigin("developer");
+        if (host.getOs().equals("OpenStack") || host.getOs().equals("FusionSphere")) {
+            body.setVim("OpenStack");
+        } else {
+            body.setVim("K8s");
+        }
+        body.setOrigin("appstore");
         //add headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -268,7 +279,6 @@ public class SystemService {
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("add mec host to lcm log:{}", response);
         } catch (CustomException e) {
@@ -329,31 +339,5 @@ public class SystemService {
         return Either.right(result);
     }
 
-    /**
-     * delete template files. If uploaded files have not been used over 30min, should be deleted.
-     */
-    public void deleteTempFile() {
-        LOGGER.info("Begin delete temp file.");
-        Date now = new Date();
-        List<String> tempIds = uploadedFileMapper.getAllTempFiles();
-        if (tempIds == null) {
-            return;
-        }
-        for (String tempId : tempIds) {
-            UploadedFile tempFile = uploadedFileMapper.getFileById(tempId);
-            Date uploadDate = tempFile.getUploadDate();
-            if ((int) ((now.getTime() - uploadDate.getTime()) / Consts.MINUTE) < Consts.TEMP_FILE_TIMEOUT) {
-                continue;
-            }
-
-            String realPath = InitConfigUtil.getWorkSpaceBaseDir() + tempFile.getFilePath();
-            File temp = new File(realPath);
-            if (temp.exists()) {
-                AppStoreFileUtils.deleteTempFile(temp);
-                uploadedFileMapper.deleteFile(tempId);
-                LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
-            }
-        }
-    }
 
 }

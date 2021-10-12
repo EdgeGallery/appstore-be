@@ -40,6 +40,7 @@ security:
     resource:
       jwt:
         key-value: test
+        key-uri: http://localhost:38067/oauth/token_key
 
 appstore-be:
   temp-path: usr/apptest/temp
@@ -49,8 +50,8 @@ appstore-be:
 ### atp config ###
 atp:
   urls:
-    create-task: https://atp-svc:8073/edgegallery/atp/v1/tasks
-    query-task: https://atp-svc:8073/edgegallery/atp/v1/tasks/%s
+    create-task: http://localhost:8000/edgegallery/atp/v1/tasks
+    query-task: http://localhost:8000/edgegallery/atp/v1/tasks/%s
 
 ### appShare feature config ###
 appShare:

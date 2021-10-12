@@ -20,9 +20,6 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
@@ -32,10 +29,8 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -53,59 +48,16 @@ import org.springframework.web.client.RestTemplate;
 public class UploadFileUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
 
-    private static final int chunkSize = 50 * 1024 * 1024;
-
-    private static final RestTemplate restTemplate = new RestTemplate();
+    private static final int CHUNK_SIZE = 50 * 1024 * 1024;
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-
-    @Autowired
-    private PackageMapper packageMapper;
 
     @Value("${appstore-be.filesystem-address:}")
     private String fileSystemAddress;
 
     /**
-     * encrypted identifier.
-     * @param originString identifier.
-     * @return
-     */
-    public static String encryptedByMD5(String originString) {
-        try {
-            //Create information digest with MD5 algorithm.
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            //Use the specified byte array to make the final update to the summary, complete the summary calculation.
-            byte[] bytes = md.digest(originString.getBytes(Charset.forName("UTF-8")));
-            //Turn the resulting byte array into a string and return.
-            String s = byteArrayToHex(bytes);
-            return s.toUpperCase();
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("upload to remote file server failed.");
-            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
-        }
-    }
-
-    /**
-     * Convert the byte array to hexadecimal and return it as a string.
-     * 128 bits refer to binary bits. Binary is too long, so it is generally rewritten into hexadecimal.
-     * Each hexadecimal number can replace a 4-bit binary number, so if a 128-bit binary number is.
-     * written as a hexadecimal number, it becomes 128/4=32 bits.
-     *
-     * @param b bytes.
-     * @return
-     */
-    private static String byteArrayToHex(byte[] b) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < b.length; i++) {
-            sb.append(byteToHex(b[i]));
-        }
-        return sb.toString();
-    }
-
-    /**
      *Convert a byte to hexadecimal and return it as a string.
      * @param b bytes.
-     * @return
      */
     public static String byteToHex(byte b) {
         String hex = Integer.toHexString(b & 0xFF);
@@ -117,23 +69,23 @@ public class UploadFileUtil {
 
 
     /**
-     *  upload file to file server.
+     * upload file to file server.
+     *
      * @param userId userId.
      * @param absolutionFilePath absolutionFilePath.
-     * @return
      */
-    public String uploadFile(String userId, String absolutionFilePath) throws IOException {
+    public String uploadFile(String userId, String absolutionFilePath) {
         String imageId = "";
         File sourceFile = new File(absolutionFilePath);
         String tempFolder = new File(absolutionFilePath).getParent();
         long fileLength = sourceFile.length();
 
-        long chunkTotal = fileLength / chunkSize;
-        if (fileLength % chunkSize != 0) {
+        long chunkTotal = fileLength / CHUNK_SIZE;
+        if (fileLength % CHUNK_SIZE != 0) {
             chunkTotal++;
         }
 
-        byte[] buf = new byte[chunkSize];
+        byte[] buf = new byte[CHUNK_SIZE];
         int chunkCount = 0;
         int currentChunkSize = -1;
         String identifier = UUID.randomUUID().toString().replace("-", "");
@@ -150,11 +102,11 @@ public class UploadFileUtil {
                 builder.addPart(targetFile, bin);
                 if (!sliceUploadFile(identifier, targetFile)) {
                     LOGGER.error("upload to remote file server failed.");
-                    FileUtils.deleteDirectory(new File(targetFile));
-                    throw new AppException("upload to remote file server failed.",
-                        ResponseConst.RET_UPLOAD_FILE_FAILED);
+                    FileUtils.deleteQuietly(new File(targetFile));
                 }
             }
+        } catch (IOException e) {
+            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
         }
 
         if (chunkTotal == chunkCount) {
@@ -217,7 +169,6 @@ public class UploadFileUtil {
 
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
         } catch (CustomException e) {
             String errorLog = e.getBody();
@@ -232,7 +183,6 @@ public class UploadFileUtil {
             LOGGER.error("slice upload file failed!");
             return false;
         }
-
         return true;
     }
 
@@ -243,7 +193,6 @@ public class UploadFileUtil {
      * @param fileName File name.
      * @param identifier File Identifier.
      * @param userId User ID.
-     * @return
      */
     public String sliceMergeFile(String identifier, String fileName, String userId) {
         LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);
@@ -263,22 +212,19 @@ public class UploadFileUtil {
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("slice merge file success, resp = {}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("slice merge file exception", errorLog);
+            LOGGER.error("slice merge file CustomException: {}", errorLog);
             return null;
         } catch (RestClientException e) {
-            LOGGER.error("slice merge file exception", e.getMessage());
+            LOGGER.error("slice merge file RestClientException: {}", e.getMessage());
             return null;
         }
 
-        if (response == null || response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("slice merge file failed");
+        if (response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("slice merge file failed, response = {}", response);
             return null;
-
         }
 
         LOGGER.info("slice merge file success, resp = {}", response);

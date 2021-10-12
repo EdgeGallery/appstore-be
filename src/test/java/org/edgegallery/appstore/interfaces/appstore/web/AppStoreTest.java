@@ -98,4 +98,27 @@ public class AppStoreTest {
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void edit_appstore_should_success() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/appstores")
+            .file(new MockMultipartFile("appStoreName", "", MediaType.TEXT_PLAIN_VALUE, "test appstore".getBytes()))
+            .file(new MockMultipartFile("appStoreVersion", "", MediaType.TEXT_PLAIN_VALUE, "1.0".getBytes()))
+            .file(new MockMultipartFile("company", "", MediaType.TEXT_PLAIN_VALUE, "huawei".getBytes()))
+            .file(new MockMultipartFile("url", "", MediaType.TEXT_PLAIN_VALUE, "http://127.0.0.1:8099".getBytes()))
+            .file(new MockMultipartFile("appdTransId", "", MediaType.TEXT_PLAIN_VALUE, "社区_APPD_2.0".getBytes()))
+            .file(new MockMultipartFile("description", "", MediaType.TEXT_PLAIN_VALUE, "test".getBytes())).with(csrf())).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_appstore_should_success() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v2/appstores").param("appStoreName", "test name").param("limit", "12").param("offset", "0")
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
 }

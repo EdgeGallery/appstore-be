@@ -1,0 +1,16 @@
+metadata:
+app_product_name: test_csar
+app_provider_id: Huawei
+app_package_version: 1.0
+app_release_data_time: 2021-03-10 14:58
+app_type: container
+app_class: container
+app_package_description: test
+
+Source: Artifacts/Deployment/Charts/testcsar.tgz
+Algorithm: SHA-256
+Hash: c21317143c6c2618e61afc8e1e599b32a470705cdcc979c9c9b69f5f00017930
+
+Source: APPD/Definition/MainServiceTemplate.yaml
+Algorithm: SHA-256
+Hash: c21317143c6c2618e61afc8e1e599b32a470705cdcc979c9c9b69f5f00017930

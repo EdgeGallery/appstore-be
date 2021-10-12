@@ -103,7 +103,6 @@ public final class HttpClientUtil {
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPlCM instantiate log:{}", response);
         } catch (CustomException e) {
@@ -142,7 +141,6 @@ public final class HttpClientUtil {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replace(TENANT_ID, userId);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPLCM upload pkg log:{}", response);
         } catch (CustomException e) {
@@ -181,7 +179,6 @@ public final class HttpClientUtil {
             + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replace(TENANT_ID, userId).replace(PACKAGE_ID, packageId);
         ResponseEntity<String> response;
         try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPLCM distribute pkg log:{}", response);
         } catch (CustomException e) {
@@ -324,6 +321,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            LOGGER.info("APPlCM terminateAppInstance log:{}", response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to get workload status which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());

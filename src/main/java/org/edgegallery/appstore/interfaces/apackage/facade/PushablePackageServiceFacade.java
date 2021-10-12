@@ -165,7 +165,7 @@ public class PushablePackageServiceFacade {
      */
     public ResponseEntity<InputStreamResource> downloadIcon(String packageId) throws FileNotFoundException {
         PushablePackageDto packageDto = pushablePackageService.getPushablePackage(packageId);
-        Release release = appService.download(packageDto.getAppId(), packageId);
+        Release release = appService.getRelease(packageDto.getAppId(), packageId);
         String fileName = appUtil.getFileName(release, release.getIcon());
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();

@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +43,6 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
@@ -66,7 +66,7 @@ public class PackageServiceFacade {
 
     private static final String ZIP_POINT = ".";
 
-    private static String TEMP_EXPIRE_PREFIX = "tempExpire";
+    private static final String TEMP_EXPIRE_PREFIX = "tempExpire";
 
     @Value("${appstore-be.package-path}")
     private String packageDir;
@@ -74,7 +74,7 @@ public class PackageServiceFacade {
     /**
      * scheduled clean up tempPackage more than 24 hours.
      */
-    private static final long CLEAN_ENV_WAIT_TIME = 1000 * 60 * 60 * 24;
+    private static final long CLEAN_ENV_WAIT_TIME = 1000L * 60 * 60 * 24;
 
     @Autowired
     private AppService appService;
@@ -90,9 +90,6 @@ public class PackageServiceFacade {
 
     @Autowired
     private AppUtil appUtil;
-
-    @Autowired
-    private PackageMapper packageMapper;
 
     @Autowired
     private UploadPackageService uploadPackageService;
@@ -179,6 +176,22 @@ public class PackageServiceFacade {
     }
 
     /**
+     * download icon by package id.
+     *
+     * @param appId app id.
+     * @param packageId package id.
+     */
+    public ResponseEntity<InputStreamResource> downloadIcon(String appId, String packageId) throws IOException {
+        Release release = appService.getRelease(appId, packageId);
+        String fileName = appUtil.getFileName(release, release.getIcon());
+        InputStream ins = fileService.get(release.getIcon());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
+    }
+
+    /**
      * sysc package to meao.
      *
      * @param appId appId
@@ -200,12 +213,8 @@ public class PackageServiceFacade {
         }
 
         // start a thread to upload package to meao
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                uploadPackageService.uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString();
-            }
-        }).start();
+        new Thread(() -> uploadPackageService
+            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString()).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
@@ -304,37 +313,57 @@ public class PackageServiceFacade {
     }
 
     /**
-     * schedule delete compressed temporary directory files.
-     */
-    public void scheduledDeletePackage() {
-        File tempZip = new File(packageDir);
-        File[] files = tempZip.listFiles();
-        if (files != null && files.length > 0) {
-            for (File folderFile : files) {
-                File[] tempFiles = folderFile.listFiles();
-                if (tempFiles != null && tempFiles.length > 0) {
-                    for (File zipFile : tempFiles) {
-                        if (zipFile.getName().startsWith(TEMP_EXPIRE_PREFIX)) {
-                            long expireTime = getExpirTime(zipFile);
-                            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
-                                FileUtils.deleteQuietly(zipFile);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * get expire time for pacakge.
      *
      * @param tempZip tempZip file.
-     * @return
      */
     public long getExpirTime(File tempZip) {
         long startTime = tempZip.lastModified();
         long endTime = new Date().getTime();
         return endTime - startTime;
     }
+
+    /**
+     * Search for the file containing the keyword in the specified directory.
+     *
+     * @param folder resource folder.
+     * @param keyword keyword.
+     */
+    public static List<File> searchTempFiles(File folder, String keyword) {
+        List<File> result = new ArrayList<>();
+        if (folder.isFile()) {
+            result.add(folder);
+        }
+        File[] subFolders = folder.listFiles(file -> file.isDirectory() || file.getName().startsWith(keyword));
+        if (subFolders != null) {
+            for (File file : subFolders) {
+                if (file.isFile()) {
+                    // add result list if  it is file
+                    result.add(file);
+                } else {
+                    // If it is a folder, call this method recursively, and then add all files to the result list
+                    result.addAll(searchTempFiles(file, keyword));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * schedule delete compressed temporary directory files.
+     */
+    public void scheduledDeletePackage() {
+        LOGGER.info("Start schedule delete temp file path {}", packageDir);
+        List<File> files = searchTempFiles(new File(packageDir), TEMP_EXPIRE_PREFIX);
+        LOGGER.info("schedule find temp file count is {}", files.size());
+        for (File tempFile : files) {
+            long expireTime = getExpirTime(tempFile);
+            if (expireTime >= CLEAN_ENV_WAIT_TIME) {
+                LOGGER.info("Start schedule delete temp file is {}", tempFile);
+                FileUtils.deleteQuietly(tempFile);
+            }
+        }
+        LOGGER.info("End schedule delete temp file.");
+    }
+
 }

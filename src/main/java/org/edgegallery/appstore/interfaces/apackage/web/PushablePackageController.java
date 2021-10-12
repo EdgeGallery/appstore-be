@@ -134,9 +134,9 @@ public class PushablePackageController {
         @ApiResponse(code = 400, message = "bad request", response = String.class)
     })
     public ResponseEntity<List<PushablePackageDto>> queryAllPullablePackages(
-        @RequestParam(value = "app Name", required = false)   String appName,
-        @RequestParam(value = "query sortType", required = false) String sortType,
-        @RequestParam(value = "sort condition", required = false) String sortItem) {
+        @ApiParam(value = "app name") @RequestParam(value = "appName", required = false) String appName,
+        @ApiParam(value = "sort type") @RequestParam(value = "sortType", required = false) String sortType,
+        @ApiParam(value = "sort item") @RequestParam(value = "sortItem", required = false) String sortItem) {
         return pushablePackageServiceFacade.queryAllPullablePackages(appName, sortType, sortItem);
     }
 

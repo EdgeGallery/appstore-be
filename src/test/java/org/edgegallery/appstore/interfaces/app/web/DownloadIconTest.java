@@ -50,4 +50,23 @@ public class DownloadIconTest extends AppTest {
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void video_should_success() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/demoVideo", appId)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void video_should_failed_with_wrong_appId() throws Exception {
+        String appId = "78ec10f4a43041e6a6198ba824311af9";
+        MvcResult mvcResult = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/demoVideo", appId)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
+    }
 }

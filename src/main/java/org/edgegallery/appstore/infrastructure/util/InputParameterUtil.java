@@ -13,7 +13,6 @@ public class InputParameterUtil {
      * getParams.
      *
      * @param str str
-     * @return
      */
     public static Map<String, String> getParams(String str) {
         String[] arr = str.split(";");
@@ -28,7 +27,5 @@ public class InputParameterUtil {
             params.put(key, value);
         }
         return params;
-
     }
-
 }

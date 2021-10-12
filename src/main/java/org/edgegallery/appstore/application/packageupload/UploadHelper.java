@@ -38,6 +38,10 @@ public class UploadHelper {
     @Autowired
     ProgressFacade progressFacade;
 
+    public static final String FAILED = "failed";
+
+    public static final String SUCCESS = "success";
+
     /**
      * upload Big Software.
      *
@@ -51,7 +55,6 @@ public class UploadHelper {
     public JSONObject uploadBigSoftware(String softPath, JSONObject req, String csrfToken, String cookie,
         String hostUrl) {
         JSONObject ret = new JSONObject();
-        FileInputStream input = null;
 
         // build upload progress data
         String progressId = UUID.randomUUID().toString();
@@ -59,8 +62,8 @@ public class UploadHelper {
         PackageUploadProgress progress = new PackageUploadProgress(progressId, req.getString("packageId"),
             req.getString("meaoId"), createTime);
         progressFacade.createProgress(progress);
-        try {
-            File soft = new File(softPath);
+        File soft = new File(softPath);
+        try (FileInputStream input = new FileInputStream(soft)) {
             String fileName = soft.getName();
 
             LOGGER.info("--------start upload software--------" + fileName);
@@ -79,7 +82,6 @@ public class UploadHelper {
             long i = 0;
             long j;
             int count = 1;
-            input = new FileInputStream(soft);
 
             UploadPackageEntity upPackage = new UploadPackageEntity();
             upPackage.setFileName(fileName);
@@ -102,8 +104,8 @@ public class UploadHelper {
                 upPackage.setShardCount(count);
                 ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
-                    updateProgressStatus(progress, "failed");
-                    LOGGER.error("upload failed: {}", ret.toString());
+                    updateProgressStatus(progress, FAILED);
+                    LOGGER.error("upload failed: {}", ret);
                     return ret;
                 }
                 LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + i);
@@ -122,7 +124,7 @@ public class UploadHelper {
             byte[] ednBuffer = new byte[(int) length];
             int readCount = input.read(ednBuffer);
             if (readCount == -1) {
-                updateProgressStatus(progress, "failed");
+                updateProgressStatus(progress, FAILED);
                 LOGGER.error("upload failed: {}", ret.toString());
                 return ret;
             }
@@ -137,21 +139,13 @@ public class UploadHelper {
 
             // update upload progress to 100%
             progress.setProgress("100");
-            updateProgressStatus(progress, "success");
+            updateProgressStatus(progress, SUCCESS);
 
             return ret;
         } catch (IOException e) {
             LOGGER.error("uploadBigSoftware IOException");
-        } finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                LOGGER.error("uploadBigSoftware close input IOException");
-            }
         }
-        updateProgressStatus(progress, "failed");
+        updateProgressStatus(progress, FAILED);
         ret.put("retCode", -1);
         LOGGER.error("upload failed: {}", ret.toString());
         return ret;

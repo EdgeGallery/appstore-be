@@ -117,6 +117,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
+        host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "add mec host to lcm fail.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
@@ -136,11 +137,12 @@ public class SystemServiceTest {
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setConfigId("errorId");
+        host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "add mec host to lcm fail.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
-        // Assert.assertTrue(res.isLeft());
+        Assert.assertTrue(res.isLeft());
     }
 
     @Test
@@ -148,7 +150,7 @@ public class SystemServiceTest {
     public void testDeleteHostWithErrorId() {
         expectedEx.expectMessage( "Delete host failed.");
         Either<ResponseObject, Boolean> res = systemService.deleteHost("hostId");
-        // Assert.assertTrue(res.isLeft());
+        Assert.assertTrue(res.isLeft());
     }
 
     @Test
@@ -170,6 +172,7 @@ public class SystemServiceTest {
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setConfigId("errorId");
+        host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "health check faild,current ip or port cann't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
@@ -208,6 +211,18 @@ public class SystemServiceTest {
         Assert.assertTrue(res.isRight());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void testUploadFileToLcm_Failed_error_lcmIp() {
+        String protocol = "https";
+        String lcmIp = "127.0.0.1";
+        int port = 30052;
+        String filePath = "";
+        String mecHost = "127.0.0.1";
+        String token = "";
+        Boolean res = systemService.uploadFileToLcm(protocol, lcmIp, port, filePath, mecHost, token);
+        Assert.assertFalse(res);
+    }
 
 
 

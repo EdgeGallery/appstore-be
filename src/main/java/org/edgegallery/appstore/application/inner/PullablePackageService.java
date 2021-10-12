@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -258,7 +257,14 @@ public class PullablePackageService {
         return true;
     }
 
-    private List<PushablePackageDto> filterPullablePackages(List<PushablePackageDto> packages, String userId) {
+    /**
+     * filter pull Packages.
+     *
+     * @param packages packages list.
+     * @param  userId userId.
+     * @return
+     */
+    public List<PushablePackageDto> filterPullablePackages(List<PushablePackageDto> packages, String userId) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
             AtomicBoolean bexist = new AtomicBoolean(false);
@@ -282,7 +288,11 @@ public class PullablePackageService {
         return result;
     }
 
-    private void addPullMessage(PushablePackageDto packagePo) {
+    /**
+     * add PullMessage.
+     * @param packagePo PushablePackageDto.
+     */
+    public void addPullMessage(PushablePackageDto packagePo) {
         // add message log for this action
         Message message = new Message();
         message.setMessageId(UUID.randomUUID().toString());
