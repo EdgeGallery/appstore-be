@@ -137,12 +137,11 @@ public class SplitConfigController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "delete split configs success", response = ResponseObject.class)
     })
-    @DeleteMapping(value = "", produces = MediaType.APPLICATION_JSON)
+    @DeleteMapping(value = "/{appId}", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> deleteSplitConfigs(
         HttpServletRequest httpServletRequest,
-        @ApiParam(value = "splitConfigOperReqDto", required = true) @RequestBody
-            SplitConfigOperReqDto splitConfigOperReqDto) {
+        @ApiParam(value = "appId") @PathVariable("appId") String appId) {
         LOGGER.info("enter delete split configs.");
         String userName = (String) httpServletRequest.getAttribute(Consts.USERNAME);
         if (!Consts.SUPER_ADMIN_NAME.equalsIgnoreCase(userName)) {
@@ -151,7 +150,7 @@ public class SplitConfigController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ResponseObject(null, resultMsg, "forbidden to delete split configs."));
         }
-        return splitConfigServiceFacade.deleteSplitConfig(splitConfigOperReqDto);
+        return splitConfigServiceFacade.deleteSplitConfig(appId);
     }
 }
 

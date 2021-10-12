@@ -53,13 +53,9 @@ public class BillRepositoryImpl implements BillRepository {
     }
 
     @Override
-    public double statOverallIncome(Map<String, Object> statParams) {
-        return billMapper.statOverallIncome(statParams);
-    }
-
-    @Override
-    public double statOverallExpend(Map<String, Object> statParams) {
-        return billMapper.statOverallExpend(statParams);
+    public double statOverallAmount(Map<String, Object> statParams) {
+        Double overallAmount = billMapper.statOverallAmount(statParams);
+        return overallAmount != null ? overallAmount.doubleValue() : 0.0;
     }
 
     @Override

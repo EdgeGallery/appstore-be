@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade.dto;
 
+import java.text.SimpleDateFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.order.BillExtendEntity;
@@ -64,6 +65,7 @@ public class BillDto {
     public static BillDto of(BillExtendEntity billExtendEntity) {
         BillDto billDto = new BillDto();
         BeanUtils.copyProperties(billExtendEntity, billDto);
+        billDto.createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(billExtendEntity.getCreateTime());
         return billDto;
     }
 }

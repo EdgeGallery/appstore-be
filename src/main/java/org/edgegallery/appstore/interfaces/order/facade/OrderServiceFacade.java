@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.edgegallery.appstore.application.inner.BillService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -46,13 +47,16 @@ import org.springframework.stereotype.Service;
 @Service("OrderServiceFacade")
 public class OrderServiceFacade {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
 
     @Autowired
     private OrderService orderService;
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private BillService billService;
 
     /**
      * create order.
@@ -97,13 +101,13 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName,
-        String orderId, String token) {
+    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId,
+        String token) {
         try {
-            Order order = orderRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new EntityNotFoundException(Order.class,
-                    orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-            if (order.getStatus() != EnumOrderStatus.ACTIVATED) {
+            Order order = orderRepository.findByOrderId(orderId).orElseThrow(
+                () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+            if (order.getStatus() != EnumOrderStatus.ACTIVATED
+                && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
                 throw new AppException("inactivated orders can't be deactivated.",
                     ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
             }
@@ -116,16 +120,19 @@ public class OrderServiceFacade {
                 // if success, update status to deactivated, if failed, update status to deactivate_failed
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
+                Date activateDateTime = order.getOperateTime();
                 order.setOperateTime(new Date());
                 orderRepository.updateOrderStatus(order);
 
+                LOGGER.info("geneate bill.");
+                billService.generateBillOnDeactivate(order, activateDateTime);
             } else {
                 throw new PermissionNotAllowedException("can not deactivate order",
                     ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
             }
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-            return ResponseEntity.ok(new ResponseObject("deactivate order success",
-                errMsg, "deactivate order success."));
+            return ResponseEntity
+                .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
         } catch (InterruptedException e) {
             throw new AppException("deactivate order exception.", ResponseConst.RET_DEACTIVATE_ORDER_FAILED);
         }
@@ -141,10 +148,10 @@ public class OrderServiceFacade {
      */
     public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId, String token) {
         try {
-            Order order = orderRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new EntityNotFoundException(Order.class,
-                    orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-            if (order.getStatus() != EnumOrderStatus.DEACTIVATED) {
+            Order order = orderRepository.findByOrderId(orderId).orElseThrow(
+                () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+            if (order.getStatus() != EnumOrderStatus.DEACTIVATED
+                && order.getStatus() != EnumOrderStatus.ACTIVATE_FAILED) {
                 throw new AppException("unsubscribed orders can't be activated.",
                     ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
             }
@@ -166,8 +173,8 @@ public class OrderServiceFacade {
                     ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
             }
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-            return ResponseEntity.ok(new ResponseObject("deactivate order success",
-                errMsg, "deactivate order success."));
+            return ResponseEntity
+                .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
         } catch (InterruptedException e) {
             throw new AppException("deactivate order exception.", ResponseConst.RET_ACTIVATE_ORDER_FAILED);
         }
@@ -195,9 +202,8 @@ public class OrderServiceFacade {
         params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
         List<OrderDto> orderList = orderService.queryOrders(params, token);
         long total = orderService.getCountByCondition(params);
-        return ResponseEntity
-            .ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
-                queryOrdersReqDto.getQueryCtrl().getOffset(), total));
+        return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
+            queryOrdersReqDto.getQueryCtrl().getOffset(), total));
     }
 
 }

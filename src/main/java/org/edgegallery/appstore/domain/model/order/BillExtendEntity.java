@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.domain.model.order;
 
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,7 +49,7 @@ public class BillExtendEntity implements Entity {
 
     private String provider;
 
-    private String createTime;
+    private Date createTime;
 
     private String billType;
 

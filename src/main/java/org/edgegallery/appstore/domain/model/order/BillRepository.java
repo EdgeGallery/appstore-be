@@ -27,9 +27,7 @@ public interface BillRepository {
 
     long queryBillCount(Map<String, Object> queryParams);
 
-    double statOverallIncome(Map<String, Object> statParams);
-
-    double statOverallExpend(Map<String, Object> statParams);
+    double statOverallAmount(Map<String, Object> statParams);
 
     List<AppSaleStatInfo> statAppSaleAmount(Map<String, Object> statParams);
 

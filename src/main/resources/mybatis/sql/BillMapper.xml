@@ -71,10 +71,10 @@
                 and billTab.userId = #{userId}
             </if>
             <if test="startTime != null and startTime != ''">
-                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="endTime != null and endTime != ''">
-                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         <if test="queryCtrl != null">
@@ -94,31 +94,24 @@
                 and userId = #{userId}
             </if>
             <if test="startTime != null and startTime != ''">
-                <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="endTime != null and endTime != ''">
-                <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
     </select>
 
-    <select id="statOverallIncome" parameterType="java.util.Map" resultType="java.lang.Double">
-        select sum(billAmount) from app_bill where billType='IN' and userId = #{userId}
+    <select id="statOverallAmount" parameterType="java.util.Map" resultType="java.lang.Double">
+        select sum(billAmount) from app_bill where billType=#{billType}
+        <if test="userId != null and userId !=''">
+            and userId = #{userId}
+        </if>
         <if test="startTime != null and startTime != ''">
-            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
         <if test="endTime != null and endTime != ''">
-            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
-        </if>
-    </select>
-
-    <select id="statOverallExpend" parameterType="java.util.Map" resultType="java.lang.Double">
-        select sum(billAmount) from app_bill where billType='OUT' and userId = #{userId}
-        <if test="startTime != null and startTime != ''">
-            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
-        </if>
-        <if test="endTime != null and endTime != ''">
-            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
     </select>
 
@@ -134,10 +127,10 @@
                 and appTab.userId = #{userIdOfApp}
             </if>
             <if test="startTime != null and startTime != ''">
-                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="endTime != null and endTime != ''">
-                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         group by appTab.appId
@@ -156,10 +149,10 @@
                 and appTab.userId = #{userIdOfApp}
             </if>
             <if test="startTime != null and startTime != ''">
-                <![CDATA[ and orderTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and orderTab.orderTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="endTime != null and endTime != ''">
-                <![CDATA[ and orderTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and orderTab.orderTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         group by appTab.appId
@@ -179,10 +172,10 @@
                 and appTab.userId = #{userIdOfApp}
             </if>
             <if test="startTime != null and startTime != ''">
-                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="endTime != null and endTime != ''">
-                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         group by appTab.appId

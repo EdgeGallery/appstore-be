@@ -17,6 +17,8 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,22 @@ public class BillService {
     private SplitConfigRepository splitConfigRepository;
 
     /**
+     * generate bill on deactivate action.
+     *
+     * @param order order object
+     * @param activateDateTime activate time
+     */
+    public void generateBillOnDeactivate(Order order, Date activateDateTime) {
+        LOGGER.info("generate bill on deactivate order, orderNum = {}", order.getOrderNum());
+        if (activateDateTime == null) {
+            LOGGER.error("activate time is invalid.");
+            return;
+        }
+
+        generateBillByOrder(order, activateDateTime, true);
+    }
+
+    /**
      * generate bill.
      */
     public void generateBill() {
@@ -65,38 +83,70 @@ public class BillService {
 
         LOGGER.info("generate bills for {} active order(s).", activeOrderList.size());
         for (Order activeOrder : activeOrderList) {
-            generateBill(activeOrder);
+            generateBillByOrder(activeOrder, activeOrder.getOperateTime(), false);
         }
 
         LOGGER.info("generate bills end.");
     }
 
-    private void generateBill(Order activeOrder) {
-        LOGGER.info("generate bills for order begin, orderNum = {}", activeOrder.getOrderNum());
-        Optional<App> appOptional = appRepository.find(activeOrder.getAppId());
+    private void generateBillByOrder(Order order, Date activateDateTime, boolean isDeactivating) {
+        LOGGER.info("generate bills for order begin, orderNum = {}", order.getOrderNum());
+        Optional<App> appOptional = appRepository.find(order.getAppId());
         if (!appOptional.isPresent()) {
-            LOGGER.warn("the app of order had been deleted! appId = {}", activeOrder.getAppId());
+            LOGGER.warn("the app of order had been deleted! appId = {}", order.getAppId());
             return;
         }
 
         App app = appOptional.get();
         if (app.isFree() || app.getPrice() == 0) {
-            LOGGER.debug("the app of order is free, appId = {}", activeOrder.getAppId());
+            LOGGER.debug("the app of order is free, appId = {}", order.getAppId());
             return;
         }
 
         double splitRatio = getSplitConfig(app.getAppId());
-        double operatorFee = app.getPrice() * splitRatio;
-        double supplierFee = app.getPrice() - operatorFee;
+        double totalAmount = calcTotalAmount(app.getPrice(), activateDateTime, isDeactivating);
+        if (totalAmount <= 0) {
+            LOGGER.debug("total amount is zero this calc time, orderNum = {}", order.getOrderNum());
+            return;
+        }
+
+        double operatorFee = totalAmount * splitRatio;
+        double supplierFee = totalAmount - operatorFee;
         List<Bill> newBillList = new ArrayList<>();
-        newBillList.add(geneBillForConsumer(activeOrder.getOrderId(), activeOrder.getUserId(),
-            activeOrder.getUserName(), operatorFee, supplierFee));
-        newBillList.add(geneBillForOperator(activeOrder.getOrderId(), Consts.SUPER_ADMIN_ID,
+        newBillList.add(geneBillForConsumer(order.getOrderId(), order.getUserId(),
+            order.getUserName(), operatorFee, supplierFee));
+        newBillList.add(geneBillForOperator(order.getOrderId(), Consts.SUPER_ADMIN_ID,
             Consts.SUPER_ADMIN_NAME, operatorFee));
-        newBillList.add(geneBillForSupplier(activeOrder.getOrderId(), app.getUserId(),
+        newBillList.add(geneBillForSupplier(order.getOrderId(), app.getUserId(),
             app.getUser().getUserName(), supplierFee));
         newBillList.forEach(newBill -> billRepository.addBill(newBill));
-        LOGGER.info("generate bills for order end, orderNum = {}", activeOrder.getOrderNum());
+        LOGGER.info("generate bills for order end, orderNum = {}", order.getOrderNum());
+    }
+
+    private double calcTotalAmount(double price, Date activateDateTime, boolean isDeactivating) {
+        long currTime = new Date().getTime();
+        long activateOperTime = activateDateTime.getTime();
+        long activeKeepTime = currTime - activateOperTime;
+        long calcHour = 0;
+        if (isDeactivating) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            long todayZeroTime = calendar.getTimeInMillis();
+
+            long keepActiveHour = activeKeepTime / (1000 * 60 * 60);
+            calcHour = Math.min(keepActiveHour, (currTime - todayZeroTime) / (1000 * 60 * 60));
+        } else {
+            calcHour = 24;
+            if (activeKeepTime < 1 * 24 * 60 * 60 * 1000) {
+                long keepActiveHour = activeKeepTime / (1000 * 60 * 60);
+                calcHour = keepActiveHour;
+            }
+        }
+
+        return price * calcHour;
     }
 
     private double getSplitConfig(String appId) {

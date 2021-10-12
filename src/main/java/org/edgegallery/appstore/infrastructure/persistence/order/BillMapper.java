@@ -34,9 +34,7 @@ public interface BillMapper {
 
     Integer queryBillCount(Map<String, Object> queryParams);
 
-    double statOverallIncome(Map<String, Object> statParams);
-
-    double statOverallExpend(Map<String, Object> statParams);
+    Double statOverallAmount(Map<String, Object> statParams);
 
     List<AppSaleStatInfo> statAppSaleAmount(Map<String, Object> statParams);
 

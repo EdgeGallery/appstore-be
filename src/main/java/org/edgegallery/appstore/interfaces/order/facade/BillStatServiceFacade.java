@@ -44,7 +44,7 @@ import org.springframework.stereotype.Service;
 @Service("BillStatServiceFacade")
 public class BillStatServiceFacade {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(BillStatServiceFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BillStatServiceFacade.class);
 
     @Autowired
     private BillRepository billRepository;
@@ -53,15 +53,16 @@ public class BillStatServiceFacade {
      * query bill list.
      *
      * @param userId user id
-     * @param userName user name
      * @param queryBillsReqDto query request dto
      * @return bill list
      */
-    public ResponseEntity<Page<BillDto>> queryBillList(String userId, String userName,
-        QueryBillsReqDto queryBillsReqDto) {
+    public ResponseEntity<Page<BillDto>> queryBillList(String userId, QueryBillsReqDto queryBillsReqDto) {
         LOGGER.info("query bill list.");
+        queryBillsReqDto.adjustTimeFormat();
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("userId", userId);
+        if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
+            queryParams.put("userId", userId);
+        }
         queryParams.put("startTime", queryBillsReqDto.getStartTime());
         queryParams.put("endTime", queryBillsReqDto.getEndTime());
         queryParams.put("queryCtrl", queryBillsReqDto.getQueryCtrl());
@@ -78,19 +79,22 @@ public class BillStatServiceFacade {
      * statistic overall income and expenditure.
      *
      * @param userId user id
-     * @param userName user name
      * @param statOverallReqDto stat request dto
      * @return stat result
      */
-    public ResponseEntity<ResponseObject> statOverall(String userId, String userName,
-        StatOverallReqDto statOverallReqDto) {
+    public ResponseEntity<ResponseObject> statOverall(String userId, StatOverallReqDto statOverallReqDto) {
         LOGGER.info("statistic overall income and expenditure.");
+        statOverallReqDto.adjustTimeFormat();
         Map<String, Object> statParams = new HashMap<>();
         statParams.put("userId", userId);
         statParams.put("startTime", statOverallReqDto.getStartTime());
         statParams.put("endTime", statOverallReqDto.getEndTime());
-        double incomeNum = billRepository.statOverallIncome(statParams);
-        double expendNum = billRepository.statOverallExpend(statParams);
+
+        statParams.put("billType", "IN");
+        double incomeNum = billRepository.statOverallAmount(statParams);
+
+        statParams.put("billType", "OUT");
+        double expendNum = billRepository.statOverallAmount(statParams);
 
         LOGGER.info("statistic overall income and expenditure succeed.");
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -102,13 +106,12 @@ public class BillStatServiceFacade {
      * statistic top sale app.
      *
      * @param userId user id
-     * @param userName user name
      * @param topSaleAppReqDto stat request dto
      * @return stat result
      */
-    public ResponseEntity<ResponseObject> statTopSaleApp(String userId, String userName,
-        TopSaleAppReqDto topSaleAppReqDto) {
+    public ResponseEntity<ResponseObject> statTopSaleApp(String userId, TopSaleAppReqDto topSaleAppReqDto) {
         LOGGER.info("statistic top sale app.");
+        topSaleAppReqDto.adjustTimeFormat();
         Map<String, Object> statParams = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
             statParams.put("userIdOfApp", userId);
@@ -132,13 +135,12 @@ public class BillStatServiceFacade {
      * statistic top order app.
      *
      * @param userId user id
-     * @param userName user name
      * @param topOrderAppReqDto stat request dto
      * @return stat result
      */
-    public ResponseEntity<ResponseObject> statTopOrderApp(String userId, String userName,
-        TopOrderAppReqDto topOrderAppReqDto) {
+    public ResponseEntity<ResponseObject> statTopOrderApp(String userId, TopOrderAppReqDto topOrderAppReqDto) {
         LOGGER.info("statistic top order app.");
+        topOrderAppReqDto.adjustTimeFormat();
         Map<String, Object> statParams = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
             statParams.put("userIdOfApp", userId);

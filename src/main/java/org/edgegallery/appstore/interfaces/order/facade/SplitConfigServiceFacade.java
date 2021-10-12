@@ -40,7 +40,7 @@ import org.springframework.util.CollectionUtils;
 @Service("SplitConfigServiceFacade")
 public class SplitConfigServiceFacade {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigServiceFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplitConfigServiceFacade.class);
 
     @Autowired
     private SplitConfigRepository splitConfigRepository;
@@ -135,19 +135,12 @@ public class SplitConfigServiceFacade {
     /**
      * delete split config.
      *
-     * @param splitConfigOperReqDto request dto
+     * @param appId app id
      * @return delete result
      */
-    public ResponseEntity<ResponseObject> deleteSplitConfig(SplitConfigOperReqDto splitConfigOperReqDto) {
-        LOGGER.info("delete split config.");
-        if (CollectionUtils.isEmpty(splitConfigOperReqDto.getAppIds())) {
-            LOGGER.error("invalid delete request parameter.");
-            ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_PARAM_INVALID, null);
-            return ResponseEntity.badRequest()
-                .body(new ResponseObject(null, resultMsg, "invalid delete request parameter."));
-        }
-
-        splitConfigOperReqDto.getAppIds().forEach(appId -> splitConfigRepository.deleteSplitConfig(appId));
+    public ResponseEntity<ResponseObject> deleteSplitConfig(String appId) {
+        LOGGER.info("delete split config, appId = {}", appId);
+        splitConfigRepository.deleteSplitConfig(appId);
 
         LOGGER.info("delete split config success.");
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

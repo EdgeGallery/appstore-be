@@ -18,11 +18,28 @@ package org.edgegallery.appstore.interfaces.order.facade.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 @Setter
 @Getter
 public class StatTimeRange {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatTimeRange.class);
+
     private String startTime;
 
     private String endTime;
+
+    /**
+     * adjust time format.
+     */
+    public void adjustTimeFormat() {
+        if (!StringUtils.isEmpty(startTime)) {
+            this.startTime += " 00:00:00";
+        }
+        if (!StringUtils.isEmpty(endTime)) {
+            this.endTime += " 23:59:59";
+        }
+    }
 }

@@ -47,7 +47,7 @@ public class ScheduleTask {
         packageServiceFacade.scheduledDeletePackage();
     }
 
-    @Scheduled(cron = "0 0 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void generateBill() {
         billService.generateBill();
     }

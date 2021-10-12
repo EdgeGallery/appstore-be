@@ -31,6 +31,8 @@ import org.edgegallery.appstore.interfaces.order.facade.OrderServiceFacade;
 import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.QueryOrdersReqDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Api(tags = "Order")
 @Validated
 public class OrderController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
     private static final String REG_ORDER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
@@ -69,6 +72,7 @@ public class OrderController {
     public ResponseEntity<ResponseObject> createOrder(
         @ApiParam(value = "CreateOrderReqDto", required = true) @RequestBody CreateOrderReqDto createOrderReqDto,
         HttpServletRequest request) {
+        LOGGER.info("enter create order.");
         return orderServiceFacade.createOrder((String) request.getAttribute(Consts.USERID),
             (String) request.getAttribute(Consts.USERNAME), createOrderReqDto,
             request.getHeader(Consts.ACCESS_TOKEN_STR));
@@ -90,6 +94,7 @@ public class OrderController {
     public ResponseEntity<ResponseObject> deactivateOrder(
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
+        LOGGER.info("enter deactivate order.");
         return orderServiceFacade.deactivateOrder((String)request.getAttribute(Consts.USERID),
             (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
@@ -110,6 +115,7 @@ public class OrderController {
     public ResponseEntity<ResponseObject> activateOrder(
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
+        LOGGER.info("enter activate order.");
         return orderServiceFacade.activateOrder((String)request.getAttribute(Consts.USERID),
             (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
@@ -130,6 +136,7 @@ public class OrderController {
     public ResponseEntity<Page<OrderDto>> queryOrders(
         @ApiParam(value = "QueryOrdersReqDto", required = true) @RequestBody QueryOrdersReqDto queryOrdersReqDto,
         HttpServletRequest request) {
+        LOGGER.info("enter query order.");
         return orderServiceFacade.queryOrders((String)request.getAttribute(Consts.USERID),
             (String)request.getAttribute(Consts.USERNAME), queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }

@@ -69,8 +69,8 @@ public class BillStatController {
         HttpServletRequest httpServletRequest,
         @ApiParam(value = "queryBillsReqDto", required = true) @RequestBody QueryBillsReqDto queryBillsReqDto) {
         LOGGER.info("enter query bill list.");
-        return billStatServiceFacade.queryBillList((String) httpServletRequest.getAttribute(Consts.USERID),
-            (String) httpServletRequest.getAttribute(Consts.USERNAME), queryBillsReqDto);
+        return billStatServiceFacade
+            .queryBillList((String) httpServletRequest.getAttribute(Consts.USERID), queryBillsReqDto);
     }
 
     /**
@@ -87,7 +87,7 @@ public class BillStatController {
         @ApiParam(value = "statOverallReqDto", required = true) @RequestBody StatOverallReqDto statOverallReqDto) {
         LOGGER.info("enter stat overall income and expenditure.");
         return billStatServiceFacade.statOverall((String) httpServletRequest.getAttribute(Consts.USERID),
-            (String) httpServletRequest.getAttribute(Consts.USERNAME), statOverallReqDto);
+            statOverallReqDto);
     }
 
     /**
@@ -105,7 +105,7 @@ public class BillStatController {
         LOGGER.info("enter stat top sale apps.");
         String userId = (String) httpServletRequest.getAttribute(Consts.USERID);
         return billStatServiceFacade.statTopSaleApp((String) httpServletRequest.getAttribute(Consts.USERID),
-            (String) httpServletRequest.getAttribute(Consts.USERNAME), topSaleAppReqDto);
+            topSaleAppReqDto);
     }
 
     /**
@@ -123,6 +123,6 @@ public class BillStatController {
         LOGGER.info("enter stat top order apps.");
         String userId = (String) httpServletRequest.getAttribute(Consts.USERID);
         return billStatServiceFacade.statTopOrderApp((String) httpServletRequest.getAttribute(Consts.USERID),
-            (String) httpServletRequest.getAttribute(Consts.USERNAME), topOrderAppReqDto);
+            topOrderAppReqDto);
     }
 }
