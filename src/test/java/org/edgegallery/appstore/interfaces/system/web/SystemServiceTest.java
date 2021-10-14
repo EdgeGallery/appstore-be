@@ -20,7 +20,6 @@ import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
-import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.system.facade.SystemService;
@@ -67,7 +66,7 @@ public class SystemServiceTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithNullUserName() {
         expectedEx.expectMessage( "Create host failed, userId is empty");
-        Either<ResponseObject, Boolean> res = systemService.createHost(new MepCreateHost(), "");
+        Either<ResponseObject, Boolean> res = systemService.createHost(new MepHost(), "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -75,7 +74,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithNullPwd() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -92,7 +91,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithNullUserId() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -109,7 +108,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithErrorLcmIp() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -128,7 +127,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testCreateHostWithErrorConfId() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -163,7 +162,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testUpdateHost() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         // host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -182,7 +181,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testUpdateHostError() {
-        MepCreateHost host = new MepCreateHost();
+        MepHost host = new MepHost();
         // host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
