@@ -22,7 +22,7 @@ import org.edgegallery.appstore.domain.model.system.MepHost;
 
 public interface HostMapper {
 
-    int createHost(MepHost MepHost);
+    int createHost(MepHost mepHost);
 
     int updateHostSelected(MepHost host);
 
