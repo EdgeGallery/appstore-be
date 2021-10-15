@@ -245,7 +245,7 @@ public class AppService {
     public List<SwImgDesc> getAppImageInfo(String localFilePath, String parentDir) {
         unzipApplicationPackage(localFilePath, parentDir);
 
-        File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
+        File swImageDesc = getFileFromPackage(parentDir, "SwImageDesc.json");
         if (swImageDesc == null) {
             return Collections.emptyList();
         }
@@ -557,7 +557,8 @@ public class AppService {
         List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
         try {
             for (File fileEntry : files) {
-                if (fileEntry.getCanonicalPath().contains(file)) {
+                String filePath = fileEntry.getCanonicalPath();
+                if (file.equals(filePath.substring(filePath.lastIndexOf(File.separator) + 1))) {
                     return fileEntry;
                 }
             }

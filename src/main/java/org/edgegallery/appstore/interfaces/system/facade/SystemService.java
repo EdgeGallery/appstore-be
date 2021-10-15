@@ -29,7 +29,6 @@ import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
-import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
@@ -99,7 +98,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<ResponseObject, Boolean> createHost(MepCreateHost host, String token) {
+    public Either<ResponseObject, Boolean> createHost(MepHost host, String token) {
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
             throw new EntityNotFoundException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
@@ -157,7 +156,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<ResponseObject, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
+    public Either<ResponseObject, Boolean> updateHost(String hostId, MepHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (healRes == null) {
@@ -258,7 +257,7 @@ public class SystemService {
         return false;
     }
 
-    private boolean addMecHostToLcm(MepCreateHost host) {
+    private boolean addMecHostToLcm(MepHost host) {
         MecHostBody body = new MecHostBody();
         body.setAffinity(host.getArchitecture());
         body.setCity(host.getAddress());

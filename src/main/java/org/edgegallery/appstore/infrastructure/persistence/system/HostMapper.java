@@ -18,14 +18,13 @@ package org.edgegallery.appstore.infrastructure.persistence.system;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.appstore.domain.model.system.MepCreateHost;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 
 public interface HostMapper {
 
-    int createHost(MepCreateHost mepCreateHost);
+    int createHost(MepHost mepHost);
 
-    int updateHostSelected(MepCreateHost host);
+    int updateHostSelected(MepHost host);
 
     int deleteHost(String hostId);
 

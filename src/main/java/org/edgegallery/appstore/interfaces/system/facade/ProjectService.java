@@ -374,7 +374,7 @@ public class ProjectService {
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
             HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
+                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
                     token);
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
@@ -444,7 +444,7 @@ public class ProjectService {
             appReleasePo.setStartExpTime(time.format(new Date()));
             packageMapper.updateAppInstanceApp(appReleasePo);
         }
-        //If it is a vm package, it will get the IP in parameter and return it to the foreground
+        // If it is a vm package, it will get the IP in parameter and return it to the foreground
         String serviceName = "";
         String nodePort = "";
         String mecHost = "";
@@ -518,7 +518,7 @@ public class ProjectService {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "please register host."));
         } else {
             LOGGER.info("Get all hosts success.");
-            //If the VM application is not released, you can determine whether the vm application is released
+            // If the VM application is not released, you can determine whether the vm application is released
             // by checking whether the instance ID is empty.
             // If the appInstanceId is null for a vm application, the appInstanceId is released
             if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils
@@ -572,7 +572,7 @@ public class ProjectService {
             LOGGER.error("get package List is empty");
             return false;
         }
-        //Call by service nameuser-mgmtLogin interface
+        // Call by service nameuser-mgmtLogin interface
         try {
             String accessToken = getAccessToken();
             if (StringUtils.isEmpty(accessToken)) {
