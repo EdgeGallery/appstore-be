@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.appstore.infrastructure.persistence.order.BillMapper">
+    <resultMap id="BillExtendInfoMap" type="org.edgegallery.appstore.domain.model.order.BillExtendEntity">
+        <id property="billId" column="billid"/>
+        <result property="orderId" column="orderid"/>
+        <result property="orderNum" column="ordernum"/>
+        <result property="orderUserId" column="userid_order"/>
+        <result property="orderUserName" column="username_order"/>
+        <result property="billUserId" column="userid_bill"/>
+        <result property="billUserName" column="username_bill"/>
+        <result property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="provider" column="provider"/>
+        <result property="createTime" column="createtime"/>
+        <result property="billType" column="billtype"/>
+        <result property="billSubType" column="billsubtype"/>
+        <result property="billAmount" column="billamount"/>
+        <result property="operatorFee" column="operatorfee"/>
+        <result property="supplierFee" column="supplierfee"/>
+    </resultMap>
+
+    <resultMap id="AppSaleStatInfo" type="org.edgegallery.appstore.domain.model.order.AppSaleStatInfo">
+        <id property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="saleAmount" column="saleamount"/>
+        <result property="saleCount" column="salecount"/>
+    </resultMap>
+
+    <resultMap id="AppOrderStatInfo" type="org.edgegallery.appstore.domain.model.order.AppOrderStatInfo">
+        <id property="appId" column="appid"/>
+        <result property="appName" column="appname"/>
+        <result property="orderAmount" column="orderamount"/>
+    </resultMap>
+
+    <insert id="insert"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.order.BillPo">
+        insert into app_bill
+        (billId, orderId, createTime, userId, userName,
+        billType, billSubType, billAmount, operatorFee, supplierFee)
+        VALUES (#{billId}, #{orderId}, now(), #{userId}, #{userName},
+        #{billType}, #{billSubType}, #{billAmount}, #{operatorFee}, #{supplierFee})
+    </insert>
+
+    <select id="queryBillList" parameterType="java.util.Map" resultMap="BillExtendInfoMap">
+        select billid, orderTab.orderid, orderTab.ordernum, orderTab.userid userid_order, orderTab.username username_order,
+        billTab.userid userid_bill, billTab.username username_bill,
+        appTab.appId, appName, appTab.provider,
+        billTab.createTime, billType, billSubType, billAmount, operatorFee, supplierFee
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            <if test="userId != null and userId !=''">
+                and billTab.userId = #{userId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        <if test="queryCtrl != null">
+            <if test="queryCtrl.sortItem != null and queryCtrl.sortItem != '' and queryCtrl.sortType != null and queryCtrl.sortType != ''">
+                order by ${queryCtrl.sortItem} ${queryCtrl.sortType}
+            </if>
+            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
+                offset #{queryCtrl.offset} limit #{queryCtrl.limit}
+            </if>
+        </if>
+    </select>
+
+    <select id="queryBillCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1) from app_bill
+        <where>
+            <if test="userId != null and userId !=''">
+                and userId = #{userId}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="statOverallAmount" parameterType="java.util.Map" resultType="java.lang.Double">
+        select sum(billAmount) from app_bill where billType=#{billType}
+        <if test="userId != null and userId !=''">
+            and userId = #{userId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            <![CDATA[ and createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+        </if>
+        <if test="endTime != null and endTime != ''">
+            <![CDATA[ and createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+        </if>
+    </select>
+
+    <select id="statAppSaleAmount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+        select appTab.appId appid, appname,
+        sum(billAmount) saleamount
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null and billsubtype='APPSUPPLY'
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by saleamount ${sortType}
+        limit #{topNum}
+    </select>
+
+    <select id="statAppSaleCount" parameterType="java.util.Map" resultMap="AppSaleStatInfo">
+        select appTab.appId appid, appname,
+        count(orderid) salecount
+        from app_order orderTab
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and orderTab.orderTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and orderTab.orderTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by salecount ${sortType}
+        limit #{topNum}
+    </select>
+
+    <select id="statAppOrderAmount" parameterType="java.util.Map" resultMap="AppOrderStatInfo">
+        select appTab.appId appid, appname,
+        sum(billAmount) orderamount
+        from app_bill billTab
+        left join app_order orderTab on orderTab.orderId = billTab.orderId
+        left join app_table appTab on appTab.appId = orderTab.appId
+        <where>
+            appTab.appId is not null and billtype='OUT'
+            <if test="userIdOfApp != null and userIdOfApp !=''">
+                and appTab.userId = #{userIdOfApp}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                <![CDATA[ and billTab.createTime >= to_timestamp(#{startTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="endTime != null and endTime != ''">
+                <![CDATA[ and billTab.createTime <= to_timestamp(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        group by appTab.appId
+        order by orderamount desc
+        limit #{topNum}
+    </select>
+
+</mapper>

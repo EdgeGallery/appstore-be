@@ -95,7 +95,7 @@ public class ProjectController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(
         @ApiParam(value = "packageId", required = true) @RequestParam("packageId") String packageId,
         @ApiParam(value = "name") @RequestParam("name") String name,

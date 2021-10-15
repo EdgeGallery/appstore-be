@@ -16,6 +16,24 @@ package org.edgegallery.appstore.domain.constants;
 
 public final class Consts {
 
+    public static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    public static final String REG_APP_ID = "[0-9a-f]{32}";
+
+    public static final String USERID = "userId";
+
+    public static final String USERNAME = "userName";
+
+    public static final String AUTIORITIES = "authorities";
+
+    public static final String SUPER_ADMIN_ID = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+
+    public static final String SUPER_ADMIN_NAME = "admin";
+
+    public static final String SPLITCONFIG_APPID_GLOBAL = "all";
+
+    public static final double SPLITCONFIG_SPLITRATIO_GLOBAL = 0.15;
+
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
     public static final String APP_LCM_INSTANTIATE_APP_URL

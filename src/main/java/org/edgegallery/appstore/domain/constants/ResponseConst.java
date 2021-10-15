@@ -307,6 +307,16 @@ public class ResponseConst {
     public static final int RET_NO_ACCESS_DELETE_PACKAGE = 18002;
 
     /**
+     * Permission not allowed to deactivate order.
+     */
+    public static final int RET_NO_ACCESS_DEACTIVATE_ORDER = 18003;
+
+    /**
+     * Permission not allowed to activate order.
+     */
+    public static final int RET_NO_ACCESS_ACTIVATE_ORDER = 18004;
+
+    /**
      * general base error code.
      */
     public static final int RET_GENERAL_BASE = 19000;
@@ -455,6 +465,46 @@ public class ResponseConst {
      * delete third system fail.
      */
     public static final int RET_DELETE_THIRD_SYSTEM_FAILED = 15105;
+
+    /**
+     * order base error code.
+     */
+    public static final int RET_ORDER_BASE = 16000;
+
+    /**
+     * order not found with id.
+     */
+    public static final int RET_ORDER_NOT_FOUND = 16001;
+
+    /**
+     * create order failed.
+     */
+    public static final int RET_CREATE_ORDER_FAILED = 16002;
+
+    /**
+     * deactivate order failed.
+     */
+    public static final int RET_DEACTIVATE_ORDER_FAILED = 16003;
+
+    /**
+     * an inactivated order can't be deactivated.
+     */
+    public static final int RET_NOT_ALLOWED_DEACTIVATE_ORDER = 16004;
+
+    /**
+     * activate order failed.
+     */
+    public static final int RET_ACTIVATE_ORDER_FAILED = 16005;
+
+    /**
+     * deactivate order failed.
+     */
+    public static final int RET_NOT_ALLOWED_ACTIVATE_ORDER = 16006;
+
+    /**
+     * get mecm host failed.
+     */
+    public static final int RET_GET_MECMHOST_FAILED = 16007;
 
     private ResponseConst() {
         throw new IllegalStateException("Utility class");

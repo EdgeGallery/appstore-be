@@ -92,6 +92,10 @@ public class App implements Entity {
 
     private boolean experienceAble;
 
+    private boolean isFree = true;
+
+    private double price;
+
     /**
      * Constructor of App.
      *

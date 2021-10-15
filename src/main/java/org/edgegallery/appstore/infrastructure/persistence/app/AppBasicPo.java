@@ -93,6 +93,12 @@ public class AppBasicPo implements PersistenceObject<App> {
     @Column(name = "EXPERIENCEABLE")
     private boolean experienceAble;
 
+    @Column(name = "ISFREE")
+    private boolean isFree;
+
+    @Column(name = "PRICE")
+    private double price;
+
     public AppBasicPo() {
         // empty construct
     }
@@ -118,6 +124,8 @@ public class AppBasicPo implements PersistenceObject<App> {
         po.deployMode = app.getDeployMode();
         po.isHotApp = app.isHotApp();
         po.experienceAble = app.isExperienceAble();
+        po.isFree = app.isFree();
+        po.price = app.getPrice();
         return po;
     }
 
@@ -127,6 +135,8 @@ public class AppBasicPo implements PersistenceObject<App> {
             .updateTime(modifyTime).downloadCount(downloadCount).score(score).shortDesc(shortDesc).showType(showType)
             .affinity(affinity).industry(industry).contact(contact).applicationType(applicationType)
             .user(new User(userId, userName)).numOfcomment(0).releases(null)
-            .status(status).deployMode(deployMode).isHotApp(isHotApp).build();
+            .status(status).deployMode(deployMode).isHotApp(isHotApp)
+            .isFree(isFree).price(price)
+            .build();
     }
 }

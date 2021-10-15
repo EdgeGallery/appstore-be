@@ -36,6 +36,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +70,9 @@ public class PackageService {
      *
      * @param appId app id
      * @param packageId package id
+     * @param publishAppReq publish request body
      */
-    public void publishPackage(String appId, String packageId) {
+    public void publishPackage(String appId, String packageId, PublishAppReqDto publishAppReq) {
         Release release = packageRepository.findReleaseById(appId, packageId);
         if (release.getStatus() != EnumPackageStatus.Test_success) {
             LOGGER.error("Test status is {}, publish failed", release.getStatus());
@@ -80,7 +82,7 @@ public class PackageService {
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND))
             .checkReleases(release);
         release.setStatus(EnumPackageStatus.Published);
-        publishAppAndPackage(appId, release);
+        publishAppAndPackage(appId, release, publishAppReq);
     }
 
     /**
@@ -88,13 +90,16 @@ public class PackageService {
      *
      * @param appId app id
      * @param release a package
+     * @param publishAppReq publish request body
      */
     @Transactional(rollbackFor = Exception.class)
-    public void publishAppAndPackage(String appId, Release release) {
+    public void publishAppAndPackage(String appId, Release release, PublishAppReqDto publishAppReq) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (app.getStatus() != EnumAppStatus.Published) {
             app.setStatus(EnumAppStatus.Published);
+            app.setFree(publishAppReq.isFree());
+            app.setPrice(publishAppReq.getPrice());
             appRepository.store(app);
         }
         release.setStatus(EnumPackageStatus.Published);
