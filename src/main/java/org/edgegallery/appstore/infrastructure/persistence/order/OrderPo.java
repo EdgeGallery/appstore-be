@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
@@ -63,16 +64,16 @@ public class OrderPo implements PersistenceObject<Order> {
     private String status;
 
     @Column(name = "MECM_HOSTIP")
-    private String mecm_hostIp;
+    private String mecHostIp;
 
     @Column(name = "MECM_APPID")
-    private String mecm_appId;
+    private String mecAppId;
 
     @Column(name = "MECM_APPPACKAGEID")
-    private String mecm_appPackageId;
+    private String mecPackageId;
 
     @Column(name = "MECM_INSTANCEID")
-    private String mecm_instanceId;
+    private String mecInstanceId;
 
     public OrderPo() {
         // empty construct
@@ -80,28 +81,32 @@ public class OrderPo implements PersistenceObject<Order> {
 
     static OrderPo of(Order order) {
         OrderPo po = new OrderPo();
-        po.orderId = order.getOrderId();
-        po.orderNum = order.getOrderNum();
-        po.userId = order.getUserId();
-        po.userName = order.getUserName();
-        po.appId = order.getAppId();
-        po.appPackageId = order.getPackageId();
-        po.orderTime = order.getOrderTime();
-        po.operateTime = order.getOperateTime();
+        BeanUtils.copyProperties(order, po);
         po.status = order.getStatus().toString();
-        po.mecm_hostIp = order.getMecHostIp();
-        po.mecm_appId = order.getMecAppId();
-        po.mecm_appPackageId = order.getMecPackageId();
-        po.mecm_instanceId = order.getMecInstanceId();
         return po;
     }
 
     @Override
     public Order toDomainModel() {
-        return Order.builder().orderId(orderId).orderNum(orderNum).userId(userId).userName(userName)
-            .appId(appId).packageId(appPackageId).orderTime(orderTime).operateTime(operateTime)
-            .status(EnumOrderStatus.valueOf(status))
-            .mecHostIp(mecm_hostIp).mecAppId(mecm_appId).mecPackageId(mecm_appPackageId).mecInstanceId(mecm_instanceId)
-            .build();
+        Order order = new Order();
+        BeanUtils.copyProperties(this, order);
+        order.setStatus(EnumOrderStatus.valueOf(this.getStatus()));
+        return order;
+    }
+
+    public Date getOrderTime() {
+        return orderTime == null ? null : (Date)orderTime.clone();
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime == null ? null : (Date)orderTime.clone();
+    }
+
+    public Date getOperateTime() {
+        return operateTime == null ? null : (Date)operateTime.clone();
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime == null ? null : (Date)operateTime.clone();
     }
 }

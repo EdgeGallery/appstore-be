@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.order.SplitConfig;
 import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
@@ -46,8 +47,7 @@ public class SplitConfigPo implements PersistenceObject<SplitConfig> {
 
     static SplitConfigPo of(SplitConfig splitConfig) {
         SplitConfigPo po = new SplitConfigPo();
-        po.appId = splitConfig.getAppId();
-        po.splitRatio = splitConfig.getSplitRatio();
+        BeanUtils.copyProperties(splitConfig, po);
 
         return po;
     }

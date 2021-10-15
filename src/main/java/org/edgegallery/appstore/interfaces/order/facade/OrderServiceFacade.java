@@ -120,7 +120,7 @@ public class OrderServiceFacade {
                 // if success, update status to deactivated, if failed, update status to deactivate_failed
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
-                Date activateDateTime = order.getOperateTime();
+                final Date activateDateTime = order.getOperateTime();
                 order.setOperateTime(new Date());
                 orderRepository.updateOrderStatus(order);
 

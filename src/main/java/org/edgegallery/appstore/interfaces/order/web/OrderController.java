@@ -137,8 +137,9 @@ public class OrderController {
         @ApiParam(value = "QueryOrdersReqDto", required = true) @RequestBody QueryOrdersReqDto queryOrdersReqDto,
         HttpServletRequest request) {
         LOGGER.info("enter query order.");
-        return orderServiceFacade.queryOrders((String)request.getAttribute(Consts.USERID),
-            (String)request.getAttribute(Consts.USERNAME), queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade
+            .queryOrders((String) request.getAttribute(Consts.USERID), (String) request.getAttribute(Consts.USERNAME),
+                queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
 

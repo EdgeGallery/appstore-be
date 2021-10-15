@@ -17,8 +17,6 @@
 package org.edgegallery.appstore.domain.model.order;
 
 import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,9 +25,7 @@ import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class Order implements Entity {
 
     private String orderId;
@@ -42,7 +38,7 @@ public class Order implements Entity {
 
     private String appId;
 
-    private String packageId;
+    private String appPackageId;
 
     private Date orderTime;
 
@@ -58,16 +54,41 @@ public class Order implements Entity {
 
     private String mecInstanceId;
 
+    /**
+     * construct.
+     *
+     * @param orderId Order Id
+     * @param orderNum Order Num
+     * @param userId User ID
+     * @param userName User Name
+     * @param dto create dto
+     */
     public Order(String orderId, String orderNum, String userId, String userName, CreateOrderReqDto dto) {
         this.orderId = orderId;
         this.orderNum = orderNum;
         this.userId = userId;
         this.userName = userName;
         this.appId = dto.getAppId();
-        this.packageId = dto.getAppPackageId();
+        this.appPackageId = dto.getAppPackageId();
         this.orderTime = new Date();
         this.operateTime = this.orderTime;
         this.status = EnumOrderStatus.ACTIVATING;
         this.mecHostIp = dto.getMecHostIp();
+    }
+
+    public Date getOrderTime() {
+        return orderTime == null ? null : (Date)orderTime.clone();
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime == null ? null : (Date)orderTime.clone();
+    }
+
+    public Date getOperateTime() {
+        return operateTime == null ? null : (Date)operateTime.clone();
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime == null ? null : (Date)operateTime.clone();
     }
 }

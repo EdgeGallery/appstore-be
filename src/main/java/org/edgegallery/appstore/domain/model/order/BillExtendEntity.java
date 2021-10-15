@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.domain.model.order;
 
 import java.util.Date;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +25,6 @@ import org.edgegallery.appstore.domain.shared.Entity;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class BillExtendEntity implements Entity {
 
     private String billId;
@@ -60,4 +58,12 @@ public class BillExtendEntity implements Entity {
     private double operatorFee;
 
     private double supplierFee;
+
+    public Date getCreateTime() {
+        return createTime == null ? null : (Date)createTime.clone();
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime == null ? null : (Date)createTime.clone();
+    }
 }

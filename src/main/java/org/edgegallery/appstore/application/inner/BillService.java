@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.application.inner;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -112,14 +111,12 @@ public class BillService {
 
         double operatorFee = totalAmount * splitRatio;
         double supplierFee = totalAmount - operatorFee;
-        List<Bill> newBillList = new ArrayList<>();
-        newBillList.add(geneBillForConsumer(order.getOrderId(), order.getUserId(),
+        billRepository.addBill(geneBillForConsumer(order.getOrderId(), order.getUserId(),
             order.getUserName(), operatorFee, supplierFee));
-        newBillList.add(geneBillForOperator(order.getOrderId(), Consts.SUPER_ADMIN_ID,
+        billRepository.addBill(geneBillForOperator(order.getOrderId(), Consts.SUPER_ADMIN_ID,
             Consts.SUPER_ADMIN_NAME, operatorFee));
-        newBillList.add(geneBillForSupplier(order.getOrderId(), app.getUserId(),
+        billRepository.addBill(geneBillForSupplier(order.getOrderId(), app.getUserId(),
             app.getUser().getUserName(), supplierFee));
-        newBillList.forEach(newBill -> billRepository.addBill(newBill));
         LOGGER.info("generate bills for order end, orderNum = {}", order.getOrderNum());
     }
 

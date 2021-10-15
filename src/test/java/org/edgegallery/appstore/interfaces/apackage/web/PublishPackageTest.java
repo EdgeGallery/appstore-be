@@ -80,6 +80,7 @@ public class PublishPackageTest extends AppTest {
         });
         MvcResult result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v2/apps/%s/packages/%s/action/publish", appId, unPublishedPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());

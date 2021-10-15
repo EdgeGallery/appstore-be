@@ -32,7 +32,7 @@
         (orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
          mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId)
         VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{orderTime},
-                #{operateTime}, #{status}, #{mecm_hostIp}, #{mecm_appId}, #{mecm_appPackageId}, #{mecm_instanceId})
+                #{operateTime}, #{status}, #{mecHostIp}, #{mecAppId}, #{mecPackageId}, #{mecInstanceId})
     </insert>
 
     <select id="getCountByCondition" resultType="java.lang.Integer"
@@ -62,7 +62,7 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="java.util.Map">
         select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId from app_order
+        mecm_hostIp mecHostIp, mecm_appId mecAppId, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId from app_order
         <where>
             <if test="appId != null and appId != '' ">
                 and appId = #{appId}

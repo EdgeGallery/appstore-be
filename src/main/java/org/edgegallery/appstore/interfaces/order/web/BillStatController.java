@@ -103,7 +103,6 @@ public class BillStatController {
         HttpServletRequest httpServletRequest,
         @ApiParam(value = "topSaleAppReqDto", required = true) @RequestBody TopSaleAppReqDto topSaleAppReqDto) {
         LOGGER.info("enter stat top sale apps.");
-        String userId = (String) httpServletRequest.getAttribute(Consts.USERID);
         return billStatServiceFacade.statTopSaleApp((String) httpServletRequest.getAttribute(Consts.USERID),
             topSaleAppReqDto);
     }
@@ -121,7 +120,6 @@ public class BillStatController {
         HttpServletRequest httpServletRequest,
         @ApiParam(value = "topOrderAppReqDto", required = true) @RequestBody TopOrderAppReqDto topOrderAppReqDto) {
         LOGGER.info("enter stat top order apps.");
-        String userId = (String) httpServletRequest.getAttribute(Consts.USERID);
         return billStatServiceFacade.statTopOrderApp((String) httpServletRequest.getAttribute(Consts.USERID),
             topOrderAppReqDto);
     }

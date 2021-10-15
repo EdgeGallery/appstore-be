@@ -69,8 +69,9 @@ public class SplitConfigServiceFacade {
         List<SplitConfigDto> respDataDto = splitConfigList.stream().map(
             splitConfig -> new SplitConfigDto(splitConfig.getAppId(),
                 appFinder.get(splitConfig.getAppId()) != null ? appFinder.get(splitConfig.getAppId()).getAppName() : "",
-                appFinder.get(splitConfig.getAppId()) != null ? appFinder.get(splitConfig.getAppId()).getProvider() : "",
-                splitConfig.getSplitRatio())).collect(Collectors.toList());
+                appFinder.get(splitConfig.getAppId()) != null
+                    ? appFinder.get(splitConfig.getAppId()).getProvider()
+                    : "", splitConfig.getSplitRatio())).collect(Collectors.toList());
 
         LOGGER.info("query all split configs success.");
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

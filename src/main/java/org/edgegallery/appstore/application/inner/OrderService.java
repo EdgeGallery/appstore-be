@@ -58,20 +58,23 @@ public class OrderService {
         for (Order order : orders) {
             Release release = null;
             try {
-                release = appService.getRelease(order.getAppId(), order.getPackageId());
+                release = appService.getRelease(order.getAppId(), order.getAppPackageId());
             } catch (Exception e) {
                 LOGGER.warn("app not found! appId = {}", order.getAppId());
             }
+
             // query mec host info
-            String mecHostIp = order.getMecHostIp();
             String mecHostName = "";
             String mecHostCity = "";
-            List<String> mecHostIpLst = new ArrayList<>();
-            mecHostIpLst.add(mecHostIp);
-            Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
-            if (!mecHostInfo.isEmpty()) {
-                mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
-                mecHostCity = mecHostInfo.get(mecHostIp).getCity();
+            String mecHostIp = order.getMecHostIp();
+            if (!StringUtils.isEmpty(mecHostIp)) {
+                List<String> mecHostIpLst = new ArrayList<>();
+                mecHostIpLst.add(mecHostIp);
+                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
+                if (!mecHostInfo.isEmpty()) {
+                    mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
+                    mecHostCity = mecHostInfo.get(mecHostIp).getCity();
+                }
             }
 
             OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",

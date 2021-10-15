@@ -230,7 +230,8 @@ public class PackageServiceFacade {
     /**
      * publish package v2.
      */
-    public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId, PublishAppReqDto publishAppReq) {
+    public ResponseEntity<ResponseObject> publishPackageV2(String appId, String packageId,
+        PublishAppReqDto publishAppReq) {
         packageService.publishPackage(appId, packageId, publishAppReq);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Publish Success", errMsg, "Publish Success."));
