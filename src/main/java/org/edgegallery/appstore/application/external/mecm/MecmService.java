@@ -26,6 +26,7 @@ import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,7 +43,10 @@ public class MecmService {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private static final String MECM_URL_GET_MECHOSTS = "http://127.0.0.1:8093/inventory/v1/mechosts";
+    private static final String MECM_URL_GET_MECHOSTS = "/inventory/v1/mechosts";
+
+    @Value("${mecm.urls.inventory:}")
+    private String inventoryUrl;
 
     /**
      * get all mecm hosts.
@@ -57,7 +61,7 @@ public class MecmService {
 
         try {
             ResponseEntity<String> response = REST_TEMPLATE
-                .exchange(MECM_URL_GET_MECHOSTS, HttpMethod.GET, request, String.class);
+                .exchange(inventoryUrl.concat(MECM_URL_GET_MECHOSTS), HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
@@ -67,9 +71,7 @@ public class MecmService {
 
             return new Gson().fromJson(response.getBody(), List.class);
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get mechosts, exception is {}", e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Failed to get mechosts, exception is {}", e.getMessage());
+            LOGGER.error("Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
 
         return Collections.emptyList();

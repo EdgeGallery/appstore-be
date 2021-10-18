@@ -292,64 +292,9 @@ public class ResponseConst {
     public static final int RET_DOWNLOAD_FROM_APPSTORE_FAILED = 14005;
 
     /**
-     * right base error code.
+     * system base error code.
      */
-    public static final int RET_RIGHT_BASE = 18000;
-
-    /**
-     * Permission not allowed to delete app.
-     */
-    public static final int RET_NO_ACCESS_DELETE_APP = 18001;
-
-    /**
-     * Permission not allowed to delete application package.
-     */
-    public static final int RET_NO_ACCESS_DELETE_PACKAGE = 18002;
-
-    /**
-     * Permission not allowed to deactivate order.
-     */
-    public static final int RET_NO_ACCESS_DEACTIVATE_ORDER = 18003;
-
-    /**
-     * Permission not allowed to activate order.
-     */
-    public static final int RET_NO_ACCESS_ACTIVATE_ORDER = 18004;
-
-    /**
-     * general base error code.
-     */
-    public static final int RET_GENERAL_BASE = 19000;
-
-    /**
-     * Database operation failed.
-     */
-    public static final int RET_DB_ERROR = 19001;
-
-    /**
-     * make directory failed.
-     */
-    public static final int RET_MAKE_DIR_FAILED = 19002;
-
-    /**
-     * create file failed.
-     */
-    public static final int RET_CREATE_FILE_FAILED = 19003;
-
-    /**
-     * copy file failed.
-     */
-    public static final int RET_COPY_FILE_FAILED = 19004;
-
-    /**
-     * File is outside extraction target directory.
-     */
-    public static final int RET_FILE_OUT_TARGET = 19005;
-
-    /**
-     * the file path is invalid.
-     */
-    public static final int RET_FILE_PATH_INVALID = 19006;
+    public static final int RET_SYSTEM_BASE = 15000;
 
     /**
      * Upload config file error.
@@ -497,14 +442,74 @@ public class ResponseConst {
     public static final int RET_ACTIVATE_ORDER_FAILED = 16005;
 
     /**
-     * deactivate order failed.
+     * unsubscribed orders can't be activated.
      */
     public static final int RET_NOT_ALLOWED_ACTIVATE_ORDER = 16006;
 
     /**
-     * get mecm host failed.
+     * get mec host info failed.
      */
     public static final int RET_GET_MECMHOST_FAILED = 16007;
+
+    /**
+     * right base error code.
+     */
+    public static final int RET_RIGHT_BASE = 18000;
+
+    /**
+     * Permission not allowed to delete app.
+     */
+    public static final int RET_NO_ACCESS_DELETE_APP = 18001;
+
+    /**
+     * Permission not allowed to delete application package.
+     */
+    public static final int RET_NO_ACCESS_DELETE_PACKAGE = 18002;
+
+    /**
+     * Permission not allowed to deactivate order.
+     */
+    public static final int RET_NO_ACCESS_DEACTIVATE_ORDER = 18003;
+
+    /**
+     * Permission not allowed to activate order.
+     */
+    public static final int RET_NO_ACCESS_ACTIVATE_ORDER = 18004;
+
+    /**
+     * general base error code.
+     */
+    public static final int RET_GENERAL_BASE = 19000;
+
+    /**
+     * Database operation failed.
+     */
+    public static final int RET_DB_ERROR = 19001;
+
+    /**
+     * make directory failed.
+     */
+    public static final int RET_MAKE_DIR_FAILED = 19002;
+
+    /**
+     * create file failed.
+     */
+    public static final int RET_CREATE_FILE_FAILED = 19003;
+
+    /**
+     * copy file failed.
+     */
+    public static final int RET_COPY_FILE_FAILED = 19004;
+
+    /**
+     * File is outside extraction target directory.
+     */
+    public static final int RET_FILE_OUT_TARGET = 19005;
+
+    /**
+     * the file path is invalid.
+     */
+    public static final int RET_FILE_PATH_INVALID = 19006;
 
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
