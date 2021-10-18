@@ -37,8 +37,7 @@ public class MecmHostDto {
      * @return dto object
      */
     public static MecmHostDto fromMap(Map<String, Object> mecHostInfoMap) {
-        MecmHostDto result = new MecmHostDto((String) mecHostInfoMap.get("mechostIp"),
+        return new MecmHostDto((String) mecHostInfoMap.get("mechostIp"),
             (String) mecHostInfoMap.get("mechostName"), (String) mecHostInfoMap.get("city"));
-        return result;
     }
 }

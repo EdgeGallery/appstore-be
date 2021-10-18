@@ -46,6 +46,10 @@ public class BillStatServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BillStatServiceFacade.class);
 
+    private static final String START_TIME = "startTime";
+
+    private static final String END_TIME = "endTime";
+
     @Autowired
     private BillRepository billRepository;
 
@@ -63,8 +67,8 @@ public class BillStatServiceFacade {
         if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             queryParams.put("userId", userId);
         }
-        queryParams.put("startTime", queryBillsReqDto.getStartTime());
-        queryParams.put("endTime", queryBillsReqDto.getEndTime());
+        queryParams.put(START_TIME, queryBillsReqDto.getStartTime());
+        queryParams.put(END_TIME, queryBillsReqDto.getEndTime());
         queryParams.put("queryCtrl", queryBillsReqDto.getQueryCtrl());
         List<BillDto> billDtos = billRepository.queryBillList(queryParams).stream().map(BillDto::of)
             .collect(Collectors.toList());
@@ -87,8 +91,8 @@ public class BillStatServiceFacade {
         statOverallReqDto.adjustTimeFormat();
         Map<String, Object> statParams = new HashMap<>();
         statParams.put("userId", userId);
-        statParams.put("startTime", statOverallReqDto.getStartTime());
-        statParams.put("endTime", statOverallReqDto.getEndTime());
+        statParams.put(START_TIME, statOverallReqDto.getStartTime());
+        statParams.put(END_TIME, statOverallReqDto.getEndTime());
 
         statParams.put("billType", "IN");
         double incomeNum = billRepository.statOverallAmount(statParams);
@@ -116,8 +120,8 @@ public class BillStatServiceFacade {
         if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
             statParams.put("userIdOfApp", userId);
         }
-        statParams.put("startTime", topSaleAppReqDto.getStartTime());
-        statParams.put("endTime", topSaleAppReqDto.getEndTime());
+        statParams.put(START_TIME, topSaleAppReqDto.getStartTime());
+        statParams.put(END_TIME, topSaleAppReqDto.getEndTime());
         statParams.put("sortType", topSaleAppReqDto.getSortType());
         statParams.put("topNum", topSaleAppReqDto.getTopNum());
         List<AppSaleStatInfo> appSaleStatInfoList = "SaleAmount".equalsIgnoreCase(topSaleAppReqDto.getTopCriterion())
@@ -145,8 +149,8 @@ public class BillStatServiceFacade {
         if (!Consts.SUPER_ADMIN_ID.equalsIgnoreCase(userId)) {
             statParams.put("userIdOfApp", userId);
         }
-        statParams.put("startTime", topOrderAppReqDto.getStartTime());
-        statParams.put("endTime", topOrderAppReqDto.getEndTime());
+        statParams.put(START_TIME, topOrderAppReqDto.getStartTime());
+        statParams.put(END_TIME, topOrderAppReqDto.getEndTime());
         statParams.put("topNum", 5);
         List<TopOrderAppResultDto> respDataDto = billRepository.statAppOrderAmount(statParams).stream()
             .map(TopOrderAppResultDto::of).collect(Collectors.toList());

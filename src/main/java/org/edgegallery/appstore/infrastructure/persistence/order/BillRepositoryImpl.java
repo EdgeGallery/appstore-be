@@ -23,15 +23,11 @@ import org.edgegallery.appstore.domain.model.order.AppSaleStatInfo;
 import org.edgegallery.appstore.domain.model.order.Bill;
 import org.edgegallery.appstore.domain.model.order.BillExtendEntity;
 import org.edgegallery.appstore.domain.model.order.BillRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class BillRepositoryImpl implements BillRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BillRepositoryImpl.class);
 
     @Autowired
     private BillMapper billMapper;

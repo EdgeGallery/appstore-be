@@ -56,8 +56,8 @@ public class SplitConfigServiceFacade {
     public ResponseEntity<ResponseObject> queryAllSplitConfigs() {
         LOGGER.info("query all split configs.");
         List<SplitConfig> splitConfigList = splitConfigRepository.getAllSplitConfigs();
-        if (!splitConfigList.stream()
-            .anyMatch(item -> Consts.SPLITCONFIG_APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
+        if (splitConfigList.stream()
+            .noneMatch(item -> Consts.SPLITCONFIG_APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
             splitConfigList.add(new SplitConfig(Consts.SPLITCONFIG_APPID_GLOBAL, Consts.SPLITCONFIG_SPLITRATIO_GLOBAL));
         }
 
