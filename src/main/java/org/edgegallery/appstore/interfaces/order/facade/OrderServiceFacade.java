@@ -74,7 +74,6 @@ public class OrderServiceFacade {
             Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
             orderRepository.addOrder(order);
 
-            // TODO
             // upload package to mec
             // create app instance
             // query app instance status
@@ -113,6 +112,7 @@ public class OrderServiceFacade {
             if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.DEACTIVATING);
                 orderRepository.updateOrderStatus(order);
+
                 // undeploy app
                 // query status
                 // if success, update status to deactivated, if failed, update status to deactivate_failed
@@ -157,6 +157,7 @@ public class OrderServiceFacade {
             if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.ACTIVATING);
                 orderRepository.updateOrderStatus(order);
+
                 // upload package to mecm
                 // deploy app
                 // query status
