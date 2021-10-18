@@ -267,3 +267,7 @@
     alter table catalog_package_table add column IF NOT EXISTS EXPERIENCEABLEIP varchar(100) NULL;
 
     alter table catalog_package_table add column IF NOT EXISTS MECHOST varchar(100) NULL;
+
+    alter table app_table add column if NOT EXISTS ISFREE boolean DEFAULT true;
+
+    alter table app_table add column if NOT EXISTS PRICE NUMERIC(10,2) NULL;

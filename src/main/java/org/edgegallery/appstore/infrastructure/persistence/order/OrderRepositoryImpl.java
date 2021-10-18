@@ -22,15 +22,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class OrderRepositoryImpl implements OrderRepository {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderRepositoryImpl.class);
 
     @Autowired
     private OrderMapper orderMapper;

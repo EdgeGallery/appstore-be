@@ -36,8 +36,6 @@ public class OrderService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
 
-    private static int MAX_NUM_LEN = 10;
-
     @Autowired
     private OrderRepository orderRepository;
 
@@ -105,6 +103,7 @@ public class OrderService {
         }
         int maxId = Integer.parseInt(maxOrderNum.substring(2));
         String strId = "0000000000" + (++maxId);
-        return "ES" + strId.substring(strId.length() - MAX_NUM_LEN);
+        int maxNumLen = 10;
+        return "ES" + strId.substring(strId.length() - maxNumLen);
     }
 }

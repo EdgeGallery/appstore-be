@@ -89,6 +89,7 @@ public class OrderServiceFacade {
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
             return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AppException("create order exception.", ResponseConst.RET_CREATE_ORDER_FAILED);
         }
     }
@@ -134,6 +135,7 @@ public class OrderServiceFacade {
             return ResponseEntity
                 .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AppException("deactivate order exception.", ResponseConst.RET_DEACTIVATE_ORDER_FAILED);
         }
     }
@@ -176,6 +178,7 @@ public class OrderServiceFacade {
             return ResponseEntity
                 .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AppException("deactivate order exception.", ResponseConst.RET_ACTIVATE_ORDER_FAILED);
         }
     }

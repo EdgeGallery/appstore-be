@@ -19,7 +19,6 @@ package org.edgegallery.appstore.infrastructure.persistence.order;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.appstore.domain.model.order.SplitConfig;
 import org.springframework.stereotype.Component;
 
 @Component
