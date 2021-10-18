@@ -89,6 +89,11 @@ atp:
     create-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073}/edgegallery/atp/v1/tasks
     query-task: ${ATP_SERVER_ADDRESS:https://atp-svc:8073}/edgegallery/atp/v1/tasks/%s
 
+### mecm config ###
+mecm:
+  urls:
+    inventory: ${MECM_APO_URL:https://mecm-inventory:8093}
+
 client:
   client-id: ${CLIENT_ID:}
   client-secret: ${CLIENT_SECRET:}

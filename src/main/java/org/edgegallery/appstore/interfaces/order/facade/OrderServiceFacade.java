@@ -64,11 +64,10 @@ public class OrderServiceFacade {
      * @param userId user id
      * @param userName user name
      * @param addOrderReqDto request body
-     * @param token token
      * @return result
      */
-    public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
-        String token) {
+    public ResponseEntity<ResponseObject> createOrder(String userId, String userName,
+        CreateOrderReqDto addOrderReqDto) {
         try {
             String orderId = UUID.randomUUID().toString();
             String orderNum = orderService.generateOrderNum();
@@ -102,8 +101,7 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId,
-        String token) {
+    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId) {
         try {
             Order order = orderRepository.findByOrderId(orderId).orElseThrow(
                 () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
@@ -115,7 +113,6 @@ public class OrderServiceFacade {
             if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.DEACTIVATING);
                 orderRepository.updateOrderStatus(order);
-                // TODO
                 // undeploy app
                 // query status
                 // if success, update status to deactivated, if failed, update status to deactivate_failed
@@ -148,7 +145,7 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId, String token) {
+    public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId) {
         try {
             Order order = orderRepository.findByOrderId(orderId).orElseThrow(
                 () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
@@ -160,7 +157,6 @@ public class OrderServiceFacade {
             if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.ACTIVATING);
                 orderRepository.updateOrderStatus(order);
-                // TODO
                 // upload package to mecm
                 // deploy app
                 // query status
@@ -187,12 +183,11 @@ public class OrderServiceFacade {
      * query order list.
      *
      * @param userId user id
-     * @param userName user name
      * @param queryOrdersReqDto query condition
      * @return order list
      */
-    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
-        QueryOrdersReqDto queryOrdersReqDto, String token) {
+    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, QueryOrdersReqDto queryOrdersReqDto,
+        String token) {
         Map<String, Object> params = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             params.put("userId", userId);
