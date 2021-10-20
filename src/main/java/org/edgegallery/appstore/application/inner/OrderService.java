@@ -69,7 +69,7 @@ public class OrderService {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
                 Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
-                if (!mecHostInfo.isEmpty()) {
+                if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }

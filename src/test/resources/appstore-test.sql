@@ -168,9 +168,49 @@ CREATE TABLE IF NOT EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE (
   CONSTRAINT PACKAGE_UPLOAD_PROGRESS_TABLE_PKEY PRIMARY KEY (ID)
   );
 
+create TABLE if not exists app_order (
+    ORDERID                  VARCHAR(200)       NOT NULL,
+    ORDERNUM                 VARCHAR(50)        NOT NULL,
+    USERID                   VARCHAR(100)       NOT NULL,
+    USERNAME                 VARCHAR(100)       NOT NULL,
+    APPID                    VARCHAR(200)       NOT NULL,
+    APPPACKAGEID             VARCHAR(200)       NOT NULL,
+    ORDERTIME                TIMESTAMP          NOT NULL,
+    OPERATETIME              TIMESTAMP          NULL,
+    STATUS                   VARCHAR(50)        NOT NULL,
+    MECM_HOSTIP              VARCHAR(1024)      NULL,
+    MECM_APPID               VARCHAR(200)       NULL,
+    MECM_APPPACKAGEID        VARCHAR(200)       NULL,
+    MECM_INSTANCEID          VARCHAR(200)       NULL,
+    CONSTRAINT app_order_pkey PRIMARY KEY (ORDERID),
+    CONSTRAINT app_order_uniqueOrderNum UNIQUE (ORDERNUM)
+);
+
+create TABLE if not exists app_bill (
+    BILLID                  VARCHAR(200)       NOT NULL,
+    ORDERID                 VARCHAR(200)       NOT NULL,
+    CREATETIME              TIMESTAMP          NOT NULL,
+    USERID                  VARCHAR(100)       NOT NULL,
+    USERNAME                VARCHAR(100)       NOT NULL,
+    BILLTYPE                VARCHAR(5)         NOT NULL,
+    BILLSUBTYPE             VARCHAR(20)        NOT NULL,
+    BILLAMOUNT              NUMERIC(10,2)      NULL,
+    OPERATORFEE             NUMERIC(10,2)      NULL,
+    SUPPLIERFEE             NUMERIC(10,2)      NULL,
+    CONSTRAINT app_bill_pkey PRIMARY KEY (BILLID),
+    CONSTRAINT app_bill_fk_orderid foreign key(ORDERID) references app_order(ORDERID)
+);
+
+create TABLE if not exists app_split_config (
+    APPID                 VARCHAR(200)       NOT NULL,
+    SPLITRATIO            NUMERIC(3,2)       NULL,
+    CONSTRAINT app_split_config_pkey PRIMARY KEY (APPID)
+);
+
+
 insert into app_table(
-    appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS, ISHOTAPP)
-    values ('appid-test-0001', 'app-001', 'game', 'shortdesc', 'provider', 'appintroduction', 5, 'affinity', 'industry', 'contactcontact', 'test-userid-0001', 'test-username-0001', now(), now(), 3.2, 'Published', false );
+    appid, appname, applicationtype, shortdesc, provider, appintroduction, downloadcount, affinity, industry, contact, userid, username, createtime, modifytime, score, STATUS, ISHOTAPP, ISFREE, PRICE)
+    values ('appid-test-0001', 'app-001', 'game', 'shortdesc', 'provider', 'appintroduction', 5, 'affinity', 'industry', 'contactcontact', 'test-userid-0001', 'test-username-0001', now(), now(), 3.2, 'Published', false, false, 100);
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
@@ -228,3 +268,10 @@ merge into tbl_service_host(host_id,name,address,architecture,status,lcm_ip,port
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245fff', 'package-1', 'meao-1', 'NORMAL','start','2020-01-01 00:00:00.000000');
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245aaa', 'package-2', 'meao-2', 'NORMAL','start','2020-01-02 00:00:00.000000');
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245bbb', 'package-3', 'meao-3', 'NORMAL','start','2020-01-03 00:00:00.000000');
+
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
+  values('7c555c26-2343-6456-958b-12f7ea4da971', 'ES0000000001', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
+  values('7c555c26-2343-6456-958b-12f7ea4da972', 'ES0000000002', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
+  values('7c555c26-2343-6456-958b-12f7ea4da973', 'ES0000000003', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', '2021-09-29 17:32:31.201', '2021-09-29 17:32:31.201', 'ACTIVATED', '127.0.0.1');
