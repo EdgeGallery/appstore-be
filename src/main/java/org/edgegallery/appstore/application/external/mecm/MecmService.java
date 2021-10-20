@@ -70,7 +70,7 @@ public class MecmService {
             }
 
             return new Gson().fromJson(response.getBody(), List.class);
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             LOGGER.error("Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
 

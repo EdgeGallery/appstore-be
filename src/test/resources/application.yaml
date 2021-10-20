@@ -53,6 +53,11 @@ atp:
     create-task: http://localhost:8000/edgegallery/atp/v1/tasks
     query-task: http://localhost:8000/edgegallery/atp/v1/tasks/%s
 
+### mecm config ###
+mecm:
+  urls:
+    inventory: http://127.0.0.1:8000
+
 ### appShare feature config ###
 appShare:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}
