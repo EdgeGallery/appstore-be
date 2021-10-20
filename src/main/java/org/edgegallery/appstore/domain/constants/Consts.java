@@ -63,7 +63,7 @@ public final class Consts {
 
     public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v1/configuration";
 
-    public static final long HOUR_IN_MS = 60 * 60 * 1000;
+    public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
     public static final long MINUTE = 60 * 1000;
 
