@@ -133,12 +133,12 @@ public class BillService {
             calendar.set(Calendar.MILLISECOND, 0);
             long todayZeroTime = calendar.getTimeInMillis();
 
-            long keepActiveHour = activeKeepTime / (1000 * 60 * 60);
-            calcHour = Math.min(keepActiveHour, (currTime - todayZeroTime) / (1000 * 60 * 60));
+            long keepActiveHour = activeKeepTime / Consts.HOUR_IN_MS;
+            calcHour = Math.min(keepActiveHour, (currTime - todayZeroTime) / Consts.HOUR_IN_MS);
         } else {
             calcHour = 24;
-            if (activeKeepTime < 1 * 24 * 60 * 60 * 1000) {
-                long keepActiveHour = activeKeepTime / (1000 * 60 * 60);
+            if (activeKeepTime < 1 * 24 * Consts.HOUR_IN_MS) {
+                long keepActiveHour = activeKeepTime / Consts.HOUR_IN_MS;
                 calcHour = keepActiveHour;
             }
         }

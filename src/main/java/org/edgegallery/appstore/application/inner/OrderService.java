@@ -25,6 +25,7 @@ import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
+import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class OrderService {
             Release release = null;
             try {
                 release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            } catch (Exception e) {
+            } catch (DomainException e) {
                 LOGGER.warn("app not found! appId = {}", order.getAppId());
             }
 
@@ -69,7 +70,7 @@ public class OrderService {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
                 Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
-                if (!mecHostInfo.isEmpty()) {
+                if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }
