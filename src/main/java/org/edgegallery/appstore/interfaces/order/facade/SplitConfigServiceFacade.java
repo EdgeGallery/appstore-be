@@ -58,7 +58,8 @@ public class SplitConfigServiceFacade {
         List<SplitConfig> splitConfigList = splitConfigRepository.getAllSplitConfigs();
         if (splitConfigList.stream()
             .noneMatch(item -> Consts.SPLITCONFIG_APPID_GLOBAL.equalsIgnoreCase(item.getAppId()))) {
-            splitConfigList.add(0, new SplitConfig(Consts.SPLITCONFIG_APPID_GLOBAL, Consts.SPLITCONFIG_SPLITRATIO_GLOBAL));
+            splitConfigList
+                .add(0, new SplitConfig(Consts.SPLITCONFIG_APPID_GLOBAL, Consts.SPLITCONFIG_SPLITRATIO_GLOBAL));
         }
 
         LOGGER.info("query all apps.");
