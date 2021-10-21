@@ -65,10 +65,6 @@ public final class Consts {
 
     public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
-    public static final long MINUTE = 60 * 1000;
-
-    public static final int TEMP_FILE_TIMEOUT = 30;
-
     public static final String ACCESS_TOKEN_STR = "access_token";
 
     private Consts() {
