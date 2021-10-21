@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
+import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,7 +38,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = AppstoreApplicationTest.class)
 public class LocalFileServiceTest {
 
     private HttpServer httpServer;
