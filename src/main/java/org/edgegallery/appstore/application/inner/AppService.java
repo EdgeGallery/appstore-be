@@ -27,6 +27,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -37,7 +38,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -190,14 +190,9 @@ public class AppService {
             return Collections.emptyList();
         }
         try {
-            List<SwImgDesc> swImgDesc = new LinkedList<>();
             String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
-            JsonArray swImgDescArray = new JsonParser().parse(swImageDesc).getAsJsonArray();
-            SwImgDesc swDesc;
-            for (JsonElement desc : swImgDescArray) {
-                swDesc = new Gson().fromJson(desc.getAsJsonObject().toString(), SwImgDesc.class);
-                swImgDesc.add(swDesc);
-            }
+            List<SwImgDesc> swImgDesc = new Gson()
+                .fromJson(swImageDesc, new TypeToken<List<SwImgDesc>>() { }.getType());
             LOGGER.info("sw image descriptors: {}", swImgDesc);
             return swImgDesc;
         } catch (IOException e) {
