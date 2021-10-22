@@ -180,20 +180,32 @@ public class AppService {
     /**
      * Returns list of image details.
      *
-     * @param swImageDesc software image descriptor file content
+     * @param parentDir app image file parent dir
      * @return list of image details
      */
-    public static List<SwImgDesc> getSwImageDescInfo(String swImageDesc) {
+    public List<SwImgDesc> getSwImageDescInfo(String parentDir) {
 
-        List<SwImgDesc> swImgDesc = new LinkedList<>();
-        JsonArray swImgDescArray = new JsonParser().parse(swImageDesc).getAsJsonArray();
-        SwImgDesc swDesc;
-        for (JsonElement desc : swImgDescArray) {
-            swDesc = new Gson().fromJson(desc.getAsJsonObject().toString(), SwImgDesc.class);
-            swImgDesc.add(swDesc);
+        File swImageFile = getFileFromPackage(parentDir, "SwImageDesc.json");
+        if (swImageFile == null) {
+            return Collections.emptyList();
         }
-        LOGGER.info("sw image descriptors: {}", swImgDesc);
-        return swImgDesc;
+        try {
+            List<SwImgDesc> swImgDesc = new LinkedList<>();
+            String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
+            JsonArray swImgDescArray = new JsonParser().parse(swImageDesc).getAsJsonArray();
+            SwImgDesc swDesc;
+            for (JsonElement desc : swImgDescArray) {
+                swDesc = new Gson().fromJson(desc.getAsJsonObject().toString(), SwImgDesc.class);
+                swImgDesc.add(swDesc);
+            }
+            LOGGER.info("sw image descriptors: {}", swImgDesc);
+            return swImgDesc;
+        } catch (IOException e) {
+            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
+            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+        }
+
+
     }
 
     /**
@@ -244,18 +256,7 @@ public class AppService {
      */
     public List<SwImgDesc> getAppImageInfo(String localFilePath, String parentDir) {
         unzipApplicationPackage(localFilePath, parentDir);
-
-        File swImageDesc = getFileFromPackage(parentDir, "SwImageDesc.json");
-        if (swImageDesc == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            return getSwImageDescInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
-            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-        }
+        return getSwImageDescInfo(parentDir);
     }
 
     /**
@@ -557,8 +558,7 @@ public class AppService {
         List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
         try {
             for (File fileEntry : files) {
-                String filePath = fileEntry.getCanonicalPath();
-                if (file.equals(filePath.substring(filePath.lastIndexOf(File.separator) + 1))) {
+                if (fileEntry.getCanonicalPath().contains(file)) {
                     return fileEntry;
                 }
             }
