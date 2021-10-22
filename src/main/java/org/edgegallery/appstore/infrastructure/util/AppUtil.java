@@ -36,7 +36,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -239,7 +238,7 @@ public class AppUtil {
      * transfer file format to multipartFile.
      *
      * @param filePath filePath.
-     * @return
+     * @return file item
      */
     public static FileItem createFileItem(String filePath) {
         File file = new File(filePath);
@@ -293,7 +292,7 @@ public class AppUtil {
         boolean presentZip = Arrays.asList(filezipArrays).stream()
             .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
         if (!presentZip) {
-            List<SwImgDesc> imgDecsList = getPkgFile(fileParent);
+            List<SwImgDesc> imgDecsList = appService.getSwImageDescInfo(fileParent);
             for (SwImgDesc imageDesc : imgDecsList) {
                 String pathUrl = imageDesc.getSwImage();
                 pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
@@ -368,7 +367,7 @@ public class AppUtil {
         String imageId = "";
         String imagePath = "";
         String outPath = imageFolder.getCanonicalPath();
-        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+        List<SwImgDesc> imgDecsLists = appService.getSwImageDescInfo(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
             String imageName = imageDesc.getName();
             //get image name
@@ -407,21 +406,6 @@ public class AppUtil {
         fileHandlerTosca.load(metaFile);
         fileHandlerTosca.delContentByTypeAndValue(ToscaSourceContent.NAME, target);
         writeFile(metaFile, fileHandlerTosca.toString());
-
-    }
-
-
-    private List<SwImgDesc> getPkgFile(String parentDir) {
-        File swImageDesc = appService.getFileFromPackage(parentDir, "SwImageDesc.json");
-        if (swImageDesc == null) {
-            return Collections.emptyList();
-        }
-        try {
-            return AppService.getSwImageDescInfo(FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
-            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-        }
 
     }
 
@@ -557,7 +541,7 @@ public class AppUtil {
     private String addImageFile(String token, String fileParent, File f) throws IOException {
         String imgZipPath = null;
         String outPath = f.getCanonicalPath();
-        List<SwImgDesc> imgDecsLists = getPkgFile(outPath);
+        List<SwImgDesc> imgDecsLists = appService.getSwImageDescInfo(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
             String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
             byte[] result = downloadImageFromFileSystem(token, pathname);
