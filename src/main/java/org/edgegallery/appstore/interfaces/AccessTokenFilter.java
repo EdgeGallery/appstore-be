@@ -46,7 +46,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     private static final String[] NO_NEED_TOKEN_URLS = {
         "GET /health", "POST /mec/appstore/v1/messages",
         "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-package",
-        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon", "GET /mec/appstore/v1/packages/pullable",
+        "GET /mec/appstore/v1/packages/[\\w]{0,32}/action/download-icon",
+        "GET /mec/appstore/v1/packages/pullable",
         "GET /mec/appstore/v2/packages/pullable"
     };
 
@@ -54,7 +55,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     private static final String USERNAME = "userName";
 
-    private static final String AUTIORITIES = "authorities";
+    private static final String AUTHORITIES = "authorities";
 
     @Autowired
     TokenStore jwtTokenStore;
@@ -87,7 +88,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, Additional is null.");
                 return;
             }
-            String authorityToken = additionalInfoMap.get(AUTIORITIES).toString();
+            String authorityToken = additionalInfoMap.get(AUTHORITIES).toString();
             String userIdFromToken = additionalInfoMap.get(USERID).toString();
             String userNameFromToken = additionalInfoMap.get(USERNAME).toString();
             if (!checkUserValid(request, response, userIdFromToken, userNameFromToken)) {
@@ -99,7 +100,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token");
                 return;
             }
-            request.setAttribute(AUTIORITIES, authorityToken);
+            request.setAttribute(AUTHORITIES, authorityToken);
             request.setAttribute(USERID, userIdFromToken);
             request.setAttribute(USERNAME, userNameFromToken);
             request.setAttribute("access_token", accessTokenStr);

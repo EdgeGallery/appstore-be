@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.app.Chunk;
 import org.edgegallery.appstore.domain.model.app.ErrorRespDto;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -64,17 +65,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Validated
 public class AppController {
 
-    private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
-
     private static final int MAX_COMMON_STRING_LENGTH = 255;
-
-    private static final int MAX_DETAILS_STRING_LENGTH = 1024;
-
-    private static final String ACCESS_TOKEN = "access_token";
-
-    private static final String ACCESS_AUTIORITIES = "authorities";
 
     @Autowired
     private AppServiceFacade appServiceFacade;
@@ -121,19 +112,19 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<RegisterRespDto> appRegistering(
-        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
         @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
-        @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
-        @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app shortDesc", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
         @ApiParam(value = "app showType") @RequestPart(name = "showType", required = false) String showType,
-        @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-        @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app industry", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
@@ -141,7 +132,7 @@ public class AppController {
         return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
             new AppParam(type, shortDesc, showType, affinity, industry,
                 Boolean.parseBoolean(experienceAble)), icon, demoVideo,
-            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN))));
+            new AtpMetadata(testTaskId, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR))));
     }
 
     /**
@@ -156,21 +147,21 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<RegisterRespDto> appRegister(
-        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
         @ApiParam(value = "app fileAddress", required = true) @NotNull(
             message = "address should not be null.") @RequestPart("fileAddress") String fileAddress,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
-        @ApiParam(value = "app type", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
-        @ApiParam(value = "app shortDesc", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app shortDesc", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
-        @ApiParam(value = "app showType", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app showType", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "showType should not be null.") @RequestPart("showType") String showType,
-        @ApiParam(value = "app affinity", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-        @ApiParam(value = "app industry", required = true) @Length(max = MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app industry", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
@@ -178,7 +169,7 @@ public class AppController {
         return appServiceFacade.appRegister(new User(userId, userName),
             new AppParam(type, shortDesc, showType, affinity, industry,
                 Boolean.parseBoolean(experienceAble)), icon, demoVideo,
-            new AtpMetadata(testTaskId, (String) request.getAttribute(ACCESS_TOKEN)), fileAddress);
+            new AtpMetadata(testTaskId, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR)), fileAddress);
     }
 
     @GetMapping(value = "/apps", produces = MediaType.APPLICATION_JSON)
@@ -196,7 +187,7 @@ public class AppController {
             String provider,
         @ApiParam(value = "app type") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("type") String type,
         @ApiParam(value = "app affinity") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("affinity")
-            String affinity, @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId) {
+            String affinity, @QueryParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId) {
         return appServiceFacade.queryAppsByCond(name, provider, type, affinity, userId, 100, 0);
     }
 
@@ -209,7 +200,8 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<InputStreamResource> downloadIcon(
-        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId)
+        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(
+            regexp = Consts.REG_APP_ID) String appId)
         throws FileNotFoundException {
         return appServiceFacade.downloadIcon(appId);
     }
@@ -223,8 +215,8 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<byte[]> downloadDemoVideo(
-            @ApiParam(value = "appId", required = true) @PathVariable("appId")
-            @Pattern(regexp = REG_APP_ID) String appId) {
+            @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(
+                regexp = Consts.REG_APP_ID) String appId) {
         return appServiceFacade.downloadDemoVideo(appId);
     }
 
@@ -237,7 +229,7 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<AppDto> queryAppById(
-        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId) {
         return ResponseEntity.ok(AppDto.of(appServiceFacade.queryByAppId(appId)));
     }
 
@@ -253,12 +245,13 @@ public class AppController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> deleteAppById(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+    public ResponseEntity<String> deleteAppById(
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
-        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         HttpServletRequest request) {
         appServiceFacade.unPublishApp(appId, new User(userId, userName),
-            (String) request.getAttribute(ACCESS_AUTIORITIES), (String) request.getAttribute(ACCESS_TOKEN));
+            (String) request.getAttribute(Consts.AUTHORITIES), (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
         return ResponseEntity.ok("delete App success.");
     }
 
@@ -274,8 +267,9 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<PackageDto>> queryPackageListByAppId(
-        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @QueryParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
-        return appServiceFacade.findAllPackages(appId, userId, 100, 0, (String) request.getAttribute(ACCESS_TOKEN));
+        @ApiParam(value = "appId") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @QueryParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId, HttpServletRequest request) {
+        return appServiceFacade.findAllPackages(appId, userId, 100, 0,
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 }

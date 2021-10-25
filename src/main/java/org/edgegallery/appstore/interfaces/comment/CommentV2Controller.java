@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.comment.Comment;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.interfaces.comment.facade.CommentServiceFacade;
@@ -45,8 +46,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Validated
 public class CommentV2Controller {
 
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
-
     @Autowired
     CommentServiceFacade appCommentService;
 
@@ -67,7 +66,8 @@ public class CommentV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_GUEST') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<Comment>> getCommentsV2(
-        @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "app Id", required = true) @PathVariable("appId") @Pattern(
+            regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
         return appCommentService.getCommentsV2(appId, limit, offset);

@@ -31,6 +31,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
@@ -62,14 +63,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Validated
 public class PackageController {
 
-    private static final String REG_USER_ID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
-
-    private static final int MAX_PATH_STRING_LENGTH = 1024;
-
-    private static final String ACCESS_TOKEN = "access_token";
-
     @Autowired
     private PackageServiceFacade packageServiceFacade;
 
@@ -91,16 +84,26 @@ public class PackageController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> unPublishPackage(@RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId,
+    public ResponseEntity<String> unPublishPackage(
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
         HttpServletRequest request) {
         packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
-            (String) request.getAttribute(ACCESS_TOKEN));
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
         return ResponseEntity.ok("delete App package success.");
     }
 
+    /**
+     * query package by package id.
+     *
+     * @param appId app id
+     * @param packageId package id
+     * @param request request
+     * @return packageDto
+     */
     @GetMapping(value = "/apps/{appId}/packages/{packageId}", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package by package id", response = PackageDto.class)
     @ApiResponses(value = {
@@ -110,11 +113,13 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<PackageDto> getPackageById(
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
         HttpServletRequest request) {
         return ResponseEntity
-            .ok(packageServiceFacade.queryPackageById(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN)));
+            .ok(packageServiceFacade.queryPackageById(appId, packageId,
+                (String) request.getAttribute(Consts.ACCESS_TOKEN_STR)));
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/action/download", produces = "application/octet-stream")
@@ -127,12 +132,12 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<InputStreamResource> downloadPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "isDownloadImage")
         @RequestParam(value = "isDownloadImage", required = false, defaultValue = "false") boolean isDownloadImage,
         HttpServletRequest request) throws IOException {
         return packageServiceFacade
-            .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(ACCESS_TOKEN));
+            .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/icon", produces = "application/octet-stream")
@@ -144,7 +149,8 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<InputStreamResource> downloadIcon(
-        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "appId", required = true) @PathVariable("appId") @Pattern(
+            regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) throws IOException {
         return packageServiceFacade.downloadIcon(appId, packageId);
     }
@@ -160,10 +166,11 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> syncPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "meao Id") @PathVariable("meaoId") String meaoId, HttpServletRequest request)
         throws IOException {
-        return packageServiceFacade.syncPackage(appId, packageId, meaoId, (String) request.getAttribute(ACCESS_TOKEN));
+        return packageServiceFacade.syncPackage(appId, packageId, meaoId,
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/files", produces = MediaType.APPLICATION_JSON)
@@ -176,9 +183,9 @@ public class PackageController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> getCsarFileByName(
         @ApiParam(value = "package Id", required = true) @PathVariable("packageId")
-        @Pattern(regexp = REG_APP_ID) String packageId,
-        @Length(max = MAX_PATH_STRING_LENGTH) @FormParam("filePath") String filePath,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId) {
+        @Pattern(regexp = Consts.REG_APP_ID) String packageId,
+        @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @FormParam("filePath") String filePath,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId) {
         String fileContent = packageServiceFacade.getCsarFileByName(appId, packageId, filePath);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);
     }
@@ -192,8 +199,9 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> publishPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "PublishAppDto", required = true) @RequestBody PublishAppReqDto publishAppReq) {
         return packageServiceFacade.publishPackage(appId, packageId, publishAppReq);
     }
@@ -207,10 +215,12 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<AtpTestDto> testPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         HttpServletRequest request) {
-        return packageServiceFacade.testPackage(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
+        return packageServiceFacade.testPackage(appId, packageId,
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
@@ -222,8 +232,8 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<List<PackageDto>> getPackageByUserId(
-        @RequestParam("userId") @Pattern(regexp = REG_USER_ID) String userId, HttpServletRequest request) {
-        return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute(ACCESS_TOKEN));
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId, HttpServletRequest request) {
+        return packageServiceFacade.getPackageByUserId(userId, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -237,9 +247,10 @@ public class PackageController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<PackageDto> modifyAppAttr(@PathVariable("appId") @Pattern(regexp = REG_APP_ID) @NotNull(
-        message = "appId should not be null.") String appId,
-        @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) @NotNull(
+    public ResponseEntity<PackageDto> modifyAppAttr(
+        @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) @NotNull(
+            message = "appId should not be null.") String appId,
+        @PathVariable("packageId") @Pattern(regexp = Consts.REG_APP_ID) @NotNull(
             message = "packageId should not be null.") String packageId,
         @ApiParam(value = "app industry") @RequestPart(value = "industry", required = false) String industry,
         @ApiParam(value = "app type") @RequestPart(value = "type", required = false) String type,

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
@@ -56,7 +57,7 @@ public class MecmService {
      */
     public List<Map<String, Object>> getAllMecmHosts(String token) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         try {
