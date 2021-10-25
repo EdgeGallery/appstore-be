@@ -24,7 +24,7 @@ public final class Consts {
 
     public static final String USERNAME = "userName";
 
-    public static final String AUTIORITIES = "authorities";
+    public static final String AUTHORITIES = "authorities";
 
     public static final String SUPER_ADMIN_ID = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
 
@@ -66,6 +66,8 @@ public final class Consts {
     public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
     public static final String ACCESS_TOKEN_STR = "access_token";
+
+    public static final int MAX_DETAILS_STRING_LENGTH = 1024;
 
     private Consts() {
     }

@@ -27,6 +27,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
@@ -53,10 +54,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = {"Package V2Controller"})
 @Validated
 public class PackageV2Controller {
-
-    private static final String ACCESS_TOKEN = "access_token";
-
-    private static final String REG_APP_ID = "[0-9a-f]{32}";
 
     @Autowired
     private PackageServiceFacade packageServiceFacade;
@@ -94,7 +91,8 @@ public class PackageV2Controller {
         @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
         QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(offset, limit, sortItem, sortType);
         return ResponseEntity.ok(packageServiceFacade
-            .getPackageByUserIdV2(userId, appName, status, queryCtrl, (String)request.getAttribute(ACCESS_TOKEN)));
+            .getPackageByUserIdV2(userId, appName, status, queryCtrl,
+                (String)request.getAttribute(Consts.ACCESS_TOKEN_STR)));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/publish", produces = MediaType.APPLICATION_JSON)
@@ -106,8 +104,9 @@ public class PackageV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> publishPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "PublishAppDto", required = true) @RequestBody PublishAppReqDto publishAppReq) {
         return packageServiceFacade.publishPackageV2(appId, packageId, publishAppReq);
     }
@@ -121,10 +120,12 @@ public class PackageV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> getPackageById(
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(regexp = REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
         HttpServletRequest request) {
-        return packageServiceFacade.queryPackageByIdV2(appId, packageId, (String) request.getAttribute(ACCESS_TOKEN));
+        return packageServiceFacade.queryPackageByIdV2(appId, packageId,
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 
     @GetMapping(value = "/packages/pushable", produces = MediaType.APPLICATION_JSON)
@@ -192,7 +193,7 @@ public class PackageV2Controller {
         HttpServletRequest request) {
         return pushablePackageServiceFacade
             .getPullablePackagesV2(platformId, limit, offset, sortType, sortItem, appName,
-                (String) request.getAttribute("userId"));
+                (String) request.getAttribute(Consts.USERID));
     }
 
 }

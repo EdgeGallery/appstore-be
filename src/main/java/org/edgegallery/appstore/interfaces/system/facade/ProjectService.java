@@ -149,26 +149,6 @@ public class ProjectService {
     @Autowired
     private PackageRepository packageRepository;
 
-    /**
-     * append image path.
-     *
-     * @param str append args list.
-     * @return StringBuilder.
-     */
-    public static StringBuilder stringBuilder(String... str) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        if (str == null || str.length <= 0) {
-            return stringBuilder;
-        }
-
-        for (int i = 0; i < str.length; i++) {
-            stringBuilder.append(str[i]);
-        }
-
-        return stringBuilder;
-    }
-
     private static String getXsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookie.getName().equals("XSRF-TOKEN")) {
