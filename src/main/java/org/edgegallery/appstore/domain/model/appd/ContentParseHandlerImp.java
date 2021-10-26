@@ -36,6 +36,11 @@ public class ContentParseHandlerImp implements IContentParseHandler {
     }
 
     @Override
+    public Map<IAppdContentEnum, String> getParams() {
+        return params;
+    }
+
+    @Override
     public void addOneData(String line) {
         Map.Entry<String, String> data = parseThisLine(line);
         IAppdContentEnum contentEnum = (IAppdContentEnum) contextEnum.getEnumConstants()[0];

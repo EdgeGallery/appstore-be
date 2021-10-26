@@ -26,4 +26,6 @@ public interface IContentParseHandler {
 
     Map.Entry<String, String> getFirstData();
 
+    Map<IAppdContentEnum, String> getParams();
+
 }
