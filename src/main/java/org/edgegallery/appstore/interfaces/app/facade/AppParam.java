@@ -52,14 +52,16 @@ public class AppParam {
 
     static {
         typeSet.add("Video Application");
-        typeSet.add("Game");
-        typeSet.add("Video Surveillance");
         typeSet.add("Safety");
         typeSet.add("Blockchain");
-        typeSet.add("Smart Device");
         typeSet.add("Internet of Things");
         typeSet.add("Big Data");
         typeSet.add("AR/VR");
+        typeSet.add("Game");
+        typeSet.add("Others");
+        // old types
+        typeSet.add("Video Surveillance");
+        typeSet.add("Smart Device");
         typeSet.add("API");
         typeSet.add("SDK");
         typeSet.add("MEP");
@@ -67,12 +69,24 @@ public class AppParam {
     }
 
     static {
+        industrySet.add("Smart City");
         industrySet.add("Smart Park");
+        industrySet.add("Smart Agriculture");
+        industrySet.add("Industrial Internet");
+        industrySet.add("Transportation Logistics");
+        industrySet.add("Energy");
+        industrySet.add("Finance");
+        industrySet.add("Education");
+        industrySet.add("Cultural Tourism");
+        industrySet.add("Medical Health");
+        industrySet.add("Digital Government");
+        industrySet.add("Ecosystem");
+        industrySet.add("Game Competition");
+        industrySet.add("Others");
+        // old industries
         industrySet.add("Smart Supermarket");
         industrySet.add("Industrial Manufacturing");
-        industrySet.add("Transportation Logistics");
         industrySet.add("Water Conservancy");
-        industrySet.add("Game Competition");
         industrySet.add("Open Source");
         industrySet.add("Other");
     }
