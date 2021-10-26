@@ -20,12 +20,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 import org.edgegallery.appstore.domain.model.appd.IAppdFile;
 import org.edgegallery.appstore.domain.model.appd.ContentParseHandlerImp;
+import org.edgegallery.appstore.domain.model.appd.IContentParseHandler;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
+import org.edgegallery.appstore.domain.model.appd.context.ToscaMetadataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,6 +60,23 @@ public class ParsingAppFileTest {
         IAppdFile handler = (IAppdFile) fileHandler;
         Assert.assertEquals(4, handler.getParamsHandlerList().size());
         Assert.assertTrue(handler.getParamsHandlerList().get(0) instanceof ContentParseHandlerImp);
+    }
+
+    @Test
+    public void should_successfully_when_modify_tosca_file() throws IOException {
+        IAppdFile fileHandler = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.TOSCA_META_FILE);
+        File mfFile = Resources.getResourceAsFile("appd/TOSCA.meta");
+        fileHandler.load(mfFile);
+        IAppdFile handler = (IAppdFile) fileHandler;
+        IContentParseHandler content = handler.getContentByTypeAndValue(ToscaMetadataContent.TOSCA_META_FILE_VERSION, "1.0");
+        Map<IAppdContentEnum, String> contentMap =  content.getParams();
+        contentMap.put(ToscaMetadataContent.TOSCA_META_FILE_VERSION, "2.0");
+        contentMap.put(ToscaMetadataContent.CREATED_BY, "modify");
+        // Assert.assertEquals(4, handler.getParamsHandlerList().size());
+        String ret = handler.toString();
+        Assert.assertFalse(ret.contains("TOSCA-Meta-File-Version: 1.0"));
+        Assert.assertTrue(ret.contains("TOSCA-Meta-File-Version: 2.0"));
+        Assert.assertTrue(ret.contains("Created-by: modify"));
     }
 
     @Test

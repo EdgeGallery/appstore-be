@@ -46,4 +46,6 @@ public interface IAppdFile {
      * to check the file format by define.
      */
     boolean formatCheck();
+
+    IContentParseHandler getContentByTypeAndValue(IAppdContentEnum type, final String value);
 }

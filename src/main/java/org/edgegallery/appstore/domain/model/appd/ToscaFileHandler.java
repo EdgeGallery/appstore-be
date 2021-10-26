@@ -66,6 +66,17 @@ public class ToscaFileHandler implements IAppdFile {
                 .equals(value));
     }
 
+    @Override
+    public IContentParseHandler getContentByTypeAndValue(IAppdContentEnum type, final String value) {
+        for (IContentParseHandler handler : paramsHandlerList) {
+            if (handler.getFirstData().getKey().equals(type.getName()) && handler.getFirstData().getValue()
+                .equals(value)) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
     /**
      * to load file.
      */
