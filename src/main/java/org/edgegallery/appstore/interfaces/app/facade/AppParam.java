@@ -59,7 +59,7 @@ public class AppParam {
         typeSet.add("AR/VR");
         typeSet.add("Game");
         typeSet.add("Others");
-        // to delete
+        // old types
         typeSet.add("Video Surveillance");
         typeSet.add("Smart Device");
         typeSet.add("API");
@@ -83,7 +83,7 @@ public class AppParam {
         industrySet.add("Ecosystem");
         industrySet.add("Game Competition");
         industrySet.add("Others");
-        // to delete
+        // old industries
         industrySet.add("Smart Supermarket");
         industrySet.add("Industrial Manufacturing");
         industrySet.add("Water Conservancy");
