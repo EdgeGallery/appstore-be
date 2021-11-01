@@ -160,7 +160,7 @@ public class AppV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<String> setHotApps(
-        @ApiParam(value = "appIds", required = false) @RequestBody String[] appIds) {
+        @ApiParam(value = "appIds") @RequestBody String[] appIds) {
         return appServiceFacade.setHotApps(appIds);
     }
 }
