@@ -87,7 +87,7 @@ public class AppRepositoryImpl implements AppRepository {
      * Find App by app name.
      *
      * @param appName app name.
-     * @return
+     * @return App
      */
     public Optional<App> findByAppNameAndProvider(String appName, String provider) {
         Optional<App> app = appMapper.findByAppNameAndProvider(appName, provider).map(AppPo::toDomainModel);
@@ -107,8 +107,14 @@ public class AppRepositoryImpl implements AppRepository {
 
     @Override
     public List<App> queryV2(Map<String, Object> params) {
-        return appMapper.findAllWithAppPaginationV2(params).stream().map(AppBasicPo::toDomainModel)
+        List<App> apps = appMapper.findAllWithAppPaginationV2(params).stream().map(AppBasicPo::toDomainModel)
             .collect(Collectors.toList());
+        for (App app : apps) {
+            List<Release> releases = packageMapper.findAllByAppId(app.getAppId()).stream()
+                .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
+            app.setReleases(releases);
+        }
+        return apps;
     }
 
     @Override
