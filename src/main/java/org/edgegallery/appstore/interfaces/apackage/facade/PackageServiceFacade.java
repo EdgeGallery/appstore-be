@@ -19,6 +19,8 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
@@ -270,21 +273,43 @@ public class PackageServiceFacade {
     }
 
     /**
+     * query all published packages.
+     *
+     */
+    public Page<PackageDto> getPackages(int limit, int offset, String startTime, String endTime) {
+        try {
+            Date startDate = null;
+            Date endDate = null;
+            if (!StringUtils.isEmpty(startTime)) {
+                startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
+            }
+            if (!StringUtils.isEmpty(endTime)) {
+                endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
+            }
+            long total = packageService.countTotalForCreateTime(limit, offset, startDate, endDate);
+            return new Page<>(
+                packageService.getPackageByCreateTime(limit, offset, startDate, endDate).stream().map(PackageDto::of)
+                    .collect(Collectors.toList()), limit, offset, total);
+        } catch (ParseException e) {
+            throw new AppException("The time parameter format is incorrect.", ResponseConst.RET_PARAM_INVALID);
+        }
+    }
+
+    /**
      * query all the package owned by the user, and sorted by create time.
      *
      * @param userId user id
      * @return packages
      */
-    public Page<PackageDto> getPackageByUserIdV2(String userId, String appName, List<String> status,
-        QueryAppCtrlDto queryCtrl, String token) {
+    public Page<PackageDto> getPackageByUserIdV2(String userId, QueryAppCtrlDto queryCtrl, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("createTime", "createTime");
         params.put("sortItem", queryCtrl.getSortItem());
         params.put("userId", userId);
         params.put("limit", queryCtrl.getLimit());
         params.put("offset", queryCtrl.getOffset());
-        params.put("appName", appName);
-        params.put("status", status);
+        params.put("appName", queryCtrl.getAppName());
+        params.put("status", queryCtrl.getStatus());
         params.put("sortType", queryCtrl.getSortType());
         packageService.getPackageByUserIdV2(params).stream()
             .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(

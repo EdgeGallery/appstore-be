@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.interfaces.app.facade.dto;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -31,9 +32,9 @@ import org.springframework.util.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryAppCtrlDto {
-    private static final String DEFAULT_SORTBY = "createTime";
+    private static final String DEFAULT_SORT_BY = "createTime";
 
-    private static final String DEFAULT_SORTORDER = "DESC";
+    private static final String DEFAULT_SORT_ORDER = "DESC";
 
     @Min(value = 0)
     private int offset;
@@ -42,13 +43,16 @@ public class QueryAppCtrlDto {
     @Max(value = 500)
     private int limit;
 
-    @ApiModelProperty(example = "userName")
-    // @Pattern(regexp = "(?i)userName|(?i)createTime")
+    @ApiModelProperty(example = "appName")
     private String sortItem;
 
     @ApiModelProperty(example = "ASC")
     @Pattern(regexp = "(?i)DESC|(?i)ASC")
     private String sortType;
+
+    private String appName;
+
+    private List<String> status;
 
 
     /**
@@ -57,12 +61,12 @@ public class QueryAppCtrlDto {
     public void stringTrim() {
         this.sortItem = StringUtils.trimWhitespace(this.sortItem);
         if (StringUtils.isEmpty(this.sortItem)) {
-            this.sortItem = DEFAULT_SORTBY;
+            this.sortItem = DEFAULT_SORT_BY;
         }
 
         this.sortType = StringUtils.trimWhitespace(this.sortType);
         if (StringUtils.isEmpty(this.sortType)) {
-            this.sortType = DEFAULT_SORTORDER;
+            this.sortType = DEFAULT_SORT_ORDER;
         }
 
     }

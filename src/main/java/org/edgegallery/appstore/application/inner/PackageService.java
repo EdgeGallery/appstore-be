@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -201,5 +202,22 @@ public class PackageService {
         File tempFile = fileChecker.check(file);
         String fileStorageAddress = fileService.saveTo(tempFile, fileParent);
         return new AFile(file.getOriginalFilename(), fileStorageAddress);
+    }
+
+    /**
+     * query all the packages by create time.
+     *
+     * @return releases
+     */
+    public List<Release> getPackageByCreateTime(int limit, int offset, Date startDate, Date endDate) {
+        return packageRepository.getPackageByCreateTime(limit, offset, startDate, endDate);
+    }
+
+    /**
+     * query all the packages total by create time.
+     *
+     */
+    public Integer countTotalForCreateTime(int limit, int offset, Date startDate, Date endDate) {
+        return packageRepository.countTotalForCreateTime(limit, offset, startDate, endDate);
     }
 }

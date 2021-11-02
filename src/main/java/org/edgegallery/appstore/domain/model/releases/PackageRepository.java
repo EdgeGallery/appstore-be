@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.domain.model.releases;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,5 +36,9 @@ public interface PackageRepository {
     Integer countTotalForUserId(Map<String, Object> params);
 
     List<Release> findReleaseByMecHost(String mecHost);
+
+    List<Release> getPackageByCreateTime(int limit, int offset, Date startDate, Date endDate);
+
+    Integer countTotalForCreateTime(int limit, int offset, Date startDate, Date endDate);
 
 }

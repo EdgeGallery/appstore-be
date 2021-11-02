@@ -15,6 +15,7 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -101,6 +102,17 @@ public class PackageRepositoryImpl implements PackageRepository {
     public List<Release> findReleaseByMecHost(String mecHost) {
         return packageMapper.findReleaseByMecHost(mecHost).stream().map(AppReleasePo::toDomainModel)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Release> getPackageByCreateTime(int limit, int offset, Date startDate, Date endDate) {
+        return packageMapper.getPackageByCreateTime(limit, offset, startDate, endDate).stream()
+            .map(AppReleasePo::toDomainModel).collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer countTotalForCreateTime(int limit, int offset, Date startDate, Date endDate) {
+        return packageMapper.countTotalForCreateTime(limit, offset, startDate, endDate);
     }
 
 }
