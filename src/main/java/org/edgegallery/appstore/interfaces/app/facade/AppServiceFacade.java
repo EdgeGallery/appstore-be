@@ -272,8 +272,8 @@ public class AppServiceFacade {
     }
 
     private AFile getFile(MultipartFile file, AbstractFileChecker fileChecker, String fileParent) {
-        File tempfile = fileChecker.check(file);
-        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        File tempFile = fileChecker.check(file);
+        String fileStoreageAddress = fileService.saveTo(tempFile, fileParent);
         return new AFile(file.getOriginalFilename(), fileStoreageAddress);
     }
 

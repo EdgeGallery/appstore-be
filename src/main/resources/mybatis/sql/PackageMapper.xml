@@ -176,4 +176,20 @@
         </where>
     </select>
 
+    <select id="getPackageByCreateTime"
+            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        select * from catalog_package_table where status='Published' and showType in ('public', 'inner-public')
+        <if test="startDate != null and endDate != null">
+            and createTime between #{startDate} and #{endDate}
+        </if>
+        order by createTime desc limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countTotalForCreateTime" resultType="java.lang.Integer">
+        select count(*) from catalog_package_table where status='Published' and showType in ('public', 'inner-public')
+        <if test="startDate != null and endDate != null">
+            and createTime between #{startDate} and #{endDate}
+        </if>
+    </select>
+
 </mapper>

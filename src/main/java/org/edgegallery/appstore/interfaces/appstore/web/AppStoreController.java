@@ -94,14 +94,13 @@ public class AppStoreController {
             @Pattern(regexp = APPSTORE_URL)
             @NotNull(message = "url should not be null.")
             @Length(max = MAX_URL_LEN) String url,
-            @ApiParam(value = "app store schema", required = false) @RequestPart(name = "schema", required = false)
+            @ApiParam(value = "app store schema") @RequestPart(name = "schema", required = false)
             @Pattern(regexp = REG_SCHEMA) String schema,
             @ApiParam(value = "app store push interface") @RequestPart(name = "appPushIntf", required = false)
             @Length(max = MAX_URL_LEN) String appPushIntf,
             @ApiParam(value = "appd translate id") @RequestPart("appdTransId")
             @NotNull(message = "appdTransId should not be null.") String appdTransId,
-            @ApiParam(value = "app store description", required = false)
-            @RequestPart(value = "description", required = false)
+            @ApiParam(value = "app store description") @RequestPart(value = "description", required = false)
             @Length(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
                 appPushIntf, appdTransId, description, null, null);

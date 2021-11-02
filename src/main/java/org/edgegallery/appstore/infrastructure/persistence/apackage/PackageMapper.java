@@ -15,9 +15,11 @@
 
 package org.edgegallery.appstore.infrastructure.persistence.apackage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.appstore.domain.shared.PageCriteria;
 import org.springframework.stereotype.Component;
 
@@ -53,5 +55,10 @@ public interface PackageMapper {
 
     List<AppReleasePo> findReleaseByMecHost(String mecHost);
 
+    List<AppReleasePo> getPackageByCreateTime(@Param("limit") int limit, @Param("offset") int offset,
+        @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+    Integer countTotalForCreateTime(@Param("limit") int limit, @Param("offset") int offset,
+        @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
 }

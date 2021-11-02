@@ -64,16 +64,36 @@ public class PackageV2Controller {
     /**
      *query all the package owned by the user, and sorted by.
      *
-     * @param userId userId.
      * @param limit limit.
      * @param offset offset.
-     * @param appName appName.
-     * @param sortType sortType by.
-     * @param sortItem sortType type.
-     * @param request HttpServletRequest.
+     * @param startTime the start of app's createTime.
+     * @param endTime the end of app's createTime.
      * @return Page object.
      */
     @GetMapping(value = "/packages", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get all packages", response = PackageDto.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<Page<PackageDto>> getPackages(
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
+        @ApiParam(value = "begin create time") @RequestParam(name = "startTime", required = false) String startTime,
+        @ApiParam(value = "end create time") @RequestParam(name = "endTime", required = false) String endTime) {
+        return ResponseEntity.ok(packageServiceFacade.getPackages(limit, offset, startTime, endTime));
+    }
+
+    /**
+     *query all the package owned by the user, and sorted by.
+     *
+     * @param queryCtrl query condition.
+     * @param request HttpServletRequest.
+     * @return Page object.
+     */
+    @PostMapping(value = "/packages/action/query", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app package by user id", response = PackageDto.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -82,17 +102,15 @@ public class PackageV2Controller {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<Page<PackageDto>> getPackageByUserIdV2(
-        @ApiParam(value = "userId") @RequestParam(value = "userId", required = false) String userId,
-        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
-        @ApiParam(value = "app Name") @RequestParam(value = "appName", required = false) String appName,
-        @ApiParam(value = "app status") @RequestParam(value = "status", required = false) List<String> status,
-        @ApiParam(value = "query sortType") @RequestParam("sortType") String sortType,
-        @ApiParam(value = "query condition") @RequestParam("sortItem") String sortItem, HttpServletRequest request) {
-        QueryAppCtrlDto queryCtrl = new QueryAppCtrlDto(offset, limit, sortItem, sortType);
+        @ApiParam(value = "query condition", required = true) @RequestBody QueryAppCtrlDto queryCtrl,
+        HttpServletRequest request) {
+        String userId = "";
+        String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
+        if (!authorities.contains("ROLE_APPSTORE_ADMIN")) {
+            userId = (String)request.getAttribute(Consts.USERID);
+        }
         return ResponseEntity.ok(packageServiceFacade
-            .getPackageByUserIdV2(userId, appName, status, queryCtrl,
-                (String)request.getAttribute(Consts.ACCESS_TOKEN_STR)));
+            .getPackageByUserIdV2(userId, queryCtrl, (String)request.getAttribute(Consts.ACCESS_TOKEN_STR)));
     }
 
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/publish", produces = MediaType.APPLICATION_JSON)
