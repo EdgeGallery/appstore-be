@@ -16,15 +16,19 @@
 
 package org.edgegallery.appstore.interfaces.app.facade.dto;
 
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
+import org.edgegallery.appstore.domain.model.releases.Release;
 
 @Getter
 @Setter
 public class AppDto {
     private String appId;
+
+    private String packageId;
 
     private String name;
 
@@ -64,6 +68,8 @@ public class AppDto {
 
     private double price;
 
+    private boolean experienceAble = false;
+
     public AppDto() {
         // empty construct
     }
@@ -96,6 +102,11 @@ public class AppDto {
         dto.isHotApp = app.isHotApp();
         dto.isFree = app.isFree();
         dto.price = app.getPrice();
+        Optional<Release> release = app.findLastRelease();
+        if (release.isPresent()) {
+            dto.packageId = release.get().getPackageId();
+            dto.experienceAble = release.get().isExperienceAble();
+        }
         return dto;
     }
 
