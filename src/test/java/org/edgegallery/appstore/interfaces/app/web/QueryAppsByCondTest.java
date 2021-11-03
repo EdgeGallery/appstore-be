@@ -30,7 +30,6 @@ import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
-import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -94,7 +93,7 @@ public class QueryAppsByCondTest extends AppTest {
         String page = actions.getResponse().getContentAsString();
         JSONObject jsonObject1 = JSONObject.parseObject(page);
         JSONArray listObject = jsonObject1.getJSONArray("results");
-        int listCount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
+        int listCount = JSONObject.parseArray(listObject.toJSONString(), AppDto.class).size();
         Assert.assertTrue(listCount > 0);
     }
 
