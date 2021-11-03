@@ -27,8 +27,8 @@ import java.util.Optional;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
+import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
-import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -122,7 +122,7 @@ public class GetPackageByIdTest extends AppTest {
     }
 
     @Test
-    @WithMockUser(roles = "APPSTORE_GUEST")
+    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_ByCreateTime() throws Exception {
         Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
             r.setStatus(EnumPackageStatus.Test_failed.toString());
@@ -162,7 +162,7 @@ public class GetPackageByIdTest extends AppTest {
         String page = actions.getResponse().getContentAsString();
         JSONObject jsonObject1 = JSONObject.parseObject(page);
         JSONArray listObject = jsonObject1.getJSONArray("results");
-        int listCount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
+        int listCount = JSONObject.parseArray(listObject.toJSONString(), PackageDto.class).size();
         Assert.assertTrue(listCount > 0);
     }
 }
