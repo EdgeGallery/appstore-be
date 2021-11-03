@@ -18,10 +18,17 @@ package org.edgegallery.appstore.interfaces.apackage.web;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
+import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
+import org.edgegallery.appstore.interfaces.message.facade.dto.MessageRespDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -106,16 +113,56 @@ public class GetPackageByIdTest extends AppTest {
         Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.nullable(String.class))).thenReturn("created");
         MvcResult result = mvc.perform(MockMvcRequestBuilders
             .get("/mec/appstore/v2/packages")
-            .param("userId", userId)
             .param("limit", String.valueOf(10))
             .param("offset", String.valueOf(0))
-            .param("sortType", "desc")
-            .param("sortItem", "createTime")
-            .param("appName", "")
-            .param("status", "")
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_GUEST")
+    public void should_success_ByCreateTime() throws Exception {
+        Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
+            r.setStatus(EnumPackageStatus.Test_failed.toString());
+            packageMapper.updateRelease(r);
+        });
+        Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.nullable(String.class))).thenReturn("created");
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .get("/mec/appstore/v2/packages")
+            .param("limit", String.valueOf(10))
+            .param("offset", String.valueOf(0))
+            .param("startTime", "2021-11-1")
+            .param("endTime", "2121-11-1")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_queryPackagesByCond() throws Exception {
+        QueryAppCtrlDto ctrDto = new QueryAppCtrlDto();
+        ctrDto.setLimit(15);
+        ctrDto.setOffset(0);
+        ctrDto.setSortItem("createTime");
+        ctrDto.setSortType("desc");
+        ctrDto.setAppName("");
+        List<String> status = new ArrayList<>();
+        status.add("Published");
+        ctrDto.setStatus(status);
+
+        String body = new Gson().toJson(ctrDto);
+        MvcResult actions = mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/v2/packages/action/query").contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).content(body).with(csrf())).andDo(MockMvcResultHandlers.print())
+            .andReturn();
+        String page = actions.getResponse().getContentAsString();
+        JSONObject jsonObject1 = JSONObject.parseObject(page);
+        JSONArray listObject = jsonObject1.getJSONArray("results");
+        int listCount = JSONObject.parseArray(listObject.toJSONString(), MessageRespDto.class).size();
+        Assert.assertTrue(listCount > 0);
     }
 }
