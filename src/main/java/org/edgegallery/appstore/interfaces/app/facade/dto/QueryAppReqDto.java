@@ -38,10 +38,6 @@ public class QueryAppReqDto {
 
     private String userId;
 
-    private String status;
-
-    private String appName;
-
     @NotNull
     @Valid
     private QueryAppCtrlDto queryCtrl;

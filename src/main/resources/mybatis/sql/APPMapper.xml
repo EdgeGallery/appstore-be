@@ -106,8 +106,11 @@
             <if test="appName != null and appName != ''">
                 and appname ilike '%' || #{appName} || '%'
             </if>
-            <if test="status != null and status != '' ">
-                and status = #{status}
+            <if test="status != null and status.size()>0 ">
+                and status in
+                <foreach collection="status" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
             </if>
             <if test="showType != null and showType != '' ">
                 and showType in
@@ -156,8 +159,11 @@
             <if test="appName != null and appName != ''">
                 and appname ilike '%' || #{appName} || '%'
             </if>
-            <if test="status != null and status != ''">
-                and status = #{status}
+            <if test="status != null and status.size()>0 ">
+                and status in
+                <foreach collection="status" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
             </if>
             <if test="showType != null and showType.size()>0 ">
                 and showType in

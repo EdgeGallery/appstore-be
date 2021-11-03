@@ -78,7 +78,7 @@ public class AppDto {
      * transfer App to AppDto object..
      *
      * @param app is an App object.
-     * @return
+     * @return AppDto
      */
     public static AppDto of(App app) {
         AppDto dto = new AppDto();
@@ -102,10 +102,12 @@ public class AppDto {
         dto.isHotApp = app.isHotApp();
         dto.isFree = app.isFree();
         dto.price = app.getPrice();
-        Optional<Release> release = app.findLastRelease();
-        if (release.isPresent()) {
-            dto.packageId = release.get().getPackageId();
-            dto.experienceAble = release.get().isExperienceAble();
+        if (app.getReleases() != null) {
+            Optional<Release> release = app.findLastRelease();
+            if (release.isPresent()) {
+                dto.packageId = release.get().getPackageId();
+                dto.experienceAble = release.get().isExperienceAble();
+            }
         }
         return dto;
     }

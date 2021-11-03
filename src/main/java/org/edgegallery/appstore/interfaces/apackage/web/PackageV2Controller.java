@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.shared.Page;
@@ -106,7 +107,7 @@ public class PackageV2Controller {
         HttpServletRequest request) {
         String userId = "";
         String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
-        if (!authorities.contains("ROLE_APPSTORE_ADMIN")) {
+        if (!StringUtils.isEmpty(authorities) && !authorities.contains("ROLE_APPSTORE_ADMIN")) {
             userId = (String)request.getAttribute(Consts.USERID);
         }
         return ResponseEntity.ok(packageServiceFacade
