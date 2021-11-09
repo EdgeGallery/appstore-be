@@ -82,6 +82,10 @@ public class Order implements Entity {
         return orderTime == null ? null : (Date)orderTime.clone();
     }
 
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime == null ? null : (Date)orderTime.clone();
+    }
+
     public Date getOperateTime() {
         return operateTime == null ? null : (Date)operateTime.clone();
     }
