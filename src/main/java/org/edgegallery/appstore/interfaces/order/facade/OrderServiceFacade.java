@@ -77,7 +77,7 @@ public class OrderServiceFacade {
             Thread.sleep(5000);
             order.setStatus(EnumOrderStatus.ACTIVATED);
             order.setOperateTime(new Date());
-            orderRepository.updateOrderStatus(order);
+            orderRepository.updateOrder(order);
 
             CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -96,38 +96,38 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId) {
-        try {
-            Order order = orderRepository.findByOrderId(orderId).orElseThrow(
-                () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-            if (order.getStatus() != EnumOrderStatus.ACTIVATED
-                && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
-                throw new AppException("inactivated orders can't be deactivated.",
-                    ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
-            }
-            if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-                order.setStatus(EnumOrderStatus.DEACTIVATING);
-                orderRepository.updateOrderStatus(order);
-
-                // undeploy app
-                // query status
-                // if success, update status to deactivated, if failed, update status to deactivate_failed
-                Thread.sleep(3000);
-                order.setStatus(EnumOrderStatus.DEACTIVATED);
-                final Date activateDateTime = order.getOperateTime();
-                order.setOperateTime(new Date());
-                orderRepository.updateOrderStatus(order);
-            } else {
-                throw new PermissionNotAllowedException("can not deactivate order",
-                    ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
-            }
-            ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-            return ResponseEntity
-                .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new AppException("deactivate order exception.", ResponseConst.RET_DEACTIVATE_ORDER_FAILED);
+    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName,
+        String orderId, String token) {
+        Order order = orderRepository.findByOrderId(orderId).orElseThrow(
+            () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+        if (order.getStatus() != EnumOrderStatus.ACTIVATED
+            && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
+            throw new AppException("inactivated orders can't be deactivated.",
+                ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
         }
+        if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
+            order.setStatus(EnumOrderStatus.DEACTIVATING);
+            orderRepository.updateOrder(order);
+
+            // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
+            String result = orderService.unDeployApp(order, userId, token);
+            if ("success".equals(result)) {
+                order.setStatus(EnumOrderStatus.DEACTIVATED);
+                // set mecm info to empty
+                order.setMecInstanceId("");
+                order.setMecAppId("");
+                order.setMecPackageId("");
+            } else {
+                order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
+            }
+            orderRepository.updateOrder(order);
+        } else {
+            throw new PermissionNotAllowedException("can not deactivate order",
+                ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
+        }
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        return ResponseEntity.ok(new ResponseObject("deactivate order success",
+            errMsg, "deactivate order success."));
     }
 
     /**
@@ -149,7 +149,7 @@ public class OrderServiceFacade {
             }
             if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
                 order.setStatus(EnumOrderStatus.ACTIVATING);
-                orderRepository.updateOrderStatus(order);
+                orderRepository.updateOrder(order);
 
                 // upload package to mecm
                 // deploy app
@@ -158,7 +158,7 @@ public class OrderServiceFacade {
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.ACTIVATED);
                 order.setOperateTime(new Date());
-                orderRepository.updateOrderStatus(order);
+                orderRepository.updateOrder(order);
 
             } else {
                 throw new PermissionNotAllowedException("can not deactivate order",

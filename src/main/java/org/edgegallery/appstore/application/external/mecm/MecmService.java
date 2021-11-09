@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
@@ -45,6 +46,18 @@ public class MecmService {
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private static final String MECM_URL_GET_MECHOSTS = "/inventory/v1/mechosts";
+
+    private static final String APM_DELETE_EDGE_PACKAGE = "/apm/v1/tenants/%s/packages/%s/hosts/%s";
+
+    private static final String APM_DELETE_APM_PACKAGE = "/apm/v1/tenants/%s/packages/%s";
+
+    private static final String APPO_INSTANTIATE_APP = "/appo/v1/tenants/%s/app_instances/%s";
+
+    @Value("${mecm.urls.apm:}")
+    private String apmUrl;
+
+    @Value("${mecm.urls.appo:}")
+    private String appoUrl;
 
     @Value("${mecm.urls.inventory:}")
     private String inventoryUrl;
@@ -106,4 +119,105 @@ public class MecmService {
 
         return mecHostMap;
     }
+
+    /**
+     * delete app instance from appo.
+     *
+     * @param appInstanceId app instance id
+     * @param tenantId tenant id
+     * @param token  access token
+     * @return response success or not.
+     */
+    public boolean deleteAppInstance(String appInstanceId, String tenantId, String token) {
+        if (StringUtils.isEmpty(appInstanceId)) {
+            LOGGER.info("the app is not instantiated yet.");
+            return true;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        String url = appoUrl.concat(String.format(APPO_INSTANTIATE_APP, tenantId, appInstanceId));
+        LOGGER.warn("deleteAppInstance URL: {}", url);
+        try {
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
+            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(response.getStatusCode())) {
+                return true;
+            }
+            LOGGER
+                .error("delete app instance from appo response failed. status code is {}", response.getStatusCode());
+        } catch (RestClientException e) {
+            LOGGER.error("delete app instance from appo failed, appInstanceId is {} exception {}", appInstanceId,
+                e.getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * delete edge package.
+     *
+     * @param hostIp hostIp
+     * @param tenantId tenant id
+     * @param packageId package id
+     * @param token access token
+     * @return delete successfully
+     */
+    public boolean deleteEdgePackage(String hostIp, String tenantId, String packageId, String token) {
+        if (StringUtils.isEmpty(hostIp) || StringUtils.isEmpty(packageId)) {
+            LOGGER.info("the app is not distributed to edge yet.");
+            return true;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        String url = apmUrl.concat(String.format(APM_DELETE_EDGE_PACKAGE, tenantId, packageId, hostIp));
+        LOGGER.warn("deleteEdgePkg URL: {}", url);
+        try {
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
+            if (HttpStatus.OK.equals(response.getStatusCode())) {
+                return true;
+            }
+            LOGGER.error("deleteEdgePkg reponse failed. The status code is {}", response.getStatusCode());
+        } catch (RestClientException e) {
+            LOGGER.error("deleteEdgePkg failed, exception {}", e.getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * delete apm package.
+     *
+     * @param tenantId tenant id
+     * @param packageId package id
+     * @param token access token
+     * @return delete successfully
+     */
+    public boolean deleteApmPackage(String tenantId, String packageId, String token) {
+        if (StringUtils.isEmpty(packageId)) {
+            LOGGER.info("the app is not uploaded to apm yet.");
+            return true;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        String url = apmUrl.concat(String.format(APM_DELETE_APM_PACKAGE, tenantId, packageId));
+        LOGGER.warn("deleteApmPkg URL: {}", url);
+        try {
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
+            if (HttpStatus.OK.equals(response.getStatusCode())) {
+                return true;
+            }
+            LOGGER.error("deleteApmPkg reponse failed. The status code is {}", response.getStatusCode());
+        } catch (RestClientException e) {
+            LOGGER.error("deleteApmPkg failed, aexception {}", e.getMessage());
+        }
+
+        return false;
+    }
+
 }

@@ -54,6 +54,8 @@ public class Order implements Entity {
 
     private String mecInstanceId;
 
+    private String detail;
+
     /**
      * construct.
      *
@@ -78,10 +80,6 @@ public class Order implements Entity {
 
     public Date getOrderTime() {
         return orderTime == null ? null : (Date)orderTime.clone();
-    }
-
-    public void setOrderTime(Date orderTime) {
-        this.orderTime = orderTime == null ? null : (Date)orderTime.clone();
     }
 
     public Date getOperateTime() {
