@@ -107,4 +107,29 @@ public class OrderService {
         int maxNumLen = 10;
         return "ES" + strId.substring(strId.length() - maxNumLen);
     }
+
+    /**
+     * undeploy app.
+     *
+     * @param order order info
+     * @param userId deactivate user id
+     * @param token access token
+     * @return delete app success or not
+     */
+    public String unDeployApp(Order order, String userId, String token) {
+        String appInstanceId = order.getMecInstanceId();
+        String hostIp = order.getMecHostIp();
+        String packageId = order.getMecPackageId();
+
+        if (!mecmService.deleteAppInstance(appInstanceId, userId, token)) {
+            return "delete instantiate app from appo failed";
+        }
+        if (!mecmService.deleteEdgePackage(hostIp, userId, packageId, token)) {
+            return "delete edge package from apm failed.";
+        }
+        if (!mecmService.deleteApmPackage(userId, packageId, token)) {
+            return "delete apm package from apm failed.";
+        }
+        return "success";
+    }
 }

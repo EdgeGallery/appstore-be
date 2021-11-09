@@ -21,8 +21,13 @@
     <update id="update"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
         update app_order
-        SET status          = #{status},
-            operateTime     = (select now())
+        SET operateTime       = (select now()),
+            status            = #{status},
+            mecm_hostIp       = #{mecHostIp},
+            mecm_appId        = #{mecAppId},
+            mecm_appPackageId = #{mecPackageId},
+            mecm_instanceId   = #{mecInstanceId},
+            detail            = #{detail}
         WHERE orderId = #{orderId}
     </update>
 
@@ -30,9 +35,9 @@
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
         insert into app_order
         (orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-         mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId)
+         mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId, detail)
         VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{orderTime},
-                #{operateTime}, #{status}, #{mecHostIp}, #{mecAppId}, #{mecPackageId}, #{mecInstanceId})
+                #{operateTime}, #{status}, #{mecHostIp}, #{mecAppId}, #{mecPackageId}, #{mecInstanceId}, #{detail})
     </insert>
 
     <select id="getCountByCondition" resultType="java.lang.Integer"
@@ -62,7 +67,8 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="java.util.Map">
         select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp mecHostIp, mecm_appId mecAppId, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId from app_order
+        mecm_hostIp mecHostIp, mecm_appId mecAppId, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId,
+        detail from app_order
         <where>
             <if test="appId != null and appId != '' ">
                 and appId = #{appId}
@@ -93,7 +99,9 @@
     <select id="findByOrderId"
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="String">
-        select * from app_order where orderId = #{orderId}
+        select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
+        mecm_hostIp mecHostIp, mecm_appId mecAppId, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId,
+        detail from app_order where orderId = #{orderId}
     </select>
 
     <select id="maxOrderNum"

@@ -80,7 +80,7 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void createorder_should_success() throws Exception {
+    public void create_order_should_success() throws Exception {
         MvcResult result = createOrder();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
@@ -111,10 +111,7 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void deactivate_deactivatedorder_should_failed() throws Exception {
-        MvcResult mvcResult = deactivateOrder();
-        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-
+    public void deactivate_order_should_failed() throws Exception {
         String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
@@ -130,9 +127,6 @@ public class OrderTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void activate_order_should_success() throws Exception {
-        MvcResult mvcResult = deactivateOrder();
-        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-
         String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
@@ -145,7 +139,7 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void activate_activatedorder_should_failed() throws Exception {
+    public void activate_order_should_failed() throws Exception {
         String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED.toString());
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);

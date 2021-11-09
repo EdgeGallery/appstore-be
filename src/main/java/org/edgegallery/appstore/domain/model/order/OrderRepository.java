@@ -24,7 +24,7 @@ public interface OrderRepository {
 
     void addOrder(Order order);
 
-    void updateOrderStatus(Order order);
+    void updateOrder(Order order);
 
     List<Order> queryOrders(Map<String, Object> params);
 

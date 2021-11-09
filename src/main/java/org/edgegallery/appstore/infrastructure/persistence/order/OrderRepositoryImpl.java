@@ -38,7 +38,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void updateOrderStatus(Order order) {
+    public void updateOrder(Order order) {
         OrderPo orderPo = OrderPo.of(order);
         orderMapper.update(orderPo);
     }
