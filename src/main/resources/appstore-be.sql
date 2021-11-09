@@ -211,27 +211,6 @@
         CONSTRAINT app_order_uniqueOrderNum UNIQUE (ORDERNUM)
     );
 
-    create TABLE if not exists app_bill (
-        BILLID                  VARCHAR(200)       NOT NULL,
-        ORDERID                 VARCHAR(200)       NOT NULL,
-        CREATETIME              TIMESTAMP          NOT NULL,
-        USERID                  VARCHAR(100)       NOT NULL,
-        USERNAME                VARCHAR(100)       NOT NULL,
-        BILLTYPE                VARCHAR(5)         NOT NULL,
-        BILLSUBTYPE             VARCHAR(20)        NOT NULL,
-        BILLAMOUNT              NUMERIC(10,2)      NULL,
-        OPERATORFEE             NUMERIC(10,2)      NULL,
-        SUPPLIERFEE             NUMERIC(10,2)      NULL,
-        CONSTRAINT app_bill_pkey PRIMARY KEY (BILLID),
-        CONSTRAINT app_bill_fk_orderid foreign key(ORDERID) references app_order(ORDERID)
-    );
-
-    create TABLE if not exists app_split_config (
-        APPID                 VARCHAR(200)       NOT NULL,
-        SPLITRATIO            NUMERIC(3,2)       NULL,
-        CONSTRAINT app_split_config_pkey PRIMARY KEY (APPID)
-    );
-
     alter table catalog_package_table add column IF NOT EXISTS DEMOVIDEOADDRESS VARCHAR(200) NULL;
 
     alter table message_table add column IF NOT EXISTS DEMOVIDEODOWNLOADURL VARCHAR(255) NULL;
@@ -271,3 +250,7 @@
     alter table app_table add column if NOT EXISTS ISFREE boolean DEFAULT true;
 
     alter table app_table add column if NOT EXISTS PRICE NUMERIC(10,2) NULL;
+
+    drop table if exists app_bill;
+
+    drop table if exists app_split_config;
