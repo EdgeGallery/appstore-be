@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.edgegallery.appstore.application.inner.BillService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -54,9 +53,6 @@ public class OrderServiceFacade {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    @Autowired
-    private BillService billService;
 
     /**
      * create order.
@@ -121,9 +117,6 @@ public class OrderServiceFacade {
                 final Date activateDateTime = order.getOperateTime();
                 order.setOperateTime(new Date());
                 orderRepository.updateOrderStatus(order);
-
-                LOGGER.info("geneate bill.");
-                billService.generateBillOnDeactivate(order, activateDateTime);
             } else {
                 throw new PermissionNotAllowedException("can not deactivate order",
                     ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);

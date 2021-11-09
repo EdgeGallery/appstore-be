@@ -29,7 +29,7 @@ import org.edgegallery.appstore.infrastructure.persistence.PersistenceObject;
 @Getter
 @Setter
 @Entity
-@Table(name = "app_table")
+@Table(name = "message_table")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessagePo implements PersistenceObject<Message> {
 

@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
-import org.edgegallery.appstore.application.inner.BillService;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +33,6 @@ public class ScheduleTask {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private BillService billService;
-
     @Scheduled(cron = "0 0 0 * * ? ")
     public void processCleanEnv() {
         projectService.cleanUnreleasedEnv();
@@ -45,10 +41,5 @@ public class ScheduleTask {
     @Scheduled(cron = "0 0 0 * * ? ")
     public void processCleanTempPackage() {
         packageServiceFacade.scheduledDeletePackage();
-    }
-
-    @Scheduled(cron = "0 0 0 * * ? ")
-    public void generateBill() {
-        billService.generateBill();
     }
 }
