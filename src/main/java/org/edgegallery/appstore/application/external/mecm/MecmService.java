@@ -112,7 +112,6 @@ public class MecmService {
             Map<String, Object> mecHostInfoMap = mecHostInfo.get();
             MecHostBody mecHost = new MecHostBody();
             mecHost.setMechostIp(mecHostIp);
-            mecHost.setMechostName((String) mecHostInfoMap.get("mechostName"));
             mecHost.setCity((String) mecHostInfoMap.get("city"));
             mecHostMap.put(mecHostIp, mecHost);
         }
@@ -141,12 +140,10 @@ public class MecmService {
         LOGGER.warn("deleteAppInstance URL: {}", url);
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
-            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
-                .equals(response.getStatusCode())) {
+            if (HttpStatus.ACCEPTED.equals(response.getStatusCode())) {
                 return true;
             }
-            LOGGER
-                .error("delete app instance from appo response failed. status code is {}", response.getStatusCode());
+            LOGGER.error("delete app instance from appo failed. status code is {}", response.getStatusCode());
         } catch (RestClientException e) {
             LOGGER.error("delete app instance from appo failed, appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
@@ -180,7 +177,7 @@ public class MecmService {
             if (HttpStatus.OK.equals(response.getStatusCode())) {
                 return true;
             }
-            LOGGER.error("deleteEdgePkg reponse failed. The status code is {}", response.getStatusCode());
+            LOGGER.error("deleteEdgePkg response failed. The status code is {}", response.getStatusCode());
         } catch (RestClientException e) {
             LOGGER.error("deleteEdgePkg failed, exception {}", e.getMessage());
         }
@@ -212,9 +209,9 @@ public class MecmService {
             if (HttpStatus.OK.equals(response.getStatusCode())) {
                 return true;
             }
-            LOGGER.error("deleteApmPkg reponse failed. The status code is {}", response.getStatusCode());
+            LOGGER.error("deleteApmPkg response failed. The status code is {}", response.getStatusCode());
         } catch (RestClientException e) {
-            LOGGER.error("deleteApmPkg failed, aexception {}", e.getMessage());
+            LOGGER.error("deleteApmPkg failed, exception {}", e.getMessage());
         }
 
         return false;
