@@ -63,7 +63,6 @@ public class OrderService {
             }
 
             // query mec host info
-            String mecHostName = "";
             String mecHostCity = "";
             String mecHostIp = order.getMecHostIp();
             if (!StringUtils.isEmpty(mecHostIp)) {
@@ -71,13 +70,12 @@ public class OrderService {
                 mecHostIpLst.add(mecHostIp);
                 Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
                 if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
-                    mecHostName = mecHostInfo.get(mecHostIp).getMechostName();
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }
             }
 
             OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
-                release != null ? release.getAppBasicInfo().getVersion() : "", mecHostName, mecHostCity);
+                release != null ? release.getAppBasicInfo().getVersion() : "",  mecHostCity);
             dtoList.add(dto);
         }
         return dtoList;

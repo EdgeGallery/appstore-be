@@ -56,7 +56,9 @@ atp:
 ### mecm config ###
 mecm:
   urls:
-    inventory: http://127.0.0.1:8000
+    appo: http://127.0.0.1:8001
+    apm: http://127.0.0.1:8001
+    inventory: http://127.0.0.1:8001
 
 ### appShare feature config ###
 appShare:

@@ -45,8 +45,6 @@ public class OrderDto {
 
     private String mecHostIp;
 
-    private String mecHostName;
-
     private String mecHostCity;
 
     private String detail;
@@ -55,7 +53,7 @@ public class OrderDto {
      * constructor.
      *
      */
-    public OrderDto(Order order, String appName, String appVersion, String mecHostName, String mecHostCity) {
+    public OrderDto(Order order, String appName, String appVersion, String mecHostCity) {
         this.orderId = order.getOrderId();
         this.orderNum = order.getOrderNum();
         this.userId = order.getUserId();
@@ -67,7 +65,6 @@ public class OrderDto {
         this.operateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(order.getOperateTime());
         this.status = order.getStatus().toString();
         this.mecHostIp = order.getMecHostIp();
-        this.mecHostName = mecHostName;
         this.mecHostCity = mecHostCity;
         this.detail = order.getDetail();
     }
