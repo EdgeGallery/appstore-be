@@ -33,7 +33,7 @@ public class GetPackageFileTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
-        String filePath = "positioning-service.mf";
+        String filePath = "test2048.mf";
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.post(String.format("/mec/appstore/v1/apps/%s/packages/%s/files", appId, packageId))
                 .param("filePath", filePath).with(csrf()).contentType(MediaType.APPLICATION_JSON))

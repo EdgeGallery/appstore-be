@@ -432,8 +432,7 @@ public class BasicInfo {
     }
 
     private String signPackage(String srcMsg, String keyPath, String keyPwd) {
-        Signature signature = new Signature();
-        Optional<byte[]> signBytes = signature.signMessage(srcMsg.trim(), keyPath, keyPwd);
+        Optional<byte[]> signBytes = Signature.signMessage(srcMsg.trim(), keyPath, keyPwd);
         if (signBytes.isPresent()) {
             return new String(signBytes.get(), StandardCharsets.UTF_8);
         } else {

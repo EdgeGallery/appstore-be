@@ -210,7 +210,6 @@ public class AppServiceFacade {
             packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
         }
         packageAFile.setFileSize(packageFile.getSize());
-        String fileNameExtension = fileStoreageAddress.substring(fileStoreageAddress.lastIndexOf("."));
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -218,6 +217,11 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
+        if (!appUtil.checkPackageValid(fileParent)) {
+            throw new AppException("the app package is illegal and may have been tampered!",
+                ResponseConst.RET_PACKAGE_ILLEGAL);
+        }
+        String fileNameExtension = fileStoreageAddress.substring(fileStoreageAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
@@ -257,12 +261,16 @@ public class AppServiceFacade {
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
-        String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
+        if (!appUtil.checkPackageValid(checkPath)) {
+            throw new AppException("the app package is illegal and may have been tampered!",
+                ResponseConst.RET_PACKAGE_ILLEGAL);
+        }
+        String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {

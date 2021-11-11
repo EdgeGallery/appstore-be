@@ -37,22 +37,29 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.cms.CMSException;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
+import org.edgegallery.appstore.domain.model.appd.IAppdContentEnum;
 import org.edgegallery.appstore.domain.model.appd.IAppdFile;
+import org.edgegallery.appstore.domain.model.appd.IContentParseHandler;
+import org.edgegallery.appstore.domain.model.appd.context.ManifestCmsContent;
 import org.edgegallery.appstore.domain.model.appd.context.ManifestFiledataContent;
 import org.edgegallery.appstore.domain.model.appd.context.ToscaSourceContent;
 import org.edgegallery.appstore.domain.model.releases.AFile;
@@ -83,6 +90,8 @@ public class AppUtil {
     private static final String ZIP_PACKAGE_ERR_MESSAGES = "failed to zip application package";
 
     private static final String DOWNLOAD_IMAGE_FAIL = "failed download image from file system";
+
+    private static final String MF_EXTENSION = "mf";
 
     private static final String ZIP_EXTENSION = ".zip";
 
@@ -395,7 +404,7 @@ public class AppUtil {
      */
     public void updateRelationalFile(String fileParent, String imageName) {
         String target = IMAGE + File.separator + imageName + ZIP_EXTENSION;
-        File mfFile = getFile(fileParent, "mf");
+        File mfFile = getFile(fileParent, MF_EXTENSION);
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         fileHandlerMf.load(mfFile);
         fileHandlerMf.delContentByTypeAndValue(ManifestFiledataContent.SOURCE, target);
@@ -445,7 +454,7 @@ public class AppUtil {
         if (!StringUtils.isEmpty(imgZipPath)) {
             try {
                 // add image zip to mf file
-                File mfFile = getFile(parentDir, "mf");
+                File mfFile = getFile(parentDir, MF_EXTENSION);
                 new BasicInfo().rewriteManifestWithImage(mfFile, imgZipPath, keyPath, keyPwd);
 
                 // add image zip to TOSCA.meta file
@@ -725,5 +734,71 @@ public class AppUtil {
         String jsonFile = fileParent + File.separator + JSON_EXTENSION;
         File swImageDesc = new File(jsonFile);
         writeFile(swImageDesc, new Gson().toJson(imgDecsLists));
+    }
+
+    /**
+     * check package valid.
+     *
+     * @param fileParent package file parent.
+     * @return boolean
+     */
+    public boolean checkPackageValid(String fileParent) {
+        File mfFile = getFile(fileParent, MF_EXTENSION);
+        Map<String, String> file2hash = getFileHash(mfFile);
+        for (String sourceFile : file2hash.keySet()) {
+            String sourceFilePath = fileParent + File.separator + sourceFile;
+            if (!file2hash.get(sourceFile).equals(getHashValue(sourceFilePath))) {
+                LOGGER.error("the sourceFile {} hash value is incorrect", sourceFile);
+                return false;
+            }
+        }
+        try {
+            String signStr = getSignedData(mfFile);
+            if (!StringUtils.isEmpty(signStr)) {
+                return Signature.signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (CMSException e) {
+            LOGGER.error("signedDataVerify catch exception: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    private Map<String, String> getFileHash(File mfFile) {
+        Map<String, String> sourceFile2hashValue = new HashMap<>();
+        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
+        fileHandlerMf.load(mfFile);
+        List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
+        for (IContentParseHandler handler : contentParseHandlers) {
+            Map<IAppdContentEnum, String> params = handler.getParams();
+            String sourcePath = params.get(ManifestFiledataContent.SOURCE);
+            if (StringUtils.isEmpty(sourcePath)) {
+                continue;
+            }
+            sourceFile2hashValue.put(sourcePath, params.get(ManifestFiledataContent.HASH));
+        }
+        return sourceFile2hashValue;
+    }
+
+    private String getHashValue(String sourceFilePath) {
+        try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
+            return DigestUtils.sha256Hex(fis);
+        } catch (IOException e) {
+            throw new AppException("get hash value of source file failed",
+                ResponseConst.RET_MF_CONTENT_INVALID, sourceFilePath);
+        }
+    }
+
+    private String getSignedData(File mfFile) {
+        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
+        fileHandlerMf.load(mfFile);
+        List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
+        for (IContentParseHandler handler : contentParseHandlers) {
+            Map<IAppdContentEnum, String> params = handler.getParams();
+            if (StringUtils.isEmpty(params.get(ManifestCmsContent.BEGIN_CMS))) {
+                continue;
+            }
+            return params.get(ManifestCmsContent.CONTENT_CMS);
+        }
+        return "";
     }
 }
