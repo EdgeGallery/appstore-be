@@ -752,7 +752,7 @@ public class AppUtil {
         fileHandlerMf.load(mfFile);
         Map<String, String> file2hash = getFileHash(fileHandlerMf);
         Set<Map.Entry<String, String>> entries = file2hash.entrySet();
-        for (Map.Entry entry : entries) {
+        for (Map.Entry<String, String> entry : entries) {
             String sourceFilePath = fileParent + File.separator + entry.getKey();
             if (!entry.getValue().equals(getHashValue(sourceFilePath))) {
                 LOGGER.error("the sourceFile {} hash value is incorrect", entry.getKey());
