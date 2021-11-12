@@ -796,8 +796,9 @@ public class AppUtil {
         List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
         for (IContentParseHandler handler : contentParseHandlers) {
             Map<IAppdContentEnum, String> params = handler.getParams();
-            if (!StringUtils.isEmpty(params.get(ManifestCmsContent.BEGIN_CMS))) {
-                return params.get(ManifestCmsContent.CONTENT_CMS);
+            String signStr = params.get(ManifestCmsContent.CONTENT_CMS);
+            if (!StringUtils.isEmpty(signStr)) {
+                return signStr;
             }
         }
         return "";
