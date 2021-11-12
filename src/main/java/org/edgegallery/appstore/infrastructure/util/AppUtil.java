@@ -776,10 +776,9 @@ public class AppUtil {
         for (IContentParseHandler handler : contentParseHandlers) {
             Map<IAppdContentEnum, String> params = handler.getParams();
             String sourcePath = params.get(ManifestFiledataContent.SOURCE);
-            if (StringUtils.isEmpty(sourcePath)) {
-                continue;
+            if (!StringUtils.isEmpty(sourcePath)) {
+                sourceFile2hashValue.put(sourcePath, params.get(ManifestFiledataContent.HASH));
             }
-            sourceFile2hashValue.put(sourcePath, params.get(ManifestFiledataContent.HASH));
         }
         return sourceFile2hashValue;
     }
@@ -797,10 +796,9 @@ public class AppUtil {
         List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
         for (IContentParseHandler handler : contentParseHandlers) {
             Map<IAppdContentEnum, String> params = handler.getParams();
-            if (StringUtils.isEmpty(params.get(ManifestCmsContent.BEGIN_CMS))) {
-                continue;
+            if (!StringUtils.isEmpty(params.get(ManifestCmsContent.BEGIN_CMS))) {
+                return params.get(ManifestCmsContent.CONTENT_CMS);
             }
-            return params.get(ManifestCmsContent.CONTENT_CMS);
         }
         return "";
     }
