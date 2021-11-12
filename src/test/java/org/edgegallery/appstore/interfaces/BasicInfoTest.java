@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -33,7 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class BasicInfoTest {
 
     @Test(expected = AppException.class)
-    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void should_exception_rewrite_mf() throws Exception {
         File mfFile = Resources.getResourceAsFile("testfile/csar/test_csar.mf");
         File imageFile = Resources.getResourceAsFile("testfile/csar/Image/cirros.zip");

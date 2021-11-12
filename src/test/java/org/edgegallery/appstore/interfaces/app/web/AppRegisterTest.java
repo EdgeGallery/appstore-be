@@ -62,9 +62,8 @@ public class AppRegisterTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() {
-
         try {
-            MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_UNIQUE_CSAR, userId, userName);
+            MvcResult mvcResult = registerApp(LOGO_PNG, TEST2048_UNIQUE_CSAR, userId, userName);
             Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
             new Gson().fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
         } catch (Exception e) {
@@ -79,7 +78,7 @@ public class AppRegisterTest extends AppTest {
 
         try {
             Mockito.when(atpService.getAtpTaskResult(Mockito.any(), Mockito.any())).thenReturn("success");
-            MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_UNIQUE_CSAR, userId, userName, testTaskId);
+            MvcResult mvcResult = registerApp(LOGO_PNG, TEST2048_UNIQUE_CSAR, userId, userName, testTaskId);
             Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
             new Gson().fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
         } catch (Exception e) {
@@ -89,9 +88,20 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_with_wrong_signature() {
+        try {
+            MvcResult mvcResult = registerApp(LOGO_PNG, BATTLE_CITY_CSAR, userId, userName);
+            Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_same_app() {
         try {
-            MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
+            MvcResult mvcResult = registerApp(LOGO_PNG, TEST2048_1_CSAR, userId, userName);
             Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
         } catch (Exception e) {
             Assert.assertNull(e);
@@ -139,7 +149,7 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_iconFile() {
         try {
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
@@ -166,7 +176,7 @@ public class AppRegisterTest extends AppTest {
     public void should_fail_with_no_typeField() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
@@ -194,7 +204,7 @@ public class AppRegisterTest extends AppTest {
     public void should_fail_with_no_shortDescField() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
@@ -222,7 +232,7 @@ public class AppRegisterTest extends AppTest {
     public void should_with_no_affinityField() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
@@ -250,7 +260,7 @@ public class AppRegisterTest extends AppTest {
     public void should_app_register_fail_with_no_industryField() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
@@ -276,7 +286,7 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_with_VM() {
         try {
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps/upload")
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile))).with(csrf()));
@@ -293,7 +303,7 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_with_Chun() {
         try {
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_1_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
             FileInputStream fileInputStream = new FileInputStream(csarFile);
             MultipartFile multipartFile = new MockMultipartFile("file", csarFile.getName(), "text/plain",
                 IOUtils.toByteArray(fileInputStream));
@@ -346,7 +356,7 @@ public class AppRegisterTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_with_video() {
         try {
-            File csarFile = Resources.getResourceAsFile(POSITIONING_EG_2_CSAR);
+            File csarFile = Resources.getResourceAsFile(TEST2048_2_CSAR);
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
             File videoFile = Resources.getResourceAsFile(DEMO_VIDEO);
             ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
