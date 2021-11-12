@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -744,16 +745,22 @@ public class AppUtil {
      */
     public boolean checkPackageValid(String fileParent) {
         File mfFile = getFile(fileParent, MF_EXTENSION);
-        Map<String, String> file2hash = getFileHash(mfFile);
-        for (String sourceFile : file2hash.keySet()) {
-            String sourceFilePath = fileParent + File.separator + sourceFile;
-            if (!file2hash.get(sourceFile).equals(getHashValue(sourceFilePath))) {
-                LOGGER.error("the sourceFile {} hash value is incorrect", sourceFile);
+        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
+        if (fileHandlerMf == null) {
+            return true;
+        }
+        fileHandlerMf.load(mfFile);
+        Map<String, String> file2hash = getFileHash(fileHandlerMf);
+        Set<Map.Entry<String, String>> entries = file2hash.entrySet();
+        for (Map.Entry entry : entries) {
+            String sourceFilePath = fileParent + File.separator + entry.getKey();
+            if (!entry.getValue().equals(getHashValue(sourceFilePath))) {
+                LOGGER.error("the sourceFile {} hash value is incorrect", entry.getKey());
                 return false;
             }
         }
         try {
-            String signStr = getSignedData(mfFile);
+            String signStr = getSignedData(fileHandlerMf);
             if (!StringUtils.isEmpty(signStr)) {
                 return Signature.signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
             }
@@ -763,10 +770,8 @@ public class AppUtil {
         return false;
     }
 
-    private Map<String, String> getFileHash(File mfFile) {
+    private Map<String, String> getFileHash(IAppdFile fileHandlerMf) {
         Map<String, String> sourceFile2hashValue = new HashMap<>();
-        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
-        fileHandlerMf.load(mfFile);
         List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
         for (IContentParseHandler handler : contentParseHandlers) {
             Map<IAppdContentEnum, String> params = handler.getParams();
@@ -788,9 +793,7 @@ public class AppUtil {
         }
     }
 
-    private String getSignedData(File mfFile) {
-        IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
-        fileHandlerMf.load(mfFile);
+    private String getSignedData(IAppdFile fileHandlerMf) {
         List<IContentParseHandler> contentParseHandlers = fileHandlerMf.getParamsHandlerList();
         for (IContentParseHandler handler : contentParseHandlers) {
             Map<IAppdContentEnum, String> params = handler.getParams();
