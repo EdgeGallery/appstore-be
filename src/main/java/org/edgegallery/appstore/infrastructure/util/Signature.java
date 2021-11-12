@@ -62,11 +62,15 @@ public class Signature {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Signature.class);
 
+    private Signature() {
+
+    }
+
     static {
         try {
             Security.addProvider(new BouncyCastleProvider());
         } catch (Exception e) {
-            LOGGER.error("add provider failed. {}", e);
+            LOGGER.error("add provider failed. {}", e.getMessage());
         }
     }
 
