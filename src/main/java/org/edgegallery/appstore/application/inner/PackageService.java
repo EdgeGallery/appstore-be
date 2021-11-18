@@ -80,8 +80,9 @@ public class PackageService {
             LOGGER.error("Test status is {}, publish failed", release.getStatus());
             throw new AppException("Test status is not success, publish failed", ResponseConst.RET_PUBLISH_NO_TESTED);
         }
-        appRepository.find(appId)
-            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        if (!appRepository.find(appId).isPresent()) {
+            throw new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND);
+        }
         Optional<App> existedApp = appRepository
             .findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
                 release.getAppBasicInfo().getProvider());
