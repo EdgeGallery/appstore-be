@@ -121,8 +121,7 @@
         select * from pushable_package_table where packageId = #{packageId}
     </select>
 
-    <select id="deletePushablePackages" parameterType="String"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+    <select id="deletePushablePackages" parameterType="String">
         delete from pushable_package_table where packageId = #{packageId}
     </select>
 

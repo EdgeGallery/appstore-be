@@ -41,7 +41,7 @@
     </select>
 
     <select id="findAll"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.comment.CommentPo"
+            resultType="org.edgegallery.appstore.domain.model.comment.Comment"
             parameterType="java.util.Map">
         SELECT * FROM CSAR_PACKAGE_SCORE WHERE APPID = #{appId}
     </select>

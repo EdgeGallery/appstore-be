@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
@@ -80,8 +81,14 @@ public class PackageService {
             throw new AppException("Test status is not success, publish failed", ResponseConst.RET_PUBLISH_NO_TESTED);
         }
         appRepository.find(appId)
-            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND))
-            .checkReleases(release);
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        Optional<App> existedApp = appRepository
+            .findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
+                release.getAppBasicInfo().getProvider());
+        if (existedApp.isPresent()) {
+            App app = existedApp.get();
+            app.checkReleases(release);
+        }
         release.setStatus(EnumPackageStatus.Published);
         publishAppAndPackage(appId, release, publishAppReq);
     }

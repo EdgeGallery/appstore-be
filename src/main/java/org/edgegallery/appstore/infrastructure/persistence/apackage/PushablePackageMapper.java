@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.appstore.interfaces.apackage.facade.dto.AppStoreDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,8 +32,6 @@ public interface PushablePackageMapper {
     Integer getAllPushablePackagesCount(Map<String, Object> params);
 
     Optional<PushablePackageAndAppVo> getPushablePackages(String packageId);
-
-    Optional<AppStoreDto> findAppStoreById(String appStoreId);
 
     void savePushTable(PushablePackagePo pushablePackagePo);
 
