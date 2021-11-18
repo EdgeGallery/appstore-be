@@ -176,7 +176,6 @@ public class AppReleasePo {
         po.provider = pack.getAppBasicInfo().getProvider();
         po.testTaskId = pack.getTestTaskId();
         po.status = pack.getStatus().toString();
-        po.provider = pack.getAppBasicInfo().getProvider();
         po.deployMode = pack.getDeployMode();
         po.appInstanceId = pack.getAppInstanceId();
         po.instanceTenentId = pack.getInstanceTenentId();

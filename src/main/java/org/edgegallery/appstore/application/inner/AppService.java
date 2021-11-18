@@ -268,13 +268,11 @@ public class AppService {
             for (JsonElement desc : swImgDescArray) {
                 JsonObject jsonObject = desc.getAsJsonObject();
                 String swImage = jsonObject.get(SWIMAGE).getAsString();
-                String[] image = swImage.split("/");
-
-                if (image.length > 1) {
-                    jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[image.length - 1]);
-                } else {
-                    jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[0]);
+                if (StringUtils.isEmpty(swImage)) {
+                    throw new AppException("wrong image descriptor", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
                 }
+                String[] image = swImage.split("/");
+                jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[image.length - 1]);
             }
             FileUtils.writeStringToFile(swImageDesc, swImgDescArray.toString(), StandardCharsets.UTF_8.name());
             LOGGER.info("Updated swImages : {}", swImgDescArray);
