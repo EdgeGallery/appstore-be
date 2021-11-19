@@ -105,6 +105,8 @@ public class AppTest {
 
     protected static final String DEMO_VIDEO = "testfile/demo_video.mp4";
 
+    protected static final String CONTAINER_IMAGE_CSAR = "testfile/testContainer.csar";
+
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
         return registerApp(iconAddr, csarAddr, userId, userName, "Video Application", "test", "X86", "Smart Park", testTaskId, "public", "false");

@@ -121,6 +121,18 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_container_with_image() {
+        try {
+            MvcResult mvcResult = registerApp(LOGO_PNG, CONTAINER_IMAGE_CSAR, userId, userName);
+            Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+            new Gson().fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
+        } catch (Exception e) {
+            Assert.assertNull(e);
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_fail_with_no_csarFile() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);
