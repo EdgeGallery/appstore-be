@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
+import org.edgegallery.appstore.domain.model.releases.EnumExperienceStatus;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -130,6 +131,9 @@ public class AppReleasePo {
 
     @Column(name = "MECHOST")
     private String mecHost;
+
+    @Column(name = "EXPERIENCESTATUS")
+    private EnumExperienceStatus experienceStatus;
 
 
     public AppReleasePo() {
