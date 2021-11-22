@@ -37,6 +37,7 @@ create TABLE if not exists catalog_package_table (
     STARTEXPTIME             VARCHAR(100)       NULL,
     EXPERIENCEABLEIP         VARCHAR(100)       NULL,
     MECHOST                  VARCHAR(100)       NULL,
+    EXPERIENCESTATUS         INT                NULL,
     CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
 );
 
@@ -227,17 +228,17 @@ insert into app_table(
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
-    version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+    version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, EXPERIENCESTATUS)
     values ('packageid-0003', '/package/test/face.csar', '/user/test/icon.png', '', 10004, 'file-trees', now(),
     'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
-    'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER');
+    'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 25);
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname, instancetenentid,
-    version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+    version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, EXPERIENCESTATUS)
     values ('packageid-0004', '/package/test/face.csar', '/user/test/icon.png', '', 10005, 'file-trees', now(),
     'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
-    'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER');
+    'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 30);
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,

@@ -426,6 +426,16 @@ public class ResponseConst {
     public static final int RET_DELETE_THIRD_SYSTEM_FAILED = 15105;
 
     /**
+     * distributed package failed.
+     */
+    public static final int RET_DISTRIBUTE_FAILED = 15106;
+
+    /**
+     * instantiate package failed.
+     */
+    public static final int RET_INSTANTIATE_FAILED = 15107;
+
+    /**
      * order base error code.
      */
     public static final int RET_ORDER_BASE = 16000;

@@ -37,6 +37,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,11 +59,9 @@ public class ProjectController {
      * @param appId appId.
      * @param packageId packageId.
      * @param userId userId.
-     * @param name hostname.
-     * @param ip mecHost.
      * @param request request.
      */
-    @GetMapping(value = "/experience/deploy", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
+    @PostMapping(value = "/experience/deploy", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @ApiOperation(value = "get app detail app id.", response = AppDto.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
@@ -70,22 +69,31 @@ public class ProjectController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
-    public ResponseEntity<ResponseObject> deployAppById(
-        @ApiParam(value = "app id") @RequestParam("appId") String appId,
+    public ResponseEntity<ResponseObject> deployAppById(@ApiParam(value = "app id") @RequestParam("appId") String appId,
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
-        @ApiParam(value = "user id") @RequestParam("userId") String userId,
-        @ApiParam(value = "name") @RequestParam("name") String name,
-        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
+        @ApiParam(value = "user id") @RequestParam("userId") String userId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return projectService.deployAppById(appId, packageId, userId, name, ip, token);
+        return projectService.deployAppById(appId, packageId, userId, token);
+    }
+
+    @GetMapping(value = "/experience/packages/{packageId}/status",
+        produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "get app detail app id.", response = AppDto.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
+    public ResponseEntity<ResponseObject> getExperienceStatus(
+        @ApiParam(value = "packageId", required = true) @PathVariable("packageId") String packageId) {
+        return projectService.getExperienceStatus(packageId);
     }
 
     /**
      * clean test env.
      *
      * @param packageId packageId.
-     * @param name hostName.
-     * @param ip mecHost.
      * @param request request.
      */
     @PostMapping(value = "/experience/clean", produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
@@ -98,10 +106,9 @@ public class ProjectController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(
         @ApiParam(value = "packageId", required = true) @RequestParam("packageId") String packageId,
-        @ApiParam(value = "name") @RequestParam("name") String name,
-        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
+        HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<ResponseObject, Boolean> either = projectService.cleanTestEnv(packageId, name, ip, token);
+        Either<ResponseObject, Boolean> either = projectService.cleanTestEnv(packageId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -118,11 +125,9 @@ public class ProjectController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<ResponseObject> getNodeStatus(
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
-        @ApiParam(value = "user id") @RequestParam("userId") String userId,
-        @ApiParam(value = "name") @RequestParam("name") String name,
-        @ApiParam(value = "ip") @RequestParam("ip") String ip, HttpServletRequest request) {
+        @ApiParam(value = "user id") @RequestParam("userId") String userId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return projectService.getNodeStatus(packageId, userId, name, ip, token);
+        return projectService.getNodeStatus(packageId, userId, token);
     }
 
 

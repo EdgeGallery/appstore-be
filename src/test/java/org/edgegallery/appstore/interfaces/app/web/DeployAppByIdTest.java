@@ -55,8 +55,8 @@ public class DeployAppByIdTest extends AppTest {
     public void should_failed_no_appInstanceId() {
         try {
             ResponseEntity<ResponseObject> res = projectService
-                .deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa", "host-1",
-                    "", "access_token");
+                .deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa",
+                    "access_token");
             Assert.assertEquals("please register host.", res.getBody().getMessage());
         } catch (NullPointerException e) {
             Assert.assertThrows("please register host.", NullPointerException.class, null);
@@ -68,7 +68,7 @@ public class DeployAppByIdTest extends AppTest {
     public void should_success_get_ip() {
         String segment = "192.168.225.0/24";
         int range = 1;
-        String res  = ipCalculateUtil.getStartIp(segment, range);
+        String res = ipCalculateUtil.getStartIp(segment, range);
         Assert.assertEquals("192.168.225.4", res);
     }
 

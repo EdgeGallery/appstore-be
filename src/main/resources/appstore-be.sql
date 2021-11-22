@@ -29,6 +29,7 @@
         STARTEXPTIME             VARCHAR(100)       NULL,
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         MECHOST                  VARCHAR(100)       NULL,
+        EXPERIENCESTATUS         INT       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
@@ -257,3 +258,5 @@
     drop table if exists app_split_config;
 
     alter table app_order add column IF NOT EXISTS DETAIL text DEFAULT NULL;
+    
+    alter table catalog_package_table add column IF NOT EXISTS EXPERIENCESTATUS INT NULL;

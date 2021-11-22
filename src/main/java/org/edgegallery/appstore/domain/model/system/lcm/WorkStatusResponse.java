@@ -14,23 +14,36 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.appstore.infrastructure.persistence.system;
+package org.edgegallery.appstore.domain.model.system.lcm;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.edgegallery.appstore.domain.model.system.MepHost;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface HostMapper {
+@Getter
+@Setter
+public class WorkStatusResponse {
 
-    int createHost(MepHost mepHost);
+    private String appPkgName;
 
-    int updateHostSelected(MepHost host);
+    private String appPkgVersion;
 
-    int deleteHost(String hostId);
+    private String packageId;
 
-    MepHost getHost(String hostId);
+    private String appProvider;
 
-    List<MepHost> getHostsByCondition(@Param("name") String name, @Param("os") String os);
+    private String appPkgDesc;
+
+    private String appPkgAffinity;
+
+    private String appId;
+    private String appIconUrl;
+
+    private String createdTime;
+
+    private String modifiedTime;
+
+    private List<MecHostInfo> mecHostInfo;
+
 
 }
-

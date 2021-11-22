@@ -17,9 +17,42 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper">
+    <resultMap id="BaseResultMap" type="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        <id column="packageId" property="packageId"/>
+        <result column="packageAddress" property="packageAddress"/>
+        <result column="iconAddress" property="iconAddress"/>
+        <result column="SIZE" property="size"/>
+        <result column="fileStructure" property="fileStructure"/>
+        <result column="CREATETIME" property="createTime"/>
+        <result column="SHORTDESC" property="shortDesc"/>
+        <result column="SHOWTYPE" property="showType"/>
+        <result column="appName" property="appName"/>
+        <result column="VERSION" property="version"/>
+        <result column="applicationType" property="applicationType"/>
+        <result column="markdownContent" property="markDownContent"/>
+        <result column="CONTACT" property="contact"/>
+        <result column="APPID" property="appId"/>
+        <result column="USERID" property="userId"/>
+        <result column="USERNAME" property="userName"/>
+        <result column="TESTTASKID" property="testTaskId"/>
+        <result column="STATUS" property="status"/>
+        <result column="DEMOVIDEOADDRESS" property="demoVideoAddress"/>
+        <result column="DEPLOYMODE" property="deployMode"/>
+        <result column="ISHOTAPP" property="isHotApp"/>
+        <result column="APPINSTANCEID" property="appInstanceId"/>
+        <result column="INSTANCETENENTID" property="instanceTenentId"/>
+        <result column="INSTANCEPACKAGEID" property="instancePackageId"/>
+        <result column="EXPERIENCEABLE" property="experienceAble"/>
+        <result column="STARTEXPTIME" property="startExpTime"/>
+        <result column="EXPERIENCEABLEIP" property="experienceableIp"/>
+        <result column="MECHOST" property="mecHost"/>
+        <result column="EXPERIENCESTATUS" property="industry"/>
+        <result column="EXPERIENCESTATUS" property="experienceStatus" typeHandler="org.edgegallery.appstore.domain.model.releases.EnumStatusHandler"/>
+
+    </resultMap>
 
     <select id="findReleaseById"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.lang.String">
         select * from catalog_package_table where packageid = #{packageId}
     </select>
@@ -191,5 +224,14 @@
             and createTime between #{startDate} and #{endDate}
         </if>
     </select>
+    
+        <update id="updateExperienceStatus"
+            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        update catalog_package_table
+        SET
+        packageid = #{packageId}
+        ,EXPERIENCESTATUS = #{experienceStatus, typeHandler=org.edgegallery.appstore.domain.model.releases.EnumStatusHandler}
+        WHERE packageid = #{packageId}
+    </update>
 
 </mapper>
