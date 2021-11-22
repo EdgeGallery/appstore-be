@@ -119,8 +119,6 @@ public class AppController {
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
         @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
-        @ApiParam(value = "app shortDesc", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
-            message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
         @ApiParam(value = "app showType") @RequestPart(name = "showType", required = false) String showType,
         @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
@@ -130,8 +128,7 @@ public class AppController {
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) {
         return ResponseEntity.ok(appServiceFacade.appRegistering(new User(userId, userName), file,
-            new AppParam(type, shortDesc, showType, affinity, industry,
-                Boolean.parseBoolean(experienceAble)), icon, demoVideo,
+            new AppParam(type, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR))));
     }
 
@@ -155,8 +152,6 @@ public class AppController {
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
         @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
-        @ApiParam(value = "app shortDesc", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
-            message = "shortDesc should not be null.") @RequestPart("shortDesc") String shortDesc,
         @ApiParam(value = "app showType", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "showType should not be null.") @RequestPart("showType") String showType,
         @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
@@ -167,8 +162,7 @@ public class AppController {
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) {
         return appServiceFacade.appRegister(new User(userId, userName),
-            new AppParam(type, shortDesc, showType, affinity, industry,
-                Boolean.parseBoolean(experienceAble)), icon, demoVideo,
+            new AppParam(type, showType, affinity, industry, Boolean.parseBoolean(experienceAble)), icon, demoVideo,
             new AtpMetadata(testTaskId, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR)), fileAddress);
     }
 

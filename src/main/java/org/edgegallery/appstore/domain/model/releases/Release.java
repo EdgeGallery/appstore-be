@@ -43,8 +43,6 @@ public class Release implements ValueObject<Release> {
 
     private Date createTime;
 
-    private String shortDesc;
-
     private String showType;
 
     private boolean experienceAble;
@@ -92,7 +90,6 @@ public class Release implements ValueObject<Release> {
         this.icon = icon;
         this.user = user;
         this.createTime = new Date();
-        this.shortDesc = appParam.getShortDesc();
         this.showType = appParam.getShowType();
         this.applicationType = appParam.getApplicationType();
         this.industry = appParam.getIndustry();

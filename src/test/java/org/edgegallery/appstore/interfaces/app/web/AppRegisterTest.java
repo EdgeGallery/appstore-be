@@ -213,34 +213,6 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_fail_with_no_shortDescField() {
-        try {
-            File iconFile = Resources.getResourceAsFile(LOGO_PNG);
-            File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
-            ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/appstore/v1/apps")
-                .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
-                    FileUtils.openInputStream(csarFile)))
-                .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
-                    FileUtils.openInputStream(iconFile)))
-                .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
-                .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
-                .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
-                    "Smart Park".getBytes()))
-                .with(csrf())
-                .param("userId", userId)
-                .param("userName", userName));
-            MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andReturn();
-            int result = mvcResult.getResponse().getStatus();
-            Assert.assertEquals(result, HttpStatus.BAD_REQUEST.value());
-        } catch (Exception e) {
-            Assert.assertNull(e);
-        }
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_with_no_affinityField() {
         try {
             File iconFile = Resources.getResourceAsFile(LOGO_PNG);

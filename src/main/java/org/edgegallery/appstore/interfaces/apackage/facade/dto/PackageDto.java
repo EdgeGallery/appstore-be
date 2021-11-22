@@ -109,7 +109,7 @@ public class PackageDto {
         dto.userId = release.getUser().getUserId();
         dto.userName = release.getUser().getUserName();
         dto.status = release.getStatus();
-        dto.shortDesc = release.getShortDesc();
+        dto.shortDesc = release.getAppBasicInfo().getAppDesc();
         dto.showType = release.getShowType();
         dto.testTaskId = release.getTestTaskId();
         dto.provider = release.getAppBasicInfo().getProvider();
