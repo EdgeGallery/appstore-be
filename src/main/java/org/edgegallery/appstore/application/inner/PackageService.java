@@ -194,7 +194,7 @@ public class PackageService {
             app.setAffinity(packageDto.getAffinity());
         }
         if (packageDto.getShortDesc() != null) {
-            release.setShortDesc(packageDto.getShortDesc());
+            release.getAppBasicInfo().setAppDesc(packageDto.getShortDesc());
             app.setShortDesc(packageDto.getShortDesc());
         }
         if (packageDto.getShowType() != null) {
