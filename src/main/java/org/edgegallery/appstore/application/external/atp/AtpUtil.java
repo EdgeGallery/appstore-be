@@ -62,7 +62,7 @@ public class AtpUtil {
      */
     public AtpTestDto sendCreateTask2Atp(String filePath, String token) {
         if (filePath == null || token == null) {
-            LOGGER.error("Failed to validate input parameters of ATP task creation");
+            LOGGER.error("Failed to validate input parameters of ATP task creation", ResponseConst.RET_PARAM_INVALID);
             return new AtpTestDto();
         }
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
