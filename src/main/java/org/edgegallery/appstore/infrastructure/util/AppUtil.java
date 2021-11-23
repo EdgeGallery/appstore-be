@@ -745,12 +745,13 @@ public class AppUtil {
      */
     public boolean checkPackageValid(String fileParent) {
         File mfFile = getFile(fileParent, MF_EXTENSION);
-        String mfFilePath = mfFile.getPath();
-        String sourceParent = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
-        if (!fileParent.replace("\\", "/").equals(sourceParent.replace("\\", "/"))) {
+        File sourceFile = mfFile.getParentFile();
+        File parentFile = new File(fileParent);
+        if (!sourceFile.getPath().equals(parentFile.getPath())) {
             LOGGER.info("the package has checked, no need check more.");
             return true;
         }
+
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         if (fileHandlerMf == null) {
             return true;
