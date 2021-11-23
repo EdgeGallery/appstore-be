@@ -308,6 +308,10 @@ public class AppServiceFacade {
             }
 
             if (!isImgZipExist) {
+                if (!appUtil.checkPackageValid(fileParent)) {
+                    throw new AppException("the app package is illegal and may have been tampered!",
+                        ResponseConst.RET_PACKAGE_ILLEGAL);
+                }
                 FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);

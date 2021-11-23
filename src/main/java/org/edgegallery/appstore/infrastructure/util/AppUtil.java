@@ -745,6 +745,12 @@ public class AppUtil {
      */
     public boolean checkPackageValid(String fileParent) {
         File mfFile = getFile(fileParent, MF_EXTENSION);
+        String mfFilePath = mfFile.getPath();
+        String sourceParent = mfFilePath.substring(0, mfFilePath.lastIndexOf(File.separator));
+        if (!fileParent.replace("\\", "/").equals(sourceParent.replace("\\", "/"))) {
+            LOGGER.info("the package has checked, no need check more.");
+            return true;
+        }
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         if (fileHandlerMf == null) {
             return true;
@@ -787,6 +793,7 @@ public class AppUtil {
         try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
             return DigestUtils.sha256Hex(fis);
         } catch (IOException e) {
+            LOGGER.error("get hash value of source file failed {}", sourceFilePath);
             throw new AppException("get hash value of source file failed",
                 ResponseConst.RET_MF_CONTENT_INVALID, sourceFilePath);
         }

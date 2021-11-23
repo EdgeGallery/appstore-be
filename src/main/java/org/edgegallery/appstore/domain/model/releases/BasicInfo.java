@@ -436,6 +436,7 @@ public class BasicInfo {
         if (signBytes.isPresent()) {
             return new String(signBytes.get(), StandardCharsets.UTF_8);
         } else {
+            LOGGER.error("sign package failed.");
             throw new AppException("sign package failed.", ResponseConst.RET_SIGN_PACKAGE_FAILED);
         }
     }
@@ -444,6 +445,7 @@ public class BasicInfo {
         try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
             return DigestUtils.sha256Hex(fis);
         } catch (IOException e) {
+            LOGGER.error("get hash value of source file failed {}", sourceFilePath);
             throw new AppException("get hash value of source file failed",
                 ResponseConst.RET_PARSE_FILE_EXCEPTION, sourceFilePath);
         }
