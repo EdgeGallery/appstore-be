@@ -26,7 +26,7 @@
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
                 a.STATUS = 'Published'
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
                 and a.SHOWTYPE ='public'
@@ -59,7 +59,7 @@
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
                 a.STATUS = 'Published'
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
             and a.SHOWTYPE ='public'

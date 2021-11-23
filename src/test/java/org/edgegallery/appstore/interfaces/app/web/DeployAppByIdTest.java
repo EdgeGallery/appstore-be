@@ -16,6 +16,7 @@
 package org.edgegallery.appstore.interfaces.app.web;
 
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
@@ -58,7 +59,7 @@ public class DeployAppByIdTest extends AppTest {
                 .deployAppById("appid-test-0001", "packageid-0002", "e111f3e7-90d8-4a39-9874-ea6ea6752eaa",
                     "access_token");
             Assert.assertEquals("please register host.", res.getBody().getMessage());
-        } catch (NullPointerException e) {
+        } catch (IllegalRequestException e) {
             Assert.assertThrows("please register host.", NullPointerException.class, null);
         }
     }

@@ -185,7 +185,7 @@
     </select>
 
     <select id="findReleaseNoCondtion"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.lang.String">
         select * from catalog_package_table order by STARTEXPTIME desc
     </select>
