@@ -185,6 +185,20 @@ public class ProjectServiceTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_query_experience_status() throws Exception {
+        String packageId = "packageid-0003";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        String s = result.getResponse().getContentAsString();
+        Type type = new TypeToken<ResponseObject>() { }.getType();
+        ResponseObject packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertEquals(null, packageDtos.getData());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_deploy_apk() throws IOException {
         projectService.setInstantiateAppSleepTime(1000);
         projectService.setUploadPkgSleepTime(1000);
@@ -240,34 +254,14 @@ public class ProjectServiceTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_success_query_experience_status() throws Exception {
+    public void should_failed_experience_status_error_packageId() throws Exception {
         String packageId = "packageid-0003";
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
 
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        String s = result.getResponse().getContentAsString();
-        Type type = new TypeToken<ResponseObject>() { }.getType();
-        ResponseObject packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
-        Assert.assertEquals(25.0, packageDtos.getData());
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_failed_experience_status_error_packageId() throws Exception {
-        String packageId = "packageid-0002";
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
-
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        String s = result.getResponse().getContentAsString();
-        Type type = new TypeToken<ResponseObject>() { }.getType();
-        ResponseObject packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
-        Assert.assertNotEquals(25.0, packageDtos.getData());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
 
 
