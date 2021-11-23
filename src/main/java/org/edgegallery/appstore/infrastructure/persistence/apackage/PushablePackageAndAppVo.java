@@ -32,9 +32,6 @@ public class PushablePackageAndAppVo extends AppReleasePo {
     @Column(name = "pushTimes")
     private int pushTimes;
 
-    @Column(name = "targetPlatform")
-    private String targetPlatform;
-
     @Column(name = "sourcePlatform")
     private String sourcePlatform;
 }
