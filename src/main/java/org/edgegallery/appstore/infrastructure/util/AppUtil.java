@@ -745,6 +745,13 @@ public class AppUtil {
      */
     public boolean checkPackageValid(String fileParent) {
         File mfFile = getFile(fileParent, MF_EXTENSION);
+        File sourceFile = mfFile.getParentFile();
+        File parentFile = new File(fileParent);
+        if (!sourceFile.getPath().equals(parentFile.getPath())) {
+            LOGGER.info("the package has checked, no need check more.");
+            return true;
+        }
+
         IAppdFile fileHandlerMf = AppdFileHandlerFactory.createFileHandler(AppdFileHandlerFactory.MF_FILE);
         if (fileHandlerMf == null) {
             return true;
@@ -787,6 +794,7 @@ public class AppUtil {
         try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
             return DigestUtils.sha256Hex(fis);
         } catch (IOException e) {
+            LOGGER.error("get hash value of source file failed {}", sourceFilePath);
             throw new AppException("get hash value of source file failed",
                 ResponseConst.RET_MF_CONTENT_INVALID, sourceFilePath);
         }
