@@ -113,7 +113,9 @@
         appid=#{appId}
     </delete>
 
-    <select id="findAllByAppId" resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+    <select id="findAllByAppId"
+            resultMap="BaseResultMap"
+            parameterType="String">
         select
         *
         from
@@ -123,7 +125,7 @@
     </select>
 
     <select id="findAllWithPagination"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.util.Map">
         select * from catalog_package_table where appid = #{appId} limit #{limit} offset #{offset}
     </select>
@@ -135,7 +137,7 @@
     </select>
 
     <select id="findReleaseByUserIdV2"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.util.Map">
         select * from catalog_package_table
         <where>
@@ -173,13 +175,13 @@
     </update>
 
     <select id="findReleaseByUserId"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.lang.String">
         select * from catalog_package_table where userid = #{userId}
     </select>
 
     <select id="findReleaseByMecHost"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo"
+            resultMap="BaseResultMap"
             parameterType="java.lang.String">
         select * from catalog_package_table where MECHOST = #{mecHost}
     </select>
@@ -210,7 +212,7 @@
     </select>
 
     <select id="getPackageByCreateTime"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+            resultMap="BaseResultMap">
         select * from catalog_package_table where status='Published' and showType in ('public', 'inner-public')
         <if test="startDate != null and endDate != null">
             and createTime between #{startDate} and #{endDate}
