@@ -64,6 +64,10 @@ public class OrderServiceFacade {
     @Autowired
     private AppService appService;
 
+    @Autowired
+    private MecmService mecmService;
+
+
     /**
      * create order.
      *
@@ -82,25 +86,24 @@ public class OrderServiceFacade {
         // upload package to mec
         // create app instance
         // update stauts to Activating
-        LOGGER.error("CREATE ORDER, before create mecm object");
-
-        MecmService mecmService = new MecmService();
+        LOGGER.error("[CREATE ORDER], before create mecm object");
         Release release =  appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
+        LOGGER.error("[CREATE ORDER], get release object");
         MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-        LOGGER.error("CREATE ORDER, after upload package");
-        if(mecmInfo == null)
-            throw new AppException("MecmInfo is empty.", ResponseConst.FAIL_TO_GET_MECM_INFO); //ResponseConst.RET_CREATE_ORDER_FAILED
-        // update order info // order.setMecInstanceId(); & order.setDetail(); 需要初始化么？ 未知 InstanceId 获取部署状态接口  获取instance id
-        LOGGER.error("CREATE ORDER, start to analyze mecminfo");
-        order.setMecAppId(mecmInfo.getMecmAppId());
-        order.setMecPackageId(mecmInfo.getMecmAppPackageId());
-        order.setStatus(EnumOrderStatus.ACTIVATING);
+        LOGGER.error("[CREATE ORDER], after upload package");
+        if(mecmInfo == null) {
+            LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
+            throw new AppException("Failed To Create Order.", ResponseConst.FAILED_TO_CREATE_ORDER); //ResponseConst.RET_CREATE_ORDER_FAILED
+        } else {
+            LOGGER.error("[CREATE ORDER], start to analyze mecminfo");
+            order.setMecAppId(mecmInfo.getMecmAppId());
+            order.setMecPackageId(mecmInfo.getMecmAppPackageId());
+            order.setStatus(EnumOrderStatus.ACTIVATING);
+            LOGGER.error("[CREATE ORDER] MECM APP ID " + mecmInfo.getMecmAppId());
+            LOGGER.error("[CREATE ORDER] MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
+        }
         order.setOperateTime(new Date());
-        LOGGER.error("MECM APP ID " + mecmInfo.getMecmAppId());
-        LOGGER.error("MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
-
         orderRepository.updateOrder(order);
-
         CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
@@ -160,7 +163,6 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId, String token) {
         Order order = orderRepository.findByOrderId(orderId).orElseThrow(
             () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-        // ? 疑问 可debug看
         if (order.getStatus() != EnumOrderStatus.DEACTIVATED
             && order.getStatus() != EnumOrderStatus.ACTIVATE_FAILED) {
             throw new AppException("unsubscribed orders can't be activated.",
@@ -171,24 +173,21 @@ public class OrderServiceFacade {
             // deploy app
             // update status to Activating
             LOGGER.error("[ACTIVATE ORDER], start to activate, then use upload interface");
-
-            MecmService mecmService = new MecmService();
             Release release =  appService.getRelease(order.getAppId(), order.getAppPackageId());
             MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-            if(mecmInfo == null)
-                throw new AppException("MecmInfo is empty.", ResponseConst.FAIL_TO_GET_MECM_INFO);
-
             LOGGER.error("[ACTIVATE ORDER], after use upload interface");
-
-            order.setMecAppId(mecmInfo.getMecmAppId());
-            order.setMecPackageId(mecmInfo.getMecmAppPackageId());
-            order.setOperateTime(new Date());
-            order.setStatus(EnumOrderStatus.ACTIVATING);
-
             LOGGER.error("[ACTIVATE ORDER], start to analyze [mecm info]");
-
-            LOGGER.error("MECM APP ID " + mecmInfo.getMecmAppId());
-            LOGGER.error("MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
+            if(mecmInfo == null){
+                LOGGER.error("[CREATE ORDER], Mecm Info is null.");
+                throw new AppException("Failed to activated order, since MecmInfo is empty.", ResponseConst.FAILED_TO_ACTIVATED_ORDER);
+            } else {
+                order.setMecAppId(mecmInfo.getMecmAppId());
+                order.setMecPackageId(mecmInfo.getMecmAppPackageId());
+                order.setStatus(EnumOrderStatus.ACTIVATING);
+                LOGGER.error("MECM APP ID " + mecmInfo.getMecmAppId());
+                LOGGER.error("MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
+            }
+            order.setOperateTime(new Date());
             orderRepository.updateOrder(order);
         } else {
             throw new PermissionNotAllowedException("can not deactivate order",
@@ -207,9 +206,9 @@ public class OrderServiceFacade {
      * @return order list
      */
 
-    // 权限
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, QueryOrdersReqDto queryOrdersReqDto,
         String token) {
+        LOGGER.error("[Query Order] starting query order function");
         Map<String, Object> params = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             params.put("userId", userId);
@@ -220,36 +219,15 @@ public class OrderServiceFacade {
         params.put("orderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
         params.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
         params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
+        LOGGER.error("[Query Order] params: {}", params);
         List<OrderDto> orderList = orderService.queryOrders(params, token);
+        LOGGER.error("[Query Order] order list: {}", orderList);
         long total = orderService.getCountByCondition(params);
 
         // Update order instance id.
         // If order is activating, update status based on mecm opertion status.
-        List<Order> orders = orderRepository.queryOrders(params);
-        for (Order order : orders){
-            LOGGER.error("[QUERY ORDER] Each order, check order status, if activating, then update.");
-            if(order.getStatus().equals("ACTIVATING")) {
-                LOGGER.error("[QUERY ORDER], INTO Status IS Activating, update mecm deploy instance info");
-                if (StringUtils.isEmpty(order.getMecAppId()) || StringUtils.isEmpty(order.getMecPackageId()))
-                    throw new AppException("Empty value in order info.", ResponseConst.RET_GET_ORDER_INFO_EMPTY);
-                LOGGER.error("[QUERY ORDER], before create MECM OBJECT");
-                MecmService mecmService = new MecmService();
-                MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecAppId(),order.getMecPackageId(), order.getUserId());
-                LOGGER.error("[QUERY ORDER], analyze mecm instance id");
-                order.setMecInstanceId(mecmDeploymentInfo.getMecmAppInstanceId());
-                LOGGER.error("[QUERY ORDER], mecm instance id is " + mecmDeploymentInfo.getMecmAppInstanceId());
 
-                if (mecmDeploymentInfo == null)
-                    throw new AppException("Fail to get MecmDeploymentInfo.", ResponseConst.FAIL_TO_GET_MECM_DEPLOYMENT_INFO);
-                if (mecmDeploymentInfo.getMecmOperationalStatus().equals("Instantiated")) {
-                    order.setStatus(EnumOrderStatus.ACTIVATED);
-                    LOGGER.error("!!![Instantiated], modify status to activated");
-
-                }else if (mecmDeploymentInfo.getMecmOperationalStatus().equals("Instantiation failed")) {
-                    order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-                } // instantiating？ not mentioned, do nothing
-            }
-        }
+        LOGGER.error("[QUERY ORDER] After update each order status");
 
         return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
             queryOrdersReqDto.getQueryCtrl().getOffset(), total));

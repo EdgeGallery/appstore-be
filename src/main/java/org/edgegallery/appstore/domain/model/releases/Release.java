@@ -31,6 +31,7 @@ import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class Release implements ValueObject<Release> {
 
     private String packageId;

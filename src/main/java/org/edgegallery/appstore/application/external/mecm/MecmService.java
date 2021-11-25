@@ -73,17 +73,19 @@ public class MecmService {
     //mirnada
     private static final String MECM_UPLOAD_GET_APPINFO = "/apm/v1/tenants/%s/packages/upload";
 
-    private static final String MECM_GET_DEPLOYMENT_STATUS = "/appo/v1/tenants/{tenant_id}/apps/{appId}/packages/{appPackageId}/status";
+    private static final String MECM_GET_DEPLOYMENT_STATUS = "/appo/v1/tenants/%s/apps/%s/packages/%s/status";
+
+    // https://mecm-apm:8092/apm/v1/tenants/{tenant_id}/packages/upload
+    // /appo/v1/tenants/{tenant_id}/apps/{appId}/packages/{appPackageId}/status
 
 
-
-    @Value("${mecm.urls.apm:}")
+    @Value("${mecm.urls.apm}") //
     private String apmUrl;
 
-    @Value("${mecm.urls.appo:}")
+    @Value("${mecm.urls.appo}")
     private String appoUrl;
 
-    @Value("${mecm.urls.inventory:}")
+    @Value("${mecm.urls.inventory}")
     private String inventoryUrl;
 
     /**
@@ -106,20 +108,26 @@ public class MecmService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("appPackageName", appPackageName);
         body.add("appPackageVersion", appPackageVersion);
-        LOGGER.info("filePath: {}", filePath);
-        body.add("file", new FileSystemResource(filePath)); // file body
+        body.add("file", new FileSystemResource(filePath));
         body.add("hostList", hostList);
+        LOGGER.error("HTTP REUQEST BODY: {}", body);
 
-        LOGGER.error("[Upload to MECM], before http request.");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
+        LOGGER.error("[Upload to MECM], headers set successfully.");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = apmUrl.concat(String.format(MECM_UPLOAD_GET_APPINFO, tenantId));
-        try{
-            LOGGER.error("[Upload to MECM], starting http request.");
+        LOGGER.error("[Upload to MECM], request entity set successfully.");
+        LOGGER.error("[Upload to MECM] amp appo inven url: {}, {}, {}", apmUrl, appoUrl, inventoryUrl);
 
+        String url = apmUrl.concat(String.format(MECM_UPLOAD_GET_APPINFO, tenantId));
+        LOGGER.error("http string + apmUrl: {}", url);
+
+        try{
+            LOGGER.error("[Upload to MECM], starting http request."); //String url = String.format("https://mecm-apm:8092/apm/v1/tenants/%s/packages/upload", tenantId);
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.error("[Upload to MECM, the reponse is {}",response);
+
             if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(response.getStatusCode())) {
                 LOGGER.error("[Upload to MECM], successfully get http request.");
@@ -132,7 +140,7 @@ public class MecmService {
             }
             LOGGER.error("Failed to create instance of MecmInfo,  status is {}", response.getStatusCode());
             throw new AppException("Failed HTTP Request to MECM inventory.",
-                ResponseConst.FAIL_HTTP_REQUEST_TO_MECM_INVENTORY);
+                ResponseConst.FAILED_HTTP_REQUEST_TO_MECM_INVENTORY);
         }catch(Exception e){
             LOGGER.error("Failed to create instance of MecmInfo,  exception {}", e.getMessage());
         }
@@ -144,27 +152,28 @@ public class MecmService {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
+        //String url = String.format("https://mecm-appo:8091/appo/v1/tenants/%s/apps/%s/packages/%s/status", tenantId, mecmAppId, mecmAppPackageId);
         String url = appoUrl.concat(String.format(MECM_GET_DEPLOYMENT_STATUS, tenantId, mecmAppId, mecmAppPackageId));
-        LOGGER.error("[Get MECM status], before http request.");
+        LOGGER.error("[Get MECM status], before http request. The url is {}", url);
 
         try {
+            LOGGER.error("[Get MECM status], starting http request.");
             ResponseEntity<String> response = REST_TEMPLATE
                 .exchange(url, HttpMethod.GET, request, String.class);
-
-            LOGGER.error("[Get MECM status], starting http request.");
+            LOGGER.error("[Get MECM status], after http request, the reponse is: {}", response);
 
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to get MECM Deployment Status from MECM, The status code is {}",
                     response.getStatusCode());
                 throw new AppException("Failed HTTP Request to MECM inventory.",
-                    ResponseConst.FAIL_HTTP_REQUEST_TO_MECM_INVENTORY);
+                    ResponseConst.FAILED_HTTP_REQUEST_TO_MECM_INVENTORY);
             }
-            LOGGER.error("[Get MECM status], after http request.");
+            LOGGER.error("[Get MECM status], after http status check.");
 
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
             String mecmAppInstanceId = jsonObject.get("appInstanceId").getAsString();
             String mecmOperationalStatus = jsonObject.get("operationalStatus").getAsString();
-            LOGGER.error("Successfully created test task {}, status is {}", mecmAppInstanceId, mecmAppInstanceId);
+            LOGGER.error("Successfully analyze the jason object, mecm app instance id is: {}, mecm operational status is {}", mecmAppInstanceId, mecmOperationalStatus);
 
             return new MecmDeploymentInfo(mecmAppInstanceId, mecmOperationalStatus, mecmAppId, mecmAppPackageId);
         } catch (RestClientException e) {

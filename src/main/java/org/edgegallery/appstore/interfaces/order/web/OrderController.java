@@ -74,7 +74,7 @@ public class OrderController {
         HttpServletRequest request) {
         LOGGER.info("enter create order.");
         return orderServiceFacade.createOrder((String) request.getAttribute(Consts.USERID),
-            (String) request.getAttribute(Consts.USERNAME), createOrderReqDto,  request.getHeader(Consts.ACCESS_TOKEN_STR));
+            (String) request.getAttribute(Consts.USERNAME), createOrderReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**

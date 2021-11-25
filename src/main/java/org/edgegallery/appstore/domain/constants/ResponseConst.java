@@ -193,22 +193,27 @@ public class ResponseConst {
     /**
      * MecmInfo is empty.
      */
-    public static final int FAIL_TO_GET_MECM_INFO = 10032;
+    public static final int FAILED_TO_CREATE_ORDER = 10032;
 
     /**
      * Fail to execute http request to MECM。
      */
-    public static final int FAIL_HTTP_REQUEST_TO_MECM_INVENTORY = 10033;
+    public static final int FAILED_HTTP_REQUEST_TO_MECM_INVENTORY = 10033;
 
     /**
      * Fail to upload a package to mecm。
      */
-    public static final int FAIL_TO_UPLOAD_TO_MECM = 10034;
+    public static final int FAILED_TO_UPLOAD_TO_MECM = 10034;
 
     /**
      * MecmDeploymentInfo is empty.
      */
-    public static final int FAIL_TO_GET_MECM_DEPLOYMENT_INFO = 10035;
+    public static final int FAILED_TO_GET_MECM_DEPLOYMENT_INFO = 10035;
+
+    /**
+     * MecmDeploymentInfo is empty.
+     */
+    public static final int FAILED_TO_ACTIVATED_ORDER = 10035;
 
     /**
      * package base error code.
