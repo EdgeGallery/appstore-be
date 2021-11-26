@@ -54,7 +54,9 @@ public class Order implements Entity {
 
     private String mecInstanceId;
 
-    private String detail;
+    private String detailCn;
+
+    private String detailEn;
 
     /**
      * construct.

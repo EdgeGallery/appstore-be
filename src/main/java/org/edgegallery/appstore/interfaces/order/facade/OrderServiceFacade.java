@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
@@ -54,6 +56,7 @@ import org.springframework.stereotype.Service;
 public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Autowired
     private OrderService orderService;
@@ -99,6 +102,13 @@ public class OrderServiceFacade {
             LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
         }
         order.setOperateTime(new Date());
+
+        currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+        String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+        order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+        order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+
         orderRepository.updateOrder(order);
         CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -128,6 +138,13 @@ public class OrderServiceFacade {
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if ("success".equals(result)) {
+
+                String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+                String orderDeactivationDetailCn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getChinese();
+                String orderDeactivationDetailEn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getEnglish();
+                order.setDetailCn(order.getDetailCn() + "\n" + orderDeactivationDetailCn);
+                order.setDetailEn(order.getDetailEn() + "\n" + orderDeactivationDetailEn);
+
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 // set mecm info to empty
                 order.setMecInstanceId("");
@@ -180,6 +197,13 @@ public class OrderServiceFacade {
                 LOGGER.info("MECM APP PACKAGE ID: {}" + mecmInfo.getMecmAppPackageId());
             }
             order.setOperateTime(new Date());
+            
+            String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+            String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+            String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+            order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+            order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+            
             orderRepository.updateOrder(order);
         } else {
             throw new PermissionNotAllowedException("can not deactivate order",

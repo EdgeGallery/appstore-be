@@ -47,7 +47,9 @@ public class OrderDto {
 
     private String mecHostCity;
 
-    private String detail;
+    private String detailCn;
+
+    private String detailEn;
 
     /**
      * constructor.
@@ -66,6 +68,7 @@ public class OrderDto {
         this.status = order.getStatus().toString();
         this.mecHostIp = order.getMecHostIp();
         this.mecHostCity = mecHostCity;
-        this.detail = order.getDetail();
+        this.detailCn = order.getDetailCn();
+        this.detailCn = order.getDetailEn();
     }
 }
