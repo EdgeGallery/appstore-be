@@ -9,7 +9,7 @@ import lombok.Getter;
 public enum EnumOrderOperation {
     CREATED("订单创建", "Order Created"),
     ACTIVATED("订单激活", "Order Activated"),
-    DEACTIVATED("订单推定", "Order deactivated");
+    DEACTIVATED("订单退订", "Order deactivated");
 
     private String Chinese;
     private String English;
