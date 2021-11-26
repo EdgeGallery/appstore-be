@@ -87,6 +87,13 @@ public class OrderServiceFacade {
             Thread.sleep(5000);
             order.setStatus(EnumOrderStatus.ACTIVATED);
             order.setOperateTime(new Date());
+
+            currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+            String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+            String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+            order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+            order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+
             orderRepository.updateOrder(order);
 
             CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
