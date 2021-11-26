@@ -74,7 +74,8 @@ public class OrderController {
         HttpServletRequest request) {
         LOGGER.info("enter create order.");
         return orderServiceFacade.createOrder((String) request.getAttribute(Consts.USERID),
-            (String) request.getAttribute(Consts.USERNAME), createOrderReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
+            (String) request.getAttribute(Consts.USERNAME), createOrderReqDto,
+            request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -94,8 +95,8 @@ public class OrderController {
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
         LOGGER.info("enter deactivate order.");
-        return orderServiceFacade.deactivateOrder((String)request.getAttribute(Consts.USERID),
-            (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.deactivateOrder((String) request.getAttribute(Consts.USERID),
+            (String) request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -115,8 +116,8 @@ public class OrderController {
         @ApiParam(value = "orderId") @PathVariable("orderId") @Pattern(regexp = REG_ORDER_ID) String orderId,
         HttpServletRequest request) {
         LOGGER.info("enter activate order.");
-        return orderServiceFacade.activateOrder((String)request.getAttribute(Consts.USERID),
-            (String)request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.activateOrder((String) request.getAttribute(Consts.USERID),
+            (String) request.getAttribute(Consts.USERNAME), orderId, request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 
     /**
@@ -136,9 +137,8 @@ public class OrderController {
         @ApiParam(value = "QueryOrdersReqDto", required = true) @RequestBody QueryOrdersReqDto queryOrdersReqDto,
         HttpServletRequest request) {
         LOGGER.info("enter query order.");
-        return orderServiceFacade.queryOrders((String) request.getAttribute(Consts.USERID),
-            queryOrdersReqDto, request.getHeader(Consts.ACCESS_TOKEN_STR));
+        return orderServiceFacade.queryOrders((String) request.getAttribute(Consts.USERID), queryOrdersReqDto,
+            request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
-
 
 }

@@ -67,7 +67,6 @@ public class OrderServiceFacade {
     @Autowired
     private MecmService mecmService;
 
-
     /**
      * create order.
      *
@@ -76,8 +75,8 @@ public class OrderServiceFacade {
      * @param addOrderReqDto request body
      * @return result
      */
-    public ResponseEntity<ResponseObject> createOrder(String userId, String userName,
-        CreateOrderReqDto addOrderReqDto, String token) {
+    public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
+        String token) {
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
@@ -86,21 +85,18 @@ public class OrderServiceFacade {
         // upload package to mec
         // create app instance
         // update stauts to Activating
-        LOGGER.error("[CREATE ORDER], before create mecm object");
-        Release release =  appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        LOGGER.error("[CREATE ORDER], get release object");
+        Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
         MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-        LOGGER.error("[CREATE ORDER], after upload package");
-        if(mecmInfo == null) {
+        if (mecmInfo == null) {
             LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
-            throw new AppException("Failed To Create Order.", ResponseConst.FAILED_TO_CREATE_ORDER); //ResponseConst.RET_CREATE_ORDER_FAILED
+            throw new AppException("Failed To Create Order.", ResponseConst.FAILED_TO_CREATE_ORDER);
         } else {
-            LOGGER.error("[CREATE ORDER], start to analyze mecminfo");
+            LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
             order.setMecAppId(mecmInfo.getMecmAppId());
             order.setMecPackageId(mecmInfo.getMecmAppPackageId());
             order.setStatus(EnumOrderStatus.ACTIVATING);
-            LOGGER.error("[CREATE ORDER] MECM APP ID " + mecmInfo.getMecmAppId());
-            LOGGER.error("[CREATE ORDER] MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
+            LOGGER.info("[CREATE ORDER] MECM APP ID :{}", mecmInfo.getMecmAppId());
+            LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
         }
         order.setOperateTime(new Date());
         orderRepository.updateOrder(order);
@@ -117,12 +113,11 @@ public class OrderServiceFacade {
      * @param orderId order id
      * @return result
      */
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName,
-        String orderId, String token) {
-        Order order = orderRepository.findByOrderId(orderId).orElseThrow(
-            () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-        if (order.getStatus() != EnumOrderStatus.ACTIVATED
-            && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
+    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId,
+        String token) {
+        Order order = orderRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+        if (order.getStatus() != EnumOrderStatus.ACTIVATED && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
             throw new AppException("inactivated orders can't be deactivated.",
                 ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
         }
@@ -148,8 +143,7 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject("deactivate order success",
-            errMsg, "deactivate order success."));
+        return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
     }
 
     /**
@@ -161,10 +155,9 @@ public class OrderServiceFacade {
      * @return result
      */
     public ResponseEntity<ResponseObject> activateOrder(String userId, String userName, String orderId, String token) {
-        Order order = orderRepository.findByOrderId(orderId).orElseThrow(
-            () -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-        if (order.getStatus() != EnumOrderStatus.DEACTIVATED
-            && order.getStatus() != EnumOrderStatus.ACTIVATE_FAILED) {
+        Order order = orderRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
+        if (order.getStatus() != EnumOrderStatus.DEACTIVATED && order.getStatus() != EnumOrderStatus.ACTIVATE_FAILED) {
             throw new AppException("unsubscribed orders can't be activated.",
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
@@ -172,20 +165,19 @@ public class OrderServiceFacade {
             // upload package to mecm
             // deploy app
             // update status to Activating
-            LOGGER.error("[ACTIVATE ORDER], start to activate, then use upload interface");
-            Release release =  appService.getRelease(order.getAppId(), order.getAppPackageId());
+            Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
             MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-            LOGGER.error("[ACTIVATE ORDER], after use upload interface");
-            LOGGER.error("[ACTIVATE ORDER], start to analyze [mecm info]");
-            if(mecmInfo == null){
+            LOGGER.info("[ACTIVATE ORDER], after use upload interface");
+            if (mecmInfo == null) {
                 LOGGER.error("[CREATE ORDER], Mecm Info is null.");
-                throw new AppException("Failed to activated order, since MecmInfo is empty.", ResponseConst.FAILED_TO_ACTIVATED_ORDER);
+                throw new AppException("Failed to activated order, since MecmInfo is empty.",
+                    ResponseConst.FAILED_TO_ACTIVATED_ORDER);
             } else {
                 order.setMecAppId(mecmInfo.getMecmAppId());
                 order.setMecPackageId(mecmInfo.getMecmAppPackageId());
                 order.setStatus(EnumOrderStatus.ACTIVATING);
-                LOGGER.error("MECM APP ID " + mecmInfo.getMecmAppId());
-                LOGGER.error("MECM APP PACKAGE ID " + mecmInfo.getMecmAppPackageId());
+                LOGGER.info("MECM APP ID: {}" + mecmInfo.getMecmAppId());
+                LOGGER.info("MECM APP PACKAGE ID: {}" + mecmInfo.getMecmAppPackageId());
             }
             order.setOperateTime(new Date());
             orderRepository.updateOrder(order);
@@ -194,8 +186,7 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity
-            .ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
+        return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
     }
 
     /**
