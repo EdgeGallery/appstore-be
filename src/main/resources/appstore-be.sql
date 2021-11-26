@@ -207,7 +207,8 @@
         MECM_APPID               VARCHAR(200)       NULL,
         MECM_APPPACKAGEID        VARCHAR(200)       NULL,
         MECM_INSTANCEID          VARCHAR(200)       NULL,
-        DETAIL                   text               DEFAULT NULL,
+        DETAILCN                 text               DEFAULT NULL,
+        DETAILEN                 text               DEFAULT NULL,
         CONSTRAINT app_order_pkey PRIMARY KEY (ORDERID),
         CONSTRAINT app_order_uniqueOrderNum UNIQUE (ORDERNUM)
     );
@@ -254,6 +255,9 @@
 
     drop table if exists app_bill;
 
+
     drop table if exists app_split_config;
 
-    alter table app_order add column IF NOT EXISTS DETAIL text DEFAULT NULL;
+    alter table app_order add column IF NOT EXISTS DETAILCN text DEFAULT NULL;
+
+    alter table app_order add column IF NOT EXISTS DETAILEN text DEFAULT NULL;
