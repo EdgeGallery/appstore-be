@@ -70,7 +70,6 @@ public class MecmService {
 
     private static final String APPO_INSTANTIATE_APP = "/appo/v1/tenants/%s/app_instances/%s";
 
-    //mirnada
     private static final String MECM_UPLOAD_GET_APPINFO = "/apm/v1/tenants/%s/packages/upload";
 
     private static final String MECM_GET_DEPLOYMENT_STATUS = "/appo/v1/tenants/%s/apps/%s/packages/%s/status";
@@ -79,7 +78,7 @@ public class MecmService {
     // /appo/v1/tenants/{tenant_id}/apps/{appId}/packages/{appPackageId}/status
 
 
-    @Value("${mecm.urls.apm}") //
+    @Value("${mecm.urls.apm}")
     private String apmUrl;
 
     @Value("${mecm.urls.appo}")
@@ -100,7 +99,7 @@ public class MecmService {
         String appPackageName = release.getPackageFile().getOriginalFileName();
         String appPackageVersion = release.getAppBasicInfo().getVersion();
         String filePath = release.getPackageFile().getStorageAddress();
-        if(StringUtils.isEmpty(appPackageName) && StringUtils.isEmpty(appPackageVersion) && StringUtils.isEmpty(filePath)){
+        if(StringUtils.isEmpty(appPackageName) || StringUtils.isEmpty(appPackageVersion) || StringUtils.isEmpty(filePath)){
             LOGGER.error("Failed to validate input parameters of MECM task creation, status is {}", ResponseConst.RET_PARAM_INVALID);
             return null;
         }

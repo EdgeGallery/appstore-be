@@ -50,7 +50,6 @@ public class OrderService {
 
 
 
-
     public void updateOrderStatus(String token, Order order){
         LOGGER.error("[Update Order Status] Each order, check order status, if activating, then update.");
         LOGGER.error("[Update Order Status] Each order, appid: {}", order.getAppId());
