@@ -33,9 +33,17 @@ public class DownloadPackageTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
-        boolean isDownloadImage = true;
         MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download?isDownloadImage=%s", appId, packageId, isDownloadImage))
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download?isDownloadImage=%s", appId, packageId, false))
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_with_image() throws Exception {
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download?isDownloadImage=%s", appId, packageId, true))
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
@@ -44,10 +52,9 @@ public class DownloadPackageTest extends AppTest {
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed_with_wrong_appId() throws Exception {
         String appId = "30ec10f4a43041e6a6198ba824311af3";
-        boolean isDownloadImage = true;
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/download?isDownloadImage=%s", appId, packageId,
-                isDownloadImage))
+                true))
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
@@ -66,9 +73,7 @@ public class DownloadPackageTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_downloadPackage() throws Exception {
-        // String packageId = "c5758730b9044a588852221245699766";
         String targetAppstore = "http://127.0.0.1:8080";
-        boolean isDownloadImage = true;
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/packages/%s/action/download-package?targetAppstore=%s", packageId, targetAppstore))
                 .with(csrf()).contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();

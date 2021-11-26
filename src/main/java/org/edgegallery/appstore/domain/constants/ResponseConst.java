@@ -186,9 +186,9 @@ public class ResponseConst {
     public static final int RET_SIGN_PACKAGE_FAILED = 10030;
 
     /**
-     * The app package signature is incorrect.
+     * The app package is illegal.
      */
-    public static final int RET_PACKAGE_SIGN_INVALID = 10031;
+    public static final int RET_PACKAGE_ILLEGAL = 10031;
 
     /**
      * package base error code.
@@ -424,6 +424,16 @@ public class ResponseConst {
      * delete third system fail.
      */
     public static final int RET_DELETE_THIRD_SYSTEM_FAILED = 15105;
+
+    /**
+     * distributed package failed.
+     */
+    public static final int RET_DISTRIBUTE_FAILED = 15106;
+
+    /**
+     * instantiate package failed.
+     */
+    public static final int RET_INSTANTIATE_FAILED = 15107;
 
     /**
      * order base error code.

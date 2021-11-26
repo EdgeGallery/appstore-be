@@ -105,7 +105,7 @@ public class App implements Entity {
     public App(String appId, Release release) {
         this.appId = appId;
         this.appName = release.getAppBasicInfo().getAppName();
-        this.shortDesc = release.getShortDesc();
+        this.shortDesc = release.getAppBasicInfo().getAppDesc();
         this.showType = release.getShowType();
         this.provider = release.getAppBasicInfo().getProvider();
         this.user = release.getUser();
@@ -131,7 +131,7 @@ public class App implements Entity {
      * @param release app release.
      */
     public void upload(Release release) {
-        this.shortDesc = release.getShortDesc();
+        this.shortDesc = release.getAppBasicInfo().getAppDesc();
         this.showType = release.getShowType();
         this.affinity = release.getAffinity();
         this.contact = release.getAppBasicInfo().getContact();

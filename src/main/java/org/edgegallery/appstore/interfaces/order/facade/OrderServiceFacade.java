@@ -143,6 +143,7 @@ public class OrderServiceFacade {
                 order.setMecAppId("");
                 order.setMecPackageId("");
             } else {
+                LOGGER.error("deactivate Order failed.");
                 order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             }
             orderRepository.updateOrder(order);

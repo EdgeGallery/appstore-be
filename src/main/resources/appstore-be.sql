@@ -29,6 +29,7 @@
         STARTEXPTIME             VARCHAR(100)       NULL,
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         MECHOST                  VARCHAR(100)       NULL,
+        EXPERIENCESTATUS         INT       NULL,
         CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 

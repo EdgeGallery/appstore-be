@@ -32,8 +32,6 @@ public class AppParam {
 
     private String applicationType;
 
-    private String shortDesc;
-
     private String showType;
 
     private String affinity;

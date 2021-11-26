@@ -91,17 +91,21 @@ public class AppTest {
 
     protected Gson gson = new Gson();
 
-    protected static final String POSITIONING_EG_1_CSAR = "testfile/positioning_eg_1.0.csar";
+    protected static final String TEST2048_1_CSAR = "testfile/test2048_1.0.csar";
 
-    protected static final String POSITIONING_EG_2_CSAR = "testfile/positioning_eg_2.0.csar";
+    protected static final String TEST2048_2_CSAR = "testfile/test2048_2.0.csar";
 
-    protected static final String POSITIONING_EG_UNIQUE_CSAR = "testfile/positioning_eg_unique.csar";
+    protected static final String TEST2048_UNIQUE_CSAR = "testfile/test2048_unique.csar";
+
+    protected static final String BATTLE_CITY_CSAR = "testfile/battlecity.csar";
 
     protected static final String LOGO_PNG = "testfile/logo.png";
 
     protected static final String NEW_CSAR = "testfile/new_csar.csar";
 
     protected static final String DEMO_VIDEO = "testfile/demo_video.mp4";
+
+    protected static final String CONTAINER_IMAGE_CSAR = "testfile/testContainer.csar";
 
     public MvcResult registerApp(String iconAddr, String csarAddr, String userId, String userName, String testTaskId)
         throws Exception {
@@ -160,7 +164,7 @@ public class AppTest {
 
     @Before
     public void registerAnApp() throws Exception {
-        MvcResult mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_1_CSAR, userId, userName);
+        MvcResult mvcResult = registerApp(LOGO_PNG, TEST2048_1_CSAR, userId, userName);
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
         RegisterRespDto dto = gson.fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
         appMapper.findByAppId(dto.getAppId()).ifPresent(appPo -> {
@@ -173,7 +177,7 @@ public class AppTest {
         });
         appId = dto.getAppId();
         packageId = dto.getPackageId();
-        mvcResult = registerApp(LOGO_PNG, POSITIONING_EG_2_CSAR, userId, userName);
+        mvcResult = registerApp(LOGO_PNG, TEST2048_2_CSAR, userId, userName);
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
         dto = gson.fromJson(mvcResult.getResponse().getContentAsString(), RegisterRespDto.class);
         unPublishedPackageId = dto.getPackageId();

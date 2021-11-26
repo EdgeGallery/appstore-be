@@ -21,12 +21,30 @@
     <select id="getAllPushablePackagesV2"
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
-        select * from
+        select
+            a.APPID,
+            a.AFFINITY,
+            a.SHORTDESC,
+            a.INDUSTRY,
+            a.appName,
+            a.packageid,
+            a.PROVIDER,
+            a.applicationType,
+            a.VERSION,
+            a.TESTTASKID,
+            a.CREATETIME,
+            a.STATUS,
+            b.pushTimes,
+            b.atpTestReportUrl,
+            b.latestPushTime,
+            b.pushTimes,
+            b.sourcePlatform
+        from
         (
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
                 a.STATUS = 'Published'
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
                 and a.SHOWTYPE ='public'
@@ -56,10 +74,28 @@
     <select id="getAllPushablePackages"
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
-        select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
+        select
+            a.APPID,
+            a.AFFINITY,
+            a.SHORTDESC,
+            a.INDUSTRY,
+            a.appName,
+            a.packageid,
+            a.PROVIDER,
+            a.applicationType,
+            a.VERSION,
+            a.TESTTASKID,
+            a.CREATETIME,
+            a.STATUS,
+            b.pushTimes,
+            b.atpTestReportUrl,
+            b.latestPushTime,
+            b.pushTimes,
+            b.sourcePlatform
+        from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
                 a.STATUS = 'Published'
-            <if test="appName != null">
+            <if test="appName != null and appName != ''">
                 and a.appname ilike '%' || #{appName} || '%'
             </if>
             and a.SHOWTYPE ='public'
@@ -121,8 +157,7 @@
         select * from pushable_package_table where packageId = #{packageId}
     </select>
 
-    <select id="deletePushablePackages" parameterType="String"
-            resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackagePo">
+    <select id="deletePushablePackages" parameterType="String">
         delete from pushable_package_table where packageId = #{packageId}
     </select>
 

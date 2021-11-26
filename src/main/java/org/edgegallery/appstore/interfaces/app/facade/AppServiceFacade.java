@@ -199,18 +199,17 @@ public class AppServiceFacade {
 
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         AbstractFileChecker fileChecker = new PackageChecker(dir);
-        File tempfile = fileChecker.check(packageFile);
-        String fileStoreageAddress = fileService.saveTo(tempfile, fileParent);
+        File tempFile = fileChecker.check(packageFile);
+        String fileStorageAddress = fileService.saveTo(tempFile, fileParent);
         AFile packageAFile;
-        String appClass = appUtil.getAppClass(fileStoreageAddress);
+        String appClass = appUtil.getAppClass(fileStorageAddress);
         if (!StringUtils.isEmpty(appClass) && VM.equals(appClass)) {
-            packageAFile = new AFile(packageFile.getOriginalFilename(), fileStoreageAddress);
+            packageAFile = new AFile(packageFile.getOriginalFilename(), fileStorageAddress);
 
         } else {
-            packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStoreageAddress, fileParent);
+            packageAFile = getPkgFile(packageFile.getOriginalFilename(), fileStorageAddress, fileParent);
         }
         packageAFile.setFileSize(packageFile.getSize());
-        String fileNameExtension = fileStoreageAddress.substring(fileStoreageAddress.lastIndexOf("."));
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
@@ -218,6 +217,11 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
+        if (!appUtil.checkPackageValid(fileParent)) {
+            throw new AppException("the app package is illegal and may have been tampered!",
+                ResponseConst.RET_PACKAGE_ILLEGAL);
+        }
+        String fileNameExtension = fileStorageAddress.substring(fileStorageAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
@@ -257,12 +261,16 @@ public class AppServiceFacade {
         AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
         Release release;
         AFile demoVideoFile = null;
-        String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         if (demoVideo != null) {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
+        if (!appUtil.checkPackageValid(checkPath)) {
+            throw new AppException("the app package is illegal and may have been tampered!",
+                ResponseConst.RET_PACKAGE_ILLEGAL);
+        }
+        String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId(), fileNameExtension);
         RegisterRespDto dto = appService.registerApp(release);
         if (atpMetadata.getTestTaskId() != null) {
@@ -287,13 +295,23 @@ public class AppServiceFacade {
                 return new AFile(fileName, fileAddress);
             }
 
-            for (SwImgDesc imageDescr : imgDecsList) {
-                if (imageDescr.getSwImage().contains(".zip")) {
-                    isImgZipExist = true;
+            File imageFile = appUtil.getFile(fileParent + File.separator + "Image", "zip");
+            if (imageFile != null) {
+                String imagePath = imageFile.getPath();
+                String imageDescPath = "/Image/" + imagePath.substring(imagePath.lastIndexOf(File.separator) + 1);
+                for (SwImgDesc imageDesc : imgDecsList) {
+                    if (imageDesc.getSwImage().startsWith(imageDescPath)) {
+                        isImgZipExist = true;
+                        break;
+                    }
                 }
             }
 
             if (!isImgZipExist) {
+                if (!appUtil.checkPackageValid(fileParent)) {
+                    throw new AppException("the app package is illegal and may have been tampered!",
+                        ResponseConst.RET_PACKAGE_ILLEGAL);
+                }
                 FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);
                 appService.updateImgInRepo(imgDecsList);
@@ -472,7 +490,12 @@ public class AppServiceFacade {
             .findAllWithPagination(new PageCriteria(limit, offset, appId, null, null))
             .getResults().stream();
         if (userId == null) {
-            releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published);
+            /*
+            scenario: go to the app detail page from app warehouse to get packages info,
+            just need published, public or inner-public packages.
+             */
+            releaseStream = releaseStream.filter(p -> p.getStatus() == EnumPackageStatus.Published
+                && ("public".equals(p.getShowType()) || "inner-public".equals(p.getShowType())));
         } else {
             releaseStream.filter(r -> r.getUser().getUserId().equals(userId))
                 .filter(s -> s.getTestTaskId() != null && EnumPackageStatus.needRefresh(s.getStatus())).forEach(

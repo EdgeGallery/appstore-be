@@ -126,8 +126,8 @@ public class MessageService {
             apackage.setFileSize(tempPackage.length());
             String appClass = appUtil.getAppClass(apackage.getStorageAddress());
             String showType = "public";
-            AppParam appParam = new AppParam(message.getBasicInfo().getType(), message.getBasicInfo().getShortDesc(),
-                showType, message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry(), false);
+            AppParam appParam = new AppParam(message.getBasicInfo().getType(), showType,
+                message.getBasicInfo().getAffinity(), message.getBasicInfo().getIndustry(), false);
             Release release = new Release(apackage, icon, demoVideo, user, appParam, appClass);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);

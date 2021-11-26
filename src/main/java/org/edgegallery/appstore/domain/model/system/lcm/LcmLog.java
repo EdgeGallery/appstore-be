@@ -27,4 +27,6 @@ public class LcmLog {
 
     private String log;
 
+    private int retCode;
+
 }
