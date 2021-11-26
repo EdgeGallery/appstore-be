@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
@@ -47,6 +49,7 @@ import org.springframework.stereotype.Service;
 public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Autowired
     private OrderService orderService;
@@ -68,6 +71,13 @@ public class OrderServiceFacade {
             String orderId = UUID.randomUUID().toString();
             String orderNum = orderService.generateOrderNum();
             Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
+
+            String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+            String orderCreationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
+            String orderCreationDetailEn = currentTime + " " + EnumOrderOperation.CREATED.getEnglish();
+            order.setDetailCn(orderCreationDetailCn);
+            order.setDetailEn(orderCreationDetailEn);
+
             orderRepository.addOrder(order);
 
             // upload package to mec
@@ -81,6 +91,7 @@ public class OrderServiceFacade {
 
             CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
             ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+
             return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -112,6 +123,13 @@ public class OrderServiceFacade {
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if ("success".equals(result)) {
+
+                String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+                String orderDeactivationDetailCn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getChinese();
+                String orderDeactivationDetailEn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getEnglish();
+                order.setDetailCn(order.getDetailCn() + "\n" + orderDeactivationDetailCn);
+                order.setDetailEn(order.getDetailEn() + "\n" + orderDeactivationDetailEn);
+
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 // set mecm info to empty
                 order.setMecInstanceId("");
@@ -158,6 +176,13 @@ public class OrderServiceFacade {
                 Thread.sleep(3000);
                 order.setStatus(EnumOrderStatus.ACTIVATED);
                 order.setOperateTime(new Date());
+
+                String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+                String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+                String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+                order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+                order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+
                 orderRepository.updateOrder(order);
 
             } else {

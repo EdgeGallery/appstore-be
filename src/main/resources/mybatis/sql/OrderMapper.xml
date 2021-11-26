@@ -27,7 +27,8 @@
             mecm_appId        = #{mecAppId},
             mecm_appPackageId = #{mecPackageId},
             mecm_instanceId   = #{mecInstanceId},
-            detail            = #{detail}
+            detailCn          = #{detailCn},
+            detailEn          = #{detailEn},
         WHERE orderId = #{orderId}
     </update>
 
@@ -37,7 +38,7 @@
         (orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
          mecm_hostIp, mecm_appId, mecm_appPackageId, mecm_instanceId, detail)
         VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{orderTime},
-                #{operateTime}, #{status}, #{mecHostIp}, #{mecAppId}, #{mecPackageId}, #{mecInstanceId}, #{detail})
+                #{operateTime}, #{status}, #{mecHostIp}, #{mecAppId}, #{mecPackageId}, #{mecInstanceId}, #{detailCn},#{detailEn})
     </insert>
 
     <select id="getCountByCondition" resultType="java.lang.Integer"
@@ -101,7 +102,7 @@
             parameterType="String">
         select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
         mecm_hostIp mecHostIp, mecm_appId mecAppId, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId,
-        detail from app_order where orderId = #{orderId}
+        detailCn, detailEn from app_order where orderId = #{orderId}
     </select>
 
     <select id="maxOrderNum"
