@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+FROM swr.cn-north-4.myhuaweicloud.com/eg-common/openjdk:8u201-jre-alpine AS development
+
+RUN apk update && \
+    apk add docker
+
 FROM swr.cn-north-4.myhuaweicloud.com/eg-common/openjdk:8u201-jre-alpine
 
 # Define all environment variable here
@@ -35,13 +40,17 @@ RUN mkdir -p /usr/app/bin
 
 # Create an app user so our program doesn't run as root.
 RUN apk update &&\
-    apk add shadow &&\
+    apk add shadow sudo &&\
     groupadd -r -g $GID $GROUP_NAME &&\
-    useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+    useradd -r -u $UID -g $GID -d $APP_HOME -s /bin/sh -c "Docker image user" $USER_NAME
 
-RUN apk add docker
+COPY --from=development /usr/bin/docker /usr/bin/
+
+RUN sed -i "s@# %wheel ALL=(ALL) NOPASSWD: ALL@eguser ALL= NOPASSWD: /usr/bin/docker@g" /etc/sudoers && \
+    groupadd docker && \
+    gpasswd -a eguser docker
+
 WORKDIR $APP_HOME
-
 RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
     mkdir -p -m 750 $APP_HOME/config &&\
