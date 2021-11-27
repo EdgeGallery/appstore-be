@@ -40,8 +40,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Import({ResourceServerTokenServicesConfiguration.class})
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-
-
 public class AccessTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
 
@@ -124,8 +122,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         return true;
     }
 
-    private boolean checkUserValid(HttpServletRequest request, HttpServletResponse response,
-        String userIdFromToken, String userNameFromToken) throws IOException {
+    private boolean checkUserValid(HttpServletRequest request, HttpServletResponse response, String userIdFromToken,
+        String userNameFromToken) throws IOException {
         String userIdFromRequest = request.getParameter(USERID);
         if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
             LOGGER.error("Illegal userId");

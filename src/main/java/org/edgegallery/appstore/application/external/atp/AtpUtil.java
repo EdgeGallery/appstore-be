@@ -62,7 +62,8 @@ public class AtpUtil {
      */
     public AtpTestDto sendCreateTask2Atp(String filePath, String token) {
         if (filePath == null || token == null) {
-            LOGGER.error("Failed to validate input parameters of ATP task creation", ResponseConst.RET_PARAM_INVALID);
+            LOGGER.error("Failed to validate input parameters of ATP task creation {}",
+                ResponseConst.RET_PARAM_INVALID);
             return new AtpTestDto();
         }
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -78,8 +79,8 @@ public class AtpUtil {
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
-                .equals(response.getStatusCode())) {
+            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED.equals(
+                response.getStatusCode())) {
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
                 String id = jsonObject.get("id").getAsString();
                 String status = jsonObject.get(ATP_STATUS).getAsString();
@@ -162,8 +163,8 @@ public class AtpUtil {
             }
 
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to delete test report from atp which taskId is {} exception {}",
-                taskId, e.getMessage());
+            LOGGER.error("Failed to delete test report from atp which taskId is {} exception {}", taskId,
+                e.getMessage());
         }
     }
 }

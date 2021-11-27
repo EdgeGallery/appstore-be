@@ -89,7 +89,8 @@ public class OrderServiceFacade {
         MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
         if (mecmInfo == null) {
             LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
-            throw new AppException("Failed To Create Order.", ResponseConst.FAILED_TO_CREATE_ORDER);
+            throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
+                ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
         } else {
             LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
             order.setMecAppId(mecmInfo.getMecmAppId());
@@ -169,20 +170,20 @@ public class OrderServiceFacade {
             MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
             LOGGER.info("[ACTIVATE ORDER], after use upload interface");
             if (mecmInfo == null) {
-                LOGGER.error("[CREATE ORDER], Mecm Info is null.");
-                throw new AppException("Failed to activated order, since MecmInfo is empty.",
-                    ResponseConst.FAILED_TO_ACTIVATED_ORDER);
+                LOGGER.error("[ACTIVATE ORDER], Mecm Info is null.");
+                throw new AppException("[ACTIVATE ORDER], Failed To Utilize MECM Upload Interface.",
+                    ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
             } else {
                 order.setMecAppId(mecmInfo.getMecmAppId());
                 order.setMecPackageId(mecmInfo.getMecmAppPackageId());
                 order.setStatus(EnumOrderStatus.ACTIVATING);
-                LOGGER.info("MECM APP ID: {}" + mecmInfo.getMecmAppId());
-                LOGGER.info("MECM APP PACKAGE ID: {}" + mecmInfo.getMecmAppPackageId());
+                LOGGER.info("[ACTIVATE ORDER], MECM APP ID: {}" + mecmInfo.getMecmAppId());
+                LOGGER.info("[ACTIVATE ORDER], MECM APP PACKAGE ID: {}" + mecmInfo.getMecmAppPackageId());
             }
             order.setOperateTime(new Date());
             orderRepository.updateOrder(order);
         } else {
-            throw new PermissionNotAllowedException("can not deactivate order",
+            throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -218,7 +219,7 @@ public class OrderServiceFacade {
         // Update order instance id.
         // If order is activating, update status based on mecm opertion status.
 
-        LOGGER.error("[QUERY ORDER] After update each order status");
+        LOGGER.info("[QUERY ORDER] After update each order status");
 
         return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
             queryOrdersReqDto.getQueryCtrl().getOffset(), total));

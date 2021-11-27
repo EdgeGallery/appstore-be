@@ -191,31 +191,6 @@ public class ResponseConst {
     public static final int RET_PACKAGE_ILLEGAL = 10031;
 
     /**
-     * MecmInfo is empty.
-     */
-    public static final int FAILED_TO_CREATE_ORDER = 10032;
-
-    /**
-     * Fail to execute http request to MECM。
-     */
-    public static final int FAILED_HTTP_REQUEST_TO_MECM_INVENTORY = 10033;
-
-    /**
-     * Fail to upload a package to mecm。
-     */
-    public static final int FAILED_TO_UPLOAD_TO_MECM = 10034;
-
-    /**
-     * MecmDeploymentInfo is empty.
-     */
-    public static final int FAILED_TO_GET_MECM_DEPLOYMENT_INFO = 10035;
-
-    /**
-     * MecmDeploymentInfo is empty.
-     */
-    public static final int FAILED_TO_ACTIVATED_ORDER = 10035;
-
-    /**
      * package base error code.
      */
     public static final int RET_PACKAGE_BASE = 11000;
@@ -501,9 +476,14 @@ public class ResponseConst {
     public static final int RET_GET_MECMHOST_FAILED = 16007;
 
     /**
-     * empty value in order info.
+     * failed to utilize mecm upload interface
      */
-    public static final int RET_GET_ORDER_INFO_EMPTY = 16008;
+    public static final int UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED = 16008;
+
+    /**
+     * failed to utilize mecm update interface
+     */
+    public static final int UTILIZE_MECM_UPDATE_STATUS_INTERFACE_FAILED = 16009;
 
     /**
      * right base error code.
@@ -564,8 +544,6 @@ public class ResponseConst {
      * the file path is invalid.
      */
     public static final int RET_FILE_PATH_INVALID = 19006;
-
-
 
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
