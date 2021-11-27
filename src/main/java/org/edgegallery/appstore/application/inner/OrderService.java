@@ -71,10 +71,10 @@ public class OrderService {
             }
             order.setMecInstanceId(mecmDeploymentInfo.getMecmAppInstanceId());
             LOGGER.info("[Update Order Status], mecm instance id is:{}" + mecmDeploymentInfo.getMecmAppInstanceId());
-            if (mecmDeploymentInfo.getMecmOperationalStatus().equals("Instantiated")) {
+            if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiated")) {
                 order.setStatus(EnumOrderStatus.ACTIVATED);
                 LOGGER.info("[Update Order Status], mecm operational status Instantiated, modify status to activated");
-            } else if (mecmDeploymentInfo.getMecmOperationalStatus().equals("Instantiation failed")) {
+            } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiation failed")) {
                 order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
                 LOGGER.error(
                     "[Update Order Status], mecm operational status Instantiated failed, modify status to activate failed");
