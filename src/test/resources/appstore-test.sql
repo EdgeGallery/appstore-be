@@ -217,7 +217,8 @@ create TABLE if not exists app_order (
     MECM_APPID               VARCHAR(200)       NULL,
     MECM_APPPACKAGEID        VARCHAR(200)       NULL,
     MECM_INSTANCEID          VARCHAR(200)       NULL,
-    DETAIL                   text               DEFAULT NULL,
+    DETAILCN                 text               DEFAULT NULL,
+    DETAILEN                 text               DEFAULT NULL,
     CONSTRAINT app_order_pkey PRIMARY KEY (ORDERID),
     CONSTRAINT app_order_uniqueOrderNum UNIQUE (ORDERNUM)
 );
