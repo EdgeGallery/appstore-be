@@ -255,6 +255,7 @@
 
     drop table if exists app_bill;
 
+    alter table catalog_package_table add column IF NOT EXISTS EXPERIENCESTATUS INT NULL;
 
     drop table if exists app_split_config;
 
