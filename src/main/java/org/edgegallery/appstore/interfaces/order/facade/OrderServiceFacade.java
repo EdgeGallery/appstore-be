@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
@@ -55,6 +57,8 @@ public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
 
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     @Autowired
     private OrderService orderService;
 
@@ -80,6 +84,12 @@ public class OrderServiceFacade {
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
+
+        String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String orderCreationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
+        String orderCreationDetailEn = currentTime + " " + EnumOrderOperation.CREATED.getEnglish();
+        order.setDetailCn(orderCreationDetailCn);
+        order.setDetailEn(orderCreationDetailEn);
         orderRepository.addOrder(order);
 
         // upload package to mec
@@ -99,7 +109,14 @@ public class OrderServiceFacade {
             LOGGER.info("[CREATE ORDER] MECM APP ID :{}", mecmInfo.getMecmAppId());
             LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
         }
+
         order.setOperateTime(new Date());
+        currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+        String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+        order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+        order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+
         orderRepository.updateOrder(order);
         CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -129,6 +146,13 @@ public class OrderServiceFacade {
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if ("success".equals(result)) {
+
+                String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+                String orderDeactivationDetailCn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getChinese();
+                String orderDeactivationDetailEn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getEnglish();
+                order.setDetailCn(order.getDetailCn() + "\n" + orderDeactivationDetailCn);
+                order.setDetailEn(order.getDetailEn() + "\n" + orderDeactivationDetailEn);
+
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 // set mecm info to empty
                 order.setMecInstanceId("");
@@ -163,7 +187,10 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-            // upload package to mecm
+            order.setStatus(EnumOrderStatus.ACTIVATING);
+            orderRepository.updateOrder(order);
+
+            /// upload package to mecm
             // deploy app
             // update status to Activating
             Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
@@ -173,17 +200,17 @@ public class OrderServiceFacade {
                 LOGGER.error("[ACTIVATE ORDER], Mecm Info is null.");
                 throw new AppException("[ACTIVATE ORDER], Failed To Utilize MECM Upload Interface.",
                     ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
-            } else {
-                order.setMecAppId(mecmInfo.getMecmAppId());
-                order.setMecPackageId(mecmInfo.getMecmAppPackageId());
-                order.setStatus(EnumOrderStatus.ACTIVATING);
-                LOGGER.info("[ACTIVATE ORDER], MECM APP ID: {}" + mecmInfo.getMecmAppId());
-                LOGGER.info("[ACTIVATE ORDER], MECM APP PACKAGE ID: {}" + mecmInfo.getMecmAppPackageId());
             }
+
             order.setOperateTime(new Date());
+            String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+            String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
+            String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
+            order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
+            order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
             orderRepository.updateOrder(order);
         } else {
-            throw new PermissionNotAllowedException("can not activate order",
+            throw new PermissionNotAllowedException("can not deactivate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

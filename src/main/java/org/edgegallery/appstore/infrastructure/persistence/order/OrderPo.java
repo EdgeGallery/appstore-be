@@ -75,8 +75,11 @@ public class OrderPo implements PersistenceObject<Order> {
     @Column(name = "MECM_INSTANCEID")
     private String mecInstanceId;
 
-    @Column(name = "DETAIL")
-    private String detail;
+    @Column(name = "DETAILCN")
+    private String detailCn;
+
+    @Column(name = "DETAILEN")
+    private String detailEn;
 
     public OrderPo() {
         // empty construct
