@@ -42,13 +42,13 @@ RUN mkdir -p /usr/app/bin
 RUN apk update &&\
     apk add shadow sudo &&\
     groupadd -r -g $GID $GROUP_NAME &&\
-    useradd -r -u $UID -g $GID -d $APP_HOME -s /bin/sh -c "Docker image user" $USER_NAME
+    useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 COPY --from=development /usr/bin/docker /usr/bin/
 
 RUN sed -i "s@# %wheel ALL=(ALL) NOPASSWD: ALL@eguser ALL= NOPASSWD: /usr/bin/docker@g" /etc/sudoers && \
     groupadd docker && \
-    gpasswd -a eguser docker
+    gpasswd -a $USER_NAME docker
 
 WORKDIR $APP_HOME
 RUN chmod 750 $APP_HOME &&\
