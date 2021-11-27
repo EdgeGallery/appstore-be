@@ -101,14 +101,13 @@ public class OrderServiceFacade {
             LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
             throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
                 ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
-        } else {
-            LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
-            order.setMecAppId(mecmInfo.getMecmAppId());
-            order.setMecPackageId(mecmInfo.getMecmAppPackageId());
-            order.setStatus(EnumOrderStatus.ACTIVATING);
-            LOGGER.info("[CREATE ORDER] MECM APP ID :{}", mecmInfo.getMecmAppId());
-            LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
         }
+        LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
+        order.setMecAppId(mecmInfo.getMecmAppId());
+        order.setMecPackageId(mecmInfo.getMecmAppPackageId());
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        LOGGER.info("[CREATE ORDER] MECM APP ID :{}", mecmInfo.getMecmAppId());
+        LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
 
         order.setOperateTime(new Date());
         currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());

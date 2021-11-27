@@ -124,11 +124,11 @@ public class MecmService {
             }
             LOGGER.info("[Upload to MECM], successfully get http request.");
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            String mecm_appId = jsonObject.get("appId").getAsString();
-            String mecm_appPackageId = jsonObject.get("appPackageId").getAsString();
-            LOGGER.info("[Upload to MECM], Successfully created test task {}, status is {}", mecm_appId,
-                mecm_appPackageId);
-            return new MecmInfo(mecm_appId, mecm_appPackageId);
+            String mecmAppId = jsonObject.get("appId").getAsString();
+            String mecmAppPackageId = jsonObject.get("appPackageId").getAsString();
+            LOGGER.info("[Upload to MECM], Successfully created test task {}, status is {}", mecmAppId,
+                mecmAppPackageId);
+            return new MecmInfo(mecmAppId, mecmAppPackageId);
         } catch (RestClientException e) {
             LOGGER.error("[Upload to MECM], Failed to create instance of MecmInfo,  exception {}", e.getMessage());
         }
