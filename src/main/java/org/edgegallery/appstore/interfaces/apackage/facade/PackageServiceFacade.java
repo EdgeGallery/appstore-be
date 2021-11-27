@@ -171,7 +171,7 @@ public class PackageServiceFacade {
         } else {
             ins = fileService.get(release.getPackageFile());
         }
-        String fileName = release.getAppBasicInfo().getAppName() + ZIP_EXTENSION;
+        String fileName = release.getAppBasicInfo().getAppName() + "_download" + ZIP_EXTENSION;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + fileName);

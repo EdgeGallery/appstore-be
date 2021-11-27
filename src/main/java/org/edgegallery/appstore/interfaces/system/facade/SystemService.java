@@ -84,12 +84,12 @@ public class SystemService {
     /**
      * getAllHosts.
      * @param name name.
-     * @param ip ip.
+     * @param os os.
      * @return
      */
-    public List<MepHost> getAllHosts(String name, String ip) {
+    public List<MepHost> getAllHosts(String name, String os) {
         LOGGER.info("Get all hosts success.");
-        return hostMapper.getHostsByCondition(name, ip, "");
+        return hostMapper.getHostsByCondition(name, os);
     }
 
     /**

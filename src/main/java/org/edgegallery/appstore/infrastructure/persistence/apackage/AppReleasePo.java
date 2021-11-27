@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
+import org.edgegallery.appstore.domain.model.releases.EnumExperienceStatus;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.user.User;
@@ -131,6 +132,9 @@ public class AppReleasePo {
     @Column(name = "MECHOST")
     private String mecHost;
 
+    @Column(name = "EXPERIENCESTATUS")
+    private EnumExperienceStatus experienceStatus;
+
 
     public AppReleasePo() {
         // empty constructor of AppReleasePO
@@ -161,7 +165,7 @@ public class AppReleasePo {
         po.size = pack.getPackageFile().getSize();
         po.fileStructure = pack.getAppBasicInfo().getFileStructure();
         po.createTime = pack.getCreateTime();
-        po.shortDesc = pack.getShortDesc();
+        po.shortDesc = pack.getAppBasicInfo().getAppDesc();
         po.showType = pack.getShowType();
         po.appName = pack.getAppBasicInfo().getAppName();
         po.version = pack.getAppBasicInfo().getVersion();
@@ -176,7 +180,6 @@ public class AppReleasePo {
         po.provider = pack.getAppBasicInfo().getProvider();
         po.testTaskId = pack.getTestTaskId();
         po.status = pack.getStatus().toString();
-        po.provider = pack.getAppBasicInfo().getProvider();
         po.deployMode = pack.getDeployMode();
         po.appInstanceId = pack.getAppInstanceId();
         po.instanceTenentId = pack.getInstanceTenentId();
@@ -201,6 +204,7 @@ public class AppReleasePo {
         basicInfo.setContact(contact);
         basicInfo.setFileStructure(fileStructure);
         basicInfo.setMarkDownContent(markDownContent);
+        basicInfo.setAppDesc(shortDesc);
         Release release = new Release();
 
         if (demoVideoAddress != null) {
@@ -212,7 +216,6 @@ public class AppReleasePo {
         release.setPackageId(packageId);
         release.setIcon(new AFile(new File(iconAddress).getName(), iconAddress));
         release.setCreateTime(createTime);
-        release.setShortDesc(shortDesc);
         release.setShowType(showType);
         release.setAffinity(affinity);
         release.setApplicationType(applicationType);

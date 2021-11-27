@@ -15,24 +15,23 @@
 package org.edgegallery.appstore.interfaces.project;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -51,8 +50,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 public class ProjectServiceTest extends AppTest {
 
@@ -181,6 +185,20 @@ public class ProjectServiceTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_query_experience_status() throws Exception {
+        String packageId = "packageid-0003";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        String s = result.getResponse().getContentAsString();
+        Type type = new TypeToken<ResponseObject>() { }.getType();
+        ResponseObject packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
+        Assert.assertEquals(null, packageDtos.getData());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_deploy_apk() throws IOException {
         projectService.setInstantiateAppSleepTime(1000);
         projectService.setUploadPkgSleepTime(1000);
@@ -198,7 +216,7 @@ public class ProjectServiceTest extends AppTest {
             packageMapper.updateAppInstanceApp(r);
         });
         ResponseEntity<ResponseObject> response = projectService
-            .deployAppById("appid-test-0001", unPublishedPackageId, "userId", "Node2", "localhost", "123456789");
+            .deployAppById("appid-test-0001", unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, response.getStatusCode().value());
         Assert.assertEquals("get app url success.", Objects.requireNonNull(response.getBody()).getMessage());
     }
@@ -206,7 +224,7 @@ public class ProjectServiceTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_get_node_status_not_instantiate() {
-        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "Node2", "localhost", "123456789");
+        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, ret.getStatusCode().value());
         System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
         Assert.assertEquals("this pacakge not instantiate", Objects.requireNonNull(ret.getBody()).getMessage());
@@ -228,21 +246,35 @@ public class ProjectServiceTest extends AppTest {
             packageMapper.updateRelease(r);
             packageMapper.updateAppInstanceApp(r);
         });
-        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "Node2", "localhost", "123456789");
+        ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, ret.getStatusCode().value());
         System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
         Assert.assertEquals("get app url success.", Objects.requireNonNull(ret.getBody()).getMessage());
     }
 
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_failed_experience_status_error_packageId() throws Exception {
+        String packageId = "packageid-0003";
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+    }
+
+
     private static CloseableHttpClient createIgnoreSslHttpClient() {
         try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
-                (TrustStrategy) (chain, authType) -> true).build();
+            SSLContext sslContext = new SSLContextBuilder()
+                .loadTrustMaterial(null, (TrustStrategy) (chain, authType) -> true).build();
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 NoopHostnameVerifier.INSTANCE);
 
             return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(new BasicCookieStore()).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+                .setDefaultCookieStore(new BasicCookieStore()).setRedirectStrategy(new DefaultRedirectStrategy())
+                .build();
         } catch (Exception e) {
         }
         return null;
