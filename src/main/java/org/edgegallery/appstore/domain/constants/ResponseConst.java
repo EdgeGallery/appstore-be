@@ -476,6 +476,16 @@ public class ResponseConst {
     public static final int RET_GET_MECMHOST_FAILED = 16007;
 
     /**
+     * failed to utilize mecm upload interface
+     */
+    public static final int UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED = 16008;
+
+    /**
+     * failed to utilize mecm update interface
+     */
+    public static final int UTILIZE_MECM_UPDATE_STATUS_INTERFACE_FAILED = 16009;
+
+    /**
      * right base error code.
      */
     public static final int RET_RIGHT_BASE = 18000;

@@ -21,10 +21,14 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.slf4j.Logger;
@@ -45,6 +49,41 @@ public class OrderService {
 
     @Autowired
     private MecmService mecmService;
+
+    public void updateOrderStatus(String token, Order order) {
+        LOGGER.info("[Update Order Status] Each order, appid: {}, mecm app id: {}, order status: {}", order.getAppId(),
+            order.getMecAppId(), order.getMecAppId());
+        if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
+            LOGGER.info("[Update Order Status], If status is activating, update mecm deploy instance info");
+            if (StringUtils.isEmpty(order.getMecAppId()) || StringUtils.isEmpty(order.getMecPackageId())) {
+                LOGGER.error("[Update Order Status] order mecm appid or mecm package id is null, continue");
+                return;
+            }
+            // update status
+            MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecAppId(),
+                order.getMecPackageId(), order.getUserId());
+            LOGGER.info("[Update Order Status], analyze mecm instance id, MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
+            // mecm deployement null :
+            if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmAppInstanceId() == null
+                || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
+                LOGGER.error("[Update Order Status] mecm deploy info null ");
+                return;
+            }
+            order.setMecInstanceId(mecmDeploymentInfo.getMecmAppInstanceId());
+            LOGGER.info("[Update Order Status], mecm instance id is:{}" + mecmDeploymentInfo.getMecmAppInstanceId());
+            if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiated")) {
+                order.setStatus(EnumOrderStatus.ACTIVATED);
+                LOGGER.info("[Update Order Status], mecm operational status Instantiated, modify status to activated");
+            } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiation failed")) {
+                order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
+                LOGGER.error(
+                    "[Update Order Status], mecm operational status Instantiated failed, modify status to activate failed");
+            }
+        }
+        LOGGER.info("[Update Order Status] Order updated, MecmAppId: {}, MecmPackageId:{}", order.getMecAppId(),
+            order.getMecPackageId());
+        return;
+    }
 
     /**
      * query order list.
@@ -73,9 +112,11 @@ public class OrderService {
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }
             }
+            // update mecm order status, whether activated or not
+            updateOrderStatus(token, order);
 
             OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
-                release != null ? release.getAppBasicInfo().getVersion() : "",  mecHostCity);
+                release != null ? release.getAppBasicInfo().getVersion() : "", mecHostCity);
             dtoList.add(dto);
         }
         return dtoList;
