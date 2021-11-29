@@ -73,6 +73,8 @@ public class SystemService {
 
     private static final int VNC_PORT = 22;
 
+    private static final String HEALTH_CHECK_RESULT = "ok";
+
     @Autowired
     private HostMapper hostMapper;
 
@@ -145,7 +147,7 @@ public class SystemService {
         MepHost host = hostMapper.getHost(hostId);
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
-        if (healRes == null) {
+        if (!HEALTH_CHECK_RESULT.equalsIgnoreCase(healRes)) {
             String msg = "health check faild,current ip or port cann't be used.";
             LOGGER.error(msg);
             throw new HostException("health check faild,current ip or port cann't be used.",
@@ -176,7 +178,7 @@ public class SystemService {
     public Either<ResponseObject, Boolean> updateHost(String hostId, MepHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
-        if (healRes == null) {
+        if (!HEALTH_CHECK_RESULT.equalsIgnoreCase(healRes)) {
             String msg = "health check faild,current ip or port cann't be used.";
             LOGGER.error(msg);
             throw new HostException("health check faild,current ip or port cann't be used.",
