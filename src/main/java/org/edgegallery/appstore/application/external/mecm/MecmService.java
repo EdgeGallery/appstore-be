@@ -18,17 +18,12 @@ package org.edgegallery.appstore.application.external.mecm;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.netty.util.internal.StringUtil;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.methods.HttpHead;
-import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -36,7 +31,6 @@ import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +41,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -84,13 +76,14 @@ public class MecmService {
     private String inventoryUrl;
 
     /**
-     * get all mecm hosts.
+     * upload package to mecm-apm.
      *
      * @param token access token
-     * @return mecm host list
-     * Release: String appPkgName, String appPkgVersion, File file
+     * @param release app package info
+     * @param hostList mec host
+     * @param tenantId user id
+     * @return MecmInfo
      */
-
     public MecmInfo upLoadPackageToApm(String token, Release release, String hostList, String tenantId) {
         String appPackageName = release.getPackageFile().getOriginalFileName();
         String appPackageVersion = release.getAppBasicInfo().getVersion();
@@ -135,6 +128,15 @@ public class MecmService {
         return null;
     }
 
+    /**
+     * get deployment status from mecm.
+     *
+     * @param token access token
+     * @param mecmAppId mecm appId
+     * @param mecmAppPackageId mecm packageId
+     * @param tenantId user id
+     * @return MecmDeploymentInfo
+     */
     public MecmDeploymentInfo getMecmDepolymentStatus(String token, String mecmAppId, String mecmAppPackageId,
         String tenantId) {
         HttpHeaders headers = new HttpHeaders();
@@ -146,24 +148,28 @@ public class MecmService {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("[Get MECM status], after http request, the reponse is: {}", response);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error(
-                    "[Get MECM status] [Http Request Failed] Failed to get MECM Deployment Status from MECM. The status code is {}",
+                LOGGER.error("[Get MECM status] Failed to get Deployment Status from MECM. The status code is {}",
                     response.getStatusCode());
                 return null;
             }
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
             String mecmAppInstanceId = jsonObject.get("appInstanceId").getAsString();
             String mecmOperationalStatus = jsonObject.get("operationalStatus").getAsString();
-            LOGGER.info(
-                "[Get MECM status], Successfully analyze the jason object, mecm app instance id is: {}, mecm operational status is {}",
+            LOGGER.info("[Get MECM status], Successfully get status, mecm app instance id is: {}, status is {}",
                 mecmAppInstanceId, mecmOperationalStatus);
             return new MecmDeploymentInfo(mecmAppInstanceId, mecmOperationalStatus, mecmAppId, mecmAppPackageId);
         } catch (RestClientException e) {
-            LOGGER.error("[Get MECM status], Failed to get MECM Deployment Status from MECM", e.getMessage());
+            LOGGER.error("[Get MECM status], get Deployment Status from MECM exception {}", e.getMessage());
         }
         return null;
     }
 
+    /**
+     * get all mecm hosts.
+     *
+     * @param token access token
+     * @return mecm host list
+     */
     public List<Map<String, Object>> getAllMecmHosts(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);

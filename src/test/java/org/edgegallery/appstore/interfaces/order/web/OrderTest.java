@@ -19,10 +19,18 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
+import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
+import org.edgegallery.appstore.domain.model.order.Order;
+import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
 import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
@@ -33,9 +41,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -62,6 +72,15 @@ public class OrderTest {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @MockBean
+    protected MecmService mecmService;
+
     private MvcResult createOrder() throws Exception {
         CreateOrderReqDto createOrderReqDto = new CreateOrderReqDto();
         createOrderReqDto.setAppId(APPID);
@@ -73,16 +92,28 @@ public class OrderTest {
     }
 
     @Before
-    public void beforeTest() throws Exception {
+    public void beforeTest() {
+        System.out.println("start to test");
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void create_order_should_success() throws Exception {
+        MecmInfo mecmInfo = new MecmInfo("mecm-test-appid", "mecm-test-packageid");
+        Mockito.when(mecmService.upLoadPackageToApm(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmInfo);
         MvcResult result = createOrder();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void create_order_should_success() throws Exception {
+    public void create_order_should_failed() throws Exception {
+        MecmInfo mecmInfo = null;
+        Mockito.when(mecmService.upLoadPackageToApm(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmInfo);
         MvcResult result = createOrder();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED, restReturn.getRetCode());
     }
 
     @Test
@@ -130,6 +161,8 @@ public class OrderTest {
         String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
+        MecmInfo mecmInfo = new MecmInfo("mecm-test-appid", "mecm-test-packageid");
+        Mockito.when(mecmService.upLoadPackageToApm(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmInfo);
         MvcResult result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/activation").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
@@ -150,6 +183,70 @@ public class OrderTest {
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
         Assert.assertEquals(ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER, restReturn.getRetCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void activate_order_should_exception() throws Exception {
+        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
+        Assert.assertNotNull(orderId);
+        Assert.assertNotEquals("", orderId);
+        MecmInfo mecmInfo = null;
+        Mockito.when(mecmService.upLoadPackageToApm(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmInfo);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/activation").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED, restReturn.getRetCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_order_status_null() throws Exception {
+        Order order = getOrder();
+        assert(order != null);
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        String token = "testToken";
+        MecmDeploymentInfo mecmDeploymentInfo = null;
+        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmDeploymentInfo);
+        orderService.updateOrderStatus(token, order);
+        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
+
+        order.setMecPackageId("");
+        orderService.updateOrderStatus(token, order);
+        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_order_update_activated() throws Exception {
+        Order order = getOrder();
+        assert(order != null);
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        String token = "testToken";
+        MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
+        mecmDeploymentInfo.setMecmOperationalStatus("Instantiated");
+        mecmDeploymentInfo.setMecmAppInstanceId("mecmAppInstanceId");
+        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmDeploymentInfo);
+        orderService.updateOrderStatus(token, order);
+        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATED);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void query_order_update_activate_failed() throws Exception {
+        Order order = getOrder();
+        assert(order != null);
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        String token = "testToken";
+        MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
+        mecmDeploymentInfo.setMecmOperationalStatus("Instantiation failed");
+        mecmDeploymentInfo.setMecmAppInstanceId("mecmAppInstanceId");
+        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmDeploymentInfo);
+        orderService.updateOrderStatus(token, order);
+        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATE_FAILED);
     }
 
     private MvcResult queryOrderList() throws Exception {
@@ -175,5 +272,17 @@ public class OrderTest {
         Optional<Map> firstMatchOrder = orderResult.getResults().stream()
             .filter(item -> status.equals((String) ((Map) item).get("status"))).findFirst();
         return firstMatchOrder.isPresent() ? (String) firstMatchOrder.get().get("orderId") : "";
+    }
+
+    private Order getOrder() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        QueryCtrlDto queryCtrl = new QueryCtrlDto();
+        queryCtrl.setLimit(10);
+        queryCtrl.setOffset(0);
+        params.put("queryCtrl", queryCtrl);
+
+        List<Order> orders = orderRepository.queryOrders(params);
+        Optional<Order> order = orders.stream().filter(item -> EnumOrderStatus.ACTIVATED.equals(item.getStatus())).findFirst();
+        return order.orElse(null);
     }
 }

@@ -33,4 +33,6 @@ public interface OrderRepository {
     String maxOrderNum();
 
     Optional<Order> findByOrderId(String orderId);
+
+    void deleteOrderByPackageId(String packageId);
 }

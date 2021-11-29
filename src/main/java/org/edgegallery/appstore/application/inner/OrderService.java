@@ -22,13 +22,11 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
-import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.slf4j.Logger;
@@ -50,6 +48,12 @@ public class OrderService {
     @Autowired
     private MecmService mecmService;
 
+    /**
+     * update order status.
+     *
+     * @param token access token
+     * @param order order info
+     */
     public void updateOrderStatus(String token, Order order) {
         LOGGER.info("[Update Order Status] Each order, appid: {}, mecm app id: {}, order status: {}", order.getAppId(),
             order.getMecAppId(), order.getMecAppId());
@@ -73,16 +77,14 @@ public class OrderService {
             LOGGER.info("[Update Order Status], mecm instance id is:{}" + mecmDeploymentInfo.getMecmAppInstanceId());
             if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiated")) {
                 order.setStatus(EnumOrderStatus.ACTIVATED);
-                LOGGER.info("[Update Order Status], mecm operational status Instantiated, modify status to activated");
+                LOGGER.info("[Update Order Status], Instantiated success, modify status to activated");
             } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiation failed")) {
                 order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-                LOGGER.error(
-                    "[Update Order Status], mecm operational status Instantiated failed, modify status to activate failed");
+                LOGGER.error("[Update Order Status], Instantiated failed, modify status to activate failed");
             }
         }
         LOGGER.info("[Update Order Status] Order updated, MecmAppId: {}, MecmPackageId:{}", order.getMecAppId(),
             order.getMecPackageId());
-        return;
     }
 
     /**

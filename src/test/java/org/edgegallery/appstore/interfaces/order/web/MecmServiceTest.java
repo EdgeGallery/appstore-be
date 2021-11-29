@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -25,7 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
+import org.edgegallery.appstore.domain.model.releases.AFile;
+import org.edgegallery.appstore.domain.model.releases.BasicInfo;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.junit.After;
@@ -138,6 +145,46 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
+        httpServer.createContext("/apm/v1/tenants/testUserId/packages/upload", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("POST")) {
+                    Map<String, String> mecInfo = new HashMap<>();
+                    mecInfo.put("appId", "mecmAppId");
+                    mecInfo.put("appPackageId", "mecmAppPackageId");
+                    String jsonObject = new Gson().toJson(mecInfo);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        httpServer.createContext("/appo/v1/tenants/testUserId/apps/testAppId/packages/testPackageId/status", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("GET")) {
+                    Map<String, String> mecInfo = new HashMap<>();
+                    mecInfo.put("appInstanceId", "mecmInstanceId");
+                    mecInfo.put("operationalStatus", "Instantiated");
+                    String jsonObject = new Gson().toJson(mecInfo);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
         httpServer.start();
     }
 
@@ -213,5 +260,50 @@ public class MecmServiceTest {
             .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void upLoadPackageToApm_success() throws IOException {
+        String userId = "testUserId";
+        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
+        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
+        Release release = new Release();
+        release.setPackageFile(packageAFile);
+        release.setAppBasicInfo(new BasicInfo());
+        release.getAppBasicInfo().setVersion("v1.0");
+        MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, hostIp, userId);
+        Assert.assertEquals(mecmInfo.getMecmAppId(), "mecmAppId");
+    }
+
+    @Test
+    public void upLoadPackageToApm_fail() throws IOException {
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
+        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
+        Release release = new Release();
+        release.setPackageFile(packageAFile);
+        release.setAppBasicInfo(new BasicInfo());
+        release.getAppBasicInfo().setVersion("v1.0");
+        Assert.assertNull(mecmService.upLoadPackageToApm(token, release, hostIp, userId));
+
+        release.getAppBasicInfo().setVersion("");
+        Assert.assertNull(mecmService.upLoadPackageToApm(token, release, hostIp, userId));
+    }
+
+    @Test
+    public void getMecmDepolymentStatus_success() throws IOException {
+        String userId = "testUserId";
+        String mecmAppId = "testAppId";
+        String mecmAppPackageId = "testPackageId";
+        MecmDeploymentInfo deploymentInfo = mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId, userId);
+        Assert.assertEquals(deploymentInfo.getMecmOperationalStatus(), "Instantiated");
+    }
+
+    @Test
+    public void getMecmDepolymentStatus_fail() throws IOException {
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        String mecmAppId = "testAppId";
+        String mecmAppPackageId = "testPackageId";
+        Assert.assertNull(mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId, userId));
     }
 }
