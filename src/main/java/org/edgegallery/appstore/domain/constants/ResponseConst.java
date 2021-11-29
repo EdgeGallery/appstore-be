@@ -486,9 +486,9 @@ public class ResponseConst {
     public static final int RET_GET_DEPLOY_STATUS_FAILED = 16009;
 
     /**
-     * not allowed to subscribe own app.
+     * User can not subscribe own app.
      */
-    public static final int RET_NOT_ALLOWED_SUBSCRIBE_OWN_APP = 16010;
+    public static final int RET_SUBSCRIBE_OWN_APP = 16010;
 
     /**
      * right base error code.

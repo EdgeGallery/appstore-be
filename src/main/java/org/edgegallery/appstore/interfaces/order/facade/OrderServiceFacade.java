@@ -80,9 +80,8 @@ public class OrderServiceFacade {
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
         if (userId.equals(release.getUser().getUserId())) {
-            LOGGER.error("can not allowed to subscribe own app.");
-            throw new AppException("can not allowed to subscribe own app.",
-                ResponseConst.RET_NOT_ALLOWED_SUBSCRIBE_OWN_APP);
+            LOGGER.error("User can not subscribe own app.");
+            throw new AppException("User can not subscribe own app.", ResponseConst.RET_SUBSCRIBE_OWN_APP);
         }
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
