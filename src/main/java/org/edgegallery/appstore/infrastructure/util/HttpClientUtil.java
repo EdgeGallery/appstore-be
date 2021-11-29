@@ -65,6 +65,8 @@ public final class HttpClientUtil {
 
     private static final String UPLOAD_PKG_FAILED = "Failed upload pkg exception {}";
 
+    private static final String HEALTH_CHECK_RESULT = "ok";
+
     private HttpClientUtil() {
 
     }
@@ -412,7 +414,7 @@ public final class HttpClientUtil {
     /**
      * getHealth.
      */
-    public static String getHealth(String protocol, String ip, int port) {
+    public static boolean getHealth(String protocol, String ip, int port) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_HEALTH;
         LOGGER.info(" health url is {}", url);
         ResponseEntity<String> response;
@@ -420,13 +422,13 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, null, String.class);
         } catch (RestClientException e) {
             LOGGER.error("call app lcm health api occur exception {}", e.getMessage());
-            return null;
+            return false;
         }
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+        if (!HEALTH_CHECK_RESULT.equalsIgnoreCase(response.getBody())) {
+            return false;
         }
         LOGGER.error("call app lcm health api failed");
-        return null;
+        return true;
     }
 
     private static String getUrlPrefix(String protocol, String ip, int port) {
