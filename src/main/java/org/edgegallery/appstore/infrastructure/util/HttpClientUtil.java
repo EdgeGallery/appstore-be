@@ -65,8 +65,6 @@ public final class HttpClientUtil {
 
     private static final String UPLOAD_PKG_FAILED = "Failed upload pkg exception {}";
 
-    private static final String HEALTH_CHECK_RESULT = "ok";
-
     private HttpClientUtil() {
 
     }
@@ -424,11 +422,11 @@ public final class HttpClientUtil {
             LOGGER.error("call app lcm health api occur exception {}", e.getMessage());
             return false;
         }
-        if (!HEALTH_CHECK_RESULT.equalsIgnoreCase(response.getBody())) {
-            return false;
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
         }
         LOGGER.error("call app lcm health api failed");
-        return true;
+        return false;
     }
 
     private static String getUrlPrefix(String protocol, String ip, int port) {
