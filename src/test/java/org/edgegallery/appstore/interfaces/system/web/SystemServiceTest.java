@@ -85,6 +85,7 @@ public class SystemServiceTest {
         expectedEx.expectMessage( "Create host failed, userId is empty");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
+        boolean ff = res.isLeft();
         Assert.assertTrue(res.isLeft());
     }
 
@@ -146,21 +147,6 @@ public class SystemServiceTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void testDeleteHostWithErrorId() {
-        expectedEx.expectMessage( "Delete host failed.");
-        Either<ResponseObject, Boolean> res = systemService.deleteHost("hostId");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteHostSuccess() {
-        Either<ResponseObject, Boolean> res = systemService.deleteHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7");
-        Assert.assertTrue(res.isRight());
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
     public void testUpdateHost() {
         MepHost host = new MepHost();
         // host.setHostId(UUID.randomUUID().toString());
@@ -213,17 +199,16 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void testUploadFileToLcm_Failed_error_lcmIp() {
-        String protocol = "https";
-        String lcmIp = "127.0.0.1";
-        int port = 30052;
+        MepHost host = new MepHost();
+        host.setProtocol("https");
+        host.setLcmIp("127.0.0.1");
+        host.setPort(30052);
+        host.setMecHost("127.0.0.1");
         String filePath = "";
-        String mecHost = "127.0.0.1";
         String token = "";
-        Boolean res = systemService.uploadFileToLcm(protocol, lcmIp, port, filePath, mecHost, token);
+        Boolean res = systemService.uploadFileToLcm(host, filePath, token);
         Assert.assertFalse(res);
     }
-
-
 
 
 }

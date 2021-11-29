@@ -131,8 +131,10 @@ public class SystemController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
-        Either<ResponseObject, Boolean> either = systemService.deleteHost(hostId);
+        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
+        HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<ResponseObject, Boolean> either = systemService.deleteHost(hostId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

@@ -401,6 +401,11 @@ public class ResponseConst {
     public static final int RET_UPLOAD_FILE_FAILED = 15018;
 
     /**
+     * delete mec host from lcm fail.
+     */
+    public static final int DELETE_HOST_FROM_LCM_FAILED = 15019;
+
+    /**
      * create third system fail.
      */
     public static final int RET_CREATE_THIRD_SYSTEM_FAILED = 15101;

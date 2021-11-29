@@ -22,23 +22,7 @@
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
         select
-            a.APPID,
-            a.AFFINITY,
-            a.SHORTDESC,
-            a.INDUSTRY,
-            a.appName,
-            a.packageid,
-            a.PROVIDER,
-            a.applicationType,
-            a.VERSION,
-            a.TESTTASKID,
-            a.CREATETIME,
-            a.STATUS,
-            b.pushTimes,
-            b.atpTestReportUrl,
-            b.latestPushTime,
-            b.pushTimes,
-            b.sourcePlatform
+            *
         from
         (
         select * from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
@@ -75,23 +59,7 @@
             parameterType="java.util.Map"
             resultType="org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageAndAppVo">
         select
-            a.APPID,
-            a.AFFINITY,
-            a.SHORTDESC,
-            a.INDUSTRY,
-            a.appName,
-            a.packageid,
-            a.PROVIDER,
-            a.applicationType,
-            a.VERSION,
-            a.TESTTASKID,
-            a.CREATETIME,
-            a.STATUS,
-            b.pushTimes,
-            b.atpTestReportUrl,
-            b.latestPushTime,
-            b.pushTimes,
-            b.sourcePlatform
+            *
         from catalog_package_table a left join PUSHABLE_PACKAGE_TABLE b ON a.packageid = b.packageid
         <where>
                 a.STATUS = 'Published'
