@@ -250,7 +250,7 @@ public class ProjectService {
      */
     public boolean instantiateApp(MepHost mepHost, Map<String, String> deployParams, LcmLog lcmLog,
         AppReleasePo appReleasePo, Map<String, String> inputParams) {
-        long fromDate = new Date().getTime();
+        long startTime = new Date().getTime();
         boolean instantiateRes = HttpClientUtil
             .instantiateApp(mepHost, deployParams, lcmLog, appReleasePo.getInstancePackageId(), inputParams);
         LOGGER.info("instantiate res {}", instantiateRes);
@@ -270,7 +270,7 @@ public class ProjectService {
 
         String packageStatus = "";
         String status = "";
-        long toDate;
+        long endTime;
         while (!EnumExperienceStatus.INSTANTIATED.getText().equalsIgnoreCase(status)) {
             try {
                 packageStatus = HttpClientUtil
@@ -283,8 +283,8 @@ public class ProjectService {
                 LOGGER.error(SLEEP_FAILED, e.getMessage());
                 Thread.currentThread().interrupt();
             }
-            toDate = new Date().getTime();
-            if ((toDate - fromDate) > GET_WORKSTATUS_WAIT_TIME) {
+            endTime = new Date().getTime();
+            if ((endTime - startTime) > GET_WORKSTATUS_WAIT_TIME) {
                 return false;
             }
         }
@@ -360,10 +360,10 @@ public class ProjectService {
      */
     public boolean confirmResult(MepHost mepHost, String userId, String token, LcmLog lcmLog,
         AppReleasePo appReleasePo) {
-        long from = new Date().getTime();
+        long startTime = new Date().getTime();
         String resultInfo = "";
         String status = "";
-        long to;
+        long endTime;
         while (!EnumExperienceStatus.DISTRIBUTED.getText().equalsIgnoreCase(status)) {
             try {
                 Map<String, String> deployParams = new HashMap<>();
@@ -379,8 +379,8 @@ public class ProjectService {
                 LOGGER.error(SLEEP_FAILED, e.getMessage());
                 Thread.currentThread().interrupt();
             }
-            to = new Date().getTime();
-            if ((to - from) > GET_TERMINATE_RESULT_TIME) {
+            endTime = new Date().getTime();
+            if ((endTime - startTime) > GET_TERMINATE_RESULT_TIME) {
                 return false;
             }
         }
@@ -569,6 +569,7 @@ public class ProjectService {
         for (JsonElement jsonItem : array) {
             podStatus = jsonItem.getAsJsonObject().get("podstatus").getAsString();
             if (!enumStatus.equalsIgnoreCase(podStatus)) {
+                LOGGER.info("pod start failed: {}", podStatus);
                 return null;
             }
         }
