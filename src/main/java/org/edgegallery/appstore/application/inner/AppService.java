@@ -61,6 +61,7 @@ import org.edgegallery.appstore.domain.model.app.EnumAppStatus;
 import org.edgegallery.appstore.domain.model.app.ImgLoc;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.comment.CommentRepository;
+import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -135,6 +136,9 @@ public class AppService {
 
     @Autowired
     private PushablePackageRepository pushablePackageRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     /**
      * Returns software image descriptor content in string format.
@@ -582,6 +586,7 @@ public class AppService {
         app.unPublish(release);
         packageRepository.removeRelease(release);
         deletePullablePackage(release);
+        deleteOrderByPackageId(release);
         deleteTestReport(release, token);
         if (!app.hasPublishedRelease()) {
             app.setStatus(EnumAppStatus.UnPublish);
@@ -623,6 +628,7 @@ public class AppService {
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());
         app.getReleases().forEach(this::deletePullablePackage);
+        app.getReleases().forEach(this::deleteOrderByPackageId);
         app.getReleases().forEach(release -> deleteTestReport(release, token));
     }
 
@@ -641,6 +647,10 @@ public class AppService {
 
     private void deletePullablePackage(Release release) {
         pushablePackageRepository.deletePushablePackages(release.getPackageId());
+    }
+
+    private void deleteOrderByPackageId(Release release) {
+        orderRepository.deleteOrderByPackageId(release.getPackageId());
     }
 
     /**

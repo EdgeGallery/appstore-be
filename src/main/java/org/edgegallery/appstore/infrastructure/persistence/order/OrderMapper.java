@@ -37,4 +37,6 @@ public interface OrderMapper {
     List<OrderPo> queryOrders(Map<String, Object> params);
 
     String maxOrderNum();
+
+    void deleteOrderByPackageId(String packageId);
 }
