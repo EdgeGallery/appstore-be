@@ -47,7 +47,7 @@
         <result column="EXPERIENCEABLEIP" property="experienceableIp"/>
         <result column="MECHOST" property="mecHost"/>
         <result column="EXPERIENCESTATUS" property="industry"/>
-        <result column="EXPERIENCESTATUS" property="experienceStatus" typeHandler="org.edgegallery.appstore.domain.model.releases.EnumStatusHandler"/>
+        <result column="EXPERIENCESTATUS" property="experienceStatus"/>
 
     </resultMap>
 
@@ -227,12 +227,10 @@
         </if>
     </select>
     
-        <update id="updateExperienceStatus"
-            parameterType="org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo">
+        <update id="updateExperienceStatus">
         update catalog_package_table
         SET
-        packageid = #{packageId}
-        ,EXPERIENCESTATUS = #{experienceStatus, typeHandler=org.edgegallery.appstore.domain.model.releases.EnumStatusHandler}
+            EXPERIENCESTATUS = #{experienceStatus}
         WHERE packageid = #{packageId}
     </update>
 

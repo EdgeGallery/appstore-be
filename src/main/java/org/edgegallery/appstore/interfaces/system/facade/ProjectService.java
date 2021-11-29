@@ -100,7 +100,7 @@ public class ProjectService {
      * get terminate app result wait 2 minites.
      */
 
-    private static final int STATUS_SUCCESS = 0;
+    private static final String STATUS_DATA = "data";
 
     private static final String CONTAINER = "container";
 
@@ -130,11 +130,19 @@ public class ProjectService {
 
     private static final int READ_BUFFER_SIZE = 256;
 
+    private static final String TOKEN = "token";
+
+    private static final String USER_ID = "userId";
+
+    private static final String INSTANTIATE_FAILED = "instantiate package failed.";
+
+    private static final String APP_INSTANCE_ID = "appInstanceId";
+
     /**
      * get terminate app result wait 2 minites.
      */
 
-    private static final int GET_TERMINATE_RESULT_TIME = 2 * 1000 * 60;
+    private static final int GET_TERMINATE_RESULT_TIME = 5 * 1000 * 60;
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
@@ -184,8 +192,8 @@ public class ProjectService {
         return null;
     }
 
-    public void updateExperienceStatus(AppReleasePo appReleasePo) {
-        packageMapper.updateExperienceStatus(appReleasePo);
+    public void updateExperienceStatus(String packageId, int experienceStatus) {
+        packageMapper.updateExperienceStatus(packageId, experienceStatus);
     }
 
     /**
@@ -207,18 +215,16 @@ public class ProjectService {
         if (!uploadRes) {
             return false;
         }
-        appReleasePo.setExperienceStatus(EnumExperienceStatus.Distributing);
-        updateExperienceStatus(appReleasePo);
-        boolean distributeRes = distributePkg(deployParams.get("userId"), mepHost, deployParams.get("token"),
-            appReleasePo, lcmLog);
+        updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.DISTRIBUTING.getProgress());
+        boolean distributeRes = distributePkg(deployParams.get(USER_ID), mepHost, deployParams.get(TOKEN), appReleasePo,
+            lcmLog);
         if (!distributeRes) {
             String pkgId = appReleasePo.getInstancePackageId();
             HttpClientUtil.deletePkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId);
             LOGGER.error("distributed package failed.");
             return false;
         }
-        appReleasePo.setExperienceStatus(EnumExperienceStatus.Instantiating);
-        updateExperienceStatus(appReleasePo);
+        updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATING.getProgress());
         // instantiate application
         boolean instantRes = instantiateApp(mepHost, deployParams, lcmLog, appReleasePo, inputParams);
         if (!instantRes) {
@@ -226,7 +232,7 @@ public class ProjectService {
             HttpClientUtil.deleteHost(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId,
                 mepHost.getMecHost());
             HttpClientUtil.deletePkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId);
-            LOGGER.error("instantiate package failed.");
+            LOGGER.error(INSTANTIATE_FAILED);
             return false;
         }
         LOGGER.info("after instant {}", instantRes);
@@ -244,41 +250,44 @@ public class ProjectService {
      */
     public boolean instantiateApp(MepHost mepHost, Map<String, String> deployParams, LcmLog lcmLog,
         AppReleasePo appReleasePo, Map<String, String> inputParams) {
-        long from = new Date().getTime();
+        long fromDate = new Date().getTime();
         boolean instantiateRes = HttpClientUtil
             .instantiateApp(mepHost, deployParams, lcmLog, appReleasePo.getInstancePackageId(), inputParams);
         LOGGER.info("instantiate res {}", instantiateRes);
         if (!instantiateRes) {
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.InstantiateFailed);
-            updateExperienceStatus(appReleasePo);
-            LOGGER.error("instantiate package failed.");
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATE_FAILED.getProgress());
+            LOGGER.error(INSTANTIATE_FAILED);
             lcmLog.setRetCode(ResponseConst.RET_INSTANTIATE_FAILED);
-            lcmLog.setLog("instantiate package failed.");
+            lcmLog.setLog(INSTANTIATE_FAILED);
             return false;
         }
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            LOGGER.error(SLEEP_FAILED, e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+
         String packageStatus = "";
         String status = "";
-        long to;
-        while (!EnumExperienceStatus.Instantiated.getText().equalsIgnoreCase(status)) {
+        long toDate;
+        while (!EnumExperienceStatus.INSTANTIATED.getText().equalsIgnoreCase(status)) {
             try {
                 packageStatus = HttpClientUtil
                     .getWorkloadStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams);
-                status = parseExperienceStatus(packageStatus);
-                TimeUnit.MILLISECONDS.sleep(2000);
+                status = parseContainerResult(packageStatus, EnumExperienceStatus.INSTANTIATED.getText());
+                TimeUnit.MILLISECONDS.sleep(3000);
+                updateExperienceStatus(appReleasePo.getPackageId(),
+                    EnumExperienceStatus.CHECK_INSTANTIATE.getProgress());
             } catch (InterruptedException e) {
-                LOGGER.error("sleep fail! {}", e.getMessage());
+                LOGGER.error(SLEEP_FAILED, e.getMessage());
                 Thread.currentThread().interrupt();
             }
-            to = new Date().getTime();
-            if ((to - from) > GET_TERMINATE_RESULT_TIME) {
-                appReleasePo.setExperienceStatus(EnumExperienceStatus.InstantiateFailed);
-                updateExperienceStatus(appReleasePo);
+            toDate = new Date().getTime();
+            if ((toDate - fromDate) > GET_WORKSTATUS_WAIT_TIME) {
                 return false;
             }
         }
-        appReleasePo.setExperienceStatus(EnumExperienceStatus.Distributed);
-        updateExperienceStatus(appReleasePo);
-
         return true;
     }
 
@@ -297,8 +306,7 @@ public class ProjectService {
             .distributePkg(mepHost, userId, token, appReleasePo.getInstancePackageId(), lcmLog);
         LOGGER.info("distribute res {}", distributeRes);
         if (!distributeRes) {
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.DistributeFailed);
-            updateExperienceStatus(appReleasePo);
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.DISTRIBUTE_FAILED.getProgress());
             lcmLog.setLog("distributed package failed.");
             lcmLog.setRetCode(ResponseConst.RET_DISTRIBUTE_FAILED);
             return false;
@@ -322,8 +330,7 @@ public class ProjectService {
             .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, lcmLog);
         LOGGER.info("upload res {}", uploadRes);
         if (StringUtils.isEmpty(uploadRes)) {
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.UploadFailed);
-            updateExperienceStatus(appReleasePo);
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.UPLOAD_FAILED.getProgress());
             LOGGER.error("upload to remote file server failed.");
             lcmLog.setLog("upload to remote file server failed.");
             lcmLog.setRetCode(ResponseConst.RET_UPLOAD_FILE_FAILED);
@@ -331,7 +338,7 @@ public class ProjectService {
         }
         appReleasePo.setMecHost(mepHost.getMecHost());
         JsonObject jsonObject = new JsonParser().parse(uploadRes).getAsJsonObject();
-        JsonElement uploadData = jsonObject.get("data");
+        JsonElement uploadData = jsonObject.get(STATUS_DATA);
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
@@ -357,22 +364,23 @@ public class ProjectService {
         String resultInfo = "";
         String status = "";
         long to;
-        while (!EnumExperienceStatus.Distributed.getText().equalsIgnoreCase(status)) {
+        while (!EnumExperienceStatus.DISTRIBUTED.getText().equalsIgnoreCase(status)) {
             try {
+                Map<String, String> deployParams = new HashMap<>();
+                deployParams.put(USER_ID, userId);
+                deployParams.put(TOKEN, token);
                 resultInfo = HttpClientUtil
-                    .getPackageStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), userId, token,
-                        lcmLog);
+                    .getDistributeRes(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams,
+                        appReleasePo.getInstancePackageId());
                 status = parseWorkStatus(resultInfo, appReleasePo.getInstancePackageId(),
-                    EnumExperienceStatus.Distributed.getText());
+                    EnumExperienceStatus.DISTRIBUTED.getText());
                 TimeUnit.MILLISECONDS.sleep(2000);
             } catch (InterruptedException e) {
-                LOGGER.error("sleep fail! {}", e.getMessage());
+                LOGGER.error(SLEEP_FAILED, e.getMessage());
                 Thread.currentThread().interrupt();
             }
             to = new Date().getTime();
             if ((to - from) > GET_TERMINATE_RESULT_TIME) {
-                appReleasePo.setExperienceStatus(EnumExperienceStatus.DistributeFailed);
-                updateExperienceStatus(appReleasePo);
                 return false;
             }
         }
@@ -388,7 +396,7 @@ public class ProjectService {
     public String parseWorkStatus(String resultInfo, String packageId, String emunStatus) {
         String status = null;
         JsonObject jsonObject = new JsonParser().parse(resultInfo).getAsJsonObject();
-        JsonElement uploadData = jsonObject.get("data");
+        JsonElement uploadData = jsonObject.get(STATUS_DATA);
         Gson gson = new Gson();
         Type typeEvents = new TypeToken<List<WorkStatusResponse>>() { }.getType();
         List<WorkStatusResponse> uploadResponse = gson.fromJson(uploadData, typeEvents);
@@ -462,8 +470,7 @@ public class ProjectService {
         MepHost mepHost = judgeHost(appReleasePo.getDeployMode());
         boolean cleanResult = deleteDeployedApp(mepHost, instanceTenentId, appInstanceId, pkgId, token);
         if (cleanResult) {
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.CleanEnvSuccess);
-            updateExperienceStatus(appReleasePo);
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.CLEAN_ENV_SUCCESS.getProgress());
         }
         appReleasePo.initialConfig();
         packageMapper.updateAppInstanceApp(appReleasePo);
@@ -501,9 +508,9 @@ public class ProjectService {
      */
     public String getWorkStatus(String appInstanceId, String userId, MepHost host, String token) {
         Map<String, String> deployParams = new HashMap<>();
-        deployParams.put("appInstanceId", appInstanceId);
-        deployParams.put("userId", userId);
-        deployParams.put("token", token);
+        deployParams.put(APP_INSTANCE_ID, appInstanceId);
+        deployParams.put(USER_ID, userId);
+        deployParams.put(TOKEN, token);
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams);
         LOGGER.info("pod workStatus: {}", workStatus);
@@ -543,9 +550,29 @@ public class ProjectService {
      * @return
      */
     public static String parseExperienceStatus(String status) {
-        return new JsonParser().parse(status).getAsJsonObject().get("data").getAsJsonArray().get(0).getAsJsonObject()
-            .get("mecHostInfo").getAsJsonArray().get(0).getAsJsonObject().get("status").getAsString();
+        return new JsonParser().parse(status).getAsJsonObject().get(STATUS_DATA).getAsJsonArray().get(0)
+            .getAsJsonObject().get("mecHostInfo").getAsJsonArray().get(0).getAsJsonObject().get("status").getAsString();
 
+    }
+
+    /**
+     * parse container result.
+     *
+     * @param status status.
+     * @param enumStatus enumStatus.
+     * @return
+     */
+    public String parseContainerResult(String status, String enumStatus) {
+        String podStatus = null;
+        JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
+        JsonArray array = jsonObject.getAsJsonArray("pods");
+        for (JsonElement jsonItem : array) {
+            podStatus = jsonItem.getAsJsonObject().get("podstatus").getAsString();
+            if (!enumStatus.equalsIgnoreCase(podStatus)) {
+                return null;
+            }
+        }
+        return podStatus;
     }
 
     /**
@@ -560,35 +587,15 @@ public class ProjectService {
     private boolean deleteDeployedApp(MepHost host, String userId, String appInstanceId, String pkgId, String token) {
         if (StringUtils.isNotEmpty(appInstanceId)) {
             Map<String, String> deployParams = new HashMap<>();
-            deployParams.put("appInstanceId", appInstanceId);
-            deployParams.put("userId", userId);
-            deployParams.put("token", token);
-            long from = new Date().getTime();
+            deployParams.put(APP_INSTANCE_ID, appInstanceId);
+            deployParams.put(USER_ID, userId);
+            deployParams.put(TOKEN, token);
             boolean uninstallApp = HttpClientUtil
                 .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
                     token);
             if (!uninstallApp) {
                 LOGGER.error("uninstall AppInstance failed.");
                 return false;
-            }
-            String workStatus = "";
-            int status = 1;
-            long to;
-            while (status != STATUS_SUCCESS) {
-                try {
-                    Thread.sleep(3000);
-                    workStatus = HttpClientUtil
-                        .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams);
-                    status = parseStatus(workStatus);
-                } catch (InterruptedException e) {
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-                to = new Date().getTime();
-                if ((to - from) > GET_TERMINATE_RESULT_TIME) {
-                    LOGGER.error("uninstall AppInstance failed.");
-                    return false;
-                }
             }
             // delete package of hosts
             boolean deleteHostRes = HttpClientUtil
@@ -616,7 +623,7 @@ public class ProjectService {
      */
     public int getNodePort(String workStatus) {
         JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
-        String uploadData = jsonObjects.get("data").getAsString();
+        String uploadData = jsonObjects.get(STATUS_DATA).getAsString();
         JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
         return jsonCode.get(SERVICES).getAsJsonArray().get(0).getAsJsonObject().get("ports").getAsJsonArray().get(0)
             .getAsJsonObject().get("nodePort").getAsInt();
@@ -632,8 +639,7 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> getExperienceStatus(String packageId) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(appReleasePo.getExperienceStatus().getProgress(), errMsg,
-            appReleasePo.getExperienceStatus().getText()));
+        return ResponseEntity.ok(new ResponseObject(appReleasePo.getExperienceStatus(), errMsg, null));
     }
 
     /**
@@ -654,63 +660,49 @@ public class ProjectService {
         Release release = packageRepository.findReleaseById(appId, packageId);
         String filePath = release.getPackageFile().getStorageAddress();
         String appInstanceId = appReleasePo.getAppInstanceId();
-        Map<String, String> deployParams = new HashMap<>();
         if (StringUtils.isEmpty(appInstanceId)) {
             appInstanceId = UUID.randomUUID().toString();
+            Map<String, String> deployParams = new HashMap<>();
             deployParams.put("filePath", filePath);
-            deployParams.put("appInstanceId", appInstanceId);
-            deployParams.put("userId", userId);
-            deployParams.put("token", token);
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.Uploading);
-            updateExperienceStatus(appReleasePo);
+            deployParams.put(APP_INSTANCE_ID, appInstanceId);
+            deployParams.put(USER_ID, userId);
+            deployParams.put(TOKEN, token);
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.UPLOADING.getProgress());
             boolean instantRes = deployTestConfigToAppLcm(deployParams, mepHost, appReleasePo, lcmLog);
             if (!instantRes) {
                 LOGGER.error("instantiate application failed, response is null");
                 errMsg.setRetCode(lcmLog.getRetCode());
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, lcmLog.getLog()));
             }
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATED.getProgress());
             appReleasePo.setAppInstanceId(appInstanceId);
             appReleasePo.setInstanceTenentId(instanceTenentId);
             SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             appReleasePo.setStartExpTime(time.format(new Date()));
             packageMapper.updateAppInstanceApp(appReleasePo);
         }
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            LOGGER.error(SLEEP_FAILED, e.getMessage());
+            Thread.currentThread().interrupt();
+        }
         // If it is a vm package, it will get the IP in parameter and return it to the foreground
         String serviceName = "";
         String nodePort = "";
         String mecHost = "";
-        long from = new Date().getTime();
         String workStatus = getWorkStatus(appInstanceId, userId, mepHost, token);
-        int status = parseStatus(workStatus);
-        long to;
-        while (status != STATUS_SUCCESS) {
-            try {
-                Thread.sleep(3000);
-                workStatus = getWorkStatus(appInstanceId, userId, mepHost, token);
-            } catch (InterruptedException e) {
-                LOGGER.error(SLEEP_FAILED, e.getMessage());
-                Thread.currentThread().interrupt();
-            }
-            to = new Date().getTime();
-            if ((to - from) > GET_WORKSTATUS_WAIT_TIME) {
-                return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "get app nodeport url failed."));
-            }
-        }
         List<Experience> experienceInfoList = new ArrayList<>();
         if (CONTAINER.equals(appReleasePo.getDeployMode())) {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
-
         } else {
             serviceName = appReleasePo.getAppName();
             mecHost = appReleasePo.getExperienceableIp();
             experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
-
         }
-
         try {
-            appReleasePo.setExperienceStatus(EnumExperienceStatus.GetStatusSuccess);
-            updateExperienceStatus(appReleasePo);
-            Thread.sleep(1000);
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.GET_STATUS_SUCCESS.getProgress());
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             LOGGER.error(SLEEP_FAILED, e.getMessage());
             Thread.currentThread().interrupt();
@@ -783,13 +775,11 @@ public class ProjectService {
      */
     private List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
         List<Experience> experienceInfoList = new ArrayList<>();
-        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
-        String uploadData = jsonObjects.get("data").getAsString();
-        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        JsonArray array = jsonCode.get(SERVICES).getAsJsonArray();
-        for (int i = 0; i < array.size(); i++) {
-            String serviceName = array.get(i).getAsJsonObject().get("serviceName").getAsString();
-            String nodePort = array.get(i).getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject()
+        JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+        JsonArray array = jsonObject.getAsJsonArray("services");
+        for (JsonElement jsonItem : array) {
+            String serviceName = jsonItem.getAsJsonObject().get("serviceName").getAsString();
+            String nodePort = jsonItem.getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject()
                 .get("nodePort").getAsString();
             experienceInfoList.add(new Experience(serviceName, nodePort, mepHost.getMecHost()));
         }

@@ -61,6 +61,6 @@ public interface PackageMapper {
     Integer countTotalForCreateTime(@Param("limit") int limit, @Param("offset") int offset,
         @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    void updateExperienceStatus(AppReleasePo releasePo);
+    void updateExperienceStatus(@Param("packageId") String packageId, @Param("experienceStatus") int experienceStatus);
 
 }

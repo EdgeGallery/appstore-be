@@ -69,6 +69,8 @@ public class SystemService {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
+    private static final String TENANT_ID = "tenantId";
+
     private static final int VNC_PORT = 22;
 
     @Autowired
@@ -113,8 +115,7 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                uploadedFile.getFilePath(), host.getMecHost(), token);
+            boolean uploadRes = uploadFileToLcm(host, uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -140,7 +141,23 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<ResponseObject, Boolean> deleteHost(String hostId) {
+    public Either<ResponseObject, Boolean> deleteHost(String hostId, String token) {
+        MepHost host = hostMapper.getHost(hostId);
+        //health check
+        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used.";
+            LOGGER.error(msg);
+            throw new HostException("health check faild,current ip or port cann't be used.",
+                ResponseConst.HEALTH_CHECK_FAILED);
+        }
+        // delete mechost from lcm
+        boolean deleteLcmMecHostRes = deleteMecHostFromLcm(host, token);
+        if (!deleteLcmMecHostRes) {
+            String msg = "delete mec host from lcm fail";
+            LOGGER.error(msg);
+            throw new HostException("add mec host to lcm fail.", ResponseConst.DELETE_HOST_FROM_LCM_FAILED);
+        }
         int res = hostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
@@ -175,8 +192,7 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                uploadedFile.getFilePath(), host.getMecHost(), token);
+            boolean uploadRes = uploadFileToLcm(host, uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -221,28 +237,25 @@ public class SystemService {
 
     /**
      * uploadFileToLcm.
-     * @param protocol protocol.
-     * @param lcmIp lcmIp.
-     * @param port port.
+     * @param host mecHost.
      * @param filePath filePath.
-     * @param mecHost mecHost.
      * @param token token.
      * @return
      */
-    public boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost,
-        String token) {
+    public boolean uploadFileToLcm(MepHost host, String filePath, String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("configFile", new FileSystemResource(file));
-        body.add("hostIp", mecHost);
+        body.add("hostIp", host.getMecHost());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response;
         try {
-            String url = getUrlPrefix(protocol, lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+            String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_UPLOAD_FILE
+                .replace(TENANT_ID, host.getUserId());
             LOGGER.info(" upload file url is {}", url);
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("upload file lcm log:{}", response);
@@ -254,6 +267,31 @@ public class SystemService {
             return true;
         }
         LOGGER.error("Failed to upload file lcm, filePath is {}", filePath);
+        return false;
+    }
+
+    private boolean deleteMecHostFromLcm(MepHost host, String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        String url = getUrlPrefix(host.getProtocol(),  host.getLcmIp(), host.getPort()) + Consts.APP_LCM_DELETE_MECHOST
+            .replace(TENANT_ID, host.getUserId()).replace("hostIp", host.getMecHost());
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            LOGGER.info("APPlCM delete mec host log:{}", response);
+        } catch (CustomException e) {
+            LOGGER.error("Failed delete mec host mecHost exception {}", e.getBody());
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed delete mec host mecHost is {} exception {}", host.getMecHost(), e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to delete mec host which mecHost is {}", host.getMecHost());
         return false;
     }
 
@@ -274,7 +312,8 @@ public class SystemService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
+        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST
+            .replace(TENANT_ID, host.getUserId());
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {

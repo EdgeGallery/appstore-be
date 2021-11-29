@@ -59,6 +59,12 @@ public final class HttpClientUtil {
 
     private static final String PACKAGE_ID = "packageId";
 
+    private static final String TOKEN = "token";
+
+    private static final String USER_ID = "userId";
+
+    private static final String UPLOAD_PKG_FAILED = "Failed upload pkg exception {}";
+
     private HttpClientUtil() {
 
     }
@@ -79,7 +85,7 @@ public final class HttpClientUtil {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
         }
-        //parse dis res
+        //parse dis res remain
         JsonObject jsonObject = new JsonParser().parse(disRes).getAsJsonObject();
         JsonElement distributeData = jsonObject.get("data");
         Gson gson = new Gson();
@@ -89,7 +95,7 @@ public final class HttpClientUtil {
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         //set instantiate bodys
         InstantRequest ins = new InstantRequest();
         ins.setAppName(appName);
@@ -99,7 +105,7 @@ public final class HttpClientUtil {
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
-            .replace(APP_INSTANCE_ID, deployParams.get("appInstanceId")).replace(TENANT_ID, deployParams.get("userId"));
+            .replace(APP_INSTANCE_ID, deployParams.get(APP_INSTANCE_ID)).replace(TENANT_ID, deployParams.get(USER_ID));
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
@@ -111,19 +117,19 @@ public final class HttpClientUtil {
             Type typeError = new TypeToken<ErrorLog>() { }.getType();
             ErrorLog errorMessage = gson.fromJson(jsonError, typeError);
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}",
-                deployParams.get("appInstanceId"), errorLog);
+                deployParams.get(APP_INSTANCE_ID), errorLog);
             lcmLog.setLog(errorMessage.getMessage());
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}",
-                deployParams.get("appInstanceId"), e.getMessage());
+                deployParams.get(APP_INSTANCE_ID), e.getMessage());
             lcmLog.setLog("instantiate package failed.");
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed to instantiate application which appInstanceId is {}", deployParams.get("appInstanceId"));
+        LOGGER.error("Failed to instantiate application which appInstanceId is {}", deployParams.get(APP_INSTANCE_ID));
         return false;
     }
 
@@ -136,22 +142,22 @@ public final class HttpClientUtil {
         body.add("package", new FileSystemResource(deployParams.get("filePath")));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL
-            .replace(TENANT_ID, deployParams.get("userId"));
+            .replace(TENANT_ID, deployParams.get(USER_ID));
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPLCM upload pkg log:{}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("Failed upload pkg exception {}", errorLog);
+            LOGGER.error(UPLOAD_PKG_FAILED, errorLog);
             lcmLog.setLog(errorLog);
             return null;
         } catch (RestClientException e) {
-            LOGGER.error("Failed upload pkg exception {}", e.getMessage());
+            LOGGER.error(UPLOAD_PKG_FAILED, e.getMessage());
             lcmLog.setLog("upload to remote file server failed");
             return null;
         }
@@ -209,10 +215,10 @@ public final class HttpClientUtil {
         String pkgId, String hostIp) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_HOST_URL
-            .replace(TENANT_ID, deployParams.get("userId")).replace(PACKAGE_ID, pkgId).replace("hostIp", hostIp);
+            .replace(TENANT_ID, deployParams.get(USER_ID)).replace(PACKAGE_ID, pkgId).replace("hostIp", hostIp);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -235,10 +241,10 @@ public final class HttpClientUtil {
         String pkgId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_APPPKG_URL
-            .replace(TENANT_ID, deployParams.get("userId")).replace(PACKAGE_ID, pkgId);
+            .replace(TENANT_ID, deployParams.get(USER_ID)).replace(PACKAGE_ID, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -261,10 +267,10 @@ public final class HttpClientUtil {
         String pkgId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
-            .replace(TENANT_ID, deployParams.get("userId")).replace(PACKAGE_ID, pkgId);
+            .replace(TENANT_ID, deployParams.get(USER_ID)).replace(PACKAGE_ID, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
@@ -321,7 +327,6 @@ public final class HttpClientUtil {
     public static String getPackageStatus(String protocol, String ip, int port, String userId, String token,
         LcmLog lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        // body.add("package", new FileSystemResource(filePath));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -334,11 +339,11 @@ public final class HttpClientUtil {
             LOGGER.info("APPLCM upload pkg log:{}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("Failed upload pkg exception {}", errorLog);
+            LOGGER.error(UPLOAD_PKG_FAILED, errorLog);
             lcmLog.setLog(errorLog);
             return null;
         } catch (RestClientException e) {
-            LOGGER.error("Failed upload pkg exception {}", e.getMessage());
+            LOGGER.error(UPLOAD_PKG_FAILED, e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -355,24 +360,24 @@ public final class HttpClientUtil {
      */
     public static String getWorkloadStatus(String protocol, String ip, int port, Map<String, String> deployParams) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
-            .replace(APP_INSTANCE_ID, deployParams.get("appInstanceId")).replace(TENANT_ID, deployParams.get("userId"));
+            .replace(APP_INSTANCE_ID, deployParams.get(APP_INSTANCE_ID)).replace(TENANT_ID, deployParams.get(USER_ID));
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get("token"));
+        headers.set(Consts.ACCESS_TOKEN_STR, deployParams.get(TOKEN));
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             LOGGER.info("APPlCM terminateAppInstance log:{}", response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to get workload status which appInstanceId is {} exception {}",
-                deployParams.get("appInstanceId"), e.getMessage());
+                deployParams.get(APP_INSTANCE_ID), e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return response.getBody();
         }
-        LOGGER.error("Failed to get workload status which appInstanceId is {}", deployParams.get("appInstanceId"));
+        LOGGER.error("Failed to get workload status which appInstanceId is {}", deployParams.get(APP_INSTANCE_ID));
         return null;
     }
 

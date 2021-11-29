@@ -59,9 +59,20 @@ public final class Consts {
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
-    public static final String APP_LCM_ADD_MECHOST = "/lcmcontroller/v1/hosts";
+    /**
+     * add MEC host.
+     */
+    public static final String APP_LCM_ADD_MECHOST = "/lcmcontroller/v1/tenants/tenantId/hosts";
 
-    public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v1/configuration";
+    /**
+     * delete MEC host.
+     */
+    public static final String APP_LCM_DELETE_MECHOST = "/lcmcontroller/v1/tenants/tenantId/hosts/hostIp";
+
+    /**
+     * Upload Config file to lcm.
+     */
+    public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v2/tenants/tenantId/configuration";
 
     public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 

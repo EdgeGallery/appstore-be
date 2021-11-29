@@ -133,7 +133,7 @@ public class AppReleasePo {
     private String mecHost;
 
     @Column(name = "EXPERIENCESTATUS")
-    private EnumExperienceStatus experienceStatus;
+    private int experienceStatus;
 
 
     public AppReleasePo() {

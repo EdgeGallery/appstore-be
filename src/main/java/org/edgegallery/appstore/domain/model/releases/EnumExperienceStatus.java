@@ -22,46 +22,49 @@ package org.edgegallery.appstore.domain.model.releases;
 public enum EnumExperienceStatus {
 
     // package is Uploading
-    Uploading(5,"uploading"),
+    UPLOADING(5,"uploading"),
 
     // package is uploaded
-    Uploaded(10, "uploaded"),
+    UPLOADED(10, "uploaded"),
 
     // package is upload failed
-    UploadFailed(0, "uploadFailed"),
+    UPLOAD_FAILED(0, "uploadFailed"),
 
     // package is Distributing
-    Distributing(25, "distributing"),
+    DISTRIBUTING(25, "distributing"),
 
     // package is Distributed
-    Distributed(35, "distributed"),
+    DISTRIBUTED(35, "distributed"),
 
     // package is Distributed
-    DistributeFailed(0, "distributedFailed"),
+    DISTRIBUTE_FAILED(0, "distributedFailed"),
 
     //package is Instantiating
-    Instantiating(45, "instantiating"),
+    INSTANTIATING(50, "instantiating"),
+
+    //check distribute
+    CHECK_INSTANTIATE(60, "checkInstantiate"),
 
     // package is Instantiated
-    Instantiated(60, "instantiated"),
+    INSTANTIATED(70, "running"),
 
     // package is Instantiated
-    InstantiateFailed(0, "instantiateFailed"),
+    INSTANTIATE_FAILED(0, "instantiateFailed"),
 
     // getStatusSuccess
-    GetStatusSuccess(100, "getStatusSuccess"),
+    GET_STATUS_SUCCESS(100, "getStatusSuccess"),
 
     // cleanEnvSuccess
-    CleanEnvSuccess(0, "cleanEnvSuccess");
+    CLEAN_ENV_SUCCESS(0, "cleanEnvSuccess");
 
     // enum content
     private String text;
 
-    private int index;
+    private int progress;
 
-    EnumExperienceStatus(int index, String text) {
+    EnumExperienceStatus(int progress, String text) {
         this.text = text;
-        this.index = index;
+        this.progress = progress;
     }
 
     /**
@@ -84,7 +87,7 @@ public enum EnumExperienceStatus {
     }
 
     public int getProgress() {
-        return index;
+        return progress;
     }
 
 }
