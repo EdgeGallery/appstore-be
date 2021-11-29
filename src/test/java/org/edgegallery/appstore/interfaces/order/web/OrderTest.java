@@ -113,7 +113,7 @@ public class OrderTest {
         MvcResult result = createOrder();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
-        Assert.assertEquals(ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED, restReturn.getRetCode());
+        Assert.assertEquals(ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED, restReturn.getRetCode());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class OrderTest {
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
-        Assert.assertEquals(ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED, restReturn.getRetCode());
+        Assert.assertEquals(ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED, restReturn.getRetCode());
     }
 
     @Test
