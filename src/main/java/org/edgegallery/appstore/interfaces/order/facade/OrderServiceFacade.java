@@ -78,6 +78,11 @@ public class OrderServiceFacade {
      */
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
+        Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
+        if (userId.equals(release.getUser().getUserId())) {
+            LOGGER.error("User can not subscribe own app.");
+            throw new AppException("User can not subscribe own app.", ResponseConst.RET_SUBSCRIBE_OWN_APP);
+        }
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
@@ -92,12 +97,11 @@ public class OrderServiceFacade {
         // upload package to mec
         // create app instance
         // update stauts to Activating
-        Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
         MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
         if (mecmInfo == null) {
             LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
             throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
-                ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
+                ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED);
         }
         LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
         order.setMecAppId(mecmInfo.getMecmAppId());
@@ -195,7 +199,7 @@ public class OrderServiceFacade {
             if (mecmInfo == null) {
                 LOGGER.error("[ACTIVATE ORDER], Mecm Info is null.");
                 throw new AppException("[ACTIVATE ORDER], Failed To Utilize MECM Upload Interface.",
-                    ResponseConst.UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED);
+                    ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED);
             }
 
             order.setOperateTime(new Date());

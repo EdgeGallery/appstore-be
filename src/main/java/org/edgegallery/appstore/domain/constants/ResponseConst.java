@@ -476,14 +476,19 @@ public class ResponseConst {
     public static final int RET_GET_MECMHOST_FAILED = 16007;
 
     /**
-     * failed to utilize mecm upload interface
+     * failed to upload package to apm.
      */
-    public static final int UTILIZE_MECM_UPLOAD_PACKAGE_INTERFACE_FAILED = 16008;
+    public static final int RET_UPLOAD_PACKAGE_TO_APM_FAILED = 16008;
 
     /**
-     * failed to utilize mecm update interface
+     * failed to get deploy status from mecm.
      */
-    public static final int UTILIZE_MECM_UPDATE_STATUS_INTERFACE_FAILED = 16009;
+    public static final int RET_GET_DEPLOY_STATUS_FAILED = 16009;
+
+    /**
+     * User can not subscribe own app.
+     */
+    public static final int RET_SUBSCRIBE_OWN_APP = 16010;
 
     /**
      * right base error code.

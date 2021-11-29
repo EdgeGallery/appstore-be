@@ -69,6 +69,6 @@ public class OrderDto {
         this.mecHostIp = order.getMecHostIp();
         this.mecHostCity = mecHostCity;
         this.detailCn = order.getDetailCn();
-        this.detailCn = order.getDetailEn();
+        this.detailEn = order.getDetailEn();
     }
 }
