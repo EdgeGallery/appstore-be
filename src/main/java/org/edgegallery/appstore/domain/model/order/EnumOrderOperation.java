@@ -19,7 +19,7 @@ package org.edgegallery.appstore.domain.model.order;
 import lombok.Getter;
 
 /**
- * order operation in both Chinese and English
+ * order operation in both Chinese and English.
  */
 @Getter
 public enum EnumOrderOperation {
@@ -27,12 +27,12 @@ public enum EnumOrderOperation {
     ACTIVATED("订单激活", "Order Activated"),
     DEACTIVATED("订单退订", "Order deactivated");
 
-    private String Chinese;
-    private String English;
+    private String chinese;
+    private String english;
 
-    EnumOrderOperation(String Chinese, String English) {
-        this.Chinese = Chinese;
-        this.English = English;
+    EnumOrderOperation(String chinese, String english) {
+        this.chinese = chinese;
+        this.english = english;
     }
 
 }
