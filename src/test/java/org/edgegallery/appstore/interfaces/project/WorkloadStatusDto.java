@@ -14,6 +14,7 @@
 
 package org.edgegallery.appstore.interfaces.project;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,5 +22,5 @@ import lombok.Setter;
 @Setter
 public class WorkloadStatusDto {
     private String retCode = "0";
-    private String data;
+    private List<ServiceFromLcm> services;
 }
