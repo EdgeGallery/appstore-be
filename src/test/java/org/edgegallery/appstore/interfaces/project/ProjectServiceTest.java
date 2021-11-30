@@ -160,13 +160,13 @@ public class ProjectServiceTest extends AppTest {
                         exchange.getResponseBody().write("FORBIDDEN".getBytes());
                     } else if (method.equals("GET")) {
                         WorkloadStatusDto workloadStatusDto = new WorkloadStatusDto();
-                        WorkLoadStatus workLoadStatus = new WorkLoadStatus();
+                        List<ServiceFromLcm> services = new ArrayList<>();
                         List<PortFromLcm> ports = new ArrayList<>();
                         ports.add(PortFromLcm.builder().nodePort("5588").build());
                         ports.add(PortFromLcm.builder().nodePort("9901").build());
-                        workLoadStatus.getServices().add(ServiceFromLcm.builder().serviceName("serviceName1").ports(ports).build());
-                        workLoadStatus.getServices().add(ServiceFromLcm.builder().serviceName("serviceName2").ports(ports).build());
-                        workloadStatusDto.setData(new Gson().toJson(workLoadStatus));
+                        services.add(ServiceFromLcm.builder().serviceName("serviceName2").ports(ports).build());
+                        services.add(ServiceFromLcm.builder().serviceName("serviceName1").ports(ports).build());
+                        workloadStatusDto.setServices(services);
                         String dtp = new Gson().toJson(workloadStatusDto);
                         byte[] response = dtp.getBytes();
                         exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
