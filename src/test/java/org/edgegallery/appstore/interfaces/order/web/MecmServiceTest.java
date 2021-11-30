@@ -195,9 +195,10 @@ public class MecmServiceTest {
 
     @Test
     public void getMecHostByIpList_success() {
+        String userId = "testUserId";
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add(hostIp);
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList);
         Assert.assertNotNull(result);
         MecHostBody mecHost = result.get(hostIp);
         Assert.assertEquals("xian", mecHost.getCity());
@@ -205,9 +206,10 @@ public class MecmServiceTest {
 
     @Test
     public void getMecHostByIpList_empty() {
+        String userId = "testUserId";
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add("127.0.0.4");
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList);
         Assert.assertTrue(result.isEmpty());
     }
 

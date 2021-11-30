@@ -71,7 +71,7 @@ public class OrderServiceFacade {
     /**
      * create order.
      *
-     * @param userId user id
+     * @param  user id
      * @param userName user name
      * @param addOrderReqDto request body
      * @return result
@@ -79,7 +79,8 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        if (userId.equals(release.getUser().getUserId())) {
+        LOGGER.error("[Create Order] userid is {}", userId);
+        if (!userName.equals("admin") && userId.equals(release.getUser().getUserId())) {
             LOGGER.error("User can not subscribe own app.");
             throw new AppException("User can not subscribe own app.", ResponseConst.RET_SUBSCRIBE_OWN_APP);
         }
