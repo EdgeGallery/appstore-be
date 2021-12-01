@@ -71,7 +71,7 @@ public class OrderServiceFacade {
     /**
      * create order.
      *
-     * @param  user id
+     * @param userId user id
      * @param userName user name
      * @param addOrderReqDto request body
      * @return result
