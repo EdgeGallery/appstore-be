@@ -46,7 +46,7 @@
         <result column="STARTEXPTIME" property="startExpTime"/>
         <result column="EXPERIENCEABLEIP" property="experienceableIp"/>
         <result column="MECHOST" property="mecHost"/>
-        <result column="EXPERIENCESTATUS" property="industry"/>
+        <result column="INDUSTRY" property="industry"/>
         <result column="EXPERIENCESTATUS" property="experienceStatus"/>
 
     </resultMap>
