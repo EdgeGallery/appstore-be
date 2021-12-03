@@ -182,13 +182,15 @@ public class OrderService {
     }
 
     /**
-     * log user operation detail on app store end
-     * @param order
+     *
+     * @param order order info
+     * @param operationChinese operation Chinese name
+     * @param operationEnglish operation English name
      */
-    public void logOperationDetail(Order order) {
+    public void logOperationDetail(Order order, String operationChinese, String operationEnglish) {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String orderOperationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
-        String orderOperationDetailEn = currentTime + " " + EnumOrderOperation.CREATED.getEnglish();
+        String orderOperationDetailCn = currentTime + " " + operationChinese;
+        String orderOperationDetailEn = currentTime + " " + operationEnglish;
         if (order.getDetailCn() == null || order.getDetailCn().length() == 0) {
             order.setDetailCn(orderOperationDetailCn);
             order.setDetailEn(orderOperationDetailEn);

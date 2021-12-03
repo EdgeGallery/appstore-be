@@ -85,7 +85,7 @@ public class OrderServiceFacade {
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
-        orderService.logOperationDetail(order);
+        orderService.logOperationDetail(order, EnumOrderOperation.CREATED.getChinese(), EnumOrderOperation.CREATED.getEnglish());
         orderRepository.addOrder(order);
 
         // upload package to mec
@@ -105,7 +105,7 @@ public class OrderServiceFacade {
         LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
 
         order.setOperateTime(new Date());
-        orderService.logOperationDetail(order);
+        orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
         CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -135,7 +135,7 @@ public class OrderServiceFacade {
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if ("success".equals(result)) {
-                orderService.logOperationDetail(order);
+                orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(), EnumOrderOperation.DEACTIVATED.getEnglish());
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 // set mecm info to empty
                 order.setMecInstanceId("");
@@ -186,7 +186,7 @@ public class OrderServiceFacade {
             }
 
             order.setOperateTime(new Date());
-            orderService.logOperationDetail(order);
+            orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
             orderRepository.updateOrder(order);
         } else {
             throw new PermissionNotAllowedException("can not deactivate order",
@@ -223,7 +223,7 @@ public class OrderServiceFacade {
         long total = orderService.getCountByCondition(params);
 
         // Update order instance id.
-        // If order is activating, update status based on mecm opertion status.
+        // If order is activating, update status based on mecm operation status.
 
         LOGGER.info("[QUERY ORDER] After update each order status");
 
