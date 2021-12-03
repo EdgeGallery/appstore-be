@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import com.github.pagehelper.util.StringUtil;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +25,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
@@ -191,7 +191,7 @@ public class OrderService {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String orderOperationDetailCn = currentTime + " " + operationChinese;
         String orderOperationDetailEn = currentTime + " " + operationEnglish;
-        if (order.getDetailCn() == null || order.getDetailCn().length() == 0) {
+        if (StringUtil.isEmpty(order.getDetailCn())) {
             order.setDetailCn(orderOperationDetailCn);
             order.setDetailEn(orderOperationDetailEn);
         } else {
