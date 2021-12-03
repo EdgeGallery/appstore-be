@@ -181,6 +181,10 @@ public class OrderService {
         return "success";
     }
 
+    /**
+     * log user operation detail on app store end
+     * @param order
+     */
     public void logOperationDetail(Order order) {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String orderOperationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
