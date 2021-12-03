@@ -54,7 +54,7 @@ public class MecmService {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private static final String MECM_URL_GET_MECHOSTS = "/inventory/v1/mechosts";
+    private static final String MECM_URL_GET_MECHOSTS = "/inventory/v1/tenants/%s/mechosts";
 
     private static final String APM_DELETE_EDGE_PACKAGE = "/apm/v1/tenants/%s/packages/%s/hosts/%s";
 
@@ -109,13 +109,12 @@ public class MecmService {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("[Upload to MECM, the reponse is {}", response);
 
-            if (!HttpStatus.OK.equals(response.getStatusCode())) {
+            if (!HttpStatus.ACCEPTED.equals(response.getStatusCode())) {
                 LOGGER.error(
                     "[Upload to MECM] [Http Request Failed] Failed to get http reponse from MECM, status is {}",
                     response.getStatusCode());
                 return null;
             }
-            LOGGER.info("[Upload to MECM], successfully get http request.");
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
             String mecmAppId = jsonObject.get("appId").getAsString();
             String mecmAppPackageId = jsonObject.get("appPackageId").getAsString();
@@ -144,7 +143,7 @@ public class MecmService {
         HttpEntity<String> request = new HttpEntity<>(headers);
         String url = appoUrl.concat(String.format(MECM_GET_DEPLOYMENT_STATUS, tenantId, mecmAppId, mecmAppPackageId));
         try {
-            LOGGER.info("[Get MECM status], starting http request.");
+            LOGGER.info("[Get MECM status], starting http request. The url is :{}", url);
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
             LOGGER.info("[Get MECM status], after http request, the reponse is: {}", response);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
@@ -170,14 +169,13 @@ public class MecmService {
      * @param token access token
      * @return mecm host list
      */
-    public List<Map<String, Object>> getAllMecmHosts(String token) {
+    public List<Map<String, Object>> getAllMecmHosts(String token, String tenantId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
-
+        String url = inventoryUrl.concat(String.format(MECM_URL_GET_MECHOSTS, tenantId));
         try {
-            ResponseEntity<String> response = REST_TEMPLATE.exchange(inventoryUrl.concat(MECM_URL_GET_MECHOSTS),
-                HttpMethod.GET, request, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
@@ -200,8 +198,8 @@ public class MecmService {
      * @param mecHostIpList mec host ip list
      * @return mec host map
      */
-    public Map<String, MecHostBody> getMecHostByIpList(String token, List<String> mecHostIpList) {
-        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token);
+    public Map<String, MecHostBody> getMecHostByIpList(String token, String userId, List<String> mecHostIpList) {
+        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token, userId);
         Map<String, MecHostBody> mecHostMap = new HashMap<>();
         for (String mecHostIp : mecHostIpList) {
             Optional<Map<String, Object>> mecHostInfo = allMecHosts.stream()

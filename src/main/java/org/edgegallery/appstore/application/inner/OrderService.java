@@ -55,8 +55,9 @@ public class OrderService {
      * @param order order info
      */
     public void updateOrderStatus(String token, Order order) {
-        LOGGER.info("[Update Order Status] Each order, appid: {}, mecm app id: {}, order status: {}", order.getAppId(),
-            order.getMecAppId(), order.getMecAppId());
+        LOGGER.info(
+            "[Update Order Status] Each order, appid: {}, mecm app id: {}, mecm appPackageid:{}, order status: {}",
+            order.getAppId(), order.getMecAppId(), order.getMecAppId(), order.getStatus());
         if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
             LOGGER.info("[Update Order Status], If status is activating, update mecm deploy instance info");
             if (StringUtils.isEmpty(order.getMecAppId()) || StringUtils.isEmpty(order.getMecPackageId())) {
@@ -109,7 +110,8 @@ public class OrderService {
             if (!StringUtils.isEmpty(mecHostIp)) {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
-                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
+                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, order.getUserId(),
+                    mecHostIpLst);
                 if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }

@@ -59,8 +59,9 @@ public class MecmWrapperController {
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> queryMecmHosts(HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
-        return mecmWrapperServiceFacade
-            .getAllMecmHosts((String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR));
+        return mecmWrapperServiceFacade.getAllMecmHosts(
+            (String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR),
+            (String) httpServletRequest.getAttribute(Consts.USERID));
     }
 }
 
