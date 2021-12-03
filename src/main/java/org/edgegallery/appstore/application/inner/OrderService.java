@@ -16,7 +16,10 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import com.github.pagehelper.util.StringUtil;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +41,8 @@ import org.springframework.stereotype.Service;
 public class OrderService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Autowired
     private OrderRepository orderRepository;
@@ -174,5 +179,25 @@ public class OrderService {
             return "delete apm package from apm failed.";
         }
         return "success";
+    }
+
+    /**
+     *
+     * @param order order info
+     * @param operationChinese operation Chinese name
+     * @param operationEnglish operation English name
+     */
+    public void logOperationDetail(Order order, String operationChinese, String operationEnglish) {
+        String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String orderOperationDetailCn = currentTime + " " + operationChinese;
+        String orderOperationDetailEn = currentTime + " " + operationEnglish;
+        if (StringUtil.isEmpty(order.getDetailCn())) {
+            order.setDetailCn(orderOperationDetailCn);
+            order.setDetailEn(orderOperationDetailEn);
+        } else {
+            order.setDetailCn(order.getDetailCn() + "\n" + orderOperationDetailCn);
+            order.setDetailEn(order.getDetailEn() + "\n" + orderOperationDetailEn);
+        }
+
     }
 }
