@@ -182,6 +182,7 @@ public class OrderService {
     }
 
     /**
+     * set order operation detail.
      *
      * @param order order info
      * @param operationChinese operation Chinese name
