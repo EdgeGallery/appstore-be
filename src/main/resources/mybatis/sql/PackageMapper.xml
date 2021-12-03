@@ -38,13 +38,12 @@
         <result column="STATUS" property="status"/>
         <result column="DEMOVIDEOADDRESS" property="demoVideoAddress"/>
         <result column="DEPLOYMODE" property="deployMode"/>
-        <result column="ISHOTAPP" property="isHotApp"/>
         <result column="APPINSTANCEID" property="appInstanceId"/>
         <result column="INSTANCETENENTID" property="instanceTenentId"/>
         <result column="INSTANCEPACKAGEID" property="instancePackageId"/>
         <result column="EXPERIENCEABLE" property="experienceAble"/>
         <result column="STARTEXPTIME" property="startExpTime"/>
-        <result column="EXPERIENCEABLEIP" property="experienceableIp"/>
+        <result column="EXPERIENCEABLEIP" property="experienceAbleIp"/>
         <result column="MECHOST" property="mecHost"/>
         <result column="INDUSTRY" property="industry"/>
         <result column="EXPERIENCESTATUS" property="experienceStatus"/>
@@ -169,7 +168,7 @@
         ,instancetenentid = #{instanceTenentId}
         ,STARTEXPTIME = #{startExpTime}
         ,instancepackageid = #{instancePackageId}
-        ,EXPERIENCEABLEIP = #{experienceableIp}
+        ,EXPERIENCEABLEIP = #{experienceAbleIp}
         ,MECHOST = #{mecHost}
         WHERE packageid = #{packageId}
     </update>

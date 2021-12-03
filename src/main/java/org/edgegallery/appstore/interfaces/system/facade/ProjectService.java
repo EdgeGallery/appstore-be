@@ -344,7 +344,7 @@ public class ProjectService {
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
-        appReleasePo.setExperienceableIp(inputParams.get(VM_EXPERIENCE_IP));
+        appReleasePo.setExperienceAbleIp(inputParams.get(VM_EXPERIENCE_IP));
         packageMapper.updateAppInstanceApp(appReleasePo);
         return true;
     }
@@ -432,10 +432,10 @@ public class ProjectService {
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
         int ipCount = getIpCount(n6Range);
         for (Release mecRelease : mecHostPackage) {
-            if (mecRelease.getExperienceableIp() == null) {
+            if (mecRelease.getExperienceAbleIp() == null) {
                 continue;
             }
-            if (mecRelease.getExperienceableIp().equals(temN6Ip) || count >= ipCount) {
+            if (mecRelease.getExperienceAbleIp().equals(temN6Ip) || count >= ipCount) {
                 count++;
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
@@ -698,7 +698,7 @@ public class ProjectService {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         } else {
             serviceName = appReleasePo.getAppName();
-            mecHost = appReleasePo.getExperienceableIp();
+            mecHost = appReleasePo.getExperienceAbleIp();
             experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
         }
         try {
@@ -777,7 +777,7 @@ public class ProjectService {
     private List<Experience> getExperienceInfo(String workStatus, MepHost mepHost) {
         List<Experience> experienceInfoList = new ArrayList<>();
         JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-        JsonArray array = jsonObject.getAsJsonArray("services");
+        JsonArray array = jsonObject.getAsJsonArray(SERVICES);
         for (JsonElement jsonItem : array) {
             String serviceName = jsonItem.getAsJsonObject().get("serviceName").getAsString();
             String nodePort = jsonItem.getAsJsonObject().get("ports").getAsJsonArray().get(0).getAsJsonObject()
