@@ -73,6 +73,10 @@ public class SystemService {
 
     private static final int VNC_PORT = 22;
 
+    private static final String ADD_MEC_HOST_FAILED = "add mec host to lcm failed.";
+
+    private static final String HEALTH_CHECK_FAILED = "health check failed, current ip or port can't be used.";
+
     @Autowired
     private HostMapper hostMapper;
 
@@ -109,7 +113,7 @@ public class SystemService {
         if (!addMecHostRes) {
             String msg = "add mec host to lcm fail";
             LOGGER.error(msg);
-            throw new EntityNotFoundException("add mec host to lcm fail.", ResponseConst.ADD_HOST_TO_LCM_FAILED);
+            throw new EntityNotFoundException(ADD_MEC_HOST_FAILED, ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
@@ -146,17 +150,15 @@ public class SystemService {
         //health check
         boolean healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (!healRes) {
-            String msg = "health check faild,current ip or port cann't be used.";
-            LOGGER.error(msg);
-            throw new HostException("health check faild,current ip or port cann't be used.",
-                ResponseConst.HEALTH_CHECK_FAILED);
+            LOGGER.error(HEALTH_CHECK_FAILED);
+            throw new HostException(HEALTH_CHECK_FAILED, ResponseConst.HEALTH_CHECK_FAILED);
         }
         // delete mechost from lcm
         boolean deleteLcmMecHostRes = deleteMecHostFromLcm(host, token);
         if (!deleteLcmMecHostRes) {
             String msg = "delete mec host from lcm fail";
             LOGGER.error(msg);
-            throw new HostException("add mec host to lcm fail.", ResponseConst.DELETE_HOST_FROM_LCM_FAILED);
+            throw new HostException(ADD_MEC_HOST_FAILED, ResponseConst.DELETE_HOST_FROM_LCM_FAILED);
         }
         int res = hostMapper.deleteHost(hostId);
         if (res < 1) {
@@ -177,17 +179,15 @@ public class SystemService {
         //health check
         boolean healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (!healRes) {
-            String msg = "health check faild,current ip or port cann't be used.";
-            LOGGER.error(msg);
-            throw new HostException("health check faild,current ip or port cann't be used.",
-                ResponseConst.HEALTH_CHECK_FAILED);
+            LOGGER.error(HEALTH_CHECK_FAILED);
+            throw new HostException(HEALTH_CHECK_FAILED, ResponseConst.HEALTH_CHECK_FAILED);
         }
         // add mechost to lcm
         boolean addMecHostRes = addMecHostToLcm(host);
         if (!addMecHostRes) {
             String msg = "add mec host to lcm fail";
             LOGGER.error(msg);
-            throw new HostException("add mec host to lcm fail.", ResponseConst.ADD_HOST_TO_LCM_FAILED);
+            throw new HostException(ADD_MEC_HOST_FAILED, ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file

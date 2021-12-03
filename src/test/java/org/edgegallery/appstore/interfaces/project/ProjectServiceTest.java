@@ -191,10 +191,10 @@ public class ProjectServiceTest extends AppTest {
             MockMvcRequestBuilders.get(String.format("/mec/appstore/v1/experience/packages/%s/status", packageId))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
-        String s = result.getResponse().getContentAsString();
+        String response = result.getResponse().getContentAsString();
         Type type = new TypeToken<ResponseObject>() { }.getType();
-        ResponseObject packageDtos = gson.fromJson(result.getResponse().getContentAsString(), type);
-        Assert.assertEquals(null, packageDtos.getData());
+        ResponseObject packageDtos = gson.fromJson(response, type);
+        Assert.assertNull(packageDtos.getData());
     }
 
     @Test

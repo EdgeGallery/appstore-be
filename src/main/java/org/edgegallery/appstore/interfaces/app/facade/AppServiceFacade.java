@@ -90,6 +90,8 @@ public class AppServiceFacade {
 
     private static final String VM = "vm";
 
+    private static final String PACKAGE_ILLEGAL = "the app package is illegal and may have been tampered!";
+
     @Autowired
     private AppService appService;
 
@@ -218,8 +220,7 @@ public class AppServiceFacade {
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         if (!appUtil.checkPackageValid(fileParent)) {
-            throw new AppException("the app package is illegal and may have been tampered!",
-                ResponseConst.RET_PACKAGE_ILLEGAL);
+            throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
         }
         String fileNameExtension = fileStorageAddress.substring(fileStorageAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, fileParent, appClass, user.getUserId(), fileNameExtension);
@@ -267,8 +268,7 @@ public class AppServiceFacade {
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
         if (!appUtil.checkPackageValid(checkPath)) {
-            throw new AppException("the app package is illegal and may have been tampered!",
-                ResponseConst.RET_PACKAGE_ILLEGAL);
+            throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
         }
         String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
         appUtil.checkImage(atpMetadata, checkPath, appClass, user.getUserId(), fileNameExtension);
@@ -309,8 +309,7 @@ public class AppServiceFacade {
 
             if (!isImgZipExist) {
                 if (!appUtil.checkPackageValid(fileParent)) {
-                    throw new AppException("the app package is illegal and may have been tampered!",
-                        ResponseConst.RET_PACKAGE_ILLEGAL);
+                    throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
                 }
                 FileUtils.forceDelete(new File(fileAddress));
                 appService.updateAppPackageWithRepoInfo(fileParent);

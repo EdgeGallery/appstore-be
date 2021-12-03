@@ -72,7 +72,7 @@ public class MecmServiceTest {
     @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-        httpServer.createContext("/inventory/v1/mechosts", new HttpHandler() {
+        httpServer.createContext("/inventory/v1/tenants/testUserId/mechosts", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -159,7 +159,7 @@ public class MecmServiceTest {
                     mecInfo.put("appPackageId", "mecmAppPackageId");
                     String jsonObject = new Gson().toJson(mecInfo);
                     byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_ACCEPTED, response.length);
                     exchange.getResponseBody().write(response);
                 }
                 exchange.close();

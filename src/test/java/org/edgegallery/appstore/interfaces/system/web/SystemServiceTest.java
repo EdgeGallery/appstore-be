@@ -119,7 +119,7 @@ public class SystemServiceTest {
         host.setPort(30200);
         host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
-        expectedEx.expectMessage( "add mec host to lcm fail.");
+        expectedEx.expectMessage( "add mec host to lcm failed.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -139,7 +139,7 @@ public class SystemServiceTest {
         host.setConfigId("errorId");
         host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
-        expectedEx.expectMessage( "add mec host to lcm fail.");
+        expectedEx.expectMessage( "add mec host to lcm failed.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
@@ -159,7 +159,7 @@ public class SystemServiceTest {
         host.setConfigId("errorId");
         host.setOs("K8s");
         host.setUserId(UUID.randomUUID().toString());
-        expectedEx.expectMessage( "health check faild,current ip or port cann't be used.");
+        expectedEx.expectMessage( "health check failed, current ip or port can't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
         Assert.assertTrue(res.isLeft());
     }
@@ -177,7 +177,7 @@ public class SystemServiceTest {
         host.setPort(30204);
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        expectedEx.expectMessage( "health check faild,current ip or port cann't be used.");
+        expectedEx.expectMessage( "health check failed, current ip or port can't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
         Assert.assertTrue(res.isLeft());
     }
