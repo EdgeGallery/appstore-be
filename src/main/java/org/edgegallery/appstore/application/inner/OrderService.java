@@ -16,12 +16,15 @@
 
 package org.edgegallery.appstore.application.inner;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
@@ -38,6 +41,8 @@ import org.springframework.stereotype.Service;
 public class OrderService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Autowired
     private OrderRepository orderRepository;
@@ -174,5 +179,19 @@ public class OrderService {
             return "delete apm package from apm failed.";
         }
         return "success";
+    }
+
+    public void logOperationDetail(Order order) {
+        String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String orderOperationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
+        String orderOperationDetailEn = currentTime + " " + EnumOrderOperation.CREATED.getEnglish();
+        if (order.getDetailCn() == null || order.getDetailCn().length() == 0) {
+            order.setDetailCn(orderOperationDetailCn);
+            order.setDetailEn(orderOperationDetailEn);
+        } else {
+            order.setDetailCn(order.getDetailCn() + "\n" + orderOperationDetailCn);
+            order.setDetailEn(order.getDetailEn() + "\n" + orderOperationDetailEn);
+        }
+
     }
 }

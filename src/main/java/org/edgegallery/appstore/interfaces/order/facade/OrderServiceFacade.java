@@ -54,8 +54,6 @@ public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     @Autowired
     private OrderService orderService;
 
@@ -87,17 +85,12 @@ public class OrderServiceFacade {
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
-
-        String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String orderCreationDetailCn = currentTime + " " + EnumOrderOperation.CREATED.getChinese();
-        String orderCreationDetailEn = currentTime + " " + EnumOrderOperation.CREATED.getEnglish();
-        order.setDetailCn(orderCreationDetailCn);
-        order.setDetailEn(orderCreationDetailEn);
+        orderService.logOperationDetail(order);
         orderRepository.addOrder(order);
 
         // upload package to mec
         // create app instance
-        // update stauts to Activating
+        // update status to Activating
         MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
         if (mecmInfo == null) {
             LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
@@ -112,12 +105,7 @@ public class OrderServiceFacade {
         LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
 
         order.setOperateTime(new Date());
-        currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
-        String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
-        order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
-        order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
-
+        orderService.logOperationDetail(order);
         orderRepository.updateOrder(order);
         CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
@@ -147,13 +135,7 @@ public class OrderServiceFacade {
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if ("success".equals(result)) {
-
-                String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-                String orderDeactivationDetailCn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getChinese();
-                String orderDeactivationDetailEn = currentTime + " " + EnumOrderOperation.DEACTIVATED.getEnglish();
-                order.setDetailCn(order.getDetailCn() + "\n" + orderDeactivationDetailCn);
-                order.setDetailEn(order.getDetailEn() + "\n" + orderDeactivationDetailEn);
-
+                orderService.logOperationDetail(order);
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 // set mecm info to empty
                 order.setMecInstanceId("");
@@ -204,11 +186,7 @@ public class OrderServiceFacade {
             }
 
             order.setOperateTime(new Date());
-            String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-            String orderActivationDetailCn = currentTime + " " + EnumOrderOperation.ACTIVATED.getChinese();
-            String orderActivationDetailEn = currentTime + " " + EnumOrderOperation.ACTIVATED.getEnglish();
-            order.setDetailCn(order.getDetailCn() + "\n" + orderActivationDetailCn);
-            order.setDetailEn(order.getDetailEn() + "\n" + orderActivationDetailEn);
+            orderService.logOperationDetail(order);
             orderRepository.updateOrder(order);
         } else {
             throw new PermissionNotAllowedException("can not deactivate order",
