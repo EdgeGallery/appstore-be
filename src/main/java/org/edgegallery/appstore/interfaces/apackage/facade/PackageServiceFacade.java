@@ -217,7 +217,7 @@ public class PackageServiceFacade {
 
         // start a thread to upload package to meao
         new Thread(() -> uploadPackageService
-            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId).toString()).start();
+            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId, token).toString()).start();
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }

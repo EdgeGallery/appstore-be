@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.application.packageupload;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,19 +25,38 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import org.edgegallery.appstore.domain.constants.Consts;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.interfaces.meao.facade.ProgressFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Service("UploadHelper")
 public class UploadHelper {
     public static final Logger LOGGER = LoggerFactory.getLogger(UploadHelper.class);
 
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
     @Autowired
     ProgressFacade progressFacade;
+
+    @Value("${thirdSystem.url}")
+    private String thirdSystemHost;
 
     public static final String FAILED = "failed";
 
@@ -102,7 +122,7 @@ public class UploadHelper {
                 header.put("X-File-end", j);
                 String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
                 upPackage.setShardCount(count);
-                ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, buffer);
+                ret = uploadFileShard(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
                     updateProgressStatus(progress, FAILED);
                     LOGGER.error("upload failed: {}", ret);
@@ -133,7 +153,7 @@ public class UploadHelper {
             header.put("X-File-end", soft.length());
             String url = AppConfig.UPLOAD_PATH.replace("${taskName}", req.getString("taskName")) + count;
             upPackage.setShardCount(count);
-            ret = Connection.postFiles(header, "https://" + hostUrl + url, upPackage, req, ednBuffer);
+            ret = uploadFileShard(header, "https://" + hostUrl + url, upPackage, req, ednBuffer);
             LOGGER.info("upload file：" + fileName + "-total size：" + totalSize + "-already upload：" + soft.length());
             LOGGER.info(fileName + " Upload package finished.");
 
@@ -149,6 +169,38 @@ public class UploadHelper {
         ret.put("retCode", -1);
         LOGGER.error("upload failed: {}", ret.toString());
         return ret;
+    }
+
+    private JSONObject uploadFileShard(JSONObject header, String uploadUrl, UploadPackageEntity upPackage,
+        JSONObject req, byte[] buffer) {
+        String url = thirdSystemHost + String.format(Consts.MEAO_UPLOAD_PATH, req.getString("vendor"));
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("header", header.toString());
+        body.add("uploadUrl", uploadUrl);
+        body.add("upPackage", upPackage);
+        body.add("req", req.toString());
+        ByteArrayResource byteArrayResource = new ByteArrayResource(buffer) {
+            @Override
+            public String getFilename() {
+                return "blob";
+            }
+        };
+        body.add("file", byteArrayResource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, request, String.class);
+            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(response.getStatusCode())) {
+                return JSON.parseObject(response.getBody());
+            }
+        } catch (RestClientException e) {
+            LOGGER.error("Upload file shard failed, exception {}", e.getMessage());
+        }
+        throw new AppException("Upload file shard failed");
     }
 
     private void updateProgressStatus(PackageUploadProgress progress, String status) {

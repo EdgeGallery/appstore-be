@@ -105,3 +105,7 @@ appShare:
   platformName: ${PLATFORM_NAME:EdgeGallery AppStore}
   host-url: ${PLATFORM_URL:http://127.0.0.1:8099}
   atp-report-url: ${ATP_REPORT_URL:http://127.0.0.1:8073/atpreport?taskId=%s}
+
+### third party system config ###
+thirdSystem:
+  url: ${THIRD_SYSTEM_URL:https://thirdsystem-svc:8097}

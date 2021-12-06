@@ -74,6 +74,21 @@ public final class Consts {
      */
     public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v2/tenants/tenantId/configuration";
 
+    /**
+     * MEAO package upload path.
+     */
+    public static final String MEAO_UPLOAD_PATH = "/mec/third-system/v1/meao/%s/action/upload";
+
+    /**
+     * MEAO session path.
+     */
+    public static final String MEAO_SESSION_PATH = "/mec/third-system/v1/meao/%s/session";
+
+    /**
+     * Third system path.
+     */
+    public static final String THIRD_SYSTEM_PATH = "/mec/third-system/v1";
+
     public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
     public static final String ACCESS_TOKEN_STR = "access_token";
