@@ -112,9 +112,7 @@ public class ProjectService {
 
     private static final String VM_EXPERIENCE_IP = "app_n6_ip";
 
-    private static final String VM_SEMICOLON = ";";
-
-    private static final String VM_EQUAL = "=";
+    private static final String VDU1_N6_EXPERIENCE_IP = "VDU1_APP_Plane03_IP";
 
     private static final int IP_BINARY_BITS = 32;
 
@@ -271,11 +269,18 @@ public class ProjectService {
         String packageStatus = "";
         String status = "";
         long endTime;
-        while (!EnumExperienceStatus.INSTANTIATED.getText().equalsIgnoreCase(status)) {
+        String enumStatus = EnumExperienceStatus.INSTANTIATED.getText();
+        if (VM.equals(appReleasePo.getDeployMode())) {
+            enumStatus = EnumExperienceStatus.VM_INSTANTIATED.getText();
+        }
+        while (!enumStatus.equalsIgnoreCase(status)) {
             try {
                 packageStatus = HttpClientUtil
                     .getWorkloadStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams);
-                status = parseContainerResult(packageStatus, EnumExperienceStatus.INSTANTIATED.getText());
+                if (StringUtils.isEmpty(packageStatus)) {
+                    return false;
+                }
+                status = parseInstantiateResult(packageStatus, enumStatus, appReleasePo.getDeployMode());
                 TimeUnit.MILLISECONDS.sleep(3000);
                 updateExperienceStatus(appReleasePo.getPackageId(),
                     EnumExperienceStatus.CHECK_INSTANTIATE.getProgress());
@@ -372,6 +377,9 @@ public class ProjectService {
                 resultInfo = HttpClientUtil
                     .getDistributeRes(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams,
                         appReleasePo.getInstancePackageId());
+                if (StringUtils.isEmpty(resultInfo)) {
+                    return false;
+                }
                 status = parseWorkStatus(resultInfo, appReleasePo.getInstancePackageId(),
                     EnumExperienceStatus.DISTRIBUTED.getText());
                 TimeUnit.MILLISECONDS.sleep(2000);
@@ -428,7 +436,7 @@ public class ProjectService {
         List<Release> mecHostPackage = packageRepository.findReleaseByMecHost(mecHost);
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         int count = 0;
-        String n6Range = vmInputParams.get(VM_EXPERIENCE_IP);
+        String n6Range = vmInputParams.get(VDU1_N6_EXPERIENCE_IP);
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
         int ipCount = getIpCount(n6Range);
         for (Release mecRelease : mecHostPackage) {
@@ -440,17 +448,21 @@ public class ProjectService {
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
         }
-        String mepRange = vmInputParams.get("app_mp1_ip");
-        String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put(VM_EXPERIENCE_IP, temN6Ip);
-        vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
-        vmInputParams.put("app_n6_mask", IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
-        vmInputParams.put("app_mp1_mask", IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
-        vmInputParams.put("app_internet_mask", IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
-        vmInputParams.put("app_n6_gw", IpCalculateUtil.getStartIp(n6Range, 0));
-        vmInputParams.put("app_mp1_gw", IpCalculateUtil.getStartIp(mepRange, 0));
-        vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
+        String mepRange = vmInputParams.get("VDU1_APP_Plane01_IP");
+        String internetRange = vmInputParams.get("VDU1_APP_Plane02_IP");
+        vmInputParams.put(VDU1_N6_EXPERIENCE_IP, temN6Ip);
+        vmInputParams.put("VDU1_APP_Plane01_IP", IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("VDU1_APP_Plane02_IP", IpCalculateUtil.getStartIp(internetRange, count));
+
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane03_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane03_GW", IpCalculateUtil.getStartIp(n6Range, 0));
+        }
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane01_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane01_GW", IpCalculateUtil.getStartIp(mepRange, 0));
+        }
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane02_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
+        }
         return vmInputParams;
     }
 
@@ -556,24 +568,51 @@ public class ProjectService {
     }
 
     /**
-     * parse container result.
+     * parse Instantiate result.
      *
      * @param status status.
      * @param enumStatus enumStatus.
      * @return
      */
-    public String parseContainerResult(String status, String enumStatus) {
+    public String parseInstantiateResult(String status, String enumStatus, String deployMode) {
         String podStatus = null;
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
-        JsonArray array = jsonObject.getAsJsonArray("pods");
-        for (JsonElement jsonItem : array) {
-            podStatus = jsonItem.getAsJsonObject().get("podstatus").getAsString();
-            if (!enumStatus.equalsIgnoreCase(podStatus)) {
-                LOGGER.info("pod start failed: {}", podStatus);
+        if (VM.equals(deployMode)) {
+            podStatus = jsonObject.get("status").getAsString();
+            if (!enumStatus.equalsIgnoreCase(status)) {
                 return null;
+            }
+        } else {
+            JsonArray array = jsonObject.getAsJsonArray("pods");
+            for (JsonElement jsonItem : array) {
+                podStatus = jsonItem.getAsJsonObject().get("podstatus").getAsString();
+                if (!enumStatus.equalsIgnoreCase(podStatus)) {
+                    LOGGER.info("pod start failed: {}", podStatus);
+                    return null;
+                }
             }
         }
         return podStatus;
+    }
+
+    /**
+     * parse Vm Instantiate result.
+     *
+     * @param status status.
+     * @return
+     */
+    public List<Experience> getVmExperienceInfo(String status, String serviceName) {
+        List<Experience> experienceInfoList = new ArrayList<>();
+        JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
+        JsonArray vmArray = jsonObject.getAsJsonArray("data");
+        for (JsonElement vmItem : vmArray) {
+            JsonArray netArray = vmItem.getAsJsonObject().getAsJsonArray("networks");
+            for (JsonElement netItem : netArray) {
+                experienceInfoList
+                    .add(new Experience(serviceName, "", netItem.getAsJsonObject().get("ip").getAsString()));
+            }
+        }
+        return experienceInfoList;
     }
 
     /**
@@ -615,20 +654,6 @@ public class ProjectService {
             }
         }
         return true;
-    }
-
-    /**
-     * get nodePort.
-     *
-     * @param workStatus workStatus.
-     */
-    public int getNodePort(String workStatus) {
-        JsonObject jsonObjects = new JsonParser().parse(workStatus).getAsJsonObject();
-        String uploadData = jsonObjects.get(STATUS_DATA).getAsString();
-        JsonObject jsonCode = new JsonParser().parse(uploadData).getAsJsonObject();
-        return jsonCode.get(SERVICES).getAsJsonArray().get(0).getAsJsonObject().get("ports").getAsJsonArray().get(0)
-            .getAsJsonObject().get("nodePort").getAsInt();
-
     }
 
     /**
@@ -689,17 +714,12 @@ public class ProjectService {
             Thread.currentThread().interrupt();
         }
         // If it is a vm package, it will get the IP in parameter and return it to the foreground
-        String serviceName = "";
-        String nodePort = "";
-        String mecHost = "";
         String workStatus = getWorkStatus(appInstanceId, userId, mepHost, token);
         List<Experience> experienceInfoList = new ArrayList<>();
         if (CONTAINER.equals(appReleasePo.getDeployMode())) {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         } else {
-            serviceName = appReleasePo.getAppName();
-            mecHost = appReleasePo.getExperienceAbleIp();
-            experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
+            experienceInfoList = getVmExperienceInfo(workStatus, appReleasePo.getAppName());
         }
         try {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.GET_STATUS_SUCCESS.getProgress());
@@ -713,21 +733,6 @@ public class ProjectService {
     }
 
     /**
-     * get vm experience ip.
-     *
-     * @param parameter mapHost parameter.
-     */
-    private String getVmExperienceIp(String parameter) {
-        String[] parameters = parameter.split(VM_SEMICOLON);
-        for (String vmIp : parameters) {
-            if (vmIp.contains(VM_EXPERIENCE_IP)) {
-                return vmIp.substring(vmIp.lastIndexOf(VM_EQUAL) + 1);
-            }
-        }
-        return null;
-    }
-
-    /**
      * get nodeStatus.
      *
      * @param packageId packageId.
@@ -737,9 +742,6 @@ public class ProjectService {
     public ResponseEntity<ResponseObject> getNodeStatus(String packageId, String userId, String token) {
         String workStatus = "";
         String showInfo = "";
-        String serviceName = "";
-        String nodePort = "";
-        String mecHost = "";
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
         MepHost mepHost = judgeHost(appReleasePo.getDeployMode());
@@ -750,18 +752,15 @@ public class ProjectService {
         // If the appInstanceId is null for a vm application, the appInstanceId is released
         if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils
             .isEmpty(token)) {
-            return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this pacakge not instantiate"));
+            return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this package not instantiate"));
         }
-
+        workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mepHost, token);
+        if (StringUtils.isEmpty(workStatus)) {
+            return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "this package not instantiate"));
+        }
         if (VM.equals(appReleasePo.getDeployMode())) {
-            serviceName = appReleasePo.getAppName();
-            mecHost = getVmExperienceIp(mepHost.getParameter());
-            experienceInfoList.add(new Experience(serviceName, nodePort, mecHost));
+            experienceInfoList = getVmExperienceInfo(workStatus, appReleasePo.getAppName());
         } else {
-            workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mepHost, token);
-        }
-
-        if (StringUtils.isNotEmpty(workStatus)) {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         }
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);

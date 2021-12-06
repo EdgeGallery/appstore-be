@@ -49,6 +49,9 @@ public enum EnumExperienceStatus {
     INSTANTIATED(70, "running"),
 
     // package is Instantiated
+    VM_INSTANTIATED(70, "Instantiated"),
+
+    // package is Instantiated
     INSTANTIATE_FAILED(0, "instantiateFailed"),
 
     // getStatusSuccess
