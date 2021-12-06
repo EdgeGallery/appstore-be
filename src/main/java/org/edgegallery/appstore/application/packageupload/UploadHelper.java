@@ -173,7 +173,7 @@ public class UploadHelper {
 
     private JSONObject uploadFileShard(JSONObject header, String uploadUrl, UploadPackageEntity upPackage,
         JSONObject req, byte[] buffer) {
-        String url = thirdSystemHost + String.format(Consts.MEAO_UPLOAD_PATH, "huawei");
+        String url = thirdSystemHost + String.format(Consts.MEAO_UPLOAD_PATH, req.getString("vendor"));
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("header", header.toString());

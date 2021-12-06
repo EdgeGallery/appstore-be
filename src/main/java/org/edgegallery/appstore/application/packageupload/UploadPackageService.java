@@ -85,10 +85,12 @@ public class UploadPackageService {
             throw new AppException("get meao info fail.");
         }
 
+        reqJson.put("vendor", meaoInfo.getVendor());
         String meaoUrl = meaoInfo.getUrl();
         LOGGER.info("meaoUrl: {}", meaoUrl);
 
-        JSONObject session = getMeaoSession(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword());
+        JSONObject session = getMeaoSession(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword(),
+            meaoInfo.getVendor());
         String csrfToken = session.getString("csrfToken");
         String cookie = session.getString("session");
 
@@ -96,8 +98,8 @@ public class UploadPackageService {
         return uploadHelper.uploadBigSoftware(filePath, reqJson, csrfToken, cookie, meaoHost);
     }
 
-    private JSONObject getMeaoSession(String meaoUrl, String username, String password) {
-        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_PATH, "huawei");
+    private JSONObject getMeaoSession(String meaoUrl, String username, String password, String vendor) {
+        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_PATH, vendor);
 
         JSONObject obj = new JSONObject();
         obj.put("meaoUrl", meaoUrl);
