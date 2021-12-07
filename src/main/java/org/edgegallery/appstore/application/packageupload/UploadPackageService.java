@@ -99,7 +99,7 @@ public class UploadPackageService {
     }
 
     private JSONObject getMeaoSession(String meaoUrl, String username, String password, String vendor) {
-        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_PATH, vendor);
+        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_URL, vendor);
 
         JSONObject obj = new JSONObject();
         obj.put("meaoUrl", meaoUrl);
@@ -121,7 +121,7 @@ public class UploadPackageService {
     }
 
     private ThirdSystem getMeaoInfo(String meaoId, String token) {
-        String url = thirdSystemHost + Consts.THIRD_SYSTEM_PATH + "/" + meaoId;
+        String url = thirdSystemHost + Consts.THIRD_SYSTEM_URL + "/" + meaoId;
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);

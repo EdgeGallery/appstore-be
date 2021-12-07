@@ -77,17 +77,17 @@ public final class Consts {
     /**
      * MEAO package upload path.
      */
-    public static final String MEAO_UPLOAD_PATH = "/mec/third-system/v1/meao/%s/action/upload";
+    public static final String MEAO_UPLOAD_URL = "/mec/third-system/v1/meao/%s/action/upload";
 
     /**
      * MEAO session path.
      */
-    public static final String MEAO_SESSION_PATH = "/mec/third-system/v1/meao/%s/session";
+    public static final String MEAO_SESSION_URL = "/mec/third-system/v1/meao/%s/session";
 
     /**
      * Third system path.
      */
-    public static final String THIRD_SYSTEM_PATH = "/mec/third-system/v1";
+    public static final String THIRD_SYSTEM_URL = "/mec/third-system/v1";
 
     public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
