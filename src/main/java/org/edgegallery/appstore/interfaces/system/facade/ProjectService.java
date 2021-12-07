@@ -456,15 +456,9 @@ public class ProjectService {
         vmInputParams.put("VDU1_APP_Plane01_IP", IpCalculateUtil.getStartIp(mepRange, count));
         vmInputParams.put("VDU1_APP_Plane02_IP", IpCalculateUtil.getStartIp(internetRange, count));
 
-        if (vmInputParams.putIfAbsent("VDU1_APP_Plane03_GW", null) == null) {
-            vmInputParams.put("VDU1_APP_Plane03_GW", IpCalculateUtil.getStartIp(n6Range, 0));
-        }
-        if (vmInputParams.putIfAbsent("VDU1_APP_Plane01_GW", null) == null) {
-            vmInputParams.put("VDU1_APP_Plane01_GW", IpCalculateUtil.getStartIp(mepRange, 0));
-        }
-        if (vmInputParams.putIfAbsent("VDU1_APP_Plane02_GW", null) == null) {
-            vmInputParams.put("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
-        }
+        vmInputParams.putIfAbsent("VDU1_APP_Plane03_GW",IpCalculateUtil.getStartIp(n6Range, 0));
+        vmInputParams.putIfAbsent("VDU1_APP_Plane01_GW", IpCalculateUtil.getStartIp(mepRange, 0));
+        vmInputParams.putIfAbsent("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
         return vmInputParams;
     }
 
