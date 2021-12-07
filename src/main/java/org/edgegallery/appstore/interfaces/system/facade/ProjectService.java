@@ -278,7 +278,7 @@ public class ProjectService {
             try {
                 packageStatus = HttpClientUtil
                     .getWorkloadStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams);
-                if (StringUtils.isEmpty(packageStatus)) {
+                if (StringUtils.isEmpty(packageStatus) || "Failure".equalsIgnoreCase(status)) {
                     return false;
                 }
                 status = parseInstantiateResult(packageStatus, enumStatus, appReleasePo.getDeployMode());
@@ -582,7 +582,7 @@ public class ProjectService {
         if (VM.equals(deployMode)) {
             podStatus = jsonObject.get("status").getAsString();
             if (!enumStatus.equalsIgnoreCase(podStatus)) {
-                return null;
+                return podStatus;
             }
         } else {
             JsonArray array = jsonObject.getAsJsonArray("pods");
@@ -632,13 +632,9 @@ public class ProjectService {
             deployParams.put(APP_INSTANCE_ID, appInstanceId);
             deployParams.put(USER_ID, userId);
             deployParams.put(TOKEN, token);
-            boolean uninstallApp = HttpClientUtil
+            HttpClientUtil
                 .terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId, userId,
                     token);
-            if (!uninstallApp) {
-                LOGGER.error("uninstall AppInstance failed.");
-                return false;
-            }
             // delete package of hosts
             boolean deleteHostRes = HttpClientUtil
                 .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams, pkgId,
