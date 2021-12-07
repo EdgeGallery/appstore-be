@@ -579,7 +579,7 @@ public class ProjectService {
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
         if (VM.equals(deployMode)) {
             podStatus = jsonObject.get("status").getAsString();
-            if (!enumStatus.equalsIgnoreCase(status)) {
+            if (!enumStatus.equalsIgnoreCase(podStatus)) {
                 return null;
             }
         } else {
