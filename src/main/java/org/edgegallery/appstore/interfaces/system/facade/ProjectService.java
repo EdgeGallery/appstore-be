@@ -226,6 +226,7 @@ public class ProjectService {
         // instantiate application
         boolean instantRes = instantiateApp(mepHost, deployParams, lcmLog, appReleasePo, inputParams);
         if (!instantRes) {
+            updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATE_FAILED.getProgress());
             String pkgId = appReleasePo.getInstancePackageId();
             HttpClientUtil.deleteHost(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId,
                 mepHost.getMecHost());
@@ -290,6 +291,7 @@ public class ProjectService {
             }
             endTime = new Date().getTime();
             if ((endTime - startTime) > GET_WORKSTATUS_WAIT_TIME) {
+                lcmLog.setLog("instantiate package failed.");
                 return false;
             }
         }
@@ -697,7 +699,6 @@ public class ProjectService {
             boolean instantRes = deployTestConfigToAppLcm(deployParams, mepHost, appReleasePo, lcmLog);
             if (!instantRes) {
                 LOGGER.error("instantiate application failed, response is null");
-                errMsg.setRetCode(lcmLog.getRetCode());
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, lcmLog.getLog()));
             }
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATED.getProgress());
