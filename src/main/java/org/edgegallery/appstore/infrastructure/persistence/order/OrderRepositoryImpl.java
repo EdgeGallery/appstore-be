@@ -49,8 +49,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public long getCountByCondition(Map<String, Object> params) {
-        return orderMapper.getCountByCondition(params).longValue();
+    public Integer getCountByCondition(Map<String, Object> params) {
+        return orderMapper.getCountByCondition(params);
     }
 
     @Override
