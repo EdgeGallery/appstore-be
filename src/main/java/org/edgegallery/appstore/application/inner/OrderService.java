@@ -19,9 +19,12 @@ package org.edgegallery.appstore.application.inner;
 import com.github.pagehelper.util.StringUtil;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
@@ -29,13 +32,18 @@ import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
+import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
+import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
+import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service("OrderService")
 public class OrderService {
@@ -43,6 +51,8 @@ public class OrderService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    private static final Integer RETAIN_IP_COUNT = 10; // retain 10 ip for online experience
 
     @Autowired
     private OrderRepository orderRepository;
@@ -52,6 +62,9 @@ public class OrderService {
 
     @Autowired
     private MecmService mecmService;
+
+    @Autowired
+    private HostMapper hostMapper;
 
     /**
      * update order status.
@@ -137,7 +150,7 @@ public class OrderService {
      * @param params query condition.
      */
     public long getCountByCondition(Map<String, Object> params) {
-        return orderRepository.getCountByCondition(params);
+        return orderRepository.getCountByCondition(params).longValue();
     }
 
     /**
@@ -200,5 +213,41 @@ public class OrderService {
             order.setDetailEn(order.getDetailEn() + "\n" + orderOperationDetailEn);
         }
 
+    }
+
+    /**
+     * get instantiate parameter.
+     *
+     * @param order order.
+     */
+    public Map<String, String> getVmDeployParams(Order order) {
+        Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
+        if ("container".equalsIgnoreCase(release.getDeployMode())) {
+            return Collections.emptyMap();
+        }
+        String parameter;
+        List<MepHost> mepHosts = hostMapper.getHostsByCondition("", "OpenStack");
+        if (CollectionUtils.isEmpty(mepHosts)) {
+            LOGGER.info("there is not host info.");
+            parameter = "app_mp1_ip=192.168.226.0/24;app_n6_ip=192.168.225.0/24;app_internet_ip=192.168.227.0/24";
+        } else {
+            parameter = mepHosts.get(0).getParameter();
+        }
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("status", "ACTIVATED");
+
+        Integer count = orderRepository.getCountByCondition(queryParams);
+        count += RETAIN_IP_COUNT;
+        Map<String, String> vmParams = InputParameterUtil.getParams(parameter);
+        Map<String, String> vmInputParams = new HashMap<>();
+        Set<Map.Entry<String, String>> entries = vmParams.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String ipRange = entry.getValue();
+            String tempIp = IpCalculateUtil.getStartIp(ipRange, count);
+            vmInputParams.put(entry.getKey(), tempIp);
+        }
+
+        return vmInputParams;
     }
 }

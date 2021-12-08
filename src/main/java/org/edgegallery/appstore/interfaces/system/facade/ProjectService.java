@@ -291,7 +291,7 @@ public class ProjectService {
             }
             endTime = new Date().getTime();
             if ((endTime - startTime) > GET_WORKSTATUS_WAIT_TIME) {
-                lcmLog.setLog("instantiate package failed.");
+                lcmLog.setLog(INSTANTIATE_FAILED);
                 return false;
             }
         }
@@ -706,7 +706,7 @@ public class ProjectService {
         }
         // If it is a vm package, it will get the IP in parameter and return it to the foreground
         String workStatus = getWorkStatus(appInstanceId, userId, mepHost, token);
-        List<Experience> experienceInfoList = new ArrayList<>();
+        List<Experience> experienceInfoList;
         if (CONTAINER.equals(appReleasePo.getDeployMode())) {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         } else {
