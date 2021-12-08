@@ -28,7 +28,7 @@ public interface OrderRepository {
 
     List<Order> queryOrders(Map<String, Object> params);
 
-    long getCountByCondition(Map<String, Object> params);
+    Integer getCountByCondition(Map<String, Object> params);
 
     String maxOrderNum();
 
