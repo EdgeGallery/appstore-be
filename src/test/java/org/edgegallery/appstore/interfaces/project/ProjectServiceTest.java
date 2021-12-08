@@ -227,7 +227,7 @@ public class ProjectServiceTest extends AppTest {
         ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, ret.getStatusCode().value());
         System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
-        Assert.assertEquals("this pacakge not instantiate", Objects.requireNonNull(ret.getBody()).getMessage());
+        Assert.assertEquals("this package not instantiate", Objects.requireNonNull(ret.getBody()).getMessage());
     }
 
     @Test
