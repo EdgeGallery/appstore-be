@@ -44,9 +44,9 @@ public class MecmWrapperServiceFacade {
      * @param token Access Token
      * @return ResponseEntity
      */
-    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String userId) {
+    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String userId, String appId, String packageId) {
         LOGGER.info("get all mecm hosts.");
-        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token, userId);
+        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token, userId, appId, packageId);
         List<MecmHostDto> respDataDto = mecHostList.stream().map(MecmHostDto::fromMap).collect(Collectors.toList());
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "query mecm host success."));

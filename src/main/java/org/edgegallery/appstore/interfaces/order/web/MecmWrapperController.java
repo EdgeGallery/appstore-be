@@ -18,6 +18,7 @@ package org.edgegallery.appstore.interfaces.order.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "mecmWrapper")
@@ -57,11 +59,14 @@ public class MecmWrapperController {
     })
     @GetMapping(value = "/mechosts", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<ResponseObject> queryMecmHosts(HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseObject> queryMecmHosts(
+        @ApiParam(value = "app id") @RequestParam("appId") String appId,
+        @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
+        HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
         return mecmWrapperServiceFacade.getAllMecmHosts(
             (String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR),
-            (String) httpServletRequest.getAttribute(Consts.USERID));
+            (String) httpServletRequest.getAttribute(Consts.USERID), appId, packageId);
     }
 }
 

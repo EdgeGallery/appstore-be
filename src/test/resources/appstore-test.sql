@@ -229,6 +229,20 @@ insert into catalog_package_table(
     'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
+insert into catalog_package_table(
+    packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
+    version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+    values ('packageid-0005', '/package/test/face.csar', '/user/test/icon.png', '', 10006, 'file-trees', now(),
+    'shortdesc', 'appname', 'version', 'game', 'container', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
+
+insert into catalog_package_table(
+    packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
+    version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
+    values ('packageid-0006', '/package/test/face.csar', '/user/test/icon.png', '', 10007, 'file-trees', now(),
+    'shortdesc', 'appname', 'version', 'game', 'vm', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
+
 insert into app_store_table(
     appstoreid, APPSTORENAME, APPSTOREVERSION, company, url, schema, apppushintf, APPDTRANSID, addedtime, modifiedtime, description)
     values ('a09bca74-04cb-4bae-9ee2-9c5072ec9d4b', 'liantong', 'v1.0', 'liantong', 'http://127.0.0.1:8099', 'http', '', '', now(), null, 'description-5555');

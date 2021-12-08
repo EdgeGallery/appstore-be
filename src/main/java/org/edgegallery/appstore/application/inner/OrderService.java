@@ -116,7 +116,7 @@ public class OrderService {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
                 Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, order.getUserId(),
-                    mecHostIpLst);
+                    mecHostIpLst, order.getAppId(), order.getAppPackageId());
                 if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }

@@ -18,6 +18,7 @@ package org.edgegallery.appstore.application.external.mecm;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -33,6 +35,7 @@ import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -54,7 +57,7 @@ public class MecmService {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private static final String MECM_URL_GET_MECHOSTS = "/inventory/v1/tenants/%s/mechosts";
+    private static final String MECM_URL_GET_MECHOSTS = "/mecm-north/v1/mechosts";
 
     private static final String APM_DELETE_EDGE_PACKAGE = "/apm/v1/tenants/%s/packages/%s/hosts/%s";
 
@@ -74,6 +77,12 @@ public class MecmService {
 
     @Value("${mecm.urls.inventory}")
     private String inventoryUrl;
+
+    @Value("${mecm.urls.north}")
+    private String northUrl;
+
+    @Autowired
+    private AppService appService;
 
     /**
      * upload package to mecm-apm.
@@ -169,23 +178,41 @@ public class MecmService {
      * @param token access token
      * @return mecm host list
      */
-    public List<Map<String, Object>> getAllMecmHosts(String token, String tenantId) {
+    public List<Map<String, Object>> getAllMecmHosts(String token, String tenantId, String appId, String packageId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
-        String url = inventoryUrl.concat(String.format(MECM_URL_GET_MECHOSTS, tenantId));
+        String url = northUrl.concat(MECM_URL_GET_MECHOSTS);
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Failed to get mechosts from mecm inventory, The status code is {}",
+                LOGGER.error("[Get All MecmHost], Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
-                throw new AppException("Failed to get mechosts from mecm inventory.",
+                throw new AppException("[Get All MecmHost], Failed to get mechosts from mecm inventory.",
                     ResponseConst.RET_GET_MECMHOST_FAILED);
             }
-
-            return new Gson().fromJson(response.getBody(), List.class);
+            // filter
+            if(StringUtils.isEmpty(appId) || StringUtils.isEmpty(packageId)){
+                return new ArrayList<>();
+            }
+            Release release = appService.getRelease(appId, packageId);
+            String deployMode = release.getDeployMode().equalsIgnoreCase("container") ? "K8S" : "OpenStack";
+            LOGGER.error("[Get All MecmHost] The app deploymode:{}, transform to {}", release.getDeployMode(),
+                deployMode);
+            List<Map<String, Object>> mecmHosts = new Gson().fromJson(response.getBody(), List.class);
+            List<Map<String, Object>> resMecmHosts = new ArrayList<>();
+            for (Map<String, Object> mecmHost : mecmHosts) {
+                LOGGER.error("[Get All MecmHost], current mecm host deploy mode:{}",
+                    String.valueOf(mecmHost.get("Vim")));
+                if (String.valueOf(mecmHost.get("Vim")).equalsIgnoreCase(deployMode)) {
+                    resMecmHosts.add(mecmHost);
+                    LOGGER.error("[Get All MecmHost], successfully add a mecm host:{}",
+                        String.valueOf(mecmHost.get("Vim")));
+                }
+            }
+            return resMecmHosts;
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get mechosts, RestClientException is {}", e.getMessage());
+            LOGGER.error("[Get All MecmHost], Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
 
         return Collections.emptyList();
@@ -198,8 +225,9 @@ public class MecmService {
      * @param mecHostIpList mec host ip list
      * @return mec host map
      */
-    public Map<String, MecHostBody> getMecHostByIpList(String token, String userId, List<String> mecHostIpList) {
-        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token, userId);
+    public Map<String, MecHostBody> getMecHostByIpList(String token, String userId, List<String> mecHostIpList,
+        String appId, String packageId) {
+        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token, userId, appId, packageId);
         Map<String, MecHostBody> mecHostMap = new HashMap<>();
         for (String mecHostIp : mecHostIpList) {
             Optional<Map<String, Object>> mecHostInfo = allMecHosts.stream()
@@ -212,7 +240,7 @@ public class MecmService {
             Map<String, Object> mecHostInfoMap = mecHostInfo.get();
             MecHostBody mecHost = new MecHostBody();
             mecHost.setMechostIp(mecHostIp);
-            mecHost.setCity((String) mecHostInfoMap.get("city"));
+            mecHost.setCity((String) mecHostInfoMap.get("City"));
             mecHostMap.put(mecHostIp, mecHost);
         }
 

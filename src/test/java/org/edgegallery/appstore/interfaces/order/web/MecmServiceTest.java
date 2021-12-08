@@ -72,7 +72,7 @@ public class MecmServiceTest {
     @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-        httpServer.createContext("/inventory/v1/tenants/testUserId/mechosts", new HttpHandler() {
+        httpServer.createContext("/mecm-north/v1/mechosts", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -82,8 +82,10 @@ public class MecmServiceTest {
                     exchange.getResponseBody().write("FORBIDDEN".getBytes());
                 } else if (method.equals("GET")) {
                     Map<String, Object> mechost = new HashMap<>();
+                    // change?
                     mechost.put("mechostIp", hostIp);
-                    mechost.put("city", "xian");
+                    mechost.put("City", "xian");
+                    mechost.put("Vim", "K8S");
                     List<Map<String, Object>> mechosts = new ArrayList<>();
                     mechosts.add(mechost);
                     String jsonObject = new Gson().toJson(mechosts);
@@ -111,23 +113,24 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId/hosts/192.168.0.1", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                if (!token.equals(accessToken)) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                } else if (method.equals("DELETE")) {
-                    String jsonObject = "delete edge package success.";
-                    byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+        httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId/hosts/192.168.0.1",
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                    if (!token.equals(accessToken)) {
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                        exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                    } else if (method.equals("DELETE")) {
+                        String jsonObject = "delete edge package success.";
+                        byte[] response = jsonObject.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
         httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
@@ -165,26 +168,27 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        httpServer.createContext("/appo/v1/tenants/testUserId/apps/testAppId/packages/testPackageId/status", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                if (!token.equals(accessToken)) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                } else if (method.equals("GET")) {
-                    Map<String, String> mecInfo = new HashMap<>();
-                    mecInfo.put("appInstanceId", "mecmInstanceId");
-                    mecInfo.put("operationalStatus", "Instantiated");
-                    String jsonObject = new Gson().toJson(mecInfo);
-                    byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+        httpServer.createContext("/appo/v1/tenants/testUserId/apps/testAppId/packages/testPackageId/status",
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                    if (!token.equals(accessToken)) {
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                        exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                    } else if (method.equals("GET")) {
+                        Map<String, String> mecInfo = new HashMap<>();
+                        mecInfo.put("appInstanceId", "mecmInstanceId");
+                        mecInfo.put("operationalStatus", "Instantiated");
+                        String jsonObject = new Gson().toJson(mecInfo);
+                        byte[] response = jsonObject.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
         httpServer.start();
     }
 
@@ -195,10 +199,11 @@ public class MecmServiceTest {
 
     @Test
     public void getMecHostByIpList_success() {
-        String userId = "testUserId";
+        String userId = "test-userid-0001";
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add(hostIp);
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList, "appid-test-0001",
+            "packageid-0005");
         Assert.assertNotNull(result);
         MecHostBody mecHost = result.get(hostIp);
         Assert.assertEquals("xian", mecHost.getCity());
@@ -209,7 +214,7 @@ public class MecmServiceTest {
         String userId = "testUserId";
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add("127.0.0.4");
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList, "", "");
         Assert.assertTrue(result.isEmpty());
     }
 
@@ -258,9 +263,9 @@ public class MecmServiceTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void queryMecmHosts() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/mec/appstore/v1/mechosts")
-            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.get("/mec/appstore/v1/mechosts").contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
@@ -297,7 +302,8 @@ public class MecmServiceTest {
         String userId = "testUserId";
         String mecmAppId = "testAppId";
         String mecmAppPackageId = "testPackageId";
-        MecmDeploymentInfo deploymentInfo = mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId, userId);
+        MecmDeploymentInfo deploymentInfo = mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId,
+            userId);
         Assert.assertEquals(deploymentInfo.getMecmOperationalStatus(), "Instantiated");
     }
 
