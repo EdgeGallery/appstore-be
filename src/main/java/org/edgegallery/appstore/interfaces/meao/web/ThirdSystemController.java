@@ -16,27 +16,24 @@
 
 package org.edgegallery.appstore.interfaces.meao.web;
 
-import com.alibaba.fastjson.JSONArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
 import org.edgegallery.appstore.interfaces.meao.facade.ThirdSystemFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -49,44 +46,6 @@ public class ThirdSystemController {
     ThirdSystemFacade thirdSystemFacade;
 
     /**
-     * create a thirdSystem.
-     */
-    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "create a thirdSystem", response = String.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<String> createThirdSystem(@RequestBody ThirdSystem thirdSystem) {
-        return thirdSystemFacade.createThirdSystem(thirdSystem);
-    }
-
-    /**
-     * query a thirdSystem.
-     */
-    @GetMapping(value = "/{thirdSystemId}", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "get a thirdSystem", response = ThirdSystem.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<ThirdSystem> getThirdSystem(
-        @ApiParam(value = "thirdSystemId") @PathVariable("thirdSystemId") String thirdSystemId) {
-        return thirdSystemFacade.getThirdSystemById(thirdSystemId);
-    }
-
-    /**
-     * count all thirdSystems.
-     */
-    @PostMapping(value = "/count", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "list thirdSystems", response = ThirdSystem.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<JSONArray> getThirdSystemList(
-        @ApiParam(value = "types", required = true) @RequestBody String[] types) {
-        return thirdSystemFacade.countThirdSystem(types);
-    }
-
-    /**
      * query thirdSystem by type.
      */
     @GetMapping(value = "/systemType/{type}", produces = MediaType.APPLICATION_JSON)
@@ -95,46 +54,7 @@ public class ThirdSystemController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     public ResponseEntity<List<ThirdSystem>> getThirdSystemByType(
-        @ApiParam(value = "type") @PathVariable("type") String type) {
-        return thirdSystemFacade.getThirdSystemByType(type);
-    }
-
-    /**
-     * query thirdSystem by like name.
-     */
-    @GetMapping(value = "/nameLike/{name}/systemType/{type}", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "query thirdSystem by like name", response = ThirdSystem.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<List<ThirdSystem>> getThirdSystemByLikeNmae(
-        @ApiParam(value = "name") @PathVariable("name") String name,
-        @ApiParam(value = "type") @PathVariable("type") String type) {
-        return thirdSystemFacade.selectByNameLike(name, type);
-    }
-
-    /**
-     * update a thirdSystem.
-     */
-    @PutMapping(value = "", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "update a thirdSystem", response = String.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<String> updateThirdSystem(@RequestBody ThirdSystem thirdSystem) {
-        return thirdSystemFacade.updateThirdSystem(thirdSystem);
-    }
-
-    /**
-     * delete a thirdSystem.
-     */
-    @DeleteMapping(value = "/{thirdSystemId}", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "delete a thirdSystem", response = String.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
-    })
-    public ResponseEntity<String> deleteThirdSystem(
-        @ApiParam(value = "thirdSystemId") @PathVariable("thirdSystemId") String thirdSystemId) {
-        return thirdSystemFacade.deleteThirdSystem(thirdSystemId);
+        @ApiParam(value = "type") @PathVariable("type") String type, HttpServletRequest request) {
+        return thirdSystemFacade.getThirdSystemByType(type,(String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
     }
 }
