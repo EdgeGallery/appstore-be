@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
@@ -96,6 +95,30 @@ public class OrderTest {
         System.out.println("start to test");
     }
 
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void create_order_should_success() throws Exception {
+        String mecmPkgId = "mecm-test-pkgId";
+        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(mecmPkgId);
+        MvcResult result = createOrder();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void create_order_should_failed() throws Exception {
+        String mecmPkgId = null;
+        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmPkgId);
+        MvcResult result = createOrder();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED, restReturn.getRetCode());
+    }
+
+    // Need test Get Mecm Host in Order.java?
+
+    /*
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void create_order_should_success() throws Exception {
@@ -115,6 +138,7 @@ public class OrderTest {
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
         Assert.assertEquals(ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED, restReturn.getRetCode());
     }
+
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
@@ -285,4 +309,6 @@ public class OrderTest {
         Optional<Order> order = orders.stream().filter(item -> EnumOrderStatus.ACTIVATED.equals(item.getStatus())).findFirst();
         return order.orElse(null);
     }
+
+     */
 }

@@ -48,11 +48,7 @@ public class Order implements Entity {
 
     private String mecHostIp;
 
-    private String mecAppId;
-
     private String mecPackageId;
-
-    private String mecInstanceId;
 
     private String detailCn;
 

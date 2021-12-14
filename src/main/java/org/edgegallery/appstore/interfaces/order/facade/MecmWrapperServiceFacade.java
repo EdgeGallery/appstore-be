@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.order.facade.dto.MecmHostDto;
@@ -38,6 +40,10 @@ public class MecmWrapperServiceFacade {
     @Autowired
     private MecmService mecmService;
 
+    @Autowired
+    private AppService appService;
+
+
     /**
      * get all mecm hosts.
      *
@@ -46,7 +52,8 @@ public class MecmWrapperServiceFacade {
      */
     public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String userId, String appId, String packageId) {
         LOGGER.info("get all mecm hosts.");
-        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token, userId, appId, packageId);
+        Release release = appService.getRelease(appId, packageId);
+        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token, userId, appId, packageId, release);
         List<MecmHostDto> respDataDto = mecHostList.stream().map(MecmHostDto::fromMap).collect(Collectors.toList());
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "query mecm host success."));
