@@ -115,10 +115,6 @@ public class ProjectService {
 
     private static final String OPENSTACK = "OpenStack";
 
-    private static final String VM_EXPERIENCE_IP = "app_n6_ip";
-
-    private static final String VDU1_N6_EXPERIENCE_IP = "VDU1_APP_Plane03_IP";
-
     private static final int IP_BINARY_BITS = 32;
 
     private static final int RESERVE_IP_COUNT = 2;
@@ -288,9 +284,10 @@ public class ProjectService {
         }
         while (!enumStatus.equalsIgnoreCase(status)) {
             try {
-                packageStatus = HttpClientUtil.getWorkloadStatus(mepHost.getProtocol(), mepHost.getLcmIp(),
-                    mepHost.getPort(), deployParams);
+                packageStatus = HttpClientUtil
+                    .getWorkloadStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams);
                 if (StringUtils.isEmpty(packageStatus) || "Failure".equalsIgnoreCase(status)) {
+                    lcmLog.setLog(INSTANTIATE_FAILED);
                     return false;
                 }
                 status = parseInstantiateResult(packageStatus, enumStatus, appReleasePo.getDeployMode());
@@ -364,7 +361,9 @@ public class ProjectService {
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
-        appReleasePo.setExperienceAbleIp(inputParams.get(VM_EXPERIENCE_IP));
+        String[] arr = mepHost.getParameter().split(";");
+        String vmExperienceIP = arr[0].trim().split("=")[1];
+        appReleasePo.setExperienceAbleIp(vmExperienceIP);
         packageMapper.updateAppInstanceApp(appReleasePo);
         return true;
     }
@@ -451,8 +450,8 @@ public class ProjectService {
 
         List<Release> mecHostPackage = packageRepository.findReleaseByMecHost(mecHost);
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
-        int count = 0;
-        String n6Range = vmInputParams.get(VDU1_N6_EXPERIENCE_IP);
+        int count = 1;
+        String n6Range = InputParameterUtil.getExperienceIp(parameter);
         String temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
         int ipCount = getIpCount(n6Range);
         for (Release mecRelease : mecHostPackage) {
@@ -464,15 +463,11 @@ public class ProjectService {
                 temN6Ip = IpCalculateUtil.getStartIp(n6Range, count);
             }
         }
-        String mepRange = vmInputParams.get("VDU1_APP_Plane01_IP");
-        String internetRange = vmInputParams.get("VDU1_APP_Plane02_IP");
-        vmInputParams.put(VDU1_N6_EXPERIENCE_IP, temN6Ip);
-        vmInputParams.put("VDU1_APP_Plane01_IP", IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("VDU1_APP_Plane02_IP", IpCalculateUtil.getStartIp(internetRange, count));
-
-        vmInputParams.putIfAbsent("VDU1_APP_Plane03_GW", IpCalculateUtil.getStartIp(n6Range, 0));
-        vmInputParams.putIfAbsent("VDU1_APP_Plane01_GW", IpCalculateUtil.getStartIp(mepRange, 0));
-        vmInputParams.putIfAbsent("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
+        for (Map.Entry<String, String> map : vmInputParams.entrySet()) {
+            String ipKey = map.getKey();
+            String ipValue = IpCalculateUtil.getStartIp(map.getValue(), count);
+            vmInputParams.put(ipKey, ipValue);
+        }
         return vmInputParams;
     }
 
@@ -642,8 +637,9 @@ public class ProjectService {
             deployParams.put(APP_INSTANCE_ID, appInstanceId);
             deployParams.put(USER_ID, userId);
             deployParams.put(TOKEN, token);
-            HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getMecHost(), host.getPort(), appInstanceId,
-                userId, token);
+            HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
+                    token);
             // delete package of hosts
             boolean deleteHostRes = HttpClientUtil.deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(),
                 deployParams, pkgId, host.getMecHost());
@@ -793,7 +789,7 @@ public class ProjectService {
 
     /**
      * cleanUnreleasedEnv.
-
+     */
     public boolean cleanUnreleasedEnv() {
         List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
         if (CollectionUtils.isEmpty(packageList)) {
@@ -827,7 +823,7 @@ public class ProjectService {
         }
         return true;
     }
-*/
+
     private String getAccessToken() {
         int count = 0;
         CloseableHttpClient client = createIgnoreSslHttpClient();
@@ -907,42 +903,6 @@ public class ProjectService {
         }
         return null;
     }
-
-    // 改回去
-    public boolean cleanUnreleasedEnv() {
-        List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
-        if (CollectionUtils.isEmpty(packageList)) {
-            LOGGER.error("get package List is empty");
-            return false;
-        }
-        // Call by service nameuser-mgmtLogin interface
-        try {
-            String accessToken = getAccessToken();
-            if (StringUtils.isEmpty(accessToken)) {
-                LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
-                return false;
-            }
-            Instant dateOfProject = null;
-            for (AppReleasePo packageObj : packageList) {
-                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                String createDate = packageObj.getStartExpTime();
-                if (StringUtils.isEmpty(createDate)) {
-                    dateOfProject = Instant.now();
-                } else {
-                    dateOfProject = fmt.parse(createDate).toInstant();
-                }
-                Instant now = Instant.now();
-                Long timeDiff = Duration.between(dateOfProject, now).toHours();
-                if (timeDiff.intValue() >= CLEAN_ENV_WAIT_TIME) {
-                    cleanTestEnv(packageObj.getPackageId(), accessToken);
-                }
-            }
-        } catch (ParseException e) {
-            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
-        }
-        return true;
-    }
-
 
     /**
      * schedule update query order

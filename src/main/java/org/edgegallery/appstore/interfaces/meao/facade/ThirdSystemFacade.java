@@ -16,86 +16,35 @@
 
 package org.edgegallery.appstore.interfaces.meao.facade;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
-import java.util.UUID;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
-import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Service("ThirdSystemFacade")
 public class ThirdSystemFacade {
-    private static final String CREATE_THIRD_SYSTEM_ERR_MESSAGES = "create third system fail.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdSystemFacade.class);
 
     private static final String QUERY_THIRD_SYSTEM_ERR_MESSAGES = "get third system fail.";
 
-    private static final String UPDATE_THIRD_SYSTEM_ERR_MESSAGES = "update third system fail.";
+    @Value("${thirdSystem.url}")
+    private String thirdSystemHost;
 
-    private static final String DELETE_THIRD_SYSTEM_ERR_MESSAGES = "delete third system fail.";
-
-    private static final String THIRD_SYSTEM_ERR_NOT_FOUND_MESSAGES = "third system not exist.";
-
-    @Autowired
-    ThirdSystemMapper thirdSystemMapper;
-
-    /**
-     * create a thirdSystem.
-     *
-     * @param thirdSystem thirdSystem
-     * @return String
-     */
-    public ResponseEntity<String> createThirdSystem(ThirdSystem thirdSystem) {
-        thirdSystem.setId(UUID.randomUUID().toString());
-        int ret = thirdSystemMapper.insertSelective(thirdSystem);
-        if (ret > 0) {
-            return ResponseEntity.ok("create third system success.");
-        } else {
-            throw new AppException(CREATE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_CREATE_THIRD_SYSTEM_FAILED);
-        }
-    }
-
-    /**
-     * query a thirdSystem by id.
-     *
-     * @param id thirdSystem id
-     * @return ThirdSystem
-     */
-    public ResponseEntity<ThirdSystem> getThirdSystemById(String id) {
-        ThirdSystem ret = thirdSystemMapper.selectByPrimaryKey(id);
-        if (ret != null) {
-            return ResponseEntity.ok(ret);
-        } else {
-            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
-        }
-    }
-
-    /**
-     * count all thirdSystems.
-     *
-     * @param types types
-     * @return count
-     */
-    public ResponseEntity<JSONArray> countThirdSystem(String[] types) {
-        JSONArray result = new JSONArray();
-        for (String type : types) {
-            int totalNum = thirdSystemMapper.countThirdSystems(type, null);
-            int activeNum = thirdSystemMapper.countThirdSystems(type, "active");
-            int inactiveNum = totalNum - activeNum;
-            JSONObject numObj = new JSONObject();
-            numObj.put("totalNum", totalNum);
-            numObj.put("activeNum", activeNum);
-            numObj.put("inactiveNum", inactiveNum);
-            JSONObject typeObj = new JSONObject();
-            typeObj.put(type, numObj);
-            result.add(typeObj);
-        }
-        return ResponseEntity.ok(result);
-    }
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     /**
      * query thirdSystem by type.
@@ -103,64 +52,25 @@ public class ThirdSystemFacade {
      * @param type type
      * @return ThirdSystem
      */
-    public ResponseEntity<List<ThirdSystem>> getThirdSystemByType(String type) {
-        List<ThirdSystem> ret = thirdSystemMapper.selectBySystemType(type);
-        if (ret != null) {
-            return ResponseEntity.ok(ret);
-        } else {
-            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
+    public ResponseEntity<List<ThirdSystem>> getThirdSystemByType(String type, String token) {
+        String url = thirdSystemHost + Consts.THIRD_SYSTEM_URL + "/systemType/" + type;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
+            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(response.getStatusCode())) {
+                List<ThirdSystem> ret = new Gson()
+                    .fromJson(response.getBody(), new TypeToken<List<ThirdSystem>>() { }.getType());
+                if (ret != null) {
+                    return ResponseEntity.ok(ret);
+                }
+            }
+            LOGGER.error("Failed to query meao info from third system, code is {}", response.getStatusCode());
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to query meao info from third system, exception {}", e.getMessage());
         }
+        throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
     }
-
-    /**
-     * query thirdSystem by like name.
-     *
-     * @param name name
-     * @return ThirdSystem
-     */
-    public ResponseEntity<List<ThirdSystem>> selectByNameLike(String name, String type) {
-        List<ThirdSystem> ret = thirdSystemMapper.selectByNameLike(name, type);
-        if (ret != null) {
-            return ResponseEntity.ok(ret);
-        } else {
-            throw new AppException(QUERY_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_QUERY_THIRD_SYSTEM_FAILED);
-        }
-    }
-
-    /**
-     * update a thirdSystem.
-     *
-     * @param thirdSystem thirdSystem
-     * @return String
-     */
-    public ResponseEntity<String> updateThirdSystem(ThirdSystem thirdSystem) {
-        ThirdSystem record = thirdSystemMapper.selectByPrimaryKey(thirdSystem.getId());
-        if (record == null) {
-            throw new AppException(THIRD_SYSTEM_ERR_NOT_FOUND_MESSAGES, ResponseConst.RET_THIRD_SYSTEM_NOT_FOUND);
-        }
-
-        int ret = thirdSystemMapper.updateByPrimaryKeySelective(thirdSystem);
-        if (ret > 0) {
-            return ResponseEntity.ok("update third system success.");
-        } else {
-            throw new AppException(UPDATE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_UPDATE_THIRD_SYSTEM_FAILED);
-        }
-    }
-
-    /**
-     * delete a thirdSystem.
-     *
-     * @param id thirdSystem id
-     * @return String
-     */
-    public ResponseEntity<String> deleteThirdSystem(String id) {
-        int ret = thirdSystemMapper.deleteByPrimaryKey(id);
-
-        if (ret < 0) {
-            throw new AppException(DELETE_THIRD_SYSTEM_ERR_MESSAGES, ResponseConst.RET_DELETE_THIRD_SYSTEM_FAILED);
-        } else {
-            return ResponseEntity.ok("delete third system success.");
-        }
-    }
-
 }

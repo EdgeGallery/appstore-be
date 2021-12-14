@@ -14,7 +14,7 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class InputParameterUtil {
@@ -30,7 +30,7 @@ public class InputParameterUtil {
      */
     public static Map<String, String> getParams(String str) {
         String[] arr = str.split(";");
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new LinkedHashMap<>();
         for (String temp : arr) {
             String[] keyValue = temp.trim().split("=");
             if (keyValue.length != 2) {
@@ -41,5 +41,10 @@ public class InputParameterUtil {
             params.put(key, value);
         }
         return params;
+    }
+
+    public static String getExperienceIp(String parameter) {
+        String[] arr = parameter.split(";");
+        return arr[0].trim().split("=")[1];
     }
 }
