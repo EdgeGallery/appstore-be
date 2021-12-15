@@ -140,7 +140,6 @@ public class AppRegisterTest extends AppTest {
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
                 .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
-                .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
                 .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
                 .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
                     "Smart Park".getBytes()))
@@ -166,7 +165,6 @@ public class AppRegisterTest extends AppTest {
                 .file(new MockMultipartFile("file", "positioning_eg_1.csar", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(csarFile)))
                 .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
-                .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
                 .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
                 .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
                     "Smart Park".getBytes()))
@@ -194,7 +192,6 @@ public class AppRegisterTest extends AppTest {
                     FileUtils.openInputStream(csarFile)))
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
-                .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
                 .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
                 .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
                     "Smart Park".getBytes()))
@@ -223,7 +220,6 @@ public class AppRegisterTest extends AppTest {
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
                 .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
-                .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
                 .file(new MockMultipartFile("industry", "", MediaType.TEXT_PLAIN_VALUE,
                     "Smart Park".getBytes()))
                 .with(csrf())
@@ -251,7 +247,6 @@ public class AppRegisterTest extends AppTest {
                 .file(new MockMultipartFile("icon", "logo.png", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(iconFile)))
                 .file(new MockMultipartFile("type", "", MediaType.TEXT_PLAIN_VALUE, "Video Application".getBytes()))
-                .file(new MockMultipartFile("shortDesc", "", MediaType.TEXT_PLAIN_VALUE, "Desc".getBytes()))
                 .file(new MockMultipartFile("affinity", "", MediaType.TEXT_PLAIN_VALUE, "X86".getBytes()))
                 .with(csrf())
                 .param("userId", userId)
