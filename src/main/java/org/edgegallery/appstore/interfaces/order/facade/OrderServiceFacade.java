@@ -139,7 +139,7 @@ public class OrderServiceFacade {
                 throw new AppException("[Deactivate Order], Failed to utilize delete server interface.",
                     ResponseConst.RET_DELETE_SERVER);
             } else if (result.equalsIgnoreCase("failed to delete package") || result.equalsIgnoreCase(
-                "failed to delete instantiation")) { // need to make sure the string with mecm
+                "failed to delete instantiation")) {
                 LOGGER.error("[Deactivate Order] Failed to delete package.");
                 order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             } else if (result.equalsIgnoreCase("Delete server success")) {
@@ -156,48 +156,6 @@ public class OrderServiceFacade {
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
     }
-
-    /*
-     * deactivate order.
-     *
-     * @param userId user id
-     * @param userName user name
-     * @param orderId order id
-     * @return result
-
-    public ResponseEntity<ResponseObject> deactivateOrder(String userId, String userName, String orderId,
-        String token) {
-        Order order = orderRepository.findByOrderId(orderId)
-            .orElseThrow(() -> new EntityNotFoundException(Order.class, orderId, ResponseConst.RET_ORDER_NOT_FOUND));
-        if (order.getStatus() != EnumOrderStatus.ACTIVATED && order.getStatus() != EnumOrderStatus.DEACTIVATE_FAILED) {
-            throw new AppException("inactivated orders can't be deactivated.",
-                ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
-        }
-        if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-            order.setStatus(EnumOrderStatus.DEACTIVATING);
-            orderRepository.updateOrder(order);
-
-            // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
-            String result = orderService.unDeployApp(order, userId, token);
-            if ("success".equals(result)) {
-                orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
-                    EnumOrderOperation.DEACTIVATED.getEnglish());
-                order.setStatus(EnumOrderStatus.DEACTIVATED);
-                // set mecm info to empty
-                order.setMecPackageId("");
-            } else {
-                LOGGER.error("deactivate Order failed.");
-                order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
-            }
-            orderRepository.updateOrder(order);
-        } else {
-            throw new PermissionNotAllowedException("can not deactivate order",
-                ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
-        }
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
-    }
-    */
 
     /**
      * activate order.
@@ -225,7 +183,7 @@ public class OrderServiceFacade {
             Map<String, String> params = orderService.getVmDeployParams(release);
             String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
                 order.getUserId(), params);
-            if (mecmPkgId == null) {
+            if (mecmPkgId == null || StringUtils.isEmpty(mecmPkgId)) {
                 LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
                 throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
                     ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED); // NEED TO UPDATE WEBSITE GATEWAY
@@ -268,11 +226,9 @@ public class OrderServiceFacade {
         List<OrderDto> orderList = orderService.queryOrders(params, token);
         LOGGER.error("[Query Order] order list: {}", orderList);
         long total = orderService.getCountByCondition(params);
-
-        // Update order instance id.
-        // If order is activating, update status based on mecm operation status.
-
         LOGGER.info("[QUERY ORDER] After update each order status");
+
+        // update mecm operational status
 
         return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
             queryOrdersReqDto.getQueryCtrl().getOffset(), total));

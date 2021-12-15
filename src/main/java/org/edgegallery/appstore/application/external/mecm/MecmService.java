@@ -97,11 +97,11 @@ public class MecmService {
      * @param tenantId user id
      * @return MecmInfo
      */
-
     public String upLoadPackageToMecmNorth(String token, Release release, String hostList, String tenantId,
         Map<String, String> params) {
         String appPkgName = release.getPackageFile().getOriginalFileName();
         String appPkgVersion = release.getAppBasicInfo().getVersion();
+        String appClass = release.getDeployMode();
         String filePath = release.getPackageFile().getStorageAddress();
         if (StringUtils.isEmpty(appPkgName) || StringUtils.isEmpty(appPkgVersion) || StringUtils.isEmpty(filePath)) {
             LOGGER.error("[Upload to MECM], Failed to validate input parameters of MECM task creation, status is {}",
@@ -111,6 +111,7 @@ public class MecmService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("appPkgName", appPkgName);
         body.add("appPkgVersion", appPkgVersion);
+        body.add("appClass", appPkgVersion);
         body.add("file", new FileSystemResource(filePath));
         body.add("hostList", hostList);
         body.add("params", params);
@@ -143,6 +144,14 @@ public class MecmService {
         return null;
     }
 
+    /**
+     * query mecm deployment status of one app package.
+     *
+     * @param token access token
+     * @param mecmAppPackageId app package info
+     * @param tenantId user id
+     * @return Mecm deployment info
+     */
     public MecmDeploymentInfo getMecmDepolymentStatus(String token, String mecmAppPackageId, String tenantId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -172,91 +181,6 @@ public class MecmService {
         }
         return null;
     }
-   /*
-    public MecmDeploymentInfo getMecmDepolymentStatus(String token, String mecmAppId, String mecmAppPackageId,
-        String tenantId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        HttpEntity<String> request = new HttpEntity<>(headers);
-        String url = appoUrl.concat(String.format(MECM_GET_DEPLOYMENT_STATUS, tenantId, mecmAppId, mecmAppPackageId));
-        try {
-            LOGGER.info("[Get MECM status], starting http request. The url is :{}", url);
-            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
-            LOGGER.info("[Get MECM status], after http request, the reponse is: {}", response);
-            if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("[Get MECM status] Failed to get Deployment Status from MECM. The status code is {}",
-                    response.getStatusCode());
-                return null;
-            }
-            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            String mecmAppInstanceId = jsonObject.get("appInstanceId").getAsString();
-            String mecmOperationalStatus = jsonObject.get("operationalStatus").getAsString();
-            LOGGER.info("[Get MECM status], Successfully get status, mecm app instance id is: {}, status is {}",
-                mecmAppInstanceId, mecmOperationalStatus);
-            return new MecmDeploymentInfo(mecmAppInstanceId, mecmOperationalStatus, mecmAppId, mecmAppPackageId);
-        } catch (RestClientException e) {
-            LOGGER.error("[Get MECM status], get Deployment Status from MECM exception {}", e.getMessage());
-        }
-        return null;
-    }
-
-
-    */
-
-     /*
-    public MecmInfo upLoadPackageToApm(String token, Release release, String hostList, String tenantId) {
-        String appPackageName = release.getPackageFile().getOriginalFileName();
-        String appPackageVersion = release.getAppBasicInfo().getVersion();
-        String filePath = release.getPackageFile().getStorageAddress();
-        if (StringUtils.isEmpty(appPackageName) || StringUtils.isEmpty(appPackageVersion) || StringUtils.isEmpty(
-            filePath)) {
-            LOGGER.error("Failed to validate input parameters of MECM task creation, status is {}",
-                ResponseConst.RET_PARAM_INVALID);
-            return null;
-        }
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("appPackageName", appPackageName);
-        body.add("appPackageVersion", appPackageVersion);
-        body.add("file", new FileSystemResource(filePath));
-        body.add("hostList", hostList);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = apmUrl.concat(String.format(MECM_UPLOAD_GET_APPINFO, tenantId));
-        LOGGER.info("[Upload to MECM], header, request entity set successfully.");
-        try {
-            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("[Upload to MECM, the reponse is {}", response);
-
-            if (!HttpStatus.ACCEPTED.equals(response.getStatusCode())) {
-                LOGGER.error(
-                    "[Upload to MECM] [Http Request Failed] Failed to get http reponse from MECM, status is {}",
-                    response.getStatusCode());
-                return null;
-            }
-            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            String mecmAppId = jsonObject.get("appId").getAsString();
-            String mecmAppPackageId = jsonObject.get("appPackageId").getAsString();
-            LOGGER.info("[Upload to MECM], Successfully created test task {}, status is {}", mecmAppId,
-                mecmAppPackageId);
-            return new MecmInfo(mecmAppId, mecmAppPackageId);
-        } catch (RestClientException e) {
-            LOGGER.error("[Upload to MECM], Failed to create instance of MecmInfo,  exception {}", e.getMessage());
-        }
-        return null;
-    }
-*/
-
-    /**
-     * get deployment status from mecm.
-     *
-     * @param token access token
-     * @param mecmAppId mecm appId
-     * @param mecmAppPackageId mecm packageId
-     * @param tenantId user id
-     * @return MecmDeploymentInfo
-     */
 
     /**
      * get all mecm hosts.
@@ -264,8 +188,7 @@ public class MecmService {
      * @param token access token
      * @return mecm host list
      */
-    public List<Map<String, Object>> getAllMecmHosts(String token, String tenantId, String appId, String packageId,
-        Release release) {
+    public List<Map<String, Object>> getAllMecmHosts(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -278,28 +201,10 @@ public class MecmService {
                 throw new AppException("[Get All MecmHost], Failed to get mechosts from mecm inventory.",
                     ResponseConst.RET_GET_MECMHOST_FAILED);
             }
-            // filter
-            if (StringUtils.isEmpty(appId) || StringUtils.isEmpty(packageId)) {
-                return new ArrayList<>();
-            }
-            LOGGER.error("[Get All MecmHost] The app deploymode:{}", release.getDeployMode());
-            String deployMode = release.getDeployMode().equalsIgnoreCase("container") ? "K8s" : "OpenStack";
-            List<Map<String, Object>> mecmHosts = new Gson().fromJson(response.getBody(), List.class);
-            List<Map<String, Object>> resMecmHosts = new ArrayList<>();
-            for (Map<String, Object> mecmHost : mecmHosts) {
-                LOGGER.error("[Get All MecmHost], current mecm host deploy mode:{}",
-                    String.valueOf(mecmHost.get("vim")));
-                if (String.valueOf(mecmHost.get("vim")).equalsIgnoreCase(deployMode)) {
-                    resMecmHosts.add(mecmHost);
-                    LOGGER.error("[Get All MecmHost], successfully add a mecm host:{}",
-                        String.valueOf(mecmHost.get("vim")));
-                }
-            }
-            return resMecmHosts;
+            return new Gson().fromJson(response.getBody(), List.class);
         } catch (RestClientException e) {
             LOGGER.error("[Get All MecmHost], Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
-
         return Collections.emptyList();
     }
 
@@ -310,9 +215,8 @@ public class MecmService {
      * @param mecHostIpList mec host ip list
      * @return mec host map
      */
-    public Map<String, MecHostBody> getMecHostByIpList(String token, String userId, List<String> mecHostIpList,
-        String appId, String packageId, Release release) {
-        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token, userId, appId, packageId, release);
+    public Map<String, MecHostBody> getMecHostByIpList(String token, List<String> mecHostIpList) {
+        List<Map<String, Object>> allMecHosts = getAllMecmHosts(token);
         Map<String, MecHostBody> mecHostMap = new HashMap<>();
         for (String mecHostIp : mecHostIpList) {
             Optional<Map<String, Object>> mecHostInfo = allMecHosts.stream()
@@ -321,17 +225,23 @@ public class MecmService {
             if (!mecHostInfo.isPresent()) {
                 continue;
             }
-
             Map<String, Object> mecHostInfoMap = mecHostInfo.get();
             MecHostBody mecHost = new MecHostBody();
             mecHost.setMechostIp(mecHostIp);
             mecHost.setCity((String) mecHostInfoMap.get("city"));
             mecHostMap.put(mecHostIp, mecHost);
         }
-
         return mecHostMap;
     }
 
+    /**
+     * upload package to mecm-apm.
+     *
+     * @param userId user id
+     * @param packageId appstore package id
+     * @param token access token
+     * @return delete server success or not
+     */
     public String deleteServer(String userId, String packageId, String token) {
         if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(packageId)) {
             LOGGER.error("[Delete Server] UserId or PacakgeId is empty. ");
@@ -347,11 +257,10 @@ public class MecmService {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("[Delete Server] Failed to get response within Delete Server Interface");
-                // 外部判断异常
                 return "Failed";
             }
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            String msg = jsonObject.get("data").getAsJsonArray().get(2).getAsString();
+            String msg = jsonObject.get("data").getAsJsonArray().get(0).getAsJsonObject().get("message").getAsString();
             return msg;
         } catch (RestClientException e) {
             LOGGER.error("[Delete Server] Exception. Failed to get response within Delete Server Interface");

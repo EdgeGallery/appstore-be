@@ -75,7 +75,6 @@ public class OrderService {
     public void updateOrderStatus(String token, Order order) {
         LOGGER.info("[Update Order Status] Each order, appid: {}, order status: {}", order.getAppId(),
             order.getStatus());
-        LOGGER.info("[Update Order Status], If status is activating, update mecm deploy instance info");
         if (StringUtils.isEmpty(order.getMecPackageId())) {
             LOGGER.error("[Update Order Status] mecm package id is null, continue");
             return;
@@ -93,37 +92,10 @@ public class OrderService {
         } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to distribute")
             || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to instantiate")) {
             order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-            LOGGER.error(
-                "[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
+            LOGGER.error("[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
         }
         orderRepository.updateOrder(order);
         LOGGER.info("[Update Order Status] Order updated, MecmPackageId:{}", order.getMecPackageId());
-
-        /*
-        if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
-            LOGGER.info("[Update Order Status], If status is activating, update mecm deploy instance info");
-            if (StringUtils.isEmpty(order.getMecPackageId())) {
-                LOGGER.error("[Update Order Status] mecm package id is null, continue");
-                return;
-            }
-            MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecPackageId(),
-                order.getUserId());
-            LOGGER.info("[Update Order Status], analyze mecm instance id, MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
-            if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
-                LOGGER.error("[Update Order Status] mecm deploy info null ");
-                return;
-            }
-            if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
-                order.setStatus(EnumOrderStatus.ACTIVATED);
-                LOGGER.info("[Update Order Status], Distributed and instantiated success, modify status to activated");
-            } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to distribute")
-                || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to instantiate")) {
-                order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-                LOGGER.error(
-                    "[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
-            }
-        }
-        */
 
     }
 
@@ -148,14 +120,13 @@ public class OrderService {
             if (!StringUtils.isEmpty(mecHostIp)) {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
-                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, order.getUserId(),
-                    mecHostIpLst, order.getAppId(), order.getAppPackageId(), release);
+                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
                 if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }
             }
             // Timer will update status every 15 min.
-            if(order.getStatus() == EnumOrderStatus.ACTIVATING){
+            if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
                 updateOrderStatus(token, order);
             }
 
@@ -203,28 +174,6 @@ public class OrderService {
         String res = mecmService.deleteServer(userId, packageId, token);
         return res;
     }
-
-    /*
-     * undeploy app.
-     *
-     * @param order order info
-     * @param userId deactivate user id
-     * @param token access token
-     * @return delete app success or not
-
-    public String unDeployApp(Order order, String userId, String token) {
-        String hostIp = order.getMecHostIp();
-        String packageId = order.getMecPackageId();
-
-        if (!mecmService.deleteEdgePackage(hostIp, userId, packageId, token)) {
-            return "delete edge package from apm failed.";
-        }
-        if (!mecmService.deleteApmPackage(userId, packageId, token)) {
-            return "delete apm package from apm failed.";
-        }
-        return "success";
-    }
-    */
 
     /**
      * set order operation detail.

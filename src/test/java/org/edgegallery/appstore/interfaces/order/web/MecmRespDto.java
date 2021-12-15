@@ -22,7 +22,7 @@ import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 
 @Getter
 @Setter
-public class MecmStatusRespDto {
+public class MecmRespDto {
     private String mecmPackageId;
     private String message;
     private String retCode;

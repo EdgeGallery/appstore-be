@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -60,8 +61,8 @@ public class MecmWrapperController {
     @GetMapping(value = "/mechosts", produces = MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> queryMecmHosts(
-        @ApiParam(value = "app id") @RequestParam("appId") String appId,
-        @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
+        @ApiParam(value = "app id") @RequestParam(value = "appId", required = false) String appId,
+        @ApiParam(value = "package id") @RequestParam(value = "packageId", required = false) String packageId,
         HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
         return mecmWrapperServiceFacade.getAllMecmHosts(

@@ -14,6 +14,9 @@
 
 package org.edgegallery.appstore.interfaces.order.web;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
+
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -76,6 +79,7 @@ public class MecmServiceTest {
     @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+        // query mecm hosts
         httpServer.createContext("/mecm-north/v1/mechosts", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
@@ -86,13 +90,93 @@ public class MecmServiceTest {
                     exchange.getResponseBody().write("FORBIDDEN".getBytes());
                 } else if (method.equals("GET")) {
                     Map<String, Object> mechost = new HashMap<>();
-                    // change?
                     mechost.put("mechostIp", hostIp);
                     mechost.put("city", "xian");
                     mechost.put("vim", "K8s");
                     List<Map<String, Object>> mechosts = new ArrayList<>();
                     mechosts.add(mechost);
                     String jsonObject = new Gson().toJson(mechosts);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        // upload package
+        httpServer.createContext("/mecm-north/v1/tenants/testUserId/package", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("POST")) {
+                    Map<String, String> mecInfo = new HashMap<>();
+                    mecInfo.put("mecmPackageId", "mecmPackageId");
+                    mecInfo.put("data", null);
+                    mecInfo.put("retCode", "0");
+                    mecInfo.put("message", "Create server in progress");
+                    mecInfo.put("params", null);
+                    String jsonObject = new Gson().toJson(mecInfo);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        // get deployment status
+        httpServer.createContext("/mecm-north/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("GET")) {
+                    MecmRespDto testResponse = new MecmRespDto();
+                    testResponse.setMecmPackageId("mecmPkgId");
+                    testResponse.setMessage("Query server success");
+                    testResponse.setRetCode("0");
+                    List<Map<String, String>> testData = new ArrayList<>();
+                    Map<String, String> testDataRow1 = new HashMap<>();
+                    Map<String, String> testDataRow2 = new HashMap<>();
+                    testDataRow1.put("hostIp", "123.1.1.0");
+                    testDataRow1.put("retCode", "0");
+                    testDataRow1.put("status", "Finished");
+                    testData.add(testDataRow1);
+                    testDataRow2.put("hostIp", "123.1.1.1");
+                    testDataRow2.put("retCode", "1");
+                    testDataRow2.put("status", "Distributed");
+                    testData.add(testDataRow2);
+                    testResponse.setData(testData);
+                    testResponse.setParams("");
+                    String jsonObject = new Gson().toJson(testResponse);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                } else if (method.equals("DELETE")) {
+                    MecmRespDto testResponse = new MecmRespDto();
+                    testResponse.setMecmPackageId("mecmPkgId");
+                    testResponse.setMessage("Query server success");
+                    testResponse.setRetCode("0");
+                    List<Map<String, String>> testData = new ArrayList<>();
+                    Map<String, String> testDataRow1 = new HashMap<>();
+                    Map<String, String> testDataRow2 = new HashMap<>();
+                    testDataRow1.put("hostIp", "123.1.1.0");
+                    testDataRow1.put("retCode", "0");
+                    testDataRow1.put("message", "Delete server success");
+                    testData.add(testDataRow1);
+                    testDataRow2.put("hostIp", "123.1.1.1");
+                    testDataRow2.put("retCode", "1");
+                    testDataRow2.put("message", "failed to delete package");
+                    testData.add(testDataRow2);
+                    testResponse.setData(testData);
+                    testResponse.setParams("");
+                    String jsonObject = new Gson().toJson(testResponse);
                     byte[] response = jsonObject.getBytes();
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                     exchange.getResponseBody().write(response);
@@ -117,6 +201,7 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
+        // need to delete
         httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId/hosts/192.168.0.1",
             new HttpHandler() {
                 @Override
@@ -152,86 +237,6 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        httpServer.createContext("/mecm-north/v1/tenants/testUserId/package", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                if (!token.equals(accessToken)) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                } else if (method.equals("POST")) {
-                    Map<String, String> mecInfo = new HashMap<>();
-                    mecInfo.put("mecmPackageId", "mecmPackageId");
-                    mecInfo.put("data", null);
-                    mecInfo.put("retCode", "0");
-                    mecInfo.put("message", "Create server in progress");
-                    mecInfo.put("params", null);
-                    String jsonObject = new Gson().toJson(mecInfo);
-                    byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                exchange.close();
-            }
-        });
-        // need to delete
-        httpServer.createContext("/appo/v1/tenants/testUserId/apps/testAppId/packages/testPackageId/status",
-            new HttpHandler() {
-                @Override
-                public void handle(HttpExchange exchange) throws IOException {
-                    String method = exchange.getRequestMethod();
-                    String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                    if (!token.equals(accessToken)) {
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                        exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                    } else if (method.equals("GET")) {
-                        Map<String, String> mecInfo = new HashMap<>();
-                        mecInfo.put("appInstanceId", "mecmInstanceId");
-                        mecInfo.put("operationalStatus", "Instantiated");
-                        String jsonObject = new Gson().toJson(mecInfo);
-                        byte[] response = jsonObject.getBytes();
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                        exchange.getResponseBody().write(response);
-                    }
-                    exchange.close();
-                }
-            });
-        httpServer.createContext("/mecm-north/v1/tenants/testUserId/packages/testPackageId",
-            new HttpHandler() {
-                @Override
-                public void handle(HttpExchange exchange) throws IOException {
-                    String method = exchange.getRequestMethod();
-                    String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                    if (!token.equals(accessToken)) {
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                        exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                    } else if (method.equals("GET")) {
-                        MecmStatusRespDto testResponse = new MecmStatusRespDto();
-                        testResponse.setMecmPackageId("mecmPkgId");
-                        testResponse.setMessage("Query server success");
-                        testResponse.setRetCode("0");
-                        List<Map<String, String>> testData = new ArrayList<>();
-                        Map<String, String> testDataRow1 = new HashMap<>();
-                        Map<String, String> testDataRow2 = new HashMap<>();
-                        testDataRow1.put("hostIp", "123.1.1.0");
-                        testDataRow1.put("retCode", "0");
-                        testDataRow1.put("status", "Finished");
-                        testData.add(testDataRow1);
-                        testDataRow2.put("hostIp", "123.1.1.1");
-                        testDataRow2.put("retCode", "1");
-                        testDataRow2.put("status", "Distributed");
-                        testData.add(testDataRow2);
-                        testResponse.setData(testData);
-                        testResponse.setParams("");
-                        String jsonObject = new Gson().toJson(testResponse);
-                        byte[] response = jsonObject.getBytes();
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                        exchange.getResponseBody().write(response);
-                    }
-                    exchange.close();
-                }
-            });
         httpServer.start();
     }
 
@@ -241,19 +246,25 @@ public class MecmServiceTest {
     }
 
     @Test
-    public void getDeploymentStatus_success(){
-        String userId = "testUserId";
-        String mecmPkgId = "testPackageId";
-        MecmDeploymentInfo testInfo = mecmService.getMecmDepolymentStatus(token, mecmPkgId, userId);
-        Assert.assertNotNull(testInfo);
-        Assert.assertEquals("Finished", testInfo.getMecmOperationalStatus());
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void queryMecmHosts() throws Exception {
+        String url = String.format("/mec/appstore/v1/mechosts");
+        MvcResult result = mvc.perform(
+                MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
-    public void getDeploymentStatus_fail(){
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertNull(mecmService.getMecmDepolymentStatus(token,mecmPkgId,userId));
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void queryMecmHosts_with_params() throws Exception {
+        String appId = "appid-test-0001";
+        String packageId = "packageid-0005";
+        String url = String.format("/mec/appstore/v1/mechosts?appId=%s&packageId=%s", appId, packageId);
+        MvcResult result = mvc.perform(
+                MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
     @Test
@@ -262,8 +273,7 @@ public class MecmServiceTest {
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add(hostIp);
         Release release = appService.getRelease("appid-test-0001", "packageid-0005");
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList, "appid-test-0001",
-            "packageid-0005", release);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
         Assert.assertNotNull(result);
         MecHostBody mecHost = result.get(hostIp);
         Assert.assertEquals("xian", mecHost.getCity());
@@ -275,8 +285,70 @@ public class MecmServiceTest {
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add("127.0.0.4");
         Release release = new Release();
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, userId, mecHostIpList, "", "", release);
+        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
         Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void upLoadPackageToMecmNorth_success() throws IOException {
+        String userId = "testUserId";
+        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
+        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
+        Release release = new Release();
+        release.setPackageFile(packageAFile);
+        release.setAppBasicInfo(new BasicInfo());
+        release.getAppBasicInfo().setVersion("v1.0");
+        String hostList = "testHostList";
+        Map<String, String> params = new HashMap<>();
+        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params);
+        Assert.assertEquals(mecmPkgId, "mecmPackageId");
+    }
+
+    @Test
+    public void upLoadPackageToMecmNorth_fail() throws IOException {
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
+        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
+        Release release = new Release();
+        release.setPackageFile(packageAFile);
+        release.setAppBasicInfo(new BasicInfo());
+        release.getAppBasicInfo().setVersion("v1.0");
+        String hostList = "testHostList";
+        Map<String, String> params = new HashMap<>();
+        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
+
+        release.getAppBasicInfo().setVersion("");
+        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
+    }
+
+    @Test
+    public void getDeploymentStatus_success() {
+        String userId = "testUserId";
+        String mecmPkgId = "testPackageId";
+        MecmDeploymentInfo testInfo = mecmService.getMecmDepolymentStatus(token, mecmPkgId, userId);
+        Assert.assertNotNull(testInfo);
+        Assert.assertEquals("Finished", testInfo.getMecmOperationalStatus());
+    }
+
+    @Test
+    public void getDeploymentStatus_fail() {
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
+        Assert.assertNull(mecmService.getMecmDepolymentStatus(token, mecmPkgId, userId));
+    }
+
+    @Test
+    public void deleteServer_success() {
+        String userId = "testUserId";
+        String mecmPkgId = "testPackageId";
+        Assert.assertEquals("Delete server success", mecmService.deleteServer(userId, mecmPkgId, token));
+    }
+
+    @Test
+    public void deleteServer_fail() {
+        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
+        Assert.assertNull(mecmService.deleteServer(userId, mecmPkgId, token));
     }
 
     @Test
@@ -320,94 +392,4 @@ public class MecmServiceTest {
         String packageId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
         Assert.assertFalse(mecmService.deleteApmPackage(userId, packageId, token));
     }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void queryMecmHosts() throws Exception {
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.get("/mecm-north/v1/mechost").contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    public void upLoadPackageToMecmNorth_success() throws IOException {
-        String userId = "testUserId";
-        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
-        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
-        Release release = new Release();
-        release.setPackageFile(packageAFile);
-        release.setAppBasicInfo(new BasicInfo());
-        release.getAppBasicInfo().setVersion("v1.0");
-        String hostList = "testHostList";
-        Map<String, String> params = new HashMap<>();
-        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params);
-        Assert.assertEquals(mecmPkgId, "mecmPackageId");
-    }
-
-    @Test
-    public void upLoadPackageToMecmNorth_fail() throws IOException {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
-        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
-        Release release = new Release();
-        release.setPackageFile(packageAFile);
-        release.setAppBasicInfo(new BasicInfo());
-        release.getAppBasicInfo().setVersion("v1.0");
-        String hostList = "testHostList";
-        Map<String, String> params = new HashMap<>();
-        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
-
-        release.getAppBasicInfo().setVersion("");
-        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
-    }
-
-    /*
-    @Test
-    public void upLoadPackageToApm_success() throws IOException {
-        String userId = "testUserId";
-        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
-        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
-        Release release = new Release();
-        release.setPackageFile(packageAFile);
-        release.setAppBasicInfo(new BasicInfo());
-        release.getAppBasicInfo().setVersion("v1.0");
-        MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, hostIp, userId);
-        Assert.assertEquals(mecmInfo.getMecmAppId(), "mecmAppId");
-    }
-
-    @Test
-    public void upLoadPackageToApm_fail() throws IOException {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        File csarFile = Resources.getResourceAsFile("testfile/test2048_1.0.csar");
-        AFile packageAFile = new AFile(csarFile.getName(), csarFile.getAbsolutePath());
-        Release release = new Release();
-        release.setPackageFile(packageAFile);
-        release.setAppBasicInfo(new BasicInfo());
-        release.getAppBasicInfo().setVersion("v1.0");
-        Assert.assertNull(mecmService.upLoadPackageToApm(token, release, hostIp, userId));
-
-        release.getAppBasicInfo().setVersion("");
-        Assert.assertNull(mecmService.upLoadPackageToApm(token, release, hostIp, userId));
-    }
-
-    @Test
-    public void getMecmDepolymentStatus_success() throws IOException {
-        String userId = "testUserId";
-        String mecmAppId = "testAppId";
-        String mecmAppPackageId = "testPackageId";
-        MecmDeploymentInfo deploymentInfo = mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId,
-            userId);
-        Assert.assertEquals(deploymentInfo.getMecmOperationalStatus(), "Instantiated");
-    }
-
-    @Test
-    public void getMecmDepolymentStatus_fail() throws IOException {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String mecmAppId = "testAppId";
-        String mecmAppPackageId = "testPackageId";
-        Assert.assertNull(mecmService.getMecmDepolymentStatus(token, mecmAppId, mecmAppPackageId, userId));
-    }
-
-     */
 }
