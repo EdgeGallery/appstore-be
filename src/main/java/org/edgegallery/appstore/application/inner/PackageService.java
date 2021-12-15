@@ -232,7 +232,7 @@ public class PackageService {
         try {
             return FileUtils.readFileToString(tempFile, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.error("transfer to file or read file error, {}", e.getMessage());
+            LOGGER.error("read file error, {}", e.getMessage());
             return null;
         }
     }
@@ -248,7 +248,7 @@ public class PackageService {
             multipartFile.transferTo(tempFile);
             return tempFile;
         } catch (IOException e) {
-            LOGGER.error("transfer to file or read file error, {}", e.getMessage());
+            LOGGER.error("transfer multipartFile to file error, {}", e.getMessage());
             return null;
         }
     }
