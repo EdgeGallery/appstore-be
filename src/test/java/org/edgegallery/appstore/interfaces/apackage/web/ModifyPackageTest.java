@@ -18,25 +18,22 @@ package org.edgegallery.appstore.interfaces.apackage.web;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.application.inner.PackageService;
-import org.edgegallery.appstore.domain.model.releases.PackageRepository;
-import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ModifyPackageTest extends AppTest {
-    @Autowired
-    PackageService packageService;
 
     @Autowired
-    PackageRepository packageRepository;
+    PackageServiceFacade packageServiceFacade;
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -59,9 +56,10 @@ public class ModifyPackageTest extends AppTest {
         packageDto.setShortDesc("2048 game");
         packageDto.setShowType("inner-public");
         packageDto.setExperienceAble(true);
-        packageService.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto);
-        Release release = packageRepository.findReleaseById(appId, packageDto.getPackageId());
-        Assert.assertEquals("2048 game", release.getAppBasicInfo().getAppDesc());
+        ResponseEntity<PackageDto> resp = packageServiceFacade.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto);
+        PackageDto pack = resp.getBody();
+        Assert.assertNotNull(pack);
+        Assert.assertEquals("2048 game", pack.getShortDesc());
     }
 
 }
