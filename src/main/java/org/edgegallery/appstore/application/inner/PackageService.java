@@ -16,11 +16,15 @@
 package org.edgegallery.appstore.application.inner;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.AtpService;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
@@ -37,6 +41,7 @@ import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
 import org.slf4j.Logger;
@@ -63,6 +68,9 @@ public class PackageService {
 
     @Autowired
     private LocalFileServiceImpl fileService;
+
+    @Autowired
+    private AppUtil appUtil;
 
     @Value("${appstore-be.package-path}")
     private String dir;
@@ -163,15 +171,18 @@ public class PackageService {
     /**
      * update app package information.
      *
-     * @param appId app Id
-     * @param packageId package Id
+     * @param iconFile app icon
+     * @param demoVideo app demo video
+     * @param docFile app detail md file.
      * @param packageDto packageDto
      */
-    public void updateAppById(String appId, String packageId, MultipartFile iconFile, MultipartFile demoVideo,
+    public void updateAppById(MultipartFile iconFile, MultipartFile demoVideo, MultipartFile docFile,
         PackageDto packageDto) {
-        Release release = packageRepository.findReleaseById(appId, packageId);
+        String appId = packageDto.getAppId();
+        Release release = packageRepository.findReleaseById(appId, packageDto.getPackageId());
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        modifyPackageFile(docFile, packageDto.getShortDesc(), release);
         String fileParent = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
         if (iconFile != null) {
             AFile icon = getFile(iconFile, new IconChecker(dir), fileParent);
@@ -201,9 +212,75 @@ public class PackageService {
             release.setShowType(packageDto.getShowType());
             app.setShowType(packageDto.getShowType());
         }
+        if (docFile != null) {
+            String mdContent = modifyAppDetail(docFile, release);
+            if (!StringUtils.isEmpty(mdContent)) {
+                release.getAppBasicInfo().setMarkDownContent(mdContent);
+            }
+        }
         release.setExperienceAble(packageDto.isExperienceAble());
         appRepository.store(app);
         packageRepository.updateRelease(release);
+    }
+
+    private String modifyAppDetail(MultipartFile docFile, Release release) {
+        String pkgPath = release.getPackageFile().getStorageAddress();
+        File tempFile = transMultiFileToFile(docFile, pkgPath);
+        if (tempFile == null) {
+            return null;
+        }
+        try {
+            return FileUtils.readFileToString(tempFile, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.error("read file error, {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private File transMultiFileToFile(MultipartFile multipartFile, String filePath) {
+        if (multipartFile == null) {
+            return null;
+        }
+        String tempPath = filePath.substring(0, filePath.lastIndexOf(File.separator) + 1)
+            + multipartFile.getOriginalFilename();
+        File tempFile = new File(tempPath);
+        try {
+            multipartFile.transferTo(tempFile);
+            return tempFile;
+        } catch (IOException e) {
+            LOGGER.error("transfer multipartFile to file error, {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private void modifyPackageFile(MultipartFile docFile, String shortDesc, Release release) {
+        if (docFile == null && StringUtils.isEmpty(shortDesc)) {
+            return;
+        }
+        String packagePath = release.getPackageFile().getStorageAddress();
+        File packageFullFile = new File(packagePath.substring(0, packagePath.lastIndexOf(".")));
+        String fileParent = packageFullFile.getPath();
+        if (!packageFullFile.exists() || !packageFullFile.isDirectory()) {
+            AppService.unzipApplicationPackage(packagePath, fileParent);
+        }
+        try {
+            if (docFile != null) {
+                File tempFile = transMultiFileToFile(docFile, packagePath);
+                File srcFile = appUtil.getFile(fileParent + "/Artifacts/Docs", "md");
+                FileUtils.copyFile(tempFile, srcFile);
+            }
+            if (!StringUtils.isEmpty(shortDesc)) {
+                File mfFile = appUtil.getFile(fileParent, "mf");
+                String oldValue = "app_package_description: " + release.getAppBasicInfo().getAppDesc();
+                String newValue = "app_package_description: " + shortDesc;
+                FileUtils.writeStringToFile(mfFile, FileUtils.readFileToString(mfFile, StandardCharsets.UTF_8)
+                        .replace(oldValue, newValue), StandardCharsets.UTF_8, false);
+            }
+            String fileExtension = packagePath.substring(packagePath.lastIndexOf("."));
+            appUtil.compressAndDeleteFile(fileParent, fileParent, fileExtension);
+        } catch (IOException e) {
+            LOGGER.error("modifyPackageFile catch exception {}.", e.getMessage());
+        }
     }
 
     private AFile getFile(MultipartFile file, AbstractFileChecker fileChecker, String fileParent) {
