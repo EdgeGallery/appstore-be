@@ -348,9 +348,11 @@ public class ProjectService {
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
-        String[] arr = mepHost.getParameter().split(";");
-        String vmExperienceIP = arr[0].trim().split("=")[1];
-        appReleasePo.setExperienceAbleIp(vmExperienceIP);
+        /** This is the IP used to record the vm application online experience */
+        if (VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
+            String vmExperienceIP = InputParameterUtil.getExperienceIp(mepHost.getParameter());
+            appReleasePo.setExperienceAbleIp(vmExperienceIP);
+        }
         packageMapper.updateAppInstanceApp(appReleasePo);
         return true;
     }
