@@ -88,7 +88,7 @@ public class OrderService {
         }
         MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecPackageId(),
             order.getUserId());
-        LOGGER.info("[Update Order Status], analyze mecm instance id, MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
+        LOGGER.info("[Update Order Status], MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
         if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
             LOGGER.error("[Update Order Status] mecm deploy info null ");
             return;
@@ -96,8 +96,8 @@ public class OrderService {
         if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
             order.setStatus(EnumOrderStatus.ACTIVATED);
             LOGGER.info("[Update Order Status], Distributed and instantiated success, modify status to activated");
-        } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to distribute")
-            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Failed to instantiate")) {
+        } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Distribute Error")
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")) {
             order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
             LOGGER.error("[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
         }
@@ -135,7 +135,7 @@ public class OrderService {
             if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
                 updateOrderStatus(token, order);
             }
-
+            orderRepository.updateOrder(order);
             OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
                 release != null ? release.getAppBasicInfo().getVersion() : "", mecHostCity);
             dtoList.add(dto);

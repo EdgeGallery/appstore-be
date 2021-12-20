@@ -92,8 +92,7 @@ public class OrderServiceFacade {
         // create app instance
         // update status to Activating
         String params = orderService.getVmDeployParams(release);
-        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
-            order.getMecPackageId(), params);
+        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(), userId, params);
         if (mecmPkgId == null) {
             LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
             throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
@@ -102,7 +101,6 @@ public class OrderServiceFacade {
         order.setMecPackageId(mecmPkgId);
         order.setStatus(EnumOrderStatus.ACTIVATING);
         LOGGER.info("[CREATE ORDER] MECM Package Id:{} ", order.getMecPackageId());
-
         order.setOperateTime(new Date());
         orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
             EnumOrderOperation.ACTIVATED.getEnglish());
@@ -131,7 +129,6 @@ public class OrderServiceFacade {
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
             order.setStatus(EnumOrderStatus.DEACTIVATING);
             orderRepository.updateOrder(order);
-
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if (StringUtils.isEmpty(result)) {
@@ -211,7 +208,6 @@ public class OrderServiceFacade {
 
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, QueryOrdersReqDto queryOrdersReqDto,
         String token) {
-        LOGGER.error("[Query Order] starting query order function");
         Map<String, Object> params = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             params.put("userId", userId);

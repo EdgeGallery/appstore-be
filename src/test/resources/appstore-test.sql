@@ -4,7 +4,7 @@ drop table IF EXISTS CSAR_PACKAGE_SCORE;
 drop table IF EXISTS app_store_table;
 drop table IF EXISTS PUSHABLE_PACKAGE_TABLE;
 drop table IF EXISTS message_table;
-DROP TABLE IF  EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE;
+drop table IF EXISTS PACKAGE_UPLOAD_PROGRESS_TABLE;
 
 create TABLE if not exists catalog_package_table (
     PACKAGEID                VARCHAR(200)       NOT NULL,
@@ -195,9 +195,7 @@ create TABLE if not exists app_order (
     OPERATETIME              TIMESTAMP          NULL,
     STATUS                   VARCHAR(50)        NOT NULL,
     MECM_HOSTIP              VARCHAR(1024)      NULL,
-    MECM_APPID               VARCHAR(200)       NULL,
     MECM_APPPACKAGEID        VARCHAR(200)       NULL,
-    MECM_INSTANCEID          VARCHAR(200)       NULL,
     DETAILCN                 text               DEFAULT NULL,
     DETAILEN                 text               DEFAULT NULL,
     CONSTRAINT app_order_pkey PRIMARY KEY (ORDERID),
@@ -279,29 +277,29 @@ merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,C
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245aaa', 'package-2', 'meao-2', 'NORMAL','start','2020-01-02 00:00:00.000000');
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245bbb', 'package-3', 'meao-3', 'NORMAL','start','2020-01-03 00:00:00.000000');
 
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da971', 'ES0000000001', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0001', 'mecm-packageid-0001');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da971', 'ES0000000001', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0001');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
   values('7c555c26-2343-6456-958b-12f7ea4da972', 'ES0000000002', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'DEACTIVATED', '127.0.0.1');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da973', 'ES0000000003', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', '2021-09-29 17:32:31.201', '2021-09-29 17:32:31.201', 'ACTIVATED', '127.0.0.1', 'mecm-appid-0002', 'mecm-packageid-0002');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da973', 'ES0000000003', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', '2021-09-29 17:32:31.201', '2021-09-29 17:32:31.201', 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0002');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
   values('7c555c26-2343-6456-958b-12f7ea4da974', 'ES0000000004', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0004', now(), now(), 'DEACTIVATED', '127.0.0.1');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP)
   values('7c555c26-2343-6456-958b-12f7ea4da975', 'ES0000000005', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0005', now(), now(), 'DEACTIVATED', '127.0.0.1');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
   values('7c555c26-2343-6456-958b-12f7ea4da976', 'ES0000000006', 'testUserId', 'test-username-fororder', 'appid-test-0001', 'packageid-0004', now(), now(), 'ACTIVATING', '127.0.0.1', 'testPackageId');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da977', 'ES0000000007', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0004', 'mecm-packageid-0004');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da978', 'ES0000000008', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0005', 'mecm-packageid-0005');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da979', 'ES0000000009', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0006', 'mecm-packageid-0006');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da980', 'ES0000000010', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0007', 'mecm-packageid-0007');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da981', 'ES0000000011', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0008', 'mecm-packageid-0008');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da982', 'ES0000000012', 'd0f8fa57-2f4c-4182-be33-0a508964d04b', 'test-username-fororder', 'appid-test-0002', 'packageid-0004', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0009', 'mecm-packageid-0009');
-insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPID, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da983', 'ES0000000013', 'd0f8fa57-2f4c-4182-be33-0a508964d04b', 'test-username-fororder', 'appid-test-0002', 'packageid-0004', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-appid-0010', 'mecm-packageid-0010');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da977', 'ES0000000007', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0004');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da978', 'ES0000000008', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0005');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da979', 'ES0000000009', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0006');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da980', 'ES0000000010', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0007');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da981', 'ES0000000011', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0008');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da982', 'ES0000000012', 'd0f8fa57-2f4c-4182-be33-0a508964d04b', 'test-username-fororder', 'appid-test-0002', 'packageid-0004', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0009');
+insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
+  values('7c555c26-2343-6456-958b-12f7ea4da983', 'ES0000000013', 'd0f8fa57-2f4c-4182-be33-0a508964d04b', 'test-username-fororder', 'appid-test-0002', 'packageid-0004', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0010');

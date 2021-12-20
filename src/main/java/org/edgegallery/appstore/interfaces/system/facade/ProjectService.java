@@ -921,6 +921,7 @@ public class ProjectService {
             for(Order order : orders){
                 if(order.getStatus() == EnumOrderStatus.ACTIVATING) {
                     orderService.updateOrderStatus(token, order);
+                    LOGGER.error("[Timer Update Query Order] Updated.");
                 }
             }
         }

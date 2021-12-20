@@ -283,7 +283,7 @@ public class OrderTest {
         order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
-        mecmDeploymentInfo.setMecmOperationalStatus("Failed to instantiate");
+        mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
         Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
@@ -298,7 +298,7 @@ public class OrderTest {
         order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
-        mecmDeploymentInfo.setMecmOperationalStatus("Failed to distribute");
+        mecmDeploymentInfo.setMecmOperationalStatus("Distribute Error");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
         Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);

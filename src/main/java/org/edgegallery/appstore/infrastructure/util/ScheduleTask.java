@@ -47,7 +47,7 @@ public class ScheduleTask {
         packageServiceFacade.scheduledDeletePackage();
     }
 
-    @Scheduled(cron = "0 0/15 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void processUpdateQueryOrder(){projectService.scheduledQueryOrder();};
 
 }

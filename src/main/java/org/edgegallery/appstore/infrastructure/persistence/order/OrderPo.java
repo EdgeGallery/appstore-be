@@ -66,14 +66,8 @@ public class OrderPo implements PersistenceObject<Order> {
     @Column(name = "MECM_HOSTIP")
     private String mecHostIp;
 
-    @Column(name = "MECM_APPID")
-    private String mecAppId;
-
     @Column(name = "MECM_APPPACKAGEID")
     private String mecPackageId;
-
-    @Column(name = "MECM_INSTANCEID")
-    private String mecInstanceId;
 
     @Column(name = "DETAILCN")
     private String detailCn;

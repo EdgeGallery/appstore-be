@@ -106,7 +106,7 @@ public class MecmService {
         body.add("appPkgName", appPkgName);
         body.add("appPkgVersion", appPkgVersion);
         body.add("appClass", appClass);
-        body.add("params", params);
+        body.add("parameters", params);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -185,24 +185,17 @@ public class MecmService {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
         String url = northUrl.concat(MECM_GET_MECHOSTS);
-        LOGGER.error("[Get All MecmHost], The url is:{}", url);
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
-            LOGGER.error("[Get All MecmHost], The response is:{}", response);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("[Get All MecmHost], Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
                 throw new AppException("[Get All MecmHost], Failed to get mechosts from mecm inventory.",
                     ResponseConst.RET_GET_MECMHOST_FAILED);
             }
-
-            LOGGER.error("[Get All MecmHost]. Start to return response body");
             JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            LOGGER.error("[Get All MecmHost]. JsonObject is:{}", jsonObject);
             JsonArray hostInfo = jsonObject.get("data").getAsJsonArray();
-            LOGGER.error("[Get All MecmHost]. hostObject is:{}", hostInfo);
             List<Map<String, Object>> hostList = new Gson().fromJson(hostInfo, List.class);
-            LOGGER.error("[Get All MecmHost]. List is:{}", hostList);
             return hostList;
         } catch (RestClientException e) {
             LOGGER.error("[Get All MecmHost], Failed to get mechosts, RestClientException is {}", e.getMessage());
