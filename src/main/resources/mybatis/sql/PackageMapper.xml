@@ -168,7 +168,9 @@
         ,instancetenentid = #{instanceTenentId}
         ,STARTEXPTIME = #{startExpTime}
         ,instancepackageid = #{instancePackageId}
+        <if test="experienceAbleIp != null  and experienceAbleIp != ''">
         ,EXPERIENCEABLEIP = #{experienceAbleIp}
+        </if>
         ,MECHOST = #{mecHost}
         WHERE packageid = #{packageId}
     </update>
