@@ -80,7 +80,6 @@ import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
-import org.edgegallery.appstore.interfaces.order.facade.OrderServiceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,10 +167,10 @@ public class ProjectService {
     private PackageRepository packageRepository;
 
     @Autowired
-    private OrderService orderService;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderService orderService;
 
     private static String getXsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
@@ -670,6 +669,7 @@ public class ProjectService {
         return ResponseEntity.ok(new ResponseObject(appReleasePo.getExperienceStatus(), errMsg, null));
     }
 
+
     /**
      * deploy App By Id.
      *
@@ -857,7 +857,7 @@ public class ProjectService {
             if (authRes.contains("accessToken")) {
                 String[] tokenArr = authRes.split(":");
                 if (tokenArr != null && tokenArr.length > 1) {
-                    return tokenArr[1].substring(1, tokenArr[1].length() - 1);
+                    return tokenArr[1].substring(1, tokenArr[1].length() - 2);
                 }
             }
         }
@@ -907,21 +907,24 @@ public class ProjectService {
     /**
      * schedule update query order
      */
-    public void scheduledQueryOrder() {
-        // 调 query order
-        // Get all orders
+    public boolean scheduledQueryOrder() {
+        // periodically refresh order status
         String token = getAccessToken();
         if(StringUtils.isEmpty(token)) {
             LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
-            return ;
+            return false;
         }
         Map<String, Object> params = new HashMap<>();
         List<Order> orders = orderRepository.queryOrders(params);
         LOGGER.error("[Scheduled Query Order], {}", orders);
-        for(Order order : orders){
-            if(order.getStatus() == EnumOrderStatus.ACTIVATING) {
-                orderService.updateOrderStatus(token, order);
+        if(!orders.isEmpty()) {
+            for(Order order : orders){
+                if(order.getStatus() == EnumOrderStatus.ACTIVATING) {
+                    orderService.updateOrderStatus(token, order);
+                }
             }
         }
+        return true;
     }
+
 }

@@ -66,8 +66,7 @@ public class MecmWrapperController {
         HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
         return mecmWrapperServiceFacade.getAllMecmHosts(
-            (String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR),
-            (String) httpServletRequest.getAttribute(Consts.USERID), appId, packageId);
+            (String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR), appId, packageId);
     }
 }
 

@@ -39,6 +39,7 @@ import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
+import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,12 @@ public class OrderService {
 
     @Autowired
     private HostMapper hostMapper;
+
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private OrderService orderService;
 
     /**
      * update order status.
@@ -96,7 +103,6 @@ public class OrderService {
         }
         orderRepository.updateOrder(order);
         LOGGER.info("[Update Order Status] Order updated, MecmPackageId:{}", order.getMecPackageId());
-
     }
 
     /**
@@ -201,9 +207,9 @@ public class OrderService {
      *
      * @param release release.
      */
-    public Map<String, String> getVmDeployParams(Release release) {
+    public String getVmDeployParams(Release release) {
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
-            return Collections.emptyMap();
+            return "";
         }
         String parameter;
         List<MepHost> mepHosts = hostMapper.getHostsByCondition("", "OpenStack");
@@ -220,14 +226,16 @@ public class OrderService {
         Integer count = orderRepository.getCountByCondition(queryParams);
         count += RETAIN_IP_COUNT;
         Map<String, String> vmParams = InputParameterUtil.getParams(parameter);
-        Map<String, String> vmInputParams = new HashMap<>();
+        //Map<String, String> vmInputParams = new HashMap<>();
+        StringBuilder vmInputParams = new StringBuilder();
         Set<Map.Entry<String, String>> entries = vmParams.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String ipRange = entry.getValue();
             String tempIp = IpCalculateUtil.getStartIp(ipRange, count);
-            vmInputParams.put(entry.getKey(), tempIp);
+            //vmInputParams.put(entry.getKey(), tempIp);
+            vmInputParams.append(entry.getKey()).append("=").append(tempIp).append(";");
         }
 
-        return vmInputParams;
+        return vmInputParams.substring(0, vmInputParams.length()-2).toString();
     }
 }

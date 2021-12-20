@@ -91,7 +91,7 @@ public class OrderServiceFacade {
         // upload package to mec
         // create app instance
         // update status to Activating
-        Map<String, String> params = orderService.getVmDeployParams(release);
+        String params = orderService.getVmDeployParams(release);
         String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
             order.getMecPackageId(), params);
         if (mecmPkgId == null) {
@@ -180,7 +180,7 @@ public class OrderServiceFacade {
             // deploy app
             // update status to Activating
             Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            Map<String, String> params = orderService.getVmDeployParams(release);
+            String params = orderService.getVmDeployParams(release);
             String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
                 order.getUserId(), params);
             if (mecmPkgId == null || StringUtils.isEmpty(mecmPkgId)) {

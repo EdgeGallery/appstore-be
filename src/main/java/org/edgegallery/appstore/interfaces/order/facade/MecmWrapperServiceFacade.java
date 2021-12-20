@@ -53,9 +53,10 @@ public class MecmWrapperServiceFacade {
      * @param token Access Token
      * @return ResponseEntity
      */
-    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String userId, String appId, String packageId) {
+    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String appId, String packageId) {
         LOGGER.info("[Get all mecm hosts].");
         List<Map<String, Object>> mecmHosts = mecmService.getAllMecmHosts(token);
+        LOGGER.error("[Get all mecm hosts] Utilize mecm service success. Start to filter the hsots.");
         List<Map<String, Object>> resMecmHosts = new ArrayList<>();
         if (!StringUtils.isEmpty(appId) && !StringUtil.isEmpty(packageId)) {
             LOGGER.info("[Get all mecm hosts]. Filter mecm hosts by depoly mode.");

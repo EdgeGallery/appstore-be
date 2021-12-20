@@ -79,8 +79,7 @@ public class MecmServiceTest {
     @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
-        // query mecm hosts
-        httpServer.createContext("/mecm-north/v1/mechosts", new HttpHandler() {
+        httpServer.createContext("/north/v1/mechosts", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -89,13 +88,25 @@ public class MecmServiceTest {
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
                     exchange.getResponseBody().write("FORBIDDEN".getBytes());
                 } else if (method.equals("GET")) {
-                    Map<String, Object> mechost = new HashMap<>();
-                    mechost.put("mechostIp", hostIp);
-                    mechost.put("city", "xian");
-                    mechost.put("vim", "K8s");
                     List<Map<String, Object>> mechosts = new ArrayList<>();
-                    mechosts.add(mechost);
-                    String jsonObject = new Gson().toJson(mechosts);
+                    Map<String, Object> mechost1 = new HashMap<>();
+                    mechost1.put("mechostIp", hostIp);
+                    mechost1.put("mechostName", "38node1");
+                    mechost1.put("city", "nanjing");
+                    mechost1.put("vim", "OpenStack");
+                    mechost1.put("affinity", "X86");
+                    mechosts.add(mechost1);
+                    Map<String, Object> mechost2 = new HashMap<>();
+                    mechost2.put("mechostIp", hostIp);
+                    mechost2.put("mechostName", "38node1");
+                    mechost2.put("city", "xian");
+                    mechost2.put("vim", "K8s");
+                    mechost2.put("affinity", "X86");
+                    Map<String, Object> rsp = new HashMap<>();
+                    rsp.put("data", mechosts);
+                    rsp.put("retCode", 0);
+                    rsp.put("message", "query mecm host success.");
+                    String jsonObject = new Gson().toJson(rsp);
                     byte[] response = jsonObject.getBytes();
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                     exchange.getResponseBody().write(response);
@@ -103,8 +114,7 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        // upload package
-        httpServer.createContext("/mecm-north/v1/tenants/testUserId/package", new HttpHandler() {
+        httpServer.createContext("/north/v1/tenants/testUserId/package", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -127,8 +137,7 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        // get deployment status
-        httpServer.createContext("/mecm-north/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
+        httpServer.createContext("/north/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -299,7 +308,7 @@ public class MecmServiceTest {
         release.setAppBasicInfo(new BasicInfo());
         release.getAppBasicInfo().setVersion("v1.0");
         String hostList = "testHostList";
-        Map<String, String> params = new HashMap<>();
+        String params = "";
         String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params);
         Assert.assertEquals(mecmPkgId, "mecmPackageId");
     }
@@ -314,7 +323,7 @@ public class MecmServiceTest {
         release.setAppBasicInfo(new BasicInfo());
         release.getAppBasicInfo().setVersion("v1.0");
         String hostList = "testHostList";
-        Map<String, String> params = new HashMap<>();
+        String params = "";
         Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
 
         release.getAppBasicInfo().setVersion("");

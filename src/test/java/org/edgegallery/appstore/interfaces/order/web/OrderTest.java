@@ -19,23 +19,34 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
 import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
 import org.edgegallery.appstore.interfaces.controlleradvice.RestReturn;
 import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.QueryOrdersReqDto;
+import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,8 +89,19 @@ public class OrderTest {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProjectService projectService;
+
     @MockBean
     protected MecmService mecmService;
+
+    @Autowired
+    private AppService appService;
+
+    private HttpServer httpServer8001;
+
+    private String token = "4687632346763131324564";
+
 
     private MvcResult createOrder() throws Exception {
         CreateOrderReqDto createOrderReqDto = new CreateOrderReqDto();
@@ -91,11 +113,52 @@ public class OrderTest {
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
     }
 
+
     @Before
-    public void beforeTest() {
+    public void before() throws IOException {
         System.out.println("start to test");
+        httpServer8001 = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+        httpServer8001.createContext("/mecm-north/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("GET")) {
+                    MecmRespDto testResponse = new MecmRespDto();
+                    testResponse.setMecmPackageId("mecmPkgId");
+                    testResponse.setMessage("Query server success");
+                    testResponse.setRetCode("0");
+                    List<Map<String, String>> testData = new ArrayList<>();
+                    Map<String, String> testDataRow1 = new HashMap<>();
+                    Map<String, String> testDataRow2 = new HashMap<>();
+                    testDataRow1.put("hostIp", "123.1.1.0");
+                    testDataRow1.put("retCode", "0");
+                    testDataRow1.put("status", "Finished");
+                    testData.add(testDataRow1);
+                    testDataRow2.put("hostIp", "123.1.1.1");
+                    testDataRow2.put("retCode", "1");
+                    testDataRow2.put("status", "Distributed");
+                    testData.add(testDataRow2);
+                    testResponse.setData(testData);
+                    testResponse.setParams("");
+                    String jsonObject = new Gson().toJson(testResponse);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        httpServer8001.start();
     }
 
+    @After
+    public void after() {
+        httpServer8001.stop(1);
+    }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
@@ -204,7 +267,7 @@ public class OrderTest {
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
         Assert.assertEquals(ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED, restReturn.getRetCode());
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_status_null() throws Exception {
@@ -221,7 +284,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activated() throws Exception {
@@ -236,7 +299,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATED);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activate_failed_case1() throws Exception {
@@ -251,7 +314,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATE_FAILED);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activate_failed_case2() throws Exception {
@@ -266,7 +329,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATE_FAILED);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activiting_case1() throws Exception {
@@ -281,7 +344,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activiting_case2() throws Exception {
@@ -296,7 +359,7 @@ public class OrderTest {
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
     }
-    // tested
+
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_order_update_activiting_case3() throws Exception {
@@ -346,6 +409,15 @@ public class OrderTest {
         String msg = "failed to delete instantiation";
         Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
         Assert.assertEquals("failed to delete instantiation", orderService.unDeployApp(order, userId, token));
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void get_VM_Deploy_param_success() throws Exception {
+        Release release = appService.getRelease("appid-test-0001", "packageid-0002");
+        String res = orderService.getVmDeployParams(release);
+        String expectedRes = "app_mp1_ip=192.168.226.15;app_n6_ip=192.168.225.15;app_internet_ip=192.168.227.1";
+        Assert.assertEquals(expectedRes, res);
     }
 
     private MvcResult queryOrderList() throws Exception {

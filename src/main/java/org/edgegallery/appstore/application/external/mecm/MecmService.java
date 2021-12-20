@@ -15,26 +15,19 @@
 
 package org.edgegallery.appstore.application.external.mecm;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.jar.JarEntry;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
-import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
@@ -53,7 +46,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.stringtemplate.v4.ST;
 
 @Service("mecmService")
 public class MecmService {
@@ -68,13 +60,13 @@ public class MecmService {
 
     private static final String APPO_INSTANTIATE_APP = "/appo/v1/tenants/%s/app_instances/%s";
 
-    private static final String MECM_GET_MECHOSTS = "/mecm-north/v1/mechosts";
+    private static final String MECM_GET_MECHOSTS = "/north/v1/mechosts";
 
-    private static final String MECM_UPLOAD_PACKAGE = "/mecm-north/v1/tenants/%s/package";
+    private static final String MECM_UPLOAD_PACKAGE = "/north/v1/tenants/%s/package";
 
-    private static final String MECM_GET_DEPLOYMENT_STATUS = "/mecm-north/v1/tenants/%s/packages/%s";
+    private static final String MECM_GET_DEPLOYMENT_STATUS = "/north/v1/tenants/%s/packages/%s";
 
-    private static final String MECM_DELETE_PACKAGE = "/mecm-north/v1/tenants/%s/packages/%s";
+    private static final String MECM_DELETE_PACKAGE = "/north/v1/tenants/%s/packages/%s";
 
     @Value("${mecm.urls.apm}")
     private String apmUrl;
@@ -98,7 +90,7 @@ public class MecmService {
      * @return MecmInfo
      */
     public String upLoadPackageToMecmNorth(String token, Release release, String hostList, String tenantId,
-        Map<String, String> params) {
+        String params) {
         String appPkgName = release.getPackageFile().getOriginalFileName();
         String appPkgVersion = release.getAppBasicInfo().getVersion();
         String appClass = release.getDeployMode();
@@ -109,11 +101,11 @@ public class MecmService {
             return null;
         }
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("appPkgName", appPkgName);
-        body.add("appPkgVersion", appPkgVersion);
-        body.add("appClass", appPkgVersion);
         body.add("file", new FileSystemResource(filePath));
         body.add("hostList", hostList);
+        body.add("appPkgName", appPkgName);
+        body.add("appPkgVersion", appPkgVersion);
+        body.add("appClass", appClass);
         body.add("params", params);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -193,15 +185,25 @@ public class MecmService {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
         String url = northUrl.concat(MECM_GET_MECHOSTS);
+        LOGGER.error("[Get All MecmHost], The url is:{}", url);
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.GET, request, String.class);
+            LOGGER.error("[Get All MecmHost], The response is:{}", response);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
                 LOGGER.error("[Get All MecmHost], Failed to get mechosts from mecm inventory, The status code is {}",
                     response.getStatusCode());
                 throw new AppException("[Get All MecmHost], Failed to get mechosts from mecm inventory.",
                     ResponseConst.RET_GET_MECMHOST_FAILED);
             }
-            return new Gson().fromJson(response.getBody(), List.class);
+
+            LOGGER.error("[Get All MecmHost]. Start to return response body");
+            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+            LOGGER.error("[Get All MecmHost]. JsonObject is:{}", jsonObject);
+            JsonArray hostInfo = jsonObject.get("data").getAsJsonArray();
+            LOGGER.error("[Get All MecmHost]. hostObject is:{}", hostInfo);
+            List<Map<String, Object>> hostList = new Gson().fromJson(hostInfo, List.class);
+            LOGGER.error("[Get All MecmHost]. List is:{}", hostList);
+            return hostList;
         } catch (RestClientException e) {
             LOGGER.error("[Get All MecmHost], Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
@@ -228,7 +230,7 @@ public class MecmService {
             Map<String, Object> mecHostInfoMap = mecHostInfo.get();
             MecHostBody mecHost = new MecHostBody();
             mecHost.setMechostIp(mecHostIp);
-            mecHost.setCity((String) mecHostInfoMap.get("city"));
+            mecHost.setCity((String) mecHostInfoMap.get("mechostCity"));
             mecHostMap.put(mecHostIp, mecHost);
         }
         return mecHostMap;

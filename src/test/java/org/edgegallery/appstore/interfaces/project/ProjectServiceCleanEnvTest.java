@@ -23,18 +23,26 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.order.web.MecmRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -43,12 +51,18 @@ public class ProjectServiceCleanEnvTest extends AppTest {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private MecmService mecmService;
+
     private HttpServer httpServer;
+
+    private HttpServer httpServer8001;
 
     private HttpServer httpServer30091;
 
-    private String token = "123456789";
+    private String token = "4687632346763131324564";
 
+    @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 38067), 0);
         httpServer.createContext("/login", new HttpHandler() {
@@ -63,6 +77,43 @@ public class ProjectServiceCleanEnvTest extends AppTest {
             }
         });
         httpServer.start();
+
+        httpServer8001 = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+        httpServer8001.createContext("/mecm-north/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
+                if (!token.equals(accessToken)) {
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
+                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
+                } else if (method.equals("GET")) {
+                    MecmRespDto testResponse = new MecmRespDto();
+                    testResponse.setMecmPackageId("mecmPkgId");
+                    testResponse.setMessage("Query server success");
+                    testResponse.setRetCode("0");
+                    List<Map<String, String>> testData = new ArrayList<>();
+                    Map<String, String> testDataRow1 = new HashMap<>();
+                    Map<String, String> testDataRow2 = new HashMap<>();
+                    testDataRow1.put("hostIp", "123.1.1.0");
+                    testDataRow1.put("retCode", "0");
+                    testDataRow1.put("status", "Finished");
+                    testData.add(testDataRow1);
+                    testDataRow2.put("hostIp", "123.1.1.1");
+                    testDataRow2.put("retCode", "1");
+                    testDataRow2.put("status", "Distributed");
+                    testData.add(testDataRow2);
+                    testResponse.setData(testData);
+                    testResponse.setParams("");
+                    String jsonObject = new Gson().toJson(testResponse);
+                    byte[] response = jsonObject.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        httpServer8001.start();
 
         httpServer30091 = HttpServer.create(new InetSocketAddress("localhost", 30091), 0);
         httpServer30091.createContext("/auth/login-info", new HttpHandler() {
@@ -80,8 +131,10 @@ public class ProjectServiceCleanEnvTest extends AppTest {
         httpServer30091.start();
     }
 
+    @After
     public void after() {
         httpServer.stop(1);
+        httpServer8001.stop(1);
         httpServer30091.stop(1);
     }
 
@@ -95,10 +148,15 @@ public class ProjectServiceCleanEnvTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_clean_release() throws IOException {
-        before();
         boolean isOk = projectService.cleanUnreleasedEnv();
         Assert.assertTrue(isOk);
-        after();
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_when_schedule_query_order() throws IOException {
+        boolean isOk = projectService.scheduledQueryOrder();
+        Assert.assertTrue(isOk);
     }
 
     // @Test

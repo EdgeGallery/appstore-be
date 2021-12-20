@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
+import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class ScheduleTask {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private OrderService orderService;
 
     @Scheduled(cron = "0 0 0 * * ? ")
     public void processCleanEnv() {
