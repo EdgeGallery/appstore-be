@@ -615,8 +615,8 @@ public class AppUtil {
      * @param destinationFile destinationFile.
      * @param fileName compress file name.
      */
-    public String compressAndDeleteFile(String destinationFile, String fileName) {
-        String zipFileName = fileName.concat(ZIP_EXTENSION);
+    public String compressAndDeleteFile(String destinationFile, String fileName, String fileExtension) {
+        String zipFileName = fileName.concat(fileExtension);
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             createCompressedFile(out, new File(destinationFile), "");
         } catch (IOException e) {

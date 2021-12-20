@@ -166,7 +166,7 @@ public class PackageServiceFacade {
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
             String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
                 + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
-            String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName);
+            String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
             ins = fileService.get(fileAddress);
         } else {
             ins = fileService.get(release.getPackageFile());
@@ -205,20 +205,23 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
         throws IOException {
-        Release release = appService.download(appId, packageId);
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        Release release = appService.getRelease(appId, packageId);
+        if ("container".equalsIgnoreCase(release.getDeployMode())) {
+            return ResponseEntity.ok(new ResponseObject("Not Support", errMsg, "can not support container app."));
+        }
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
         String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
             + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
         if (!new File(fileZipName + ZIP_EXTENSION).exists()) {
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
-            appUtil.compressAndDeleteFile(fileParent, fileZipName);
+            appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
         }
 
         // start a thread to upload package to meao
         new Thread(() -> uploadPackageService
             .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId, token).toString()).start();
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
 
@@ -243,14 +246,15 @@ public class PackageServiceFacade {
     /**
      * modify app attributes.
      *
-     * @param appId app id.
-     * @param packageId package id.
+     * @param iconFile app icon.
+     * @param demoVideo app demo video.
+     * @param docFile app detail md file.
      * @param packageDto packageDto.
      */
-    public ResponseEntity<PackageDto> updateAppById(String appId, String packageId, MultipartFile iconFile,
-        MultipartFile demoVideo, PackageDto packageDto) {
-        packageService.updateAppById(appId, packageId, iconFile, demoVideo, packageDto);
-        Release release = packageRepository.findReleaseById(appId, packageId);
+    public ResponseEntity<PackageDto> updateAppById(MultipartFile iconFile, MultipartFile demoVideo,
+        MultipartFile docFile, PackageDto packageDto) {
+        packageService.updateAppById(iconFile, demoVideo, docFile, packageDto);
+        Release release = packageRepository.findReleaseById(packageDto.getAppId(), packageDto.getPackageId());
         return ResponseEntity.ok(PackageDto.of(release));
     }
 
