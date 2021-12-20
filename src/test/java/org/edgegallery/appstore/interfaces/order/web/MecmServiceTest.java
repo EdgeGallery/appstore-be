@@ -89,19 +89,13 @@ public class MecmServiceTest {
                     exchange.getResponseBody().write("FORBIDDEN".getBytes());
                 } else if (method.equals("GET")) {
                     List<Map<String, Object>> mechosts = new ArrayList<>();
-                    Map<String, Object> mechost1 = new HashMap<>();
-                    mechost1.put("mechostIp", hostIp);
-                    mechost1.put("mechostName", "38node1");
-                    mechost1.put("city", "nanjing");
-                    mechost1.put("vim", "OpenStack");
-                    mechost1.put("affinity", "X86");
-                    mechosts.add(mechost1);
-                    Map<String, Object> mechost2 = new HashMap<>();
-                    mechost2.put("mechostIp", hostIp);
-                    mechost2.put("mechostName", "38node1");
-                    mechost2.put("city", "xian");
-                    mechost2.put("vim", "K8s");
-                    mechost2.put("affinity", "X86");
+                    Map<String, Object> mechost = new HashMap<>();
+                    mechost.put("mechostIp", hostIp);
+                    mechost.put("mechostName", "38node1");
+                    mechost.put("mechostCity", "xian");
+                    mechost.put("vim", "K8s");
+                    mechost.put("affinity", "X86");
+                    mechosts.add(mechost);
                     Map<String, Object> rsp = new HashMap<>();
                     rsp.put("data", mechosts);
                     rsp.put("retCode", 0);
