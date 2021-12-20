@@ -162,6 +162,15 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void get_VM_Deploy_param_success() throws Exception {
+        Release release = appService.getRelease("appid-test-0001", "packageid-0002");
+        String res = orderService.getVmDeployParams(release);
+        String expectedRes = "app_mp1_ip=192.168.226.15;app_n6_ip=192.168.225.15;app_internet_ip=192.168.227.1";
+        Assert.assertEquals(expectedRes, res);
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void create_order_should_success() throws Exception {
         String mecmPkgId = "mecm-test-pkgId";
         Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(mecmPkgId);
@@ -185,40 +194,6 @@ public class OrderTest {
     public void query_orders_should_success() throws Exception {
         MvcResult mvcResult = queryOrderList();
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void deactivate_order_should_success() throws Exception {
-        String msg = "Delete server success";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        MvcResult mvcResult = deactivateOrder();
-        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-    }
-
-    private MvcResult deactivateOrder() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED.toString());
-        Assert.assertNotNull(orderId);
-        Assert.assertNotEquals("", orderId);
-        return mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void deactivate_order_should_failed() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
-        Assert.assertNotNull(orderId);
-        Assert.assertNotEquals("", orderId);
-        MvcResult result = mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
-        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
-        Assert.assertEquals(ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER, restReturn.getRetCode());
     }
 
     @Test
@@ -377,18 +352,6 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_success() throws Exception {
-        Order order = getOrder();
-        assert (order != null);
-        String token = "testToken";
-        String userId = "testUserId";
-        String msg = "Delete server success";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        Assert.assertEquals("Delete server success", orderService.unDeployApp(order, userId, token));
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void unDeployApp_fail_case1() throws Exception {
         Order order = getOrder();
         assert (order != null);
@@ -413,12 +376,50 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void get_VM_Deploy_param_success() throws Exception {
-        Release release = appService.getRelease("appid-test-0001", "packageid-0002");
-        String res = orderService.getVmDeployParams(release);
-        String expectedRes = "app_mp1_ip=192.168.226.15;app_n6_ip=192.168.225.15;app_internet_ip=192.168.227.1";
-        Assert.assertEquals(expectedRes, res);
+    public void unDeployApp_success() throws Exception {
+        Order order = getOrder();
+        assert (order != null);
+        String token = "testToken";
+        String userId = "testUserId";
+        String msg = "Delete server success";
+        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
+        Assert.assertEquals("Delete server success", orderService.unDeployApp(order, userId, token));
     }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void deactivate_order_should_success() throws Exception {
+        String msg = "Delete server success";
+        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
+        MvcResult mvcResult = deactivateOrder();
+        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+    }
+
+    private MvcResult deactivateOrder() throws Exception {
+        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED.toString());
+        Assert.assertNotNull(orderId);
+        Assert.assertNotEquals("", orderId);
+        return mvc.perform(
+                MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void deactivate_order_should_failed() throws Exception {
+        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
+        Assert.assertNotNull(orderId);
+        Assert.assertNotEquals("", orderId);
+        MvcResult result = mvc.perform(
+                MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER, restReturn.getRetCode());
+    }
+
 
     private MvcResult queryOrderList() throws Exception {
         QueryOrdersReqDto queryOrdersReqDto = new QueryOrdersReqDto();
