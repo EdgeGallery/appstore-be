@@ -36,11 +36,11 @@ RUN mkdir -p /usr/app/bin
 # Create an app user so our program doesn't run as root.
 RUN apk update &&\
     apk add shadow &&\
-    groupadd -r -g 166 eggroup &&\
-    useradd -r -u 166 -g 166 -d $APP_HOME -s /sbin/nologin -c "Docker image user" eguser
+    groupadd -r -g $GID $GROUP_NAME &&\
+    useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 RUN groupadd docker && \
-    gpasswd -a eguser docker
+    gpasswd -a $USER_NAME docker
 
 WORKDIR $APP_HOME
 RUN chmod 750 $APP_HOME &&\
@@ -49,14 +49,14 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/log &&\
     mkdir -p -m 750 $APP_HOME/packages &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
-    chown -R eguser:eggroup $APP_HOME
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME
 
-COPY --chown=eguser:eggroup target/*.jar $APP_HOME/bin
+COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
 
 EXPOSE 8099
 
 # Change to the app user.
-USER eguser
+USER $USER_NAME
 
 # Execute script & application
 ENTRYPOINT ["sh", "-c"]
