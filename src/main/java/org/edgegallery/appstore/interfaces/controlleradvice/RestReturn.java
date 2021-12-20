@@ -49,15 +49,13 @@ public class RestReturn {
     // error message params
     private List<String> params;
 
-    private Object data;
-
     public Date getTimestamp() {
         return new Date(timestamp.getTime());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath());
+        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath(), getRetCode(), getParams());
     }
 
     @Override
@@ -71,6 +69,7 @@ public class RestReturn {
         RestReturn that = (RestReturn) o;
         return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp()) && Objects
             .equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage()) && Objects
-            .equals(getPath(), that.getPath());
+            .equals(getPath(), that.getPath()) && getRetCode() == that.getRetCode() && Objects
+            .equals(getParams(), that.getParams());
     }
 }
