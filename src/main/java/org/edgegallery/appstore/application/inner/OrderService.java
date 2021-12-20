@@ -236,6 +236,6 @@ public class OrderService {
             vmInputParams.append(entry.getKey()).append("=").append(tempIp).append(";");
         }
 
-        return vmInputParams.substring(0, vmInputParams.length()-2).toString();
+        return vmInputParams.substring(0, vmInputParams.length() - 2).toString();
     }
 }

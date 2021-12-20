@@ -24,9 +24,13 @@ import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 @Setter
 public class MecmRespDto {
     private String mecmPackageId;
+
     private String message;
+
     private String retCode;
+
     private List<Map<String, String>> data;
+
     private String params;
 }
 
