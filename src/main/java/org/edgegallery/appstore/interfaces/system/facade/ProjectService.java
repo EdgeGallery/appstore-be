@@ -197,7 +197,7 @@ public class ProjectService {
      * @param mepHost mepHost.
      * @param appReleasePo appReleasePo.
      * @param lcmLog lcmLog.
-     * @return
+     * @return deploy result.
      */
     public boolean deployTestConfigToAppLcm(Map<String, String> deployParams, MepHost mepHost,
         AppReleasePo appReleasePo, LcmLog lcmLog) {
@@ -241,7 +241,7 @@ public class ProjectService {
      * @param lcmLog lcmLog.
      * @param appReleasePo appReleasePo.
      * @param inputParams inputParams.
-     * @return
+     * @return instantiate result.
      */
     public boolean instantiateApp(MepHost mepHost, Map<String, String> deployParams, LcmLog lcmLog,
         AppReleasePo appReleasePo, Map<String, String> inputParams) {
@@ -302,7 +302,7 @@ public class ProjectService {
      * @param token token.
      * @param appReleasePo appReleasePo.
      * @param lcmLog lcmLog.
-     * @return
+     * @return distribute result.
      */
     public boolean distributePkg(String userId, MepHost mepHost, String token, AppReleasePo appReleasePo,
         LcmLog lcmLog) {
@@ -315,7 +315,7 @@ public class ProjectService {
             lcmLog.setRetCode(ResponseConst.RET_DISTRIBUTE_FAILED);
             return false;
         }
-        return confirmResult(mepHost, userId, token, lcmLog, appReleasePo);
+        return confirmResult(mepHost, userId, token, appReleasePo);
     }
 
     /**
@@ -326,7 +326,7 @@ public class ProjectService {
      * @param appReleasePo appReleasePo.
      * @param lcmLog lcmLog.
      * @param inputParams inputParams.
-     * @return
+     * @return upload result.
      */
     public boolean uploadPackage(Map<String, String> deployParams, MepHost mepHost, AppReleasePo appReleasePo,
         LcmLog lcmLog, Map<String, String> inputParams) {
@@ -348,7 +348,7 @@ public class ProjectService {
         UploadResponse uploadResponse = gson.fromJson(uploadData, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
-        /** This is the IP used to record the vm application online experience */
+        // This is the IP used to record the vm application online experience
         if (VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
             String vmExperienceIP = InputParameterUtil.getExperienceIp(mepHost.getParameter());
             appReleasePo.setExperienceAbleIp(vmExperienceIP);
@@ -362,12 +362,10 @@ public class ProjectService {
      * @param mepHost mepHost.
      * @param userId userId.
      * @param token token.
-     * @param lcmLog lcmLog.
      * @param appReleasePo appReleasePo.
-     * @return
+     * @return distribute status.
      */
-    public boolean confirmResult(MepHost mepHost, String userId, String token, LcmLog lcmLog,
-        AppReleasePo appReleasePo) {
+    public boolean confirmResult(MepHost mepHost, String userId, String token, AppReleasePo appReleasePo) {
         long startTime = new Date().getTime();
         String resultInfo = "";
         String status = "";
@@ -402,9 +400,9 @@ public class ProjectService {
      * parse experience workStatus.
      * @param resultInfo resultInfo.
      * @param packageId packageId.
-     * @return
+     * @return work status.
      */
-    public String parseWorkStatus(String resultInfo, String packageId, String emunStatus) {
+    public String parseWorkStatus(String resultInfo, String packageId, String enumStatus) {
         String status = null;
         JsonObject jsonObject = new JsonParser().parse(resultInfo).getAsJsonObject();
         JsonElement uploadData = jsonObject.get(STATUS_DATA);
@@ -418,7 +416,7 @@ public class ProjectService {
             } else {
                 List<MecHostInfo> mecHostInfoList = workStatusResponse.getMecHostInfo();
                 for (MecHostInfo mecHostInfo : mecHostInfoList) {
-                    if (!emunStatus.equalsIgnoreCase(mecHostInfo.getStatus())) {
+                    if (!enumStatus.equalsIgnoreCase(mecHostInfo.getStatus())) {
                         return null;
                     }
                     status = mecHostInfo.getStatus();
@@ -529,7 +527,7 @@ public class ProjectService {
      * @param mepHost mepHost.
      * @param token token.
      * @param lcmLog lcmLog.
-     * @return
+     * @return work status.
      */
     public String getPackageStatus(String packageId, String userId, MepHost mepHost, String token, LcmLog lcmLog) {
         String packageStatus = HttpClientUtil
@@ -552,7 +550,7 @@ public class ProjectService {
     /**
      * parse experience status.
      * @param status status.
-     * @return
+     * @return experience status.
      */
     public static String parseExperienceStatus(String status) {
         return new JsonParser().parse(status).getAsJsonObject().get(STATUS_DATA).getAsJsonArray().get(0)
@@ -565,7 +563,7 @@ public class ProjectService {
      *
      * @param status status.
      * @param enumStatus enumStatus.
-     * @return
+     * @return instantiate result.
      */
     public String parseInstantiateResult(String status, String enumStatus, String deployMode) {
         String podStatus = null;
@@ -592,7 +590,7 @@ public class ProjectService {
      * parse Vm Instantiate result.
      *
      * @param status status.
-     * @return
+     * @return vm app experience info.
      */
     public List<Experience> getVmExperienceInfo(String status, String serviceName) {
         List<Experience> experienceInfoList = new ArrayList<>();
@@ -649,7 +647,7 @@ public class ProjectService {
      * get Experience Status.
      *
      * @param packageId packageId.
-     * @return
+     * @return experience status.
      */
     public ResponseEntity<ResponseObject> getExperienceStatus(String packageId) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
