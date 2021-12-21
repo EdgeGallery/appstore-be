@@ -108,7 +108,7 @@ public class MecmService {
                 return null;
             }
             return jsonBody.get("mecmPackageId").getAsString();
-        } catch (RestClientException e) {
+        } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to upload package to MECM, exception {}", e.getMessage());
         }
         return null;
@@ -146,7 +146,7 @@ public class MecmService {
             mecmDeploymentInfo.setMecmOperationalStatus(status);
             mecmDeploymentInfo.setMecmAppPackageId(mecmAppPackageId);
             return mecmDeploymentInfo;
-        } catch (RestClientException e) {
+        } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Get Deployment Status from MECM exception {}", e.getMessage());
         }
         return null;
@@ -172,7 +172,7 @@ public class MecmService {
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray hostInfo = jsonBody.get("data").getAsJsonArray();
             return new Gson().fromJson(hostInfo, List.class);
-        } catch (RestClientException e) {
+        } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to get mechosts, RestClientException is {}", e.getMessage());
         }
         return Collections.emptyList();
@@ -231,7 +231,7 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             return jsonBody.get("data").getAsJsonArray().get(0).getAsJsonObject().get("message").getAsString();
-        } catch (RestClientException e) {
+        } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to get response within Delete Server Interface, exception {}", e.getMessage());
         }
         return null;
