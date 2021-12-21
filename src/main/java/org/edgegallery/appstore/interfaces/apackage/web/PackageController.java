@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -91,8 +92,13 @@ public class PackageController {
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
             regexp = Consts.REG_APP_ID) String packageId,
         HttpServletRequest request) {
+        String role = "";
+        String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
+        if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
+            role = "ROLE_APPSTORE_ADMIN";
+        }
         packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
-            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), role);
         return ResponseEntity.ok("delete App package success.");
     }
 

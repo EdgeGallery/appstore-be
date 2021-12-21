@@ -558,19 +558,20 @@ public class AppService {
     /**
      * delete package by app id and package id.
      *
-     * @param appId app id
-     * @param packageId package id
-     * @param user obj of User
-     * @param token access token
+     * @param appId app id.
+     * @param packageId package id.
+     * @param user obj of User.
+     * @param token access token.
+     * @param role user role.
      */
     @Transactional(rollbackFor = Exception.class)
-    public void unPublishPackage(String appId, String packageId, User user, String token) {
+    public void unPublishPackage(String appId, String packageId, User user, String token, String role) {
         LOGGER.info("unPublishPackage appId {}, packageId {}", appId, packageId);
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
             .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
-        release.checkPermission(user);
+        release.checkPermission(user, role);
 
         app.unPublish(release);
         packageRepository.removeRelease(release);

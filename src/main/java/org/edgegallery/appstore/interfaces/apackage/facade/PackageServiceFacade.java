@@ -144,10 +144,11 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      * @param user User object.
-     * @param token access token
+     * @param token access token.
+     * @param role user role.
      */
-    public void unPublishPackage(String appId, String packageId, User user, String token) {
-        appService.unPublishPackage(appId, packageId, user, token);
+    public void unPublishPackage(String appId, String packageId, User user, String token, String role) {
+        appService.unPublishPackage(appId, packageId, user, token, role);
     }
 
     /**
