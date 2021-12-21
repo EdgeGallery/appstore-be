@@ -19,7 +19,6 @@ package org.edgegallery.appstore.application.inner;
 import com.github.pagehelper.util.StringUtil;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -80,29 +79,26 @@ public class OrderService {
      * @param order order info
      */
     public void updateOrderStatus(String token, Order order) {
-        LOGGER.info("[Update Order Status] Each order, appid: {}, order status: {}", order.getAppId(),
-            order.getStatus());
         if (StringUtils.isEmpty(order.getMecPackageId())) {
-            LOGGER.error("[Update Order Status] mecm package id is null, continue");
+            LOGGER.error("mecm package id is null.");
             return;
         }
-        MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecPackageId(),
+        MecmDeploymentInfo mecmDeploymentInfo = mecmService.getDepolymentStatus(token, order.getMecPackageId(),
             order.getUserId());
-        LOGGER.info("[Update Order Status], MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
+        LOGGER.info("get mecm deployment info: {}", mecmDeploymentInfo);
         if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
-            LOGGER.error("[Update Order Status] mecm deploy info null ");
+            LOGGER.error("mecm deployment info is null.");
             return;
         }
         if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
             order.setStatus(EnumOrderStatus.ACTIVATED);
-            LOGGER.info("[Update Order Status], Distributed and instantiated success, modify status to activated");
+            LOGGER.info("Distributed and instantiated success, modify status to activated");
         } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Distribute Error")
             || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")) {
             order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-            LOGGER.error("[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
+            LOGGER.error("Distributed or Instantiated failed, modify status to activate failed");
         }
         orderRepository.updateOrder(order);
-        LOGGER.info("[Update Order Status] Order updated, MecmPackageId:{}", order.getMecPackageId());
     }
 
     /**
@@ -168,7 +164,8 @@ public class OrderService {
         return "ES" + strId.substring(strId.length() - maxNumLen);
     }
 
-    /* * undeploy app.
+    /**
+     * undeploy app.
      *
      * @param order order info
      * @param userId deactivate user id
@@ -177,8 +174,7 @@ public class OrderService {
      */
     public String unDeployApp(Order order, String userId, String token) {
         String packageId = order.getMecPackageId();
-        String res = mecmService.deleteServer(userId, packageId, token);
-        return res;
+        return mecmService.deleteServer(userId, packageId, token);
     }
 
     /**
@@ -226,16 +222,15 @@ public class OrderService {
         Integer count = orderRepository.getCountByCondition(queryParams);
         count += RETAIN_IP_COUNT;
         Map<String, String> vmParams = InputParameterUtil.getParams(parameter);
-        //Map<String, String> vmInputParams = new HashMap<>();
         StringBuilder vmInputParams = new StringBuilder();
         Set<Map.Entry<String, String>> entries = vmParams.entrySet();
         for (Map.Entry<String, String> entry : entries) {
+            vmInputParams.append(";");
             String ipRange = entry.getValue();
             String tempIp = IpCalculateUtil.getStartIp(ipRange, count);
-            //vmInputParams.put(entry.getKey(), tempIp);
-            vmInputParams.append(entry.getKey()).append("=").append(tempIp).append(";");
+            vmInputParams.append(entry.getKey()).append("=").append(tempIp);
         }
-
-        return vmInputParams.substring(0, vmInputParams.length() - 2).toString();
+        LOGGER.info("vm params: {}", vmInputParams.substring(1, vmInputParams.length()));
+        return vmInputParams.substring(1, vmInputParams.length());
     }
 }

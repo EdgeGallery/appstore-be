@@ -905,21 +905,21 @@ public class ProjectService {
     }
 
     /**
-     * schedule update query order
+     * schedule update query order.
      */
     public boolean scheduledQueryOrder() {
         // periodically refresh order status
         String token = getAccessToken();
-        if(StringUtils.isEmpty(token)) {
+        if (StringUtils.isEmpty(token)) {
             LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
             return false;
         }
         Map<String, Object> params = new HashMap<>();
         List<Order> orders = orderRepository.queryOrders(params);
         LOGGER.error("[Scheduled Query Order], {}", orders);
-        if(!orders.isEmpty()) {
-            for(Order order : orders){
-                if(order.getStatus() == EnumOrderStatus.ACTIVATING) {
+        if (!orders.isEmpty()) {
+            for (Order order : orders) {
+                if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
                     orderService.updateOrderStatus(token, order);
                     LOGGER.error("[Timer Update Query Order] Updated.");
                 }

@@ -14,16 +14,12 @@
 
 package org.edgegallery.appstore.interfaces.order.web;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
-
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.GarbageCollectorMXBean;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -33,7 +29,6 @@ import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -63,9 +58,6 @@ public class MecmServiceTest {
 
     @Autowired
     private MecmService mecmService;
-
-    @Autowired
-    private AppService appService;
 
     private HttpServer httpServer;
 
@@ -187,59 +179,6 @@ public class MecmServiceTest {
                 exchange.close();
             }
         });
-        httpServer.createContext("/appo/v1/tenants/testUserId/app_instances/testInstanceId", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                if (!token.equals(accessToken)) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                } else if (method.equals("DELETE")) {
-                    String jsonObject = "delete instance success.";
-                    byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_ACCEPTED, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                exchange.close();
-            }
-        });
-        // need to delete
-        httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId/hosts/192.168.0.1",
-            new HttpHandler() {
-                @Override
-                public void handle(HttpExchange exchange) throws IOException {
-                    String method = exchange.getRequestMethod();
-                    String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                    if (!token.equals(accessToken)) {
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                        exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                    } else if (method.equals("DELETE")) {
-                        String jsonObject = "delete edge package success.";
-                        byte[] response = jsonObject.getBytes();
-                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                        exchange.getResponseBody().write(response);
-                    }
-                    exchange.close();
-                }
-            });
-        httpServer.createContext("/apm/v1/tenants/testUserId/packages/testPackageId", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                String accessToken = exchange.getRequestHeaders().get("access_token").get(0);
-                if (!token.equals(accessToken)) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_FORBIDDEN, "FORBIDDEN".length());
-                    exchange.getResponseBody().write("FORBIDDEN".getBytes());
-                } else if (method.equals("DELETE")) {
-                    String jsonObject = "delete apm package success.";
-                    byte[] response = jsonObject.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                exchange.close();
-            }
-        });
         httpServer.start();
     }
 
@@ -275,7 +214,6 @@ public class MecmServiceTest {
         String userId = "test-userid-0001";
         List<String> mecHostIpList = new ArrayList<>();
         mecHostIpList.add(hostIp);
-        Release release = appService.getRelease("appid-test-0001", "packageid-0005");
         Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
         Assert.assertNotNull(result);
         MecHostBody mecHost = result.get(hostIp);
@@ -303,7 +241,7 @@ public class MecmServiceTest {
         release.getAppBasicInfo().setVersion("v1.0");
         String hostList = "testHostList";
         String params = "";
-        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params);
+        String mecmPkgId = mecmService.upLoadPackageToNorth(token, release, hostList, userId, params);
         Assert.assertEquals(mecmPkgId, "mecmPackageId");
     }
 
@@ -318,17 +256,17 @@ public class MecmServiceTest {
         release.getAppBasicInfo().setVersion("v1.0");
         String hostList = "testHostList";
         String params = "";
-        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
+        Assert.assertNull(mecmService.upLoadPackageToNorth(token, release, hostList, userId, params));
 
         release.getAppBasicInfo().setVersion("");
-        Assert.assertNull(mecmService.upLoadPackageToMecmNorth(token, release, hostList, userId, params));
+        Assert.assertNull(mecmService.upLoadPackageToNorth(token, release, hostList, userId, params));
     }
 
     @Test
     public void getDeploymentStatus_success() {
         String userId = "testUserId";
         String mecmPkgId = "testPackageId";
-        MecmDeploymentInfo testInfo = mecmService.getMecmDepolymentStatus(token, mecmPkgId, userId);
+        MecmDeploymentInfo testInfo = mecmService.getDepolymentStatus(token, mecmPkgId, userId);
         Assert.assertNotNull(testInfo);
         Assert.assertEquals("Finished", testInfo.getMecmOperationalStatus());
     }
@@ -337,7 +275,7 @@ public class MecmServiceTest {
     public void getDeploymentStatus_fail() {
         String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
         String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertNull(mecmService.getMecmDepolymentStatus(token, mecmPkgId, userId));
+        Assert.assertNull(mecmService.getDepolymentStatus(token, mecmPkgId, userId));
     }
 
     @Test
@@ -352,47 +290,5 @@ public class MecmServiceTest {
         String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
         String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
         Assert.assertNull(mecmService.deleteServer(userId, mecmPkgId, token));
-    }
-
-    @Test
-    public void deleteAppInstance_success() {
-        String userId = "testUserId";
-        String instanceId = "testInstanceId";
-        Assert.assertTrue(mecmService.deleteAppInstance(instanceId, userId, token));
-    }
-
-    @Test
-    public void deleteAppInstance_fail() {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String instanceId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertFalse(mecmService.deleteAppInstance(instanceId, userId, token));
-    }
-
-    @Test
-    public void deleteEdgePackage_success() {
-        String userId = "testUserId";
-        String packageId = "testPackageId";
-        Assert.assertTrue(mecmService.deleteEdgePackage(hostIp, userId, packageId, token));
-    }
-
-    @Test
-    public void deleteEdgePackage_fail() {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String packageId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertFalse(mecmService.deleteEdgePackage(hostIp, userId, packageId, token));
-    }
-
-    @Test
-    public void deleteApmPackage_success() {
-        String userId = "testUserId";
-        String packageId = "testPackageId";
-        Assert.assertTrue(mecmService.deleteApmPackage(userId, packageId, token));
-    }
-
-    @Test
-    public void deleteApmPackage_fail() {
-        String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String packageId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertFalse(mecmService.deleteApmPackage(userId, packageId, token));
     }
 }

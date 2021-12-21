@@ -45,13 +45,11 @@ import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
 import org.edgegallery.appstore.interfaces.controlleradvice.RestReturn;
 import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.QueryOrdersReqDto;
-import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -88,9 +86,6 @@ public class OrderTest {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    @Autowired
-    private ProjectService projectService;
 
     @MockBean
     protected MecmService mecmService;
@@ -160,18 +155,16 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void get_VM_Deploy_param_success() throws Exception {
+    public void get_VM_Deploy_param_success() {
         Release release = appService.getRelease("appid-test-0001", "packageid-0002");
-        String res = orderService.getVmDeployParams(release);
-        String expectedRes = "app_mp1_ip=192.168.226.15;app_n6_ip=192.168.225.15;app_internet_ip=192.168.227.1";
-        Assert.assertEquals(expectedRes, res);
+        Assert.assertNotNull(orderService.getVmDeployParams(release));
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void create_order_should_success() throws Exception {
         String mecmPkgId = "mecm-test-pkgId";
-        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.when(mecmService.upLoadPackageToNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(mecmPkgId);
         MvcResult result = createOrder();
         Assert.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -181,7 +174,7 @@ public class OrderTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void create_order_should_failed() throws Exception {
         String mecmPkgId = null;
-        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.when(mecmService.upLoadPackageToNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(mecmPkgId);
         MvcResult result = createOrder();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
@@ -203,7 +196,7 @@ public class OrderTest {
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         String testPkgId = "mecm-test-packageid";
-        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.when(mecmService.upLoadPackageToNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(testPkgId);
         MvcResult result = mvc.perform(
                 MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/activation").with(csrf())
@@ -234,7 +227,7 @@ public class OrderTest {
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         String testPkgId = "";
-        Mockito.when(mecmService.upLoadPackageToMecmNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.when(mecmService.upLoadPackageToNorth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(testPkgId);
         MvcResult result = mvc.perform(
                 MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/activation").with(csrf())
@@ -247,13 +240,12 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_status_null() throws Exception {
-        Order order = getOrder();
+    public void query_order_status_null() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = null;
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
@@ -265,63 +257,59 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activated() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activated() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Finished");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
-        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATED);
+        Assert.assertEquals(EnumOrderStatus.ACTIVATED, order.getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activate_failed_case1() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activate_failed_case1() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
-        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATE_FAILED);
+        Assert.assertEquals(EnumOrderStatus.ACTIVATE_FAILED, order.getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activate_failed_case2() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activate_failed_case2() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Distribute Error");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
-        Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATE_FAILED);
+        Assert.assertEquals(EnumOrderStatus.ACTIVATE_FAILED, order.getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activiting_case1() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activating_case1() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Distributing");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
@@ -329,15 +317,14 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activiting_case2() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activating_case2() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Distributed");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
@@ -345,15 +332,14 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void query_order_update_activiting_case3() throws Exception {
-        Order order = getOrder();
+    public void query_order_update_activating_case3() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATING);
         assert (order != null);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Instantiating");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getMecmDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
@@ -361,8 +347,8 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_fail_case1() throws Exception {
-        Order order = getOrder();
+    public void unDeployApp_fail_case1() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATED);
         assert (order != null);
         String token = "testToken";
         String userId = "testUserId";
@@ -373,8 +359,8 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_fail_case2() throws Exception {
-        Order order = getOrder();
+    public void unDeployApp_fail_case2() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATED);
         assert (order != null);
         String token = "testToken";
         String userId = "testUserId";
@@ -385,8 +371,8 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_success() throws Exception {
-        Order order = getOrder();
+    public void unDeployApp_success() {
+        Order order = getOrder(EnumOrderStatus.ACTIVATED);
         assert (order != null);
         String token = "testToken";
         String userId = "testUserId";
@@ -454,7 +440,7 @@ public class OrderTest {
         return firstMatchOrder.isPresent() ? (String) firstMatchOrder.get().get("orderId") : "";
     }
 
-    private Order getOrder() throws Exception {
+    private Order getOrder(EnumOrderStatus status) {
         Map<String, Object> params = new HashMap<>();
         QueryCtrlDto queryCtrl = new QueryCtrlDto();
         queryCtrl.setLimit(10);
@@ -462,7 +448,7 @@ public class OrderTest {
         params.put("queryCtrl", queryCtrl);
 
         List<Order> orders = orderRepository.queryOrders(params);
-        Optional<Order> order = orders.stream().filter(item -> EnumOrderStatus.ACTIVATED.equals(item.getStatus()))
+        Optional<Order> order = orders.stream().filter(item -> status.equals(item.getStatus()))
             .findFirst();
         return order.orElse(null);
     }

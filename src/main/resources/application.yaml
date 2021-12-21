@@ -92,9 +92,6 @@ atp:
 ### mecm config ###
 mecm:
   urls:
-    appo: ${MECM_APO_URL:https://mecm-appo:8091}
-    apm: ${MECM_APM_URL:https://mecm-apm:8092}
-    inventory: ${MECM_INVENTORY_URL:https://mecm-inventory:8093}
     north: ${MECM_NORTH_URL:https://mecm-north:8103}
 
 

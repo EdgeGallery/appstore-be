@@ -66,8 +66,7 @@
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="java.util.Map">
         select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp mecHostIp, mecm_appPackageId mecPackageId, mecm_instanceId mecInstanceId,
-        detailCn, detailEn from app_order
+        mecm_hostIp mecHostIp, mecm_appPackageId mecPackageId, detailCn, detailEn from app_order
         <where>
             <if test="appId != null and appId != '' ">
                 and appId = #{appId}

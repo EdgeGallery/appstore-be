@@ -92,15 +92,13 @@ public class OrderServiceFacade {
         // create app instance
         // update status to Activating
         String params = orderService.getVmDeployParams(release);
-        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(), userId, params);
+        String mecmPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId, params);
         if (mecmPkgId == null) {
-            LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
-            throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
-                ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED); // NEED TO UPDATE WEBSITE GATEWAY
+            LOGGER.error("mecm package id is null. Failed to create order.");
+            throw new AppException("Failed to create order.", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
         }
         order.setMecPackageId(mecmPkgId);
         order.setStatus(EnumOrderStatus.ACTIVATING);
-        LOGGER.info("[CREATE ORDER] MECM Package Id:{} ", order.getMecPackageId());
         order.setOperateTime(new Date());
         orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
             EnumOrderOperation.ACTIVATED.getEnglish());
@@ -110,7 +108,7 @@ public class OrderServiceFacade {
         return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
     }
 
-    /*
+    /**
      * deactivate order.
      *
      * @param userId user id
@@ -129,18 +127,19 @@ public class OrderServiceFacade {
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
             order.setStatus(EnumOrderStatus.DEACTIVATING);
             orderRepository.updateOrder(order);
+
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
             if (StringUtils.isEmpty(result)) {
-                LOGGER.error("[Deactivate Order] Failed to utilize delete server interface.");
-                throw new AppException("[Deactivate Order], Failed to utilize delete server interface.",
-                    ResponseConst.RET_DELETE_SERVER);
+                LOGGER.error("Failed to utilize delete server interface.");
+                throw new AppException("Failed to utilize delete server interface.",
+                    ResponseConst.RET_DELETE_SERVER_FAILED);
             } else if (result.equalsIgnoreCase("failed to delete package") || result.equalsIgnoreCase(
                 "failed to delete instantiation")) {
-                LOGGER.error("[Deactivate Order] Failed to delete package.");
+                LOGGER.error("Failed to undeploy package.");
                 order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             } else if (result.equalsIgnoreCase("Delete server success")) {
-                LOGGER.info("[Deactivate Order] Success to delete package.");
+                LOGGER.info("Success to undeploy package.");
                 order.setStatus(EnumOrderStatus.DEACTIVATED);
                 orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
                     EnumOrderOperation.DEACTIVATED.getEnglish());
@@ -178,12 +177,12 @@ public class OrderServiceFacade {
             // update status to Activating
             Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
             String params = orderService.getVmDeployParams(release);
-            String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
+            String mecmPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
                 order.getUserId(), params);
             if (mecmPkgId == null || StringUtils.isEmpty(mecmPkgId)) {
-                LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
-                throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
-                    ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED); // NEED TO UPDATE WEBSITE GATEWAY
+                LOGGER.error("mecm package id is null. Failed to activate order.");
+                throw new AppException("Failed to activate order.",
+                    ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
             }
 
             order.setOperateTime(new Date());
@@ -191,11 +190,11 @@ public class OrderServiceFacade {
                 EnumOrderOperation.ACTIVATED.getEnglish());
             orderRepository.updateOrder(order);
         } else {
-            throw new PermissionNotAllowedException("can not deactivate order",
+            throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
+        return ResponseEntity.ok(new ResponseObject("activate order success", errMsg, "activate order success."));
     }
 
     /**
@@ -218,13 +217,9 @@ public class OrderServiceFacade {
         params.put("orderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
         params.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
         params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
-        LOGGER.error("[Query Order] params: {}", params);
+        LOGGER.info("query order params: {}", params);
         List<OrderDto> orderList = orderService.queryOrders(params, token);
-        LOGGER.error("[Query Order] order list: {}", orderList);
         long total = orderService.getCountByCondition(params);
-        LOGGER.info("[QUERY ORDER] After update each order status");
-
-        // update mecm operational status
 
         return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
             queryOrdersReqDto.getQueryCtrl().getOffset(), total));
