@@ -39,6 +39,7 @@ import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
+import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,12 @@ public class OrderService {
     @Autowired
     private HostMapper hostMapper;
 
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private OrderService orderService;
+
     /**
      * update order status.
      *
@@ -73,37 +80,29 @@ public class OrderService {
      * @param order order info
      */
     public void updateOrderStatus(String token, Order order) {
-        LOGGER.info(
-            "[Update Order Status] Each order, appid: {}, mecm app id: {}, mecm appPackageid:{}, order status: {}",
-            order.getAppId(), order.getMecAppId(), order.getMecAppId(), order.getStatus());
-        if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
-            LOGGER.info("[Update Order Status], If status is activating, update mecm deploy instance info");
-            if (StringUtils.isEmpty(order.getMecAppId()) || StringUtils.isEmpty(order.getMecPackageId())) {
-                LOGGER.error("[Update Order Status] order mecm appid or mecm package id is null, continue");
-                return;
-            }
-            // update status
-            MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecAppId(),
-                order.getMecPackageId(), order.getUserId());
-            LOGGER.info("[Update Order Status], analyze mecm instance id, MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
-            // mecm deployement null :
-            if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmAppInstanceId() == null
-                || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
-                LOGGER.error("[Update Order Status] mecm deploy info null ");
-                return;
-            }
-            order.setMecInstanceId(mecmDeploymentInfo.getMecmAppInstanceId());
-            LOGGER.info("[Update Order Status], mecm instance id is:{}" + mecmDeploymentInfo.getMecmAppInstanceId());
-            if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiated")) {
-                order.setStatus(EnumOrderStatus.ACTIVATED);
-                LOGGER.info("[Update Order Status], Instantiated success, modify status to activated");
-            } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiation failed")) {
-                order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-                LOGGER.error("[Update Order Status], Instantiated failed, modify status to activate failed");
-            }
+        LOGGER.info("[Update Order Status] Each order, appid: {}, order status: {}", order.getAppId(),
+            order.getStatus());
+        if (StringUtils.isEmpty(order.getMecPackageId())) {
+            LOGGER.error("[Update Order Status] mecm package id is null, continue");
+            return;
         }
-        LOGGER.info("[Update Order Status] Order updated, MecmAppId: {}, MecmPackageId:{}", order.getMecAppId(),
-            order.getMecPackageId());
+        MecmDeploymentInfo mecmDeploymentInfo = mecmService.getMecmDepolymentStatus(token, order.getMecPackageId(),
+            order.getUserId());
+        LOGGER.info("[Update Order Status], MECM DEPLOYMENT INFO:{}", mecmDeploymentInfo);
+        if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
+            LOGGER.error("[Update Order Status] mecm deploy info null ");
+            return;
+        }
+        if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
+            order.setStatus(EnumOrderStatus.ACTIVATED);
+            LOGGER.info("[Update Order Status], Distributed and instantiated success, modify status to activated");
+        } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Distribute Error")
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")) {
+            order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
+            LOGGER.error("[Update Order Status], Distributed or Instantiated failed, modify status to activate failed");
+        }
+        orderRepository.updateOrder(order);
+        LOGGER.info("[Update Order Status] Order updated, MecmPackageId:{}", order.getMecPackageId());
     }
 
     /**
@@ -121,22 +120,22 @@ public class OrderService {
             } catch (DomainException e) {
                 LOGGER.warn("app not found! appId = {}", order.getAppId());
             }
-
             // query mec host info
             String mecHostCity = "";
             String mecHostIp = order.getMecHostIp();
             if (!StringUtils.isEmpty(mecHostIp)) {
                 List<String> mecHostIpLst = new ArrayList<>();
                 mecHostIpLst.add(mecHostIp);
-                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, order.getUserId(),
-                    mecHostIpLst);
+                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
                 if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
                     mecHostCity = mecHostInfo.get(mecHostIp).getCity();
                 }
             }
-            // update mecm order status, whether activated or not
-            updateOrderStatus(token, order);
-
+            // Timer will update status every 15 min.
+            if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
+                updateOrderStatus(token, order);
+            }
+            orderRepository.updateOrder(order);
             OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
                 release != null ? release.getAppBasicInfo().getVersion() : "", mecHostCity);
             dtoList.add(dto);
@@ -169,29 +168,17 @@ public class OrderService {
         return "ES" + strId.substring(strId.length() - maxNumLen);
     }
 
-    /**
-     * undeploy app.
+    /* * undeploy app.
      *
      * @param order order info
      * @param userId deactivate user id
      * @param token access token
-     * @return delete app success or not
+     * @return mecm response message
      */
     public String unDeployApp(Order order, String userId, String token) {
-        String appInstanceId = order.getMecInstanceId();
-        String hostIp = order.getMecHostIp();
         String packageId = order.getMecPackageId();
-
-        if (!mecmService.deleteAppInstance(appInstanceId, userId, token)) {
-            return "delete instantiate app from appo failed";
-        }
-        if (!mecmService.deleteEdgePackage(hostIp, userId, packageId, token)) {
-            return "delete edge package from apm failed.";
-        }
-        if (!mecmService.deleteApmPackage(userId, packageId, token)) {
-            return "delete apm package from apm failed.";
-        }
-        return "success";
+        String res = mecmService.deleteServer(userId, packageId, token);
+        return res;
     }
 
     /**
@@ -218,12 +205,11 @@ public class OrderService {
     /**
      * get instantiate parameter.
      *
-     * @param order order.
+     * @param release release.
      */
-    public Map<String, String> getVmDeployParams(Order order) {
-        Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
+    public String getVmDeployParams(Release release) {
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
-            return Collections.emptyMap();
+            return "";
         }
         String parameter;
         List<MepHost> mepHosts = hostMapper.getHostsByCondition("", "OpenStack");
@@ -240,14 +226,16 @@ public class OrderService {
         Integer count = orderRepository.getCountByCondition(queryParams);
         count += RETAIN_IP_COUNT;
         Map<String, String> vmParams = InputParameterUtil.getParams(parameter);
-        Map<String, String> vmInputParams = new HashMap<>();
+        //Map<String, String> vmInputParams = new HashMap<>();
+        StringBuilder vmInputParams = new StringBuilder();
         Set<Map.Entry<String, String>> entries = vmParams.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String ipRange = entry.getValue();
             String tempIp = IpCalculateUtil.getStartIp(ipRange, count);
-            vmInputParams.put(entry.getKey(), tempIp);
+            //vmInputParams.put(entry.getKey(), tempIp);
+            vmInputParams.append(entry.getKey()).append("=").append(tempIp).append(";");
         }
 
-        return vmInputParams;
+        return vmInputParams.substring(0, vmInputParams.length() - 2).toString();
     }
 }

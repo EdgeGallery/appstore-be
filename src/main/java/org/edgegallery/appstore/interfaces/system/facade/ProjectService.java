@@ -57,7 +57,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
+import org.edgegallery.appstore.domain.model.order.Order;
+import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.EnumExperienceStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -162,6 +166,12 @@ public class ProjectService {
     @Autowired
     private PackageRepository packageRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderService orderService;
+
     private static String getXsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookie.getName().equals("XSRF-TOKEN")) {
@@ -173,8 +183,8 @@ public class ProjectService {
 
     private static CloseableHttpClient createIgnoreSslHttpClient() {
         try {
-            SSLContext sslContext = new SSLContextBuilder()
-                .loadTrustMaterial(null, (TrustStrategy) (chain, authType) -> true).build();
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+                (TrustStrategy) (chain, authType) -> true).build();
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 NoopHostnameVerifier.INSTANCE);
 
@@ -236,6 +246,7 @@ public class ProjectService {
 
     /**
      * instantiate package.
+     *
      * @param mepHost mepHost.
      * @param deployParams deployParams.
      * @param lcmLog lcmLog.
@@ -246,8 +257,8 @@ public class ProjectService {
     public boolean instantiateApp(MepHost mepHost, Map<String, String> deployParams, LcmLog lcmLog,
         AppReleasePo appReleasePo, Map<String, String> inputParams) {
         long startTime = new Date().getTime();
-        boolean instantiateRes = HttpClientUtil
-            .instantiateApp(mepHost, deployParams, lcmLog, appReleasePo.getInstancePackageId(), inputParams);
+        boolean instantiateRes = HttpClientUtil.instantiateApp(mepHost, deployParams, lcmLog,
+            appReleasePo.getInstancePackageId(), inputParams);
         LOGGER.info("instantiate res {}", instantiateRes);
         if (!instantiateRes) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATE_FAILED.getProgress());
@@ -297,6 +308,7 @@ public class ProjectService {
 
     /**
      * distribute package.
+     *
      * @param userId userId.
      * @param mepHost mepHost.
      * @param token token.
@@ -306,8 +318,8 @@ public class ProjectService {
      */
     public boolean distributePkg(String userId, MepHost mepHost, String token, AppReleasePo appReleasePo,
         LcmLog lcmLog) {
-        boolean distributeRes = HttpClientUtil
-            .distributePkg(mepHost, userId, token, appReleasePo.getInstancePackageId(), lcmLog);
+        boolean distributeRes = HttpClientUtil.distributePkg(mepHost, userId, token,
+            appReleasePo.getInstancePackageId(), lcmLog);
         LOGGER.info("distribute res {}", distributeRes);
         if (!distributeRes) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.DISTRIBUTE_FAILED.getProgress());
@@ -330,8 +342,8 @@ public class ProjectService {
      */
     public boolean uploadPackage(Map<String, String> deployParams, MepHost mepHost, AppReleasePo appReleasePo,
         LcmLog lcmLog, Map<String, String> inputParams) {
-        String uploadRes = HttpClientUtil
-            .uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, lcmLog);
+        String uploadRes = HttpClientUtil.uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(),
+            deployParams, lcmLog);
         LOGGER.info("upload res {}", uploadRes);
         if (StringUtils.isEmpty(uploadRes)) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.UPLOAD_FAILED.getProgress());
@@ -359,6 +371,7 @@ public class ProjectService {
 
     /**
      * confirm experience result.
+     *
      * @param mepHost mepHost.
      * @param userId userId.
      * @param token token.
@@ -375,9 +388,8 @@ public class ProjectService {
                 Map<String, String> deployParams = new HashMap<>();
                 deployParams.put(USER_ID, userId);
                 deployParams.put(TOKEN, token);
-                resultInfo = HttpClientUtil
-                    .getDistributeRes(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams,
-                        appReleasePo.getInstancePackageId());
+                resultInfo = HttpClientUtil.getDistributeRes(mepHost.getProtocol(), mepHost.getLcmIp(),
+                    mepHost.getPort(), deployParams, appReleasePo.getInstancePackageId());
                 if (StringUtils.isEmpty(resultInfo)) {
                     return false;
                 }
@@ -398,6 +410,7 @@ public class ProjectService {
 
     /**
      * parse experience workStatus.
+     *
      * @param resultInfo resultInfo.
      * @param packageId packageId.
      * @return work status.
@@ -410,8 +423,8 @@ public class ProjectService {
         Type typeEvents = new TypeToken<List<WorkStatusResponse>>() { }.getType();
         List<WorkStatusResponse> uploadResponse = gson.fromJson(uploadData, typeEvents);
         for (WorkStatusResponse workStatusResponse : uploadResponse) {
-            if (!packageId.equals(workStatusResponse.getPackageId()) && CollectionUtils
-                .isEmpty(workStatusResponse.getMecHostInfo())) {
+            if (!packageId.equals(workStatusResponse.getPackageId()) && CollectionUtils.isEmpty(
+                workStatusResponse.getMecHostInfo())) {
                 return null;
             } else {
                 List<MecHostInfo> mecHostInfoList = workStatusResponse.getMecHostInfo();
@@ -514,14 +527,15 @@ public class ProjectService {
         deployParams.put(APP_INSTANCE_ID, appInstanceId);
         deployParams.put(USER_ID, userId);
         deployParams.put(TOKEN, token);
-        String workStatus = HttpClientUtil
-            .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams);
+        String workStatus = HttpClientUtil.getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
+            deployParams);
         LOGGER.info("pod workStatus: {}", workStatus);
         return workStatus;
     }
 
     /**
      * get experience status.
+     *
      * @param packageId packageId.
      * @param userId userId.
      * @param mepHost mepHost.
@@ -530,8 +544,8 @@ public class ProjectService {
      * @return work status.
      */
     public String getPackageStatus(String packageId, String userId, MepHost mepHost, String token, LcmLog lcmLog) {
-        String packageStatus = HttpClientUtil
-            .getPackageStatus(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), userId, token, lcmLog);
+        String packageStatus = HttpClientUtil.getPackageStatus(mepHost.getProtocol(), mepHost.getLcmIp(),
+            mepHost.getPort(), userId, token, lcmLog);
         LOGGER.info("pod workStatus: {}", packageStatus);
         return packageStatus;
     }
@@ -549,6 +563,7 @@ public class ProjectService {
 
     /**
      * parse experience status.
+     *
      * @param status status.
      * @return experience status.
      */
@@ -599,8 +614,8 @@ public class ProjectService {
         for (JsonElement vmItem : vmArray) {
             JsonArray netArray = vmItem.getAsJsonObject().getAsJsonArray("networks");
             for (JsonElement netItem : netArray) {
-                experienceInfoList
-                    .add(new Experience(serviceName, "", netItem.getAsJsonObject().get("ip").getAsString()));
+                experienceInfoList.add(
+                    new Experience(serviceName, "", netItem.getAsJsonObject().get("ip").getAsString()));
             }
         }
         return experienceInfoList;
@@ -625,16 +640,15 @@ public class ProjectService {
                 .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
                     token);
             // delete package of hosts
-            boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams, pkgId,
-                    host.getMecHost());
+            boolean deleteHostRes = HttpClientUtil.deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                deployParams, pkgId, host.getMecHost());
             if (!deleteHostRes) {
                 LOGGER.error("delete host records failed after instantiateApp.");
                 return false;
             }
             // delete pkg of lcm
-            boolean deletePkgRes = HttpClientUtil
-                .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams, pkgId);
+            boolean deletePkgRes = HttpClientUtil.deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                deployParams, pkgId);
             if (!deletePkgRes) {
                 LOGGER.error("delete package failed after instantiateApp.");
                 return false;
@@ -654,6 +668,7 @@ public class ProjectService {
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(appReleasePo.getExperienceStatus(), errMsg, null));
     }
+
 
     /**
      * deploy App By Id.
@@ -736,8 +751,8 @@ public class ProjectService {
         // If the VM application is not released, you can determine whether the vm application is released
         // by checking whether the instance ID is empty.
         // If the appInstanceId is null for a vm application, the appInstanceId is released
-        if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils
-            .isEmpty(token)) {
+        if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(
+            token)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this package not instantiate"));
         }
         workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mepHost, token);
@@ -842,7 +857,7 @@ public class ProjectService {
             if (authRes.contains("accessToken")) {
                 String[] tokenArr = authRes.split(":");
                 if (tokenArr != null && tokenArr.length > 1) {
-                    return tokenArr[1].substring(1, tokenArr[1].length() - 1);
+                    return tokenArr[1].substring(1, tokenArr[1].length() - 2);
                 }
             }
         }
@@ -887,6 +902,30 @@ public class ProjectService {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * schedule update query order
+     */
+    public boolean scheduledQueryOrder() {
+        // periodically refresh order status
+        String token = getAccessToken();
+        if(StringUtils.isEmpty(token)) {
+            LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
+            return false;
+        }
+        Map<String, Object> params = new HashMap<>();
+        List<Order> orders = orderRepository.queryOrders(params);
+        LOGGER.error("[Scheduled Query Order], {}", orders);
+        if(!orders.isEmpty()) {
+            for(Order order : orders){
+                if(order.getStatus() == EnumOrderStatus.ACTIVATING) {
+                    orderService.updateOrderStatus(token, order);
+                    LOGGER.error("[Timer Update Query Order] Updated.");
+                }
+            }
+        }
+        return true;
     }
 
 }

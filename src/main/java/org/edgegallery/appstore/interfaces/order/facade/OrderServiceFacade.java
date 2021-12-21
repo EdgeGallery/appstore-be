@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
-import org.edgegallery.appstore.application.external.mecm.dto.MecmInfo;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -91,19 +91,16 @@ public class OrderServiceFacade {
         // upload package to mec
         // create app instance
         // update status to Activating
-        MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-        if (mecmInfo == null) {
-            LOGGER.error("[CREATE ORDER], Mecm Info is null. Failed to create order.");
+        String params = orderService.getVmDeployParams(release);
+        String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(), userId, params);
+        if (mecmPkgId == null) {
+            LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
             throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
-                ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED);
+                ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED); // NEED TO UPDATE WEBSITE GATEWAY
         }
-        LOGGER.info("[CREATE ORDER], Start to analyze MecmInfo.");
-        order.setMecAppId(mecmInfo.getMecmAppId());
-        order.setMecPackageId(mecmInfo.getMecmAppPackageId());
+        order.setMecPackageId(mecmPkgId);
         order.setStatus(EnumOrderStatus.ACTIVATING);
-        LOGGER.info("[CREATE ORDER] MECM APP ID :{}", mecmInfo.getMecmAppId());
-        LOGGER.info("[CREATE ORDER] MECM APP PACKAGE ID:{} ", mecmInfo.getMecmAppPackageId());
-
+        LOGGER.info("[CREATE ORDER] MECM Package Id:{} ", order.getMecPackageId());
         order.setOperateTime(new Date());
         orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
             EnumOrderOperation.ACTIVATED.getEnglish());
@@ -113,7 +110,7 @@ public class OrderServiceFacade {
         return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
     }
 
-    /**
+    /*
      * deactivate order.
      *
      * @param userId user id
@@ -132,20 +129,21 @@ public class OrderServiceFacade {
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
             order.setStatus(EnumOrderStatus.DEACTIVATING);
             orderRepository.updateOrder(order);
-
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
             String result = orderService.unDeployApp(order, userId, token);
-            if ("success".equals(result)) {
+            if (StringUtils.isEmpty(result)) {
+                LOGGER.error("[Deactivate Order] Failed to utilize delete server interface.");
+                throw new AppException("[Deactivate Order], Failed to utilize delete server interface.",
+                    ResponseConst.RET_DELETE_SERVER);
+            } else if (result.equalsIgnoreCase("failed to delete package") || result.equalsIgnoreCase(
+                "failed to delete instantiation")) {
+                LOGGER.error("[Deactivate Order] Failed to delete package.");
+                order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
+            } else if (result.equalsIgnoreCase("Delete server success")) {
+                LOGGER.info("[Deactivate Order] Success to delete package.");
+                order.setStatus(EnumOrderStatus.DEACTIVATED);
                 orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
                     EnumOrderOperation.DEACTIVATED.getEnglish());
-                order.setStatus(EnumOrderStatus.DEACTIVATED);
-                // set mecm info to empty
-                order.setMecInstanceId("");
-                order.setMecAppId("");
-                order.setMecPackageId("");
-            } else {
-                LOGGER.error("deactivate Order failed.");
-                order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             }
             orderRepository.updateOrder(order);
         } else {
@@ -179,12 +177,13 @@ public class OrderServiceFacade {
             // deploy app
             // update status to Activating
             Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            MecmInfo mecmInfo = mecmService.upLoadPackageToApm(token, release, order.getMecHostIp(), order.getUserId());
-            LOGGER.info("[ACTIVATE ORDER], after use upload interface");
-            if (mecmInfo == null) {
-                LOGGER.error("[ACTIVATE ORDER], Mecm Info is null.");
-                throw new AppException("[ACTIVATE ORDER], Failed To Utilize MECM Upload Interface.",
-                    ResponseConst.RET_UPLOAD_PACKAGE_TO_APM_FAILED);
+            String params = orderService.getVmDeployParams(release);
+            String mecmPkgId = mecmService.upLoadPackageToMecmNorth(token, release, order.getMecHostIp(),
+                order.getUserId(), params);
+            if (mecmPkgId == null || StringUtils.isEmpty(mecmPkgId)) {
+                LOGGER.error("[CREATE ORDER], Mecm Package Id is null. Failed to create order.");
+                throw new AppException("[CREATE ORDER], Failed To Utilize MECM Upload Interface.",
+                    ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED); // NEED TO UPDATE WEBSITE GATEWAY
             }
 
             order.setOperateTime(new Date());
@@ -209,7 +208,6 @@ public class OrderServiceFacade {
 
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, QueryOrdersReqDto queryOrdersReqDto,
         String token) {
-        LOGGER.error("[Query Order] starting query order function");
         Map<String, Object> params = new HashMap<>();
         if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
             params.put("userId", userId);
@@ -224,11 +222,9 @@ public class OrderServiceFacade {
         List<OrderDto> orderList = orderService.queryOrders(params, token);
         LOGGER.error("[Query Order] order list: {}", orderList);
         long total = orderService.getCountByCondition(params);
-
-        // Update order instance id.
-        // If order is activating, update status based on mecm operation status.
-
         LOGGER.info("[QUERY ORDER] After update each order status");
+
+        // update mecm operational status
 
         return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
             queryOrdersReqDto.getQueryCtrl().getOffset(), total));

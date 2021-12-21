@@ -26,11 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 
 public class MecmDeploymentInfo {
-    private String mecmAppInstanceId;
-
     private String mecmOperationalStatus;
-
-    private String mecmAppId;
 
     private String mecmAppPackageId;
 

@@ -48,11 +48,7 @@ public class Order implements Entity {
 
     private String mecHostIp;
 
-    private String mecAppId;
-
     private String mecPackageId;
-
-    private String mecInstanceId;
 
     private String detailCn;
 
@@ -81,18 +77,18 @@ public class Order implements Entity {
     }
 
     public Date getOrderTime() {
-        return orderTime == null ? null : (Date)orderTime.clone();
+        return orderTime == null ? null : (Date) orderTime.clone();
     }
 
     public void setOrderTime(Date orderTime) {
-        this.orderTime = orderTime == null ? null : (Date)orderTime.clone();
+        this.orderTime = orderTime == null ? null : (Date) orderTime.clone();
     }
 
     public Date getOperateTime() {
-        return operateTime == null ? null : (Date)operateTime.clone();
+        return operateTime == null ? null : (Date) operateTime.clone();
     }
 
     public void setOperateTime(Date operateTime) {
-        this.operateTime = operateTime == null ? null : (Date)operateTime.clone();
+        this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
     }
 }

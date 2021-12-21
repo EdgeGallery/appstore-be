@@ -144,7 +144,7 @@ public class AppService {
      * Returns software image descriptor content in string format.
      *
      * @param localFilePath CSAR file path
-     * @param intendedDir   intended directory
+     * @param intendedDir intended directory
      */
     public static void unzipApplicationPackage(String localFilePath, String intendedDir) {
 
@@ -162,8 +162,8 @@ public class AppService {
                 if (!entry.isDirectory()) {
                     try (InputStream inputStream = zipFile.getInputStream(entry)) {
                         if (inputStream.available() > TOO_BIG) {
-                            throw new AppException("file being unzipped is too big",
-                                ResponseConst.RET_FILE_TOO_BIG, TOO_BIG);
+                            throw new AppException("file being unzipped is too big", ResponseConst.RET_FILE_TOO_BIG,
+                                TOO_BIG);
                         }
                         FileUtils.copyInputStreamToFile(inputStream, new File(fileName));
                         LOGGER.info("unzip package... {}", entry.getName());
@@ -195,8 +195,8 @@ public class AppService {
         }
         try {
             String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
-            List<SwImgDesc> swImgDesc = new Gson()
-                .fromJson(swImageDesc, new TypeToken<List<SwImgDesc>>() { }.getType());
+            List<SwImgDesc> swImgDesc = new Gson().fromJson(swImageDesc,
+                new TypeToken<List<SwImgDesc>>() { }.getType());
             LOGGER.info("sw image descriptors: {}", swImgDesc);
             return swImgDesc;
         } catch (IOException e) {
@@ -204,12 +204,10 @@ public class AppService {
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
         }
 
-
     }
 
     /**
      * get release.
-     *
      */
     public Release getRelease(String appId, String packageId) {
         App app = appRepository.find(appId)
@@ -226,9 +224,8 @@ public class AppService {
     @Transactional(rollbackFor = Exception.class)
     public RegisterRespDto registerApp(Release release) {
 
-        Optional<App> existedApp = appRepository
-                .findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
-                        release.getAppBasicInfo().getProvider());
+        Optional<App> existedApp = appRepository.findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
+            release.getAppBasicInfo().getProvider());
         App app;
         if (existedApp.isPresent()) {
             app = existedApp.get();
@@ -242,15 +239,15 @@ public class AppService {
         appRepository.store(app);
         packageRepository.storeRelease(release);
         return RegisterRespDto.builder().appName(release.getAppBasicInfo().getAppName()).appId(app.getAppId())
-                .packageId(release.getPackageId()).provider(app.getProvider())
-                .version(release.getAppBasicInfo().getVersion()).build();
+            .packageId(release.getPackageId()).provider(app.getProvider())
+            .version(release.getAppBasicInfo().getVersion()).build();
     }
 
     /**
      * Returns list of image info.
      *
      * @param localFilePath csar file path
-     * @param parentDir     parent dir
+     * @param parentDir parent dir
      * @return list of image info
      */
     public List<SwImgDesc> getAppImageInfo(String localFilePath, String parentDir) {
@@ -290,7 +287,7 @@ public class AppService {
     /**
      * Update application package with appstore repo info.
      *
-     * @param parentDir        parent Dir
+     * @param parentDir parent Dir
      */
     public void updateAppPackageWithRepoInfo(String parentDir) {
 
@@ -330,15 +327,15 @@ public class AppService {
                     break;
                 }
             }
-            if (imageLoc == null || StringUtils.isEmpty(imageLoc.getDomainname())
-                || StringUtils.isEmpty(imageLoc.getProject())) {
+            if (imageLoc == null || StringUtils.isEmpty(imageLoc.getDomainname()) || StringUtils.isEmpty(
+                imageLoc.getProject())) {
                 LOGGER.error("missing image location parameters ");
                 throw new AppException("failed to update values yaml, missing image location parameters",
                     ResponseConst.RET_MISS_IMAGE_LOCATION);
             }
             FileUtils.writeStringToFile(valuesYaml, FileUtils.readFileToString(valuesYaml, StandardCharsets.UTF_8)
-                .replace(imageLoc.getDomainname(), appstoreRepoEndpoint)
-                .replace(imageLoc.getProject(), "appstore"), StandardCharsets.UTF_8, false);
+                    .replace(imageLoc.getDomainname(), appstoreRepoEndpoint).replace(imageLoc.getProject(), "appstore"),
+                StandardCharsets.UTF_8, false);
 
             compress(valuesYaml.getParent(), chartsTarStr);
             LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
@@ -351,7 +348,7 @@ public class AppService {
     /**
      * Update helm chart values.
      *
-     * @param valuesYaml       values file
+     * @param valuesYaml values file
      */
     private Map<String, Object> loadvaluesYaml(File valuesYaml) {
 
@@ -385,13 +382,9 @@ public class AppService {
      * @param password repo password
      */
     private DockerClient getDockerClient(String repo, String userName, String password) {
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerTlsVerify(true)
-                .withDockerCertPath("/usr/app/ssl")
-                .withRegistryUrl("https://" + repo)
-                .withRegistryUsername(userName)
-                .withRegistryPassword(password)
-                .build();
+        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
+            .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + repo).withRegistryUsername(userName)
+            .withRegistryPassword(password).build();
 
         return DockerClientBuilder.getInstance(config).build();
     }
@@ -408,19 +401,17 @@ public class AppService {
             LOGGER.info("Download docker image {} ", imageInfo.getSwImage());
 
             sourceRepoHost = imageInfo.getSwImage().split("/");
-            DockerClient dockerClient = getDockerClient(sourceRepoHost[0], devRepoUsername,
-                    devRepoPassword);
+            DockerClient dockerClient = getDockerClient(sourceRepoHost[0], devRepoUsername, devRepoPassword);
 
             try {
-                dockerClient.pullImageCmd(imageInfo.getSwImage())
-                        .exec(new PullImageResultCallback()).awaitCompletion();
+                dockerClient.pullImageCmd(imageInfo.getSwImage()).exec(new PullImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
                     imageInfo.getSwImage());
             } catch (Exception e) {
                 LOGGER.error("failed to download image {}, image not found in repository, {}", imageInfo.getSwImage(),
-                        e.getMessage());
+                    e.getMessage());
                 throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
                     imageInfo.getSwImage());
             }
@@ -440,24 +431,23 @@ public class AppService {
             LOGGER.info("Docker image to  upload: {}", imageInfo.getSwImage());
 
             DockerClient dockerClient = getDockerClient(appstoreRepoEndpoint, appstoreRepoUsername,
-                    appstoreRepoPassword);
+                appstoreRepoPassword);
 
             String[] dockerImageNames = imageInfo.getSwImage().split("/");
             String uploadImgName;
             if (dockerImageNames.length > 1) {
-                uploadImgName = new StringBuilder(appstoreRepoEndpoint)
-                        .append(APPSTORE_URL).append(dockerImageNames[dockerImageNames.length - 1]).toString();
+                uploadImgName = new StringBuilder(appstoreRepoEndpoint).append(APPSTORE_URL)
+                    .append(dockerImageNames[dockerImageNames.length - 1]).toString();
             } else {
-                uploadImgName = new StringBuilder(appstoreRepoEndpoint)
-                        .append(APPSTORE_URL).append(dockerImageNames[0]).toString();
+                uploadImgName = new StringBuilder(appstoreRepoEndpoint).append(APPSTORE_URL).append(dockerImageNames[0])
+                    .toString();
             }
 
             try {
                 LOGGER.info("Upload tagged docker image: {}", uploadImgName);
                 String id = dockerClient.inspectImageCmd(imageInfo.getSwImage()).exec().getId();
                 dockerClient.tagImageCmd(id, uploadImgName, imageInfo.getVersion()).withForce().exec();
-                dockerClient.pushImageCmd(uploadImgName)
-                        .exec(new PushImageResultCallback()).awaitCompletion();
+                dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
@@ -472,7 +462,7 @@ public class AppService {
     /**
      * Decompress tar file.
      *
-     * @param tarFile  tar file
+     * @param tarFile tar file
      * @param destFile destination folder
      */
     private void deCompress(String tarFile, File destFile) {
@@ -525,7 +515,7 @@ public class AppService {
             tarArchive.putArchiveEntry(new TarArchiveEntry(file, entry));
             if (file.isFile()) {
                 try (FileInputStream fileInputStream = new FileInputStream(file);
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+                     BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
                     IOUtils.copy(bufferedInputStream, tarArchive);
                     tarArchive.closeArchiveEntry();
                 }
@@ -547,7 +537,7 @@ public class AppService {
      * Returns file from the package.
      *
      * @param parentDir parent Dir
-     * @param file      file to search
+     * @param file file to search
      * @return file,
      */
     public File getFileFromPackage(String parentDir, String file) {
@@ -565,14 +555,13 @@ public class AppService {
         return null;
     }
 
-
     /**
      * delete package by app id and package id.
      *
-     * @param appId     app id
+     * @param appId app id
      * @param packageId package id
-     * @param user      obj of User
-     * @param token     access token
+     * @param user obj of User
+     * @param token access token
      */
     @Transactional(rollbackFor = Exception.class)
     public void unPublishPackage(String appId, String packageId, User user, String token) {
@@ -602,7 +591,7 @@ public class AppService {
     /**
      * download package by app id and package id.
      *
-     * @param appId     app id.
+     * @param appId app id.
      * @param packageId package id.
      * @return release
      */
@@ -656,7 +645,7 @@ public class AppService {
     /**
      * load test task status from atp.
      *
-     * @param packageId   package id
+     * @param packageId package id
      * @param atpMetadata atp data
      */
     public void loadTestTask(String appId, String packageId, AtpMetadata atpMetadata) {

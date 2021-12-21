@@ -16,13 +16,19 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
+import com.github.pagehelper.util.StringUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
+import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.interfaces.order.facade.dto.MecmHostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +44,38 @@ public class MecmWrapperServiceFacade {
     @Autowired
     private MecmService mecmService;
 
+    @Autowired
+    private AppService appService;
+
     /**
      * get all mecm hosts.
      *
      * @param token Access Token
      * @return ResponseEntity
      */
-    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String userId) {
-        LOGGER.info("get all mecm hosts.");
-        List<Map<String, Object>> mecHostList = mecmService.getAllMecmHosts(token, userId);
-        List<MecmHostDto> respDataDto = mecHostList.stream().map(MecmHostDto::fromMap).collect(Collectors.toList());
+    public ResponseEntity<ResponseObject> getAllMecmHosts(String token, String appId, String packageId) {
+        LOGGER.info("[Get all mecm hosts].");
+        List<Map<String, Object>> mecmHosts = mecmService.getAllMecmHosts(token);
+        LOGGER.error("[Get all mecm hosts] Utilize mecm service success. Start to filter the hsots.");
+        List<Map<String, Object>> resMecmHosts = new ArrayList<>();
+        if (!StringUtils.isEmpty(appId) && !StringUtil.isEmpty(packageId)) {
+            LOGGER.info("[Get all mecm hosts]. Filter mecm hosts by depoly mode.");
+            Release release = appService.getRelease(appId, packageId);
+            LOGGER.info("[Get All MecmHost] Deploymode:{}", release.getDeployMode());
+            String deployMode = release.getDeployMode().equalsIgnoreCase("container") ? "K8s" : "OpenStack";
+            for (Map<String, Object> mecmHost : mecmHosts) {
+                LOGGER.info("[Get All MecmHost], current mecm host deploy mode:{}",
+                    String.valueOf(mecmHost.get("vim")));
+                if (String.valueOf(mecmHost.get("vim")).equalsIgnoreCase(deployMode)) {
+                    resMecmHosts.add(mecmHost);
+                    LOGGER.info("[Get All MecmHost], successfully add a mecm host:{}",
+                        String.valueOf(mecmHost.get("vim")));
+                }
+            }
+        } else {
+            resMecmHosts = mecmHosts;
+        }
+        List<MecmHostDto> respDataDto = resMecmHosts.stream().map(MecmHostDto::fromMap).collect(Collectors.toList());
         ErrorMessage resultMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         return ResponseEntity.ok(new ResponseObject(respDataDto, resultMsg, "query mecm host success."));
     }
