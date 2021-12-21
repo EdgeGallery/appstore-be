@@ -23,11 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,28 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLContext;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
-import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
-import org.edgegallery.appstore.domain.model.order.Order;
-import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.EnumExperienceStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -83,7 +60,6 @@ import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -124,10 +100,6 @@ public class ProjectService {
 
     private static final String SERVICES = "services";
 
-    private static final CookieStore cookieStore = new BasicCookieStore();
-
-    private static final int READ_BUFFER_SIZE = 256;
-
     private static final String TOKEN = "token";
 
     private static final String USER_ID = "userId";
@@ -139,17 +111,7 @@ public class ProjectService {
     /**
      * get terminate app result wait 2 minites.
      */
-
     private static final int GET_TERMINATE_RESULT_TIME = 5 * 1000 * 60;
-
-    @Value("${security.oauth2.resource.jwt.key-uri:}")
-    private String loginUrl;
-
-    @Value("${client.client-id:}")
-    private String clientId;
-
-    @Value("${client.client-secret:}")
-    private String clientPW;
 
     @Setter
     private int instantiateAppSleepTime = 50000;
@@ -167,34 +129,7 @@ public class ProjectService {
     private PackageRepository packageRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private OrderService orderService;
-
-    private static String getXsrf() {
-        for (Cookie cookie : cookieStore.getCookies()) {
-            if (cookie.getName().equals("XSRF-TOKEN")) {
-                return cookie.getValue();
-            }
-        }
-        return "";
-    }
-
-    private static CloseableHttpClient createIgnoreSslHttpClient() {
-        try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
-                (TrustStrategy) (chain, authType) -> true).build();
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
-                NoopHostnameVerifier.INSTANCE);
-
-            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
-        } catch (Exception e) {
-            LOGGER.error("call sslConnectionSocketFactory to clean env interface occur error {}", e.getMessage());
-        }
-        return null;
-    }
+    private HttpClientUtil httpClientUtil;
 
     public void updateExperienceStatus(String packageId, int experienceStatus) {
         packageMapper.updateExperienceStatus(packageId, experienceStatus);
@@ -798,7 +733,7 @@ public class ProjectService {
         }
         // Call by service nameuser-mgmtLogin interface
         try {
-            String accessToken = getAccessToken();
+            String accessToken = httpClientUtil.getAccessToken();
             if (StringUtils.isEmpty(accessToken)) {
                 LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
                 return false;
@@ -823,109 +758,4 @@ public class ProjectService {
         }
         return true;
     }
-
-    private String getAccessToken() {
-        int count = 0;
-        CloseableHttpClient client = createIgnoreSslHttpClient();
-        if (client == null) {
-            LOGGER.error("call client interface occur error");
-            return null;
-        }
-        while (count < 10) {
-            String authResult = getAuthResult(client);
-            if (StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
-                String tokenArr = getTokenString(authResult);
-                if (tokenArr != null) {
-                    return tokenArr;
-                }
-            } else {
-                count++;
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.error(SLEEP_FAILED, e.getMessage());
-                }
-            }
-        }
-        return "";
-    }
-
-    private String getTokenString(String authResult) {
-        String[] authResults = authResult.split(",");
-        for (String authRes : authResults) {
-            if (authRes.contains("accessToken")) {
-                String[] tokenArr = authRes.split(":");
-                if (tokenArr != null && tokenArr.length > 1) {
-                    return tokenArr[1].substring(1, tokenArr[1].length() - 2);
-                }
-            }
-        }
-        return null;
-    }
-
-    private String getAuthResult(CloseableHttpClient client) {
-        try {
-            URL url = new URL(loginUrl);
-            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/login";
-            LOGGER.warn("user login url: {}", userLoginUrl);
-            HttpPost httpPost = new HttpPost(userLoginUrl);
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("username", clientId + ":" + new Date().getTime());
-            builder.addTextBody("password", clientPW);
-            httpPost.setEntity(builder.build());
-            // first call login interface
-            client.execute(httpPost);
-            String xsrf = getXsrf();
-            httpPost.setHeader("X-XSRF-TOKEN", xsrf);
-            // secode call login interface
-            client.execute(httpPost);
-            String xsrfToken = getXsrf();
-            //third call auth login-info interface
-            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30091/auth/login-info";
-            LOGGER.warn("user login-info url: {}", getTokenUrl);
-            HttpGet httpGet = new HttpGet(getTokenUrl);
-            httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
-            CloseableHttpResponse res = client.execute(httpGet);
-            InputStream inputStream = res.getEntity().getContent();
-            byte[] bytes = new byte[READ_BUFFER_SIZE];
-            StringBuilder buf = new StringBuilder();
-            int len = 0;
-            while ((len = inputStream.read(bytes)) != -1) {
-                buf.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
-            }
-            if (buf.length() > 0) {
-                LOGGER.info("response token length: {}", buf.length());
-                return buf.toString();
-            }
-        } catch (IOException e) {
-            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
-        }
-        return null;
-    }
-
-    /**
-     * schedule update query order.
-     */
-    public boolean scheduledQueryOrder() {
-        // periodically refresh order status
-        String token = getAccessToken();
-        if (StringUtils.isEmpty(token)) {
-            LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
-            return false;
-        }
-        Map<String, Object> params = new HashMap<>();
-        List<Order> orders = orderRepository.queryOrders(params);
-        LOGGER.error("[Scheduled Query Order], {}", orders);
-        if (!orders.isEmpty()) {
-            for (Order order : orders) {
-                if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
-                    orderService.updateOrderStatus(token, order);
-                    LOGGER.error("[Timer Update Query Order] Updated.");
-                }
-            }
-        }
-        return true;
-    }
-
 }

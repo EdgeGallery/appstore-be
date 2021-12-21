@@ -16,7 +16,6 @@
 
 package org.edgegallery.appstore.interfaces.order.facade;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,6 @@ public class OrderServiceFacade {
         }
         order.setMecPackageId(mecmPkgId);
         order.setStatus(EnumOrderStatus.ACTIVATING);
-        order.setOperateTime(new Date());
         orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
             EnumOrderOperation.ACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
@@ -126,6 +124,8 @@ public class OrderServiceFacade {
         }
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
             order.setStatus(EnumOrderStatus.DEACTIVATING);
+            orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
+                EnumOrderOperation.DEACTIVATED.getEnglish());
             orderRepository.updateOrder(order);
 
             // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
@@ -169,12 +169,7 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
         if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-            order.setStatus(EnumOrderStatus.ACTIVATING);
-            orderRepository.updateOrder(order);
-
-            /// upload package to mecm
-            // deploy app
-            // update status to Activating
+            // upload package to mecm, if return mecm packageId is not empty, update status to Activating
             Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
             String params = orderService.getVmDeployParams(release);
             String mecmPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
@@ -185,7 +180,8 @@ public class OrderServiceFacade {
                     ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
             }
 
-            order.setOperateTime(new Date());
+            order.setMecPackageId(mecmPkgId);
+            order.setStatus(EnumOrderStatus.ACTIVATING);
             orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
                 EnumOrderOperation.ACTIVATED.getEnglish());
             orderRepository.updateOrder(order);

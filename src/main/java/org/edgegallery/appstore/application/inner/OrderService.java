@@ -35,10 +35,10 @@ import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
+import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
 import org.edgegallery.appstore.infrastructure.util.IpCalculateUtil;
 import org.edgegallery.appstore.interfaces.order.facade.dto.OrderDto;
-import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +67,7 @@ public class OrderService {
     private HostMapper hostMapper;
 
     @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private OrderService orderService;
+    private HttpClientUtil httpClientUtil;
 
     /**
      * update order status.
@@ -232,5 +229,22 @@ public class OrderService {
         }
         LOGGER.info("vm params: {}", vmInputParams.substring(1, vmInputParams.length()));
         return vmInputParams.substring(1, vmInputParams.length());
+    }
+
+    /**
+     * schedule update query order.
+     */
+    public boolean scheduledQueryOrder() {
+        // periodically refresh order status
+        String token = httpClientUtil.getAccessToken();
+        if (StringUtils.isEmpty(token)) {
+            LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
+            return false;
+        }
+        Map<String, Object> params = new HashMap<>();
+        List<Order> orders = orderRepository.queryOrders(params);
+        orders.stream().filter(r -> r.getStatus() == EnumOrderStatus.ACTIVATING
+            && !StringUtils.isEmpty(r.getAppPackageId())).forEach(p -> updateOrderStatus(token, p));
+        return true;
     }
 }

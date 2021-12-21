@@ -21,9 +21,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.SSLContext;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeBody;
@@ -34,6 +54,7 @@ import org.edgegallery.appstore.domain.model.system.lcm.LcmLog;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -41,13 +62,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-public final class HttpClientUtil {
+@Service("HttpClientUtil")
+public class HttpClientUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
 
@@ -64,6 +87,19 @@ public final class HttpClientUtil {
     private static final String USER_ID = "userId";
 
     private static final String UPLOAD_PKG_FAILED = "Failed upload pkg exception {}";
+
+    private static final int READ_BUFFER_SIZE = 256;
+
+    private static final CookieStore cookieStore = new BasicCookieStore();
+
+    @Value("${security.oauth2.resource.jwt.key-uri:}")
+    private String loginUrl;
+
+    @Value("${client.client-id:}")
+    private String clientId;
+
+    @Value("${client.client-secret:}")
+    private String clientPW;
 
     private HttpClientUtil() {
 
@@ -431,6 +467,110 @@ public final class HttpClientUtil {
 
     private static String getUrlPrefix(String protocol, String ip, int port) {
         return protocol + "://" + ip + ":" + port;
+    }
+
+    private static String getXsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("XSRF-TOKEN")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+                (TrustStrategy) (chain, authType) -> true).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+            LOGGER.error("call sslConnectionSocketFactory to clean env interface occur error {}", e.getMessage());
+        }
+        return null;
+    }
+
+    public String getAccessToken() {
+        int count = 0;
+        CloseableHttpClient client = createIgnoreSslHttpClient();
+        if (client == null) {
+            LOGGER.error("call client interface occur error");
+            return null;
+        }
+        while (count < 10) {
+            String authResult = getAuthResult(client);
+            if (org.apache.commons.lang.StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
+                String tokenArr = getTokenString(authResult);
+                if (tokenArr != null) {
+                    return tokenArr;
+                }
+            } else {
+                count++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("sleep failed! {}", e.getMessage());
+                }
+            }
+        }
+        return "";
+    }
+
+    private String getTokenString(String authResult) {
+        String[] authResults = authResult.split(",");
+        for (String authRes : authResults) {
+            if (authRes.contains("accessToken")) {
+                String[] tokenArr = authRes.split(":");
+                if (tokenArr != null && tokenArr.length > 1) {
+                    return tokenArr[1].substring(1, tokenArr[1].length() - 2);
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getAuthResult(CloseableHttpClient client) {
+        try {
+            URL url = new URL(loginUrl);
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/login";
+            LOGGER.warn("user login url: {}", userLoginUrl);
+            HttpPost httpPost = new HttpPost(userLoginUrl);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("username", clientId + ":" + new Date().getTime());
+            builder.addTextBody("password", clientPW);
+            httpPost.setEntity(builder.build());
+            // first call login interface
+            client.execute(httpPost);
+            String xsrf = getXsrf();
+            httpPost.setHeader("X-XSRF-TOKEN", xsrf);
+            // secode call login interface
+            client.execute(httpPost);
+            String xsrfToken = getXsrf();
+            //third call auth login-info interface
+            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30091/auth/login-info";
+            LOGGER.warn("user login-info url: {}", getTokenUrl);
+            HttpGet httpGet = new HttpGet(getTokenUrl);
+            httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
+            CloseableHttpResponse res = client.execute(httpGet);
+            InputStream inputStream = res.getEntity().getContent();
+            byte[] bytes = new byte[READ_BUFFER_SIZE];
+            StringBuilder buf = new StringBuilder();
+            int len = 0;
+            while ((len = inputStream.read(bytes)) != -1) {
+                buf.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
+            }
+            if (buf.length() > 0) {
+                LOGGER.info("response token length: {}", buf.length());
+                return buf.toString();
+            }
+        } catch (IOException e) {
+            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+        }
+        return null;
     }
 
 }

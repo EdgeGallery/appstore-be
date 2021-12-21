@@ -108,7 +108,7 @@ public class PushPackageTest {
     @Test
     public void should_wrong_when_get_pushablepackages() throws Exception {
         MvcResult mvcResult = mvc.perform(
-            MockMvcRequestBuilders.get("/mec/appstore/v1/packages/packageid-0005/pushable")
+            MockMvcRequestBuilders.get("/mec/appstore/v1/packages/packageid-0007/pushable")
                 .contentType(MediaType.APPLICATION_JSON_VALUE).with(csrf()).accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
