@@ -22,37 +22,31 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.application.external.mecm.MecmService;
-import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
-import org.edgegallery.appstore.infrastructure.persistence.apackage.AppReleasePo;
+import org.edgegallery.appstore.application.inner.OrderService;
 import org.edgegallery.appstore.interfaces.AppTest;
+import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.order.web.MecmRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
-public class ProjectServiceCleanEnvTest extends AppTest {
+public class ScheduleTaskTest extends AppTest {
 
     @Autowired
     private ProjectService projectService;
 
     @Autowired
-    private MecmService mecmService;
+    private OrderService orderService;
+
+    @Autowired
+    private PackageServiceFacade packageServiceFacade;
 
     private HttpServer httpServer;
 
@@ -62,7 +56,6 @@ public class ProjectServiceCleanEnvTest extends AppTest {
 
     private String token = "4687632346763131324564";
 
-    @Before
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 38067), 0);
         httpServer.createContext("/login", new HttpHandler() {
@@ -131,7 +124,6 @@ public class ProjectServiceCleanEnvTest extends AppTest {
         httpServer30091.start();
     }
 
-    @After
     public void after() {
         httpServer.stop(1);
         httpServer8001.stop(1);
@@ -140,7 +132,7 @@ public class ProjectServiceCleanEnvTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_failed_when_clean_release_can_not_get_token() throws IOException {
+    public void should_failed_when_clean_release_can_not_get_token() {
         boolean isOk = projectService.cleanUnreleasedEnv();
         Assert.assertFalse(isOk);
     }
@@ -148,33 +140,27 @@ public class ProjectServiceCleanEnvTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_clean_release() throws IOException {
+        before();
         boolean isOk = projectService.cleanUnreleasedEnv();
         Assert.assertTrue(isOk);
+        after();
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_getExpirTime() throws Exception {
+        packageServiceFacade.scheduledDeletePackage();
+        File tempFile = Resources.getResourceAsFile("testfile/logo.png");
+        long expTime = packageServiceFacade.getExpirTime(tempFile);
+        Assert.assertTrue(expTime > 0);
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success_when_schedule_query_order() throws IOException {
-        boolean isOk = projectService.scheduledQueryOrder();
+        before();
+        boolean isOk = orderService.scheduledQueryOrder();
         Assert.assertTrue(isOk);
+        after();
     }
-
-    // @Test
-    // @WithMockUser(roles = "APPSTORE_TENANT")
-    // public void should_success_when_clean_release2() throws IOException {
-    //     before();
-    //     Optional.ofNullable(packageMapper.findReleaseNoCondtion()).ifPresent(r -> {
-    //         AppReleasePo appReleasePo = r.get(0);
-    //         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    //         Calendar calendar = Calendar.getInstance();
-    //         calendar.setTime(new Date());
-    //         calendar.add(Calendar.DAY_OF_YEAR, -2);
-    //         String data = sdf.format(calendar.getTime());
-    //         appReleasePo.setStartExpTime(data);
-    //         packageMapper.updateAppInstanceApp(appReleasePo);
-    //     });
-    //     boolean isOk = projectService.cleanUnreleasedEnv();
-    //     Assert.assertTrue(isOk);
-    //     after();
-    // }
 }

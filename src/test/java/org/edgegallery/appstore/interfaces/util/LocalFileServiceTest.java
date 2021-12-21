@@ -22,11 +22,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.UUID;
-import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
-import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -45,9 +42,6 @@ public class LocalFileServiceTest {
 
     @Autowired
     private LocalFileServiceImpl fileService;
-
-    @Autowired
-    private PackageServiceFacade packageServiceFacade;
 
     @Before
     public void before() throws IOException {
@@ -99,14 +93,5 @@ public class LocalFileServiceTest {
         String canonicalPath = LocalFileServiceImpl.sanitizeFileName("testfile", filePath);
 
         Assert.assertNotNull(canonicalPath);
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_success_getExpirTime() throws Exception {
-        packageServiceFacade.scheduledDeletePackage();
-        File tempFile = Resources.getResourceAsFile("testfile/logo.png");
-        long expTime = packageServiceFacade.getExpirTime(tempFile);
-        Assert.assertTrue(expTime > 0);
     }
 }
