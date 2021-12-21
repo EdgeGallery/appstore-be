@@ -358,7 +358,7 @@ public class HttpClientUtil {
      * @param userId userId.
      * @param token token.
      * @param lcmLog lcmLog.
-     * @return
+     * @return package status
      */
     public static String getPackageStatus(String protocol, String ip, int port, String userId, String token,
         LcmLog lcmLog) {
@@ -493,6 +493,11 @@ public class HttpClientUtil {
         return null;
     }
 
+    /**
+     * get access token for schedule task.
+     *
+     * @return token
+     */
     public String getAccessToken() {
         int count = 0;
         CloseableHttpClient client = createIgnoreSslHttpClient();
