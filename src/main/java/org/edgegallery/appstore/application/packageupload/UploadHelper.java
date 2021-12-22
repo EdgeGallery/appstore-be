@@ -21,9 +21,6 @@ import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.UUID;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
@@ -76,12 +73,11 @@ public class UploadHelper {
         String hostUrl) {
         JSONObject ret = new JSONObject();
 
-        // build upload progress data
-        String progressId = UUID.randomUUID().toString();
-        Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        PackageUploadProgress progress = new PackageUploadProgress(progressId, req.getString("packageId"),
-            req.getString("meaoId"), createTime);
-        progressFacade.createProgress(progress);
+        String progressId = req.getString("progressId");
+        PackageUploadProgress progress = progressFacade.getProgress(progressId).getBody();
+        if (progress == null) {
+            throw new AppException("process not exist.");
+        }
         File soft = new File(softPath);
         try (FileInputStream input = new FileInputStream(soft)) {
             String fileName = soft.getName();

@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,10 +48,12 @@ import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
+import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppCtrlDto;
+import org.edgegallery.appstore.interfaces.meao.facade.ProgressFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +100,9 @@ public class PackageServiceFacade {
 
     @Autowired
     private UploadPackageService uploadPackageService;
+
+    @Autowired
+    ProgressFacade progressFacade;
 
     /**
      * Query package by package id.
@@ -220,9 +227,15 @@ public class PackageServiceFacade {
             appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
         }
 
+        // build upload progress data
+        String progressId = UUID.randomUUID().toString();
+        Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        PackageUploadProgress progress = new PackageUploadProgress(progressId, packageId, meaoId, createTime);
+        progressFacade.createProgress(progress);
+
         // start a thread to upload package to meao
         new Thread(() -> uploadPackageService
-            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId, token).toString()).start();
+            .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId, token, progressId).toString()).start();
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
     }
 
