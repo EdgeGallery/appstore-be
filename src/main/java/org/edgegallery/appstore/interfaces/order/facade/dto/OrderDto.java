@@ -35,8 +35,6 @@ public class OrderDto {
 
     private String appName;
 
-    private String appVersion;
-
     private String orderTime;
 
     private String operateTime;
@@ -55,19 +53,18 @@ public class OrderDto {
      * constructor.
      *
      */
-    public OrderDto(Order order, String appName, String appVersion, String mecHostCity) {
+    public OrderDto(Order order) {
         this.orderId = order.getOrderId();
         this.orderNum = order.getOrderNum();
         this.userId = order.getUserId();
         this.userName = order.getUserName();
         this.appId = order.getAppId();
-        this.appName = appName;
-        this.appVersion = appVersion;
+        this.appName = order.getAppName();
         this.orderTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(order.getOrderTime());
         this.operateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(order.getOperateTime());
         this.status = order.getStatus().toString();
         this.mecHostIp = order.getMecHostIp();
-        this.mecHostCity = mecHostCity;
+        this.mecHostCity = order.getMecHostCity();
         this.detailCn = order.getDetailCn();
         this.detailEn = order.getDetailEn();
     }

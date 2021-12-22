@@ -418,34 +418,6 @@ public class HttpClientUtil {
     }
 
     /**
-     * getWorkloadStatus.
-     *
-     * @return String
-     */
-    public static String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
-        String token) {
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
-            .replace(APP_INSTANCE_ID, appInstanceId).replace(TENANT_ID, userId);
-        LOGGER.info("work event url is {}", url);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        ResponseEntity<String> response;
-        try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-        } catch (RestClientException e) {
-            LOGGER.error("Failed to get workload events which appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
-            return null;
-        }
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        }
-        LOGGER.error("Failed to get workload events which appInstanceId is {}", appInstanceId);
-        return null;
-    }
-
-    /**
      * getHealth.
      */
     public static boolean getHealth(String protocol, String ip, int port) {
@@ -507,7 +479,7 @@ public class HttpClientUtil {
         }
         while (count < 10) {
             String authResult = getAuthResult(client);
-            if (org.apache.commons.lang.StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
+            if (!StringUtils.isEmpty(authResult) && authResult.contains("\"accessToken\":")) {
                 String tokenArr = getTokenString(authResult);
                 if (tokenArr != null) {
                     return tokenArr;
@@ -530,8 +502,8 @@ public class HttpClientUtil {
         for (String authRes : authResults) {
             if (authRes.contains("accessToken")) {
                 String[] tokenArr = authRes.split(":");
-                if (tokenArr != null && tokenArr.length > 1) {
-                    return tokenArr[1].substring(1, tokenArr[1].length() - 2);
+                if (tokenArr.length > 1) {
+                    return tokenArr[1].substring(1, tokenArr[1].length() - 1);
                 }
             }
         }
@@ -552,7 +524,7 @@ public class HttpClientUtil {
             client.execute(httpPost);
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
-            // secode call login interface
+            // second call login interface
             client.execute(httpPost);
             String xsrfToken = getXsrf();
             //third call auth login-info interface
@@ -564,7 +536,7 @@ public class HttpClientUtil {
             InputStream inputStream = res.getEntity().getContent();
             byte[] bytes = new byte[READ_BUFFER_SIZE];
             StringBuilder buf = new StringBuilder();
-            int len = 0;
+            int len;
             while ((len = inputStream.read(bytes)) != -1) {
                 buf.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
             }

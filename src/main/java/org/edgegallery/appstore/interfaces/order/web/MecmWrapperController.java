@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.domain.constants.Consts;
@@ -65,7 +64,7 @@ public class MecmWrapperController {
         @ApiParam(value = "package id") @RequestParam(value = "packageId", required = false) String packageId,
         HttpServletRequest httpServletRequest) {
         LOGGER.info("enter query mecm hosts.");
-        return mecmWrapperServiceFacade.getAllMecmHosts(
+        return mecmWrapperServiceFacade.getAllMecHosts(
             (String) httpServletRequest.getAttribute(Consts.ACCESS_TOKEN_STR), appId, packageId);
     }
 }

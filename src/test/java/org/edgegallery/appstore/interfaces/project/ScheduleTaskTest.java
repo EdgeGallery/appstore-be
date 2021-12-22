@@ -113,7 +113,10 @@ public class ScheduleTaskTest extends AppTest {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
-                LoginInfoRespDto loginInfoRespDto = LoginInfoRespDto.builder().accessToken("4687632346763131324564").build();
+                LoginInfoRespDto loginInfoRespDto = LoginInfoRespDto.builder().userName("testUserId")
+                    .accessToken("4687632346763131324564")
+                    .authorities("[\"ROLE_APPSTORE_TENANT\"]")
+                    .build();
                 String dtp = new Gson().toJson(loginInfoRespDto);
                 byte[] response = dtp.getBytes();
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);

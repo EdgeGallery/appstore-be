@@ -54,6 +54,9 @@ public class OrderPo implements PersistenceObject<Order> {
     @Column(name = "APPPACKAGEID")
     private String appPackageId;
 
+    @Column(name = "APPNAME")
+    private String appName;
+
     @Column(name = "ORDERTIME")
     private Date orderTime;
 
@@ -65,6 +68,9 @@ public class OrderPo implements PersistenceObject<Order> {
 
     @Column(name = "MECM_HOSTIP")
     private String mecHostIp;
+
+    @Column(name = "MECM_HOSTCITY")
+    private String mecHostCity;
 
     @Column(name = "MECM_APPPACKAGEID")
     private String mecPackageId;

@@ -32,7 +32,6 @@ import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
-import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
 import org.edgegallery.appstore.interfaces.AppstoreApplicationTest;
 import org.junit.After;
 import org.junit.Assert;
@@ -210,24 +209,15 @@ public class MecmServiceTest {
     }
 
     @Test
-    public void getMecHostByIpList_success() {
-        String userId = "test-userid-0001";
-        List<String> mecHostIpList = new ArrayList<>();
-        mecHostIpList.add(hostIp);
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
+    public void getAllMecHosts_success() {
+        List<Map<String, Object>> result = mecmService.getAllMecHosts(token);
         Assert.assertNotNull(result);
-        MecHostBody mecHost = result.get(hostIp);
-        Assert.assertEquals("xian", mecHost.getCity());
     }
 
     @Test
-    public void getMecHostByIpList_empty() {
-        String userId = "testUserId";
-        List<String> mecHostIpList = new ArrayList<>();
-        mecHostIpList.add("127.0.0.4");
-        Release release = new Release();
-        Map<String, MecHostBody> result = mecmService.getMecHostByIpList(token, mecHostIpList);
-        Assert.assertTrue(result.isEmpty());
+    public void getAllMecHosts_empty() {
+        List<Map<String, Object>> result = mecmService.getAllMecHosts("testToken");
+        Assert.assertEquals(0, result.size());
     }
 
     @Test
@@ -266,7 +256,7 @@ public class MecmServiceTest {
     public void getDeploymentStatus_success() {
         String userId = "testUserId";
         String mecmPkgId = "testPackageId";
-        MecmDeploymentInfo testInfo = mecmService.getDepolymentStatus(token, mecmPkgId, userId);
+        MecmDeploymentInfo testInfo = mecmService.getDeploymentStatus(token, mecmPkgId, userId);
         Assert.assertNotNull(testInfo);
         Assert.assertEquals("Finished", testInfo.getMecmOperationalStatus());
     }
@@ -275,7 +265,7 @@ public class MecmServiceTest {
     public void getDeploymentStatus_fail() {
         String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
         String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertNull(mecmService.getDepolymentStatus(token, mecmPkgId, userId));
+        Assert.assertNull(mecmService.getDeploymentStatus(token, mecmPkgId, userId));
     }
 
     @Test

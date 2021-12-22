@@ -23,7 +23,6 @@
         update app_order
         SET operateTime = (select now()),
         status = #{status},
-        mecm_hostIp = #{mecHostIp},
         mecm_appPackageId = #{mecPackageId},
         detailCn = #{detailCn},
         detailEn = #{detailEn}
@@ -33,10 +32,10 @@
     <insert id="insert"
             parameterType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo">
         insert into app_order
-        (orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp, mecm_appPackageId, detailCn, detailEn)
-        VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{orderTime},
-        #{operateTime}, #{status}, #{mecHostIp}, #{mecPackageId}, #{detailCn}, #{detailEn})
+        (orderId, orderNum, userId, userName, appId, appPackageId, appName, orderTime, operateTime, status,
+        mecm_hostIp, mecm_hostCity, mecm_appPackageId, detailCn, detailEn)
+        VALUES (#{orderId}, #{orderNum}, #{userId}, #{userName}, #{appId}, #{appPackageId}, #{appName}, #{orderTime},
+        #{operateTime}, #{status}, #{mecHostIp}, #{mecHostCity}, #{mecPackageId}, #{detailCn}, #{detailEn})
     </insert>
 
     <select id="getCountByCondition" resultType="java.lang.Integer"
@@ -65,8 +64,9 @@
     <select id="queryOrders"
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="java.util.Map">
-        select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp mecHostIp, mecm_appPackageId mecPackageId, detailCn, detailEn from app_order
+        select orderId, orderNum, userId, userName, appId, appPackageId, appName, orderTime, operateTime, status,
+        mecm_hostIp mecHostIp, mecm_hostCity mecHostCity, mecm_appPackageId mecPackageId,
+        detailCn, detailEn from app_order
         <where>
             <if test="appId != null and appId != '' ">
                 and appId = #{appId}
@@ -97,8 +97,8 @@
     <select id="findByOrderId"
             resultType="org.edgegallery.appstore.infrastructure.persistence.order.OrderPo"
             parameterType="String">
-        select orderId, orderNum, userId, userName, appId, appPackageId, orderTime, operateTime, status,
-        mecm_hostIp mecHostIp, mecm_appPackageId mecPackageId,
+        select orderId, orderNum, userId, userName, appId, appPackageId, appName, orderTime, operateTime, status,
+        mecm_hostIp mecHostIp, mecm_hostCity mecHostCity, mecm_appPackageId mecPackageId,
         detailCn, detailEn from app_order where orderId = #{orderId}
     </select>
 

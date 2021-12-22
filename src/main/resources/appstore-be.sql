@@ -182,10 +182,12 @@
         USERNAME                 VARCHAR(100)       NOT NULL,
         APPID                    VARCHAR(200)       NOT NULL,
         APPPACKAGEID             VARCHAR(200)       NOT NULL,
+        APPNAME                  VARCHAR(100)       NULL,
         ORDERTIME                TIMESTAMP          NOT NULL,
         OPERATETIME              TIMESTAMP          NULL,
         STATUS                   VARCHAR(50)        NOT NULL,
         MECM_HOSTIP              VARCHAR(1024)      NULL,
+        MECM_HOSTCITY            VARCHAR(1024)      NULL,
         MECM_APPPACKAGEID        VARCHAR(200)       NULL,
         DETAILCN                 text               DEFAULT NULL,
         DETAILEN                 text               DEFAULT NULL,
@@ -242,3 +244,13 @@
     alter table app_order add column IF NOT EXISTS DETAILCN text DEFAULT NULL;
 
     alter table app_order add column IF NOT EXISTS DETAILEN text DEFAULT NULL;
+
+    alter table app_order add column IF NOT EXISTS APPNAME varchar(100) NULL;
+
+    alter table app_order add column IF NOT EXISTS MECM_HOSTCITY varchar(1024) NULL;
+
+    alter table app_order drop column IF EXISTS MECM_APPID;
+
+    alter table app_order drop column IF EXISTS MECM_INSTANCEID;
+
+    alter table app_order drop column IF EXISTS DETAIL;
