@@ -32,8 +32,6 @@ import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.MepHost;
-import org.edgegallery.appstore.domain.model.system.lcm.MecHostBody;
-import org.edgegallery.appstore.domain.shared.exceptions.DomainException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
@@ -80,9 +78,8 @@ public class OrderService {
             LOGGER.error("mecm package id is null.");
             return;
         }
-        MecmDeploymentInfo mecmDeploymentInfo = mecmService.getDepolymentStatus(token, order.getMecPackageId(),
+        MecmDeploymentInfo mecmDeploymentInfo = mecmService.getDeploymentStatus(token, order.getMecPackageId(),
             order.getUserId());
-        LOGGER.info("get mecm deployment info: {}", mecmDeploymentInfo);
         if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
             LOGGER.error("mecm deployment info is null.");
             return;
@@ -91,7 +88,8 @@ public class OrderService {
             order.setStatus(EnumOrderStatus.ACTIVATED);
             LOGGER.info("Distributed and instantiated success, modify status to activated");
         } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Distribute Error")
-            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")) {
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Create Error")) {
             order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
             LOGGER.error("Distributed or Instantiated failed, modify status to activate failed");
         }
@@ -107,30 +105,11 @@ public class OrderService {
         List<Order> orders = orderRepository.queryOrders(params);
         List<OrderDto> dtoList = new ArrayList<>();
         for (Order order : orders) {
-            Release release = null;
-            try {
-                release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            } catch (DomainException e) {
-                LOGGER.warn("app not found! appId = {}", order.getAppId());
-            }
-            // query mec host info
-            String mecHostCity = "";
-            String mecHostIp = order.getMecHostIp();
-            if (!StringUtils.isEmpty(mecHostIp)) {
-                List<String> mecHostIpLst = new ArrayList<>();
-                mecHostIpLst.add(mecHostIp);
-                Map<String, MecHostBody> mecHostInfo = mecmService.getMecHostByIpList(token, mecHostIpLst);
-                if (mecHostInfo != null && mecHostInfo.containsKey(mecHostIp)) {
-                    mecHostCity = mecHostInfo.get(mecHostIp).getCity();
-                }
-            }
             // Timer will update status every 15 min.
             if (order.getStatus() == EnumOrderStatus.ACTIVATING) {
                 updateOrderStatus(token, order);
             }
-            orderRepository.updateOrder(order);
-            OrderDto dto = new OrderDto(order, release != null ? release.getAppBasicInfo().getAppName() : "",
-                release != null ? release.getAppBasicInfo().getVersion() : "", mecHostCity);
+            OrderDto dto = new OrderDto(order);
             dtoList.add(dto);
         }
         return dtoList;
@@ -244,7 +223,7 @@ public class OrderService {
         Map<String, Object> params = new HashMap<>();
         List<Order> orders = orderRepository.queryOrders(params);
         orders.stream().filter(r -> r.getStatus() == EnumOrderStatus.ACTIVATING
-            && !StringUtils.isEmpty(r.getAppPackageId())).forEach(p -> updateOrderStatus(token, p));
+            && !StringUtils.isEmpty(r.getMecPackageId())).forEach(p -> updateOrderStatus(token, p));
         return true;
     }
 }

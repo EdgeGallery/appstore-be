@@ -40,6 +40,8 @@ public class Order implements Entity {
 
     private String appPackageId;
 
+    private String appName;
+
     private Date orderTime;
 
     private Date operateTime;
@@ -47,6 +49,8 @@ public class Order implements Entity {
     private EnumOrderStatus status;
 
     private String mecHostIp;
+
+    private String mecHostCity;
 
     private String mecPackageId;
 
@@ -70,10 +74,12 @@ public class Order implements Entity {
         this.userName = userName;
         this.appId = dto.getAppId();
         this.appPackageId = dto.getAppPackageId();
+        this.appName = dto.getAppName();
         this.orderTime = new Date();
         this.operateTime = this.orderTime;
         this.status = EnumOrderStatus.ACTIVATING;
         this.mecHostIp = dto.getMecHostIp();
+        this.mecHostCity = dto.getMecHostCity();
     }
 
     public Date getOrderTime() {

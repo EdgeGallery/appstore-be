@@ -245,7 +245,7 @@ public class OrderTest {
         assert (order != null);
         String token = "testToken";
         MecmDeploymentInfo mecmDeploymentInfo = null;
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(order.getStatus(), EnumOrderStatus.ACTIVATING);
@@ -264,7 +264,7 @@ public class OrderTest {
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Finished");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATED, order.getStatus());
@@ -279,13 +279,19 @@ public class OrderTest {
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATE_FAILED, order.getStatus());
 
         mecmDeploymentInfo.setMecmOperationalStatus("Distribute Error");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(mecmDeploymentInfo);
+        orderService.updateOrderStatus(token, order);
+        Assert.assertEquals(EnumOrderStatus.ACTIVATE_FAILED, order.getStatus());
+
+        mecmDeploymentInfo.setMecmOperationalStatus("Create Error");
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATE_FAILED, order.getStatus());
@@ -300,19 +306,19 @@ public class OrderTest {
         MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
         mecmDeploymentInfo.setMecmOperationalStatus("Distributing");
         mecmDeploymentInfo.setMecmAppPackageId("mecmAppPackageId");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATING, order.getStatus());
 
         mecmDeploymentInfo.setMecmOperationalStatus("Distributed");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATING, order.getStatus());
 
         mecmDeploymentInfo.setMecmOperationalStatus("Instantiating");
-        Mockito.when(mecmService.getDepolymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(mecmService.getDeploymentStatus(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(mecmDeploymentInfo);
         orderService.updateOrderStatus(token, order);
         Assert.assertEquals(EnumOrderStatus.ACTIVATING, order.getStatus());

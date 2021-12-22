@@ -25,5 +25,9 @@ public class CreateOrderReqDto {
 
     private String appPackageId;
 
+    private String appName;
+
     private String mecHostIp;
+
+    private String mecHostCity;
 }
