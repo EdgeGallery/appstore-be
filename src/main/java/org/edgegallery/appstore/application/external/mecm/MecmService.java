@@ -81,7 +81,7 @@ public class MecmService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(release.getPackageFile().getStorageAddress()));
         body.add("hostList", hostList);
-        body.add("appPkgName", release.getPackageFile().getOriginalFileName());
+        body.add("appPkgName", release.getAppBasicInfo().getAppName());
         body.add("appPkgVersion", release.getAppBasicInfo().getVersion());
         body.add("appClass", release.getDeployMode());
         body.add("parameters", params);

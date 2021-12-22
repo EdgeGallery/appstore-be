@@ -53,7 +53,7 @@ public class MecmWrapperServiceFacade {
      */
     public ResponseEntity<ResponseObject> getAllMecHosts(String token, String appId, String packageId) {
         List<Map<String, Object>> mecmHosts = mecmService.getAllMecHosts(token);
-        LOGGER.error("get all mec hosts, size is {}.", mecmHosts.size());
+        LOGGER.info("get all mec hosts, size is {}.", mecmHosts.size());
         List<MecmHostDto> respDataDto;
         if (!StringUtils.isEmpty(appId) && !StringUtil.isEmpty(packageId)) {
             Release release = appService.getRelease(appId, packageId);
