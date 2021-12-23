@@ -18,6 +18,7 @@ package org.edgegallery.appstore.infrastructure.util;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +55,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cms.CMSException;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
-import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
@@ -68,6 +69,7 @@ import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
+import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +110,10 @@ public class AppUtil {
 
     private static final String IMAGE = "Image";
 
+    private static final int TOO_MANY = 1024;
+
+    private static final int TOO_BIG = 536870912;
+
     /**
      * The maximum size of a package sent over the network.
      */
@@ -132,9 +138,6 @@ public class AppUtil {
 
     @Value("${appstore-be.filesystem-address:}")
     private String fileSystemAddress;
-
-    @Autowired
-    private AppService appService;
 
     @Autowired
     private UploadFileUtil uploadFileUtil;
@@ -302,7 +305,7 @@ public class AppUtil {
         boolean presentZip = Arrays.asList(filezipArrays).stream()
             .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
         if (!presentZip) {
-            List<SwImgDesc> imgDecsList = appService.getSwImageDescInfo(fileParent);
+            List<SwImgDesc> imgDecsList = getSwImageDescInfo(fileParent);
             for (SwImgDesc imageDesc : imgDecsList) {
                 String pathUrl = imageDesc.getSwImage();
                 pathUrl = pathUrl.substring(0, pathUrl.lastIndexOf(DOWNLOAD_IMAGE_TAG));
@@ -377,7 +380,7 @@ public class AppUtil {
         String imageId = "";
         String imagePath = "";
         String outPath = imageFolder.getCanonicalPath();
-        List<SwImgDesc> imgDecsLists = appService.getSwImageDescInfo(outPath);
+        List<SwImgDesc> imgDecsLists = getSwImageDescInfo(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
             String imageName = imageDesc.getName();
             //get image name
@@ -495,7 +498,7 @@ public class AppUtil {
      * @param file file.
      * @param content content.
      */
-    private void writeFile(File file, String content) {
+    public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
              BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
@@ -518,7 +521,7 @@ public class AppUtil {
                 LOGGER.error("create upload path failed");
                 throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
             }
-            AppService.unzipApplicationPackage(fileAddress, fileParent);
+            unzipApplicationPackage(fileAddress, fileParent);
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
@@ -551,7 +554,7 @@ public class AppUtil {
     private String addImageFile(String token, String fileParent, File f) throws IOException {
         String imgZipPath = null;
         String outPath = f.getCanonicalPath();
-        List<SwImgDesc> imgDecsLists = appService.getSwImageDescInfo(outPath);
+        List<SwImgDesc> imgDecsLists = getSwImageDescInfo(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
             String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
             byte[] result = downloadImageFromFileSystem(token, pathname);
@@ -810,5 +813,93 @@ public class AppUtil {
             }
         }
         return "";
+    }
+
+    /**
+     * Returns software image descriptor content in string format.
+     *
+     * @param localFilePath CSAR file path
+     * @param intendedDir intended directory
+     */
+    public void unzipApplicationPackage(String localFilePath, String intendedDir) {
+
+        try (ZipFile zipFile = new ZipFile(localFilePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            int entriesCount = 0;
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entriesCount > TOO_MANY) {
+                    throw new AppException("too many files to unzip", ResponseConst.RET_UNZIP_TOO_MANY_FILES, TOO_MANY);
+                }
+                entriesCount++;
+                // sanitize file path
+                String fileName = LocalFileServiceImpl.sanitizeFileName(entry.getName(), intendedDir);
+                if (!entry.isDirectory()) {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        if (inputStream.available() > TOO_BIG) {
+                            throw new AppException("file being unzipped is too big", ResponseConst.RET_FILE_TOO_BIG,
+                                TOO_BIG);
+                        }
+                        FileUtils.copyInputStreamToFile(inputStream, new File(fileName));
+                        LOGGER.info("unzip package... {}", entry.getName());
+                    }
+                } else {
+
+                    File dir = new File(fileName);
+                    boolean dirStatus = dir.mkdirs();
+                    LOGGER.debug("creating dir {}, status {}", fileName, dirStatus);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to unzip");
+            throw new AppException("Failed to unzip", ResponseConst.RET_DECOMPRESS_FAILED);
+        }
+    }
+
+    /**
+     * Returns list of image details.
+     *
+     * @param parentDir app image file parent dir
+     * @return list of image details
+     */
+    public List<SwImgDesc> getSwImageDescInfo(String parentDir) {
+
+        File swImageFile = getFileFromPackage(parentDir, "SwImageDesc.json");
+        if (swImageFile == null) {
+            return Collections.emptyList();
+        }
+        try {
+            String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
+            List<SwImgDesc> swImgDesc = new Gson().fromJson(swImageDesc,
+                new TypeToken<List<SwImgDesc>>() { }.getType());
+            LOGGER.info("sw image descriptors: {}", swImgDesc);
+            return swImgDesc;
+        } catch (IOException e) {
+            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
+            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
+        }
+
+    }
+
+    /**
+     * Returns file from the package.
+     *
+     * @param parentDir parent Dir
+     * @param file file to search
+     * @return file,
+     */
+    public File getFileFromPackage(String parentDir, String file) {
+
+        List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
+        try {
+            for (File fileEntry : files) {
+                if (fileEntry.getCanonicalPath().contains(file)) {
+                    return fileEntry;
+                }
+            }
+        } catch (IOException e) {
+            throw new AppException(file + e.getMessage(), ResponseConst.RET_PARSE_FILE_EXCEPTION, file);
+        }
+        return null;
     }
 }
