@@ -261,7 +261,7 @@ public class PackageService {
         File packageFullFile = new File(packagePath.substring(0, packagePath.lastIndexOf(".")));
         String fileParent = packageFullFile.getPath();
         if (!packageFullFile.exists() || !packageFullFile.isDirectory()) {
-            AppService.unzipApplicationPackage(packagePath, fileParent);
+            appUtil.unzipApplicationPackage(packagePath, fileParent);
         }
         try {
             if (docFile != null) {

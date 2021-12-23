@@ -23,11 +23,11 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.PushImageResultCallback;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -36,16 +36,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -71,6 +67,7 @@ import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PushablePackageRepository;
+import org.edgegallery.appstore.infrastructure.util.AppUtil;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -84,10 +81,6 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 @Service("AppRegisterService")
 public class AppService {
-
-    static final int TOO_MANY = 1024;
-
-    static final int TOO_BIG = 536870912;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppService.class);
 
@@ -140,71 +133,8 @@ public class AppService {
     @Autowired
     private OrderRepository orderRepository;
 
-    /**
-     * Returns software image descriptor content in string format.
-     *
-     * @param localFilePath CSAR file path
-     * @param intendedDir intended directory
-     */
-    public static void unzipApplicationPackage(String localFilePath, String intendedDir) {
-
-        try (ZipFile zipFile = new ZipFile(localFilePath)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            int entriesCount = 0;
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entriesCount > TOO_MANY) {
-                    throw new AppException("too many files to unzip", ResponseConst.RET_UNZIP_TOO_MANY_FILES, TOO_MANY);
-                }
-                entriesCount++;
-                // sanitize file path
-                String fileName = LocalFileServiceImpl.sanitizeFileName(entry.getName(), intendedDir);
-                if (!entry.isDirectory()) {
-                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                        if (inputStream.available() > TOO_BIG) {
-                            throw new AppException("file being unzipped is too big", ResponseConst.RET_FILE_TOO_BIG,
-                                TOO_BIG);
-                        }
-                        FileUtils.copyInputStreamToFile(inputStream, new File(fileName));
-                        LOGGER.info("unzip package... {}", entry.getName());
-                    }
-                } else {
-
-                    File dir = new File(fileName);
-                    boolean dirStatus = dir.mkdirs();
-                    LOGGER.debug("creating dir {}, status {}", fileName, dirStatus);
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("Failed to unzip");
-            throw new AppException("Failed to unzip", ResponseConst.RET_DECOMPRESS_FAILED);
-        }
-    }
-
-    /**
-     * Returns list of image details.
-     *
-     * @param parentDir app image file parent dir
-     * @return list of image details
-     */
-    public List<SwImgDesc> getSwImageDescInfo(String parentDir) {
-
-        File swImageFile = getFileFromPackage(parentDir, "SwImageDesc.json");
-        if (swImageFile == null) {
-            return Collections.emptyList();
-        }
-        try {
-            String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
-            List<SwImgDesc> swImgDesc = new Gson().fromJson(swImageDesc,
-                new TypeToken<List<SwImgDesc>>() { }.getType());
-            LOGGER.info("sw image descriptors: {}", swImgDesc);
-            return swImgDesc;
-        } catch (IOException e) {
-            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
-            throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
-        }
-
-    }
+    @Autowired
+    private AppUtil appUtil;
 
     /**
      * get release.
@@ -251,8 +181,8 @@ public class AppService {
      * @return list of image info
      */
     public List<SwImgDesc> getAppImageInfo(String localFilePath, String parentDir) {
-        unzipApplicationPackage(localFilePath, parentDir);
-        return getSwImageDescInfo(parentDir);
+        appUtil.unzipApplicationPackage(localFilePath, parentDir);
+        return appUtil.getSwImageDescInfo(parentDir);
     }
 
     /**
@@ -275,7 +205,8 @@ public class AppService {
                 String[] image = swImage.split("/");
                 jsonObject.addProperty(SWIMAGE, appstoreRepoEndpoint + APPSTORE_URL + image[image.length - 1]);
             }
-            FileUtils.writeStringToFile(swImageDesc, swImgDescArray.toString(), StandardCharsets.UTF_8.name());
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            appUtil.writeFile(swImageDesc, gson.toJson(swImgDescArray));
             LOGGER.info("Updated swImages : {}", swImgDescArray);
         } catch (IOException e) {
             LOGGER.info("failed to update sw image descriptor");
@@ -291,11 +222,11 @@ public class AppService {
      */
     public void updateAppPackageWithRepoInfo(String parentDir) {
 
-        File swImageDesc = getFileFromPackage(parentDir, "Image/SwImageDesc.json");
+        File swImageDesc = appUtil.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         updateRepoInfoInSwImageDesc(swImageDesc);
         String unZipPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
 
-        File chartsTar = getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
+        File chartsTar = appUtil.getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
         if (chartsTar == null) {
             throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND,
                 "/Artifacts/Deployment/Charts/");
@@ -311,7 +242,7 @@ public class AppService {
             deCompress(chartsTarStr, new File(unZipPath));
 
             FileUtils.forceDelete(chartsTar);
-            File valuesYaml = getFileFromPackage(unZipPath, "/values.yaml");
+            File valuesYaml = appUtil.getFileFromPackage(unZipPath, "/values.yaml");
             if (valuesYaml == null) {
                 throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND, "/values.yaml");
             }
@@ -531,28 +462,6 @@ public class AppService {
         } catch (IOException e) {
             throw new AppException("failed to compress " + e.getMessage(), ResponseConst.RET_COMPRESS_FAILED);
         }
-    }
-
-    /**
-     * Returns file from the package.
-     *
-     * @param parentDir parent Dir
-     * @param file file to search
-     * @return file,
-     */
-    public File getFileFromPackage(String parentDir, String file) {
-
-        List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
-        try {
-            for (File fileEntry : files) {
-                if (fileEntry.getCanonicalPath().contains(file)) {
-                    return fileEntry;
-                }
-            }
-        } catch (IOException e) {
-            throw new AppException(file + e.getMessage(), ResponseConst.RET_PARSE_FILE_EXCEPTION, file);
-        }
-        return null;
     }
 
     /**
