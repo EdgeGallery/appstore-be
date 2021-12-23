@@ -213,8 +213,14 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
         throws IOException {
+        // build upload progress data
+        String progressId = UUID.randomUUID().toString();
+        Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        PackageUploadProgress progress = new PackageUploadProgress(progressId, packageId, meaoId, createTime);
+        progressFacade.createProgress(progress);
+
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        Release release = appService.getRelease(appId, packageId);
+        Release release = appService.download(appId, packageId);
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
             return ResponseEntity.ok(new ResponseObject("Not Support", errMsg, "can not support container app."));
         }
@@ -226,12 +232,6 @@ public class PackageServiceFacade {
             appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
             appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
         }
-
-        // build upload progress data
-        String progressId = UUID.randomUUID().toString();
-        Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        PackageUploadProgress progress = new PackageUploadProgress(progressId, packageId, meaoId, createTime);
-        progressFacade.createProgress(progress);
 
         // start a thread to upload package to meao
         new Thread(() -> uploadPackageService
