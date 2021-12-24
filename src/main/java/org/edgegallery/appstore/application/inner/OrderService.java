@@ -27,11 +27,15 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.constants.Consts;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.MepHost;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
@@ -225,5 +229,29 @@ public class OrderService {
         orders.stream().filter(r -> r.getStatus() == EnumOrderStatus.ACTIVATING
             && !StringUtils.isEmpty(r.getMecPackageId())).forEach(p -> updateOrderStatus(token, p));
         return true;
+    }
+
+    /**
+     * once order is created, it will be activated automatically
+     *
+     * @param release app release information
+     * @param order order information
+     * @param token user token
+     * @param userId id of current user
+     */
+    public void activateOrderAfterCreation(Release release, Order order, String token, String userId) {
+        String params = getVmDeployParams(release);
+        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId, params);
+        if (mecPkgId == null) {
+            LOGGER.error("MEC package id is null. Failed to create order.");
+            throw new AppException("Failed to create order.", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
+        } else {
+            order.setMecPackageId(mecPkgId);
+            order.setStatus(EnumOrderStatus.ACTIVATING);
+            orderRepository.updateOrder(order);
+            LOGGER.info("Successfully uploaded package to north, order has been activated, mecPackageId: {}", mecPkgId);
+            logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
+                EnumOrderOperation.ACTIVATED.getEnglish());
+        }
     }
 }
