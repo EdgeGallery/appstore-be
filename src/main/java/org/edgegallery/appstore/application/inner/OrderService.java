@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
-import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
