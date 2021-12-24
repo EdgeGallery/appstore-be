@@ -231,7 +231,7 @@ public class OrderService {
     }
 
     /**
-     * once order is created, it will be activated automatically
+     * once order is created, it will be activated automatically.
      *
      * @param release app release information
      * @param order order information

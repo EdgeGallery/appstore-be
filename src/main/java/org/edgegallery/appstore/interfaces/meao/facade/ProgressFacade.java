@@ -19,11 +19,11 @@ package org.edgegallery.appstore.interfaces.meao.facade;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.edgegallery.appstore.application.packageupload.UploadPackageService;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgressMapper;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
-import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
 import org.edgegallery.appstore.interfaces.meao.facade.dto.PackageProgressDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,7 @@ public class ProgressFacade {
     PackageUploadProgressMapper packageUploadProgressMapper;
 
     @Autowired
-    ThirdSystemMapper thirdSystemMapper;
+    private UploadPackageService uploadPackageService;
 
     /**
      * create Progress.
@@ -88,14 +88,15 @@ public class ProgressFacade {
      * query Progress by packageId.
      *
      * @param packageId packageId
+     * @param token token
      * @return PackageUploadProgress list
      */
-    public ResponseEntity<List<PackageProgressDto>> getProgressByPackageId(String packageId) {
+    public ResponseEntity<List<PackageProgressDto>> getProgressByPackageId(String packageId, String token) {
         List<PackageUploadProgress> list = packageUploadProgressMapper.selectByPackageId(packageId);
         List<PackageProgressDto> dtoList = new ArrayList<>();
         for (PackageUploadProgress progress : list) {
             String meaoId = progress.getMeaoId();
-            ThirdSystem meaoInfo = thirdSystemMapper.selectByPrimaryKey(meaoId);
+            ThirdSystem meaoInfo = uploadPackageService.getMeaoInfo(meaoId, token);
             PackageProgressDto dto = new PackageProgressDto().transferTo(progress);
             if (meaoInfo != null) {
                 dto.setSystemName(meaoInfo.getSystemName());

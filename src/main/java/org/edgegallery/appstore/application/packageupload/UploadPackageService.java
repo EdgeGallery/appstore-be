@@ -23,7 +23,6 @@ import java.io.File;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystem;
-import org.edgegallery.appstore.infrastructure.persistence.meao.ThirdSystemMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class UploadPackageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadPackageService.class);
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-
-    @Autowired
-    ThirdSystemMapper thirdSystemMapper;
 
     @Autowired
     UploadHelper uploadHelper;
@@ -121,7 +117,13 @@ public class UploadPackageService {
         throw new AppException("Get meao session failed");
     }
 
-    private ThirdSystem getMeaoInfo(String meaoId, String token) {
+    /**
+     * get meao info from third system.
+     * @param meaoId meaoId
+     * @param token token
+     * @return ThirdSystem
+     */
+    public ThirdSystem getMeaoInfo(String meaoId, String token) {
         String url = thirdSystemHost + Consts.THIRD_SYSTEM_URL + "/" + meaoId;
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
