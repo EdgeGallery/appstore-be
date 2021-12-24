@@ -93,6 +93,9 @@ public class IpCalculateUtil {
             return null;
         }
         String[] arr = segment.split("/");
+        if (arr.length == 1) {
+            return segment;
+        }
         String ip = arr[0];
         String maskIndex = arr[1];
         String mask = IpCalculateUtil.getNetMask(maskIndex);

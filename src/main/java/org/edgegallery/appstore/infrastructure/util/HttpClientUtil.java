@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.infrastructure.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,18 +28,19 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -498,13 +500,10 @@ public class HttpClientUtil {
     }
 
     private String getTokenString(String authResult) {
-        String[] authResults = authResult.split(",");
-        for (String authRes : authResults) {
-            if (authRes.contains("accessToken")) {
-                String[] tokenArr = authRes.split(":");
-                if (tokenArr.length > 1) {
-                    return tokenArr[1].substring(1, tokenArr[1].length() - 1);
-                }
+        if (authResult.contains("accessToken")) {
+            String[] tokenArr = authResult.split(":");
+            if (tokenArr.length > 1) {
+                return tokenArr[1].substring(1, tokenArr[1].length() - 2);
             }
         }
         return null;
@@ -513,26 +512,21 @@ public class HttpClientUtil {
     private String getAuthResult(CloseableHttpClient client) {
         try {
             URL url = new URL(loginUrl);
-            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/login";
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/v1/accesstoken";
             LOGGER.warn("user login url: {}", userLoginUrl);
             HttpPost httpPost = new HttpPost(userLoginUrl);
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("username", clientId + ":" + new Date().getTime());
-            builder.addTextBody("password", clientPW);
-            httpPost.setEntity(builder.build());
-            // first call login interface
+            Map<String, String> body = new HashMap<>();
+            body.put("userFlag", clientId + ":" + new Date().getTime());
+            body.put("password", clientPW);
+            httpPost.setEntity(
+                new StringEntity(JSONObject.toJSONString(body), ContentType.create("application/json", "utf-8")));
+            httpPost.setHeader("Content-Type", "application/json");
+            // first call get token interface
             client.execute(httpPost);
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
-            // second call login interface
-            client.execute(httpPost);
-            String xsrfToken = getXsrf();
-            //third call auth login-info interface
-            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30091/auth/login-info";
-            LOGGER.warn("user login-info url: {}", getTokenUrl);
-            HttpGet httpGet = new HttpGet(getTokenUrl);
-            httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
-            CloseableHttpResponse res = client.execute(httpGet);
+            // second call get token interface
+            CloseableHttpResponse res = client.execute(httpPost);
             InputStream inputStream = res.getEntity().getContent();
             byte[] bytes = new byte[READ_BUFFER_SIZE];
             StringBuilder buf = new StringBuilder();

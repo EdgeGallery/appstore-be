@@ -52,19 +52,22 @@ public class ScheduleTaskTest extends AppTest {
 
     private HttpServer httpServer8001;
 
-    private HttpServer httpServer30091;
-
     private String token = "4687632346763131324564";
 
     public void before() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", 38067), 0);
-        httpServer.createContext("/login", new HttpHandler() {
+        httpServer.createContext("/v1/accesstoken", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
                 if (method.equals("POST")) {
                     exchange.getResponseHeaders().add("XSRF-TOKEN", "ddexxx-dfwefdgwer");
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                    Map<String, String> result = new HashMap<>();
+                    result.put("accessToken", "4687632346763131324564");
+                    String dtp = new Gson().toJson(result);
+                    byte[] response = dtp.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
                 }
                 exchange.close();
             }
@@ -107,30 +110,11 @@ public class ScheduleTaskTest extends AppTest {
             }
         });
         httpServer8001.start();
-
-        httpServer30091 = HttpServer.create(new InetSocketAddress("localhost", 30091), 0);
-        httpServer30091.createContext("/auth/login-info", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                LoginInfoRespDto loginInfoRespDto = LoginInfoRespDto.builder().userName("testUserId")
-                    .accessToken("4687632346763131324564")
-                    .authorities("[\"ROLE_APPSTORE_TENANT\"]")
-                    .build();
-                String dtp = new Gson().toJson(loginInfoRespDto);
-                byte[] response = dtp.getBytes();
-                exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                exchange.getResponseBody().write(response);
-                exchange.close();
-            }
-        });
-        httpServer30091.start();
     }
 
     public void after() {
         httpServer.stop(1);
         httpServer8001.stop(1);
-        httpServer30091.stop(1);
     }
 
     @Test
