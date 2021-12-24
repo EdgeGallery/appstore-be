@@ -218,6 +218,7 @@ public class PackageServiceFacade {
         Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         PackageUploadProgress progress = new PackageUploadProgress(progressId, packageId, meaoId, createTime);
         progressFacade.createProgress(progress);
+        LOGGER.info("progressId create: %s", progressId);
 
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         Release release = appService.download(appId, packageId);
