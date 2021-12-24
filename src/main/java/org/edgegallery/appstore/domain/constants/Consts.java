@@ -30,10 +30,6 @@ public final class Consts {
 
     public static final String SUPER_ADMIN_NAME = "admin";
 
-    public static final String SPLITCONFIG_APPID_GLOBAL = "all";
-
-    public static final double SPLITCONFIG_SPLITRATIO_GLOBAL = 0.15;
-
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
     public static final String APP_LCM_INSTANTIATE_APP_URL
@@ -53,9 +49,6 @@ public final class Consts {
 
     public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
         = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId";
-
-    public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
-        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/workload/events";
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
@@ -88,8 +81,6 @@ public final class Consts {
      * Third system path.
      */
     public static final String THIRD_SYSTEM_URL = "/mec/third-system/v1";
-
-    public static final long HOUR_IN_MS = 60 * 60 * 1000L;
 
     public static final String ACCESS_TOKEN_STR = "access_token";
 
