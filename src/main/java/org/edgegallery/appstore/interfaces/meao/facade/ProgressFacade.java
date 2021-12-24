@@ -44,7 +44,9 @@ public class ProgressFacade {
      * @return String
      */
     public ResponseEntity<String> createProgress(PackageUploadProgress process) {
-        process.setId(UUID.randomUUID().toString());
+        if (process.getId() == null) {
+            process.setId(UUID.randomUUID().toString());
+        }
         int ret = packageUploadProgressMapper.insertSelective(process);
         if (ret > 0) {
             return ResponseEntity.ok("create process success.");
