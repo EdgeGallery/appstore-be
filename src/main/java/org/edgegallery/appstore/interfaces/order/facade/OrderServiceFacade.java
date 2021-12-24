@@ -75,36 +75,22 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        if (!userName.equals("admin") && userId.equals(release.getUser().getUserId())) {
-            LOGGER.error("User can not subscribe own app.");
-            throw new AppException("User can not subscribe own app.", ResponseConst.RET_SUBSCRIBE_OWN_APP);
-        }
-        String orderId = UUID.randomUUID().toString();
-        String orderNum = orderService.generateOrderNum();
-        Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
-        orderService.logOperationDetail(order, EnumOrderOperation.CREATED.getChinese(),
-            EnumOrderOperation.CREATED.getEnglish());
-        orderRepository.addOrder(order);
-        LOGGER.info("create order success.");
 
-        // upload package to mec
-        // create app instance
-        // update status to Activating
-        String params = orderService.getVmDeployParams(release);
-        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId, params);
-        if (mecPkgId == null) {
-            LOGGER.error("mec package id is null. Failed to create order.");
-            throw new AppException("Failed to create order.", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
+        if (!userName.equals("admin") && userId.equals(release.getUser().getUserId())) {
+            LOGGER.error("User can not subscribe to its own app, order creation failed");
+            throw new AppException("User can not subscribe to its own app", ResponseConst.RET_SUBSCRIBE_OWN_APP);
+        } else {
+            String orderId = UUID.randomUUID().toString();
+            String orderNum = orderService.generateOrderNum();
+            Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
+            orderRepository.addOrder(order);
+            LOGGER.info("Created order successfully.");
+            orderService.logOperationDetail(order, EnumOrderOperation.CREATED.getChinese(),
+                EnumOrderOperation.CREATED.getEnglish());
+            orderService.activateOrderAfterCreation(release, order, token, userId);
+            return ResponseEntity.ok(new ResponseObject(CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum)
+                .build(),  new ErrorMessage(ResponseConst.RET_SUCCESS, null), "Created order"));
         }
-        order.setMecPackageId(mecPkgId);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
-        orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
-            EnumOrderOperation.ACTIVATED.getEnglish());
-        orderRepository.updateOrder(order);
-        LOGGER.info("upload package to north success, order is activating, mecPackageId is {}", mecPkgId);
-        CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
     }
 
     /**
