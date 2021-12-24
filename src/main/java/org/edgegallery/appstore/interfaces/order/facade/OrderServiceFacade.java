@@ -53,6 +53,7 @@ public class OrderServiceFacade {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
     private static final String FAIL_TO_DELETE_PACKAGE = "failed to delete package";
     private static final String FAIL_TO_DELETE_INSTANTIATION = "failed to delete instantiation";
+    private static final String DELETE_SERVER_SUCCESS = "Delete server success";
 
     @Autowired
     private OrderService orderService;
@@ -129,11 +130,9 @@ public class OrderServiceFacade {
             LOGGER.error("Failed to undeploy package.");
             order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             resultMessage = "fail to deactivate order";
-        } else if (unDeployAppResult.equalsIgnoreCase("Delete server success")) {
+        } else if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
             LOGGER.info("Undeploy package successfully.");
             order.setStatus(EnumOrderStatus.DEACTIVATED);
-            orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
-                EnumOrderOperation.DEACTIVATED.getEnglish());
         }
         orderRepository.updateOrder(order);
         return ResponseEntity.ok(new ResponseObject(resultMessage,
