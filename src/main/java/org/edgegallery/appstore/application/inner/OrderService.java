@@ -152,8 +152,11 @@ public class OrderService {
      * @return mecm response message
      */
     public String unDeployApp(Order order, String userId, String token) {
-        String packageId = order.getMecPackageId();
-        return mecmService.deleteServer(userId, packageId, token);
+        order.setStatus(EnumOrderStatus.DEACTIVATING);
+        logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
+            EnumOrderOperation.DEACTIVATED.getEnglish());
+        orderRepository.updateOrder(order);
+        return mecmService.deleteServer(userId, order.getMecPackageId(), token);
     }
 
     /**
@@ -231,26 +234,25 @@ public class OrderService {
     }
 
     /**
-     * once order is created, it will be activated automatically.
+     * upload package to north, if the returned packageId is valid, set the status of order as activating.
      *
      * @param release app release information
      * @param order order information
      * @param token user token
      * @param userId id of current user
      */
-    public void activateOrderAfterCreation(Release release, Order order, String token, String userId) {
-        String params = getVmDeployParams(release);
-        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId, params);
+    public void startActivatingOrder(Release release, Order order, String token, String userId) {
+        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
+            userId, getVmDeployParams(release));
         if (mecPkgId == null) {
-            LOGGER.error("MEC package id is null. Failed to create order.");
-            throw new AppException("Failed to create order.", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
-        } else {
-            order.setMecPackageId(mecPkgId);
-            order.setStatus(EnumOrderStatus.ACTIVATING);
-            orderRepository.updateOrder(order);
-            LOGGER.info("Successfully uploaded package to north, order has been activated, mecPackageId: {}", mecPkgId);
-            logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
-                EnumOrderOperation.ACTIVATED.getEnglish());
+            LOGGER.error("MEC package id is null, failed to create order");
+            throw new AppException("Failed to create order", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
         }
+        order.setMecPackageId(mecPkgId);
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        orderRepository.updateOrder(order);
+        LOGGER.info("Successfully uploaded package to north, order has been activated, mecPackageId: {}", mecPkgId);
+        logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
     }
+
 }
