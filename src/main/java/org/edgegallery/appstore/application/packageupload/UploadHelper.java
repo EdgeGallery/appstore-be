@@ -74,6 +74,7 @@ public class UploadHelper {
         JSONObject ret = new JSONObject();
 
         String progressId = req.getString("progressId");
+        LOGGER.info("progressId query: {}}", progressId);
         PackageUploadProgress progress = progressFacade.getProgress(progressId).getBody();
         if (progress == null) {
             throw new AppException("process not exist.");
