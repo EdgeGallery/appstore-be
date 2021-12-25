@@ -27,11 +27,14 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.system.MepHost;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.infrastructure.persistence.system.HostMapper;
 import org.edgegallery.appstore.infrastructure.util.HttpClientUtil;
 import org.edgegallery.appstore.infrastructure.util.InputParameterUtil;
@@ -81,7 +84,9 @@ public class OrderService {
         MecmDeploymentInfo mecmDeploymentInfo = mecmService.getDeploymentStatus(token, order.getMecPackageId(),
             order.getUserId());
         if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
-            LOGGER.error("mecm deployment info is null.");
+            order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
+            LOGGER.info("mecm deployment info or status is null.");
+            orderRepository.updateOrder(order);
             return;
         }
         if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
@@ -94,6 +99,7 @@ public class OrderService {
             LOGGER.error("Distributed or Instantiated failed, modify status to activate failed");
         }
         orderRepository.updateOrder(order);
+        return;
     }
 
     /**
@@ -149,8 +155,11 @@ public class OrderService {
      * @return mecm response message
      */
     public String unDeployApp(Order order, String userId, String token) {
-        String packageId = order.getMecPackageId();
-        return mecmService.deleteServer(userId, packageId, token);
+        order.setStatus(EnumOrderStatus.DEACTIVATING);
+        setOrderDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
+            EnumOrderOperation.DEACTIVATED.getEnglish());
+        orderRepository.updateOrder(order);
+        return mecmService.deleteServer(userId, order.getMecPackageId(), token);
     }
 
     /**
@@ -160,7 +169,7 @@ public class OrderService {
      * @param operationChinese operation Chinese name
      * @param operationEnglish operation English name
      */
-    public void logOperationDetail(Order order, String operationChinese, String operationEnglish) {
+    public void setOrderDetail(Order order, String operationChinese, String operationEnglish) {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String orderOperationDetailCn = currentTime + " " + operationChinese;
         String orderOperationDetailEn = currentTime + " " + operationEnglish;
@@ -226,4 +235,27 @@ public class OrderService {
             && !StringUtils.isEmpty(r.getMecPackageId())).forEach(p -> updateOrderStatus(token, p));
         return true;
     }
+
+    /**
+     * upload package to north, if the returned packageId is valid, set the status of order as activating.
+     *
+     * @param release app release information
+     * @param order order information
+     * @param token user token
+     * @param userId id of current user
+     */
+    public void startActivatingOrder(Release release, Order order, String token, String userId) {
+        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
+            userId, getVmDeployParams(release));
+        if (StringUtils.isEmpty(mecPkgId)) {
+            LOGGER.error("MEC package id is null, failed to create order");
+            throw new AppException("Failed to create order", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
+        }
+        order.setMecPackageId(mecPkgId);
+        order.setStatus(EnumOrderStatus.ACTIVATING);
+        setOrderDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
+        orderRepository.updateOrder(order);
+        LOGGER.info("Successfully uploaded package to north, order has been activated, mecPackageId: {}", mecPkgId);
+    }
+
 }

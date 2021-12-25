@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.interfaces.order.facade;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
@@ -51,6 +50,9 @@ import org.springframework.stereotype.Service;
 public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
+    private static final String FAIL_TO_DELETE_PACKAGE = "failed to delete package";
+    private static final String FAIL_TO_DELETE_INSTANTIATION = "failed to delete instantiation";
+    private static final String DELETE_SERVER_SUCCESS = "Delete server success";
 
     @Autowired
     private OrderService orderService;
@@ -75,43 +77,28 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        if (!userName.equals("admin") && userId.equals(release.getUser().getUserId())) {
-            LOGGER.error("User can not subscribe own app.");
-            throw new AppException("User can not subscribe own app.", ResponseConst.RET_SUBSCRIBE_OWN_APP);
+        if (!Consts.SUPER_ADMIN_NAME.equals(userName) && userId.equals(release.getUser().getUserId())) {
+            LOGGER.error("User can not subscribe to its own app, order creation failed");
+            throw new AppException("User can not subscribe to its own app", ResponseConst.RET_SUBSCRIBE_OWN_APP);
         }
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
-        orderService.logOperationDetail(order, EnumOrderOperation.CREATED.getChinese(),
+        orderService.setOrderDetail(order, EnumOrderOperation.CREATED.getChinese(),
             EnumOrderOperation.CREATED.getEnglish());
         orderRepository.addOrder(order);
-        LOGGER.info("create order success.");
+        LOGGER.info("Created order successfully");
+        orderService.startActivatingOrder(release, order, token, userId);
+        return ResponseEntity.ok(new ResponseObject(CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum)
+            .build(), new ErrorMessage(ResponseConst.RET_SUCCESS,null), "Created order Successfully"));
 
-        // upload package to mec
-        // create app instance
-        // update status to Activating
-        String params = orderService.getVmDeployParams(release);
-        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId, params);
-        if (mecPkgId == null) {
-            LOGGER.error("mec package id is null. Failed to create order.");
-            throw new AppException("Failed to create order.", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
-        }
-        order.setMecPackageId(mecPkgId);
-        order.setStatus(EnumOrderStatus.ACTIVATING);
-        orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
-            EnumOrderOperation.ACTIVATED.getEnglish());
-        orderRepository.updateOrder(order);
-        LOGGER.info("upload package to north success, order is activating, mecPackageId is {}", mecPkgId);
-        CreateOrderRspDto dto = CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum).build();
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(dto, errMsg, "create order success."));
     }
 
     /**
      * deactivate order.
      *
      * @param userId user id
-     * @param userName user name
+     * @param userName name of current user
      * @param orderId order id
      * @return result
      */
@@ -123,35 +110,32 @@ public class OrderServiceFacade {
             throw new AppException("inactivated orders can't be deactivated.",
                 ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
         }
-        if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-            order.setStatus(EnumOrderStatus.DEACTIVATING);
-            orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
-                EnumOrderOperation.DEACTIVATED.getEnglish());
-            orderRepository.updateOrder(order);
-
-            // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
-            String result = orderService.unDeployApp(order, userId, token);
-            if (StringUtils.isEmpty(result)) {
-                LOGGER.error("Failed to utilize delete server interface, undeploy app result is null.");
-                throw new AppException("Failed to utilize delete server interface.",
-                    ResponseConst.RET_DELETE_SERVER_FAILED);
-            } else if (result.equalsIgnoreCase("failed to delete package") || result.equalsIgnoreCase(
-                "failed to delete instantiation")) {
-                LOGGER.error("Failed to undeploy package.");
-                order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
-            } else if (result.equalsIgnoreCase("Delete server success")) {
-                LOGGER.info("Success to undeploy package.");
-                order.setStatus(EnumOrderStatus.DEACTIVATED);
-                orderService.logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
-                    EnumOrderOperation.DEACTIVATED.getEnglish());
-            }
-            orderRepository.updateOrder(order);
-        } else {
+        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
             throw new PermissionNotAllowedException("can not deactivate order",
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject("deactivate order success", errMsg, "deactivate order success."));
+
+        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
+        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
+        if (StringUtils.isEmpty(unDeployAppResult)) {
+            LOGGER.error("Failed to utilize delete server interface, undeploy app result is null.");
+            throw new AppException("Failed to utilize delete server interface.",
+                ResponseConst.RET_DELETE_SERVER_FAILED);
+        }
+
+        String resultMessage = "deactivate order success";
+        if (unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_PACKAGE)
+            || unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_INSTANTIATION)) {
+            LOGGER.error("Failed to undeploy package.");
+            order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
+            resultMessage = "fail to deactivate order";
+        } else if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
+            LOGGER.info("Undeploy package successfully.");
+            order.setStatus(EnumOrderStatus.DEACTIVATED);
+        }
+        orderRepository.updateOrder(order);
+        return ResponseEntity.ok(new ResponseObject(resultMessage,
+            new ErrorMessage(ResponseConst.RET_SUCCESS, null), resultMessage));
     }
 
     /**
@@ -169,31 +153,15 @@ public class OrderServiceFacade {
             throw new AppException("unsubscribed orders can't be activated.",
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
-        if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_ID.equals(userId)) {
-            // upload package to north, if return mecm packageId is not empty, update status to Activating
-            Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            String params = orderService.getVmDeployParams(release);
-            String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
-                order.getUserId(), params);
-            if (mecPkgId == null || StringUtils.isEmpty(mecPkgId)) {
-                LOGGER.error("mecPackageId is null. Failed to activate order.");
-                throw new AppException("Failed to activate order.",
-                    ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
-            }
-
-
-            order.setMecPackageId(mecPkgId);
-            order.setStatus(EnumOrderStatus.ACTIVATING);
-            orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),
-                EnumOrderOperation.ACTIVATED.getEnglish());
-            orderRepository.updateOrder(order);
-            LOGGER.info("upload package to north success, order is activating, mecPackageId is {}", mecPkgId);
-        } else {
+        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
             throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject("activate order success", errMsg, "activate order success."));
+        // upload package to north, if return mecm packageId is not empty, update status to Activating
+        Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
+        orderService.startActivatingOrder(release, order, token, userId);
+        return ResponseEntity.ok(new ResponseObject("activate order success",
+            new ErrorMessage(ResponseConst.RET_SUCCESS, null), "activate order success."));
     }
 
     /**
@@ -204,24 +172,23 @@ public class OrderServiceFacade {
      * @return order list
      */
 
-    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, QueryOrdersReqDto queryOrdersReqDto,
-        String token) {
-        Map<String, Object> params = new HashMap<>();
-        if (!Consts.SUPER_ADMIN_ID.equals(userId)) {
-            params.put("userId", userId);
+    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
+        QueryOrdersReqDto queryOrdersReqDto, String token) {
+        Map<String, Object> queryOrderParams = new HashMap<>();
+        if (!Consts.SUPER_ADMIN_NAME.equals(userName)) {
+            queryOrderParams.put("userId", userId);
         }
-        params.put("appId", queryOrdersReqDto.getAppId());
-        params.put("orderNum", queryOrdersReqDto.getOrderNum());
-        params.put("status", queryOrdersReqDto.getStatus());
-        params.put("orderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
-        params.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
-        params.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
-        LOGGER.info("query order params: {}", params);
-        List<OrderDto> orderList = orderService.queryOrders(params, token);
-        long total = orderService.getCountByCondition(params);
+        queryOrderParams.put("appId", queryOrdersReqDto.getAppId());
+        queryOrderParams.put("orderNum", queryOrdersReqDto.getOrderNum());
+        queryOrderParams.put("status", queryOrdersReqDto.getStatus());
+        queryOrderParams.put("orderBeginTime", queryOrdersReqDto.getOrderTimeBegin());
+        queryOrderParams.put("orderEndTime", queryOrdersReqDto.getOrderTimeEnd());
+        queryOrderParams.put("queryCtrl", queryOrdersReqDto.getQueryCtrl());
+        LOGGER.info("query order params: {}", queryOrderParams);
 
-        return ResponseEntity.ok(new Page<>(orderList, queryOrdersReqDto.getQueryCtrl().getLimit(),
-            queryOrdersReqDto.getQueryCtrl().getOffset(), total));
+        return ResponseEntity.ok(new Page<>(orderService.queryOrders(queryOrderParams, token),
+            queryOrdersReqDto.getQueryCtrl().getLimit(), queryOrdersReqDto.getQueryCtrl().getOffset(),
+            orderService.getCountByCondition(queryOrderParams)));
     }
 
 }

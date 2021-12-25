@@ -141,7 +141,7 @@ public class MecmService {
                 String status = jsonData.get(0).getAsJsonObject().get("status").getAsString();
                 MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
                 if (StringUtils.isEmpty(status)) {
-                    LOGGER.error("Response status is null.");
+                    LOGGER.info("Mecm app deployment status is null.");
                     return null;
                 }
                 mecmDeploymentInfo.setMecmOperationalStatus(status);
