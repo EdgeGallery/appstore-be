@@ -62,7 +62,6 @@ public class MecmService {
 
     private static final String MECM_PACKAGE_ID = "mecmPackageId";
 
-
     @Value("${mecm.urls.north}")
     private String northUrl;
 
