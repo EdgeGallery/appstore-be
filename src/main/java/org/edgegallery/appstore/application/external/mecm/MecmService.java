@@ -136,10 +136,11 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray jsonData = jsonBody.get("data").getAsJsonArray();
+            String mecmPkgId = jsonBody.get("mecmPackageId").getAsString();
             MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
             // When a failed case is deleted in mecm, http response 200 with none-empty mecmPkgId and empty data.
-            if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get("mecmPackageId").getAsString())) {
-                mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get("mecmPackageId").getAsString());
+            if (jsonData.size() == 0 && !StringUtils.isEmpty(mecmPkgId)) {
+                mecmDeploymentInfo.setMecmAppPackageId(mecmPkgId);
                 mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
                 return mecmDeploymentInfo;
             } else if (jsonData.size() > 0) {
