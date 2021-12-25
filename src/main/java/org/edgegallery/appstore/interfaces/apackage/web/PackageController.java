@@ -169,7 +169,7 @@ public class PackageController {
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant " + "error", response = String.class)
     })
-    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    @PreAuthorize("hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<ResponseObject> syncPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
