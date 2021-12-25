@@ -181,6 +181,7 @@ public class OrderServiceFacade {
                     ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
             }
 
+
             order.setMecPackageId(mecPkgId);
             order.setStatus(EnumOrderStatus.ACTIVATING);
             orderService.logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(),

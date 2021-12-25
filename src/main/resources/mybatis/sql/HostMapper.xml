@@ -48,22 +48,6 @@
         #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},  #{vncPort}, #{parameter})
     </insert>
 
-    <select id="getAllHosts" resultMap="HostMap">
-        SELECT
-        *
-        FROM
-        tbl_service_host
-    </select>
-
-    <select id="getNormalHosts" resultMap="HostMap">
-        SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        status = 'NORMAL'
-    </select>
-
     <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
         SELECT
         *
