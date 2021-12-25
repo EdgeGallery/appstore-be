@@ -107,11 +107,4 @@
         select max(orderNum) from app_order
     </select>
 
-    <delete id="deleteOrderByPackageId" parameterType="String">
-        delete from
-        app_order
-        where
-        appPackageId=#{packageId}
-    </delete>
-
 </mapper>

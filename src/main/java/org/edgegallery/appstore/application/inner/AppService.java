@@ -485,7 +485,6 @@ public class AppService {
         app.unPublish(release);
         packageRepository.removeRelease(release);
         deletePullablePackage(release);
-        deleteOrderByPackageId(release);
         deleteTestReport(release, token);
         if (!app.hasPublishedRelease()) {
             app.setStatus(EnumAppStatus.UnPublish);
@@ -527,7 +526,6 @@ public class AppService {
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());
         app.getReleases().forEach(this::deletePullablePackage);
-        app.getReleases().forEach(this::deleteOrderByPackageId);
         app.getReleases().forEach(release -> deleteTestReport(release, token));
     }
 
@@ -546,10 +544,6 @@ public class AppService {
 
     private void deletePullablePackage(Release release) {
         pushablePackageRepository.deletePushablePackages(release.getPackageId());
-    }
-
-    private void deleteOrderByPackageId(Release release) {
-        orderRepository.deleteOrderByPackageId(release.getPackageId());
     }
 
     /**

@@ -90,7 +90,7 @@ public class DownloadPackageTest extends AppTest {
     }
 
     @Test
-    @WithMockUser(roles = "APPSTORE_TENANT")
+    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void should_success_sync_package() throws Exception {
         String meaoId = "c5758730b9044a588852221245699766";
         MvcResult result = mvc.perform(
