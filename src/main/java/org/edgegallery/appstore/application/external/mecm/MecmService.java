@@ -140,7 +140,7 @@ public class MecmService {
             // When a failed case is deleted in mecm, http response 200 with none-empty mecmPkgId and empty data.
             if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get("mecmPackageId").getAsString())) {
                 mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get("mecmPackageId").getAsString());
-                mecmDeploymentInfo.setMecmOperationalStatus("Status Empty");
+                mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
                 return mecmDeploymentInfo;
             } else if (jsonData.size() > 0) {
                 String status = jsonData.get(0).getAsJsonObject().get("status").getAsString();
@@ -153,7 +153,6 @@ public class MecmService {
                 LOGGER.info("mecmAppPackageId is {}, status is {}", mecmAppPackageId, status);
                 return mecmDeploymentInfo;
             }
-            return null;
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Get deployment status from north exception {}", e.getMessage());
         }
