@@ -60,8 +60,6 @@ public class MecmService {
 
     private static final String MECM_DELETE_PACKAGE = "/north/v1/tenants/%s/packages/%s";
 
-    private static final String MECM_PACKAGE_ID = "mecmPackageId";
-
     @Value("${mecm.urls.north}")
     private String northUrl;
 
@@ -100,11 +98,11 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             String message = jsonBody.get("message").getAsString();
-            if (message.equalsIgnoreCase("Failed to create server")) {
+                if (message.equalsIgnoreCase("Failed to create server")) {
                 LOGGER.error("Failed to create server.");
                 return null;
             }
-            return jsonBody.get(MECM_PACKAGE_ID).getAsString();
+            return jsonBody.get("mecmPackageId").getAsString();
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to upload package to north, exception {}", e.getMessage());
         }
@@ -138,10 +136,11 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray jsonData = jsonBody.get("data").getAsJsonArray();
+            String mecmPkgId = jsonBody.get("mecmPackageId").getAsString();
             MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
             // When a failed case is deleted in mecm, http response 200 with none-empty mecmPkgId and empty data.
-            if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get(MECM_PACKAGE_ID).getAsString())) {
-                mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get(MECM_PACKAGE_ID).getAsString());
+            if (jsonData.size() == 0 && !StringUtils.isEmpty(mecmPkgId)) {
+                mecmDeploymentInfo.setMecmAppPackageId(mecmPkgId);
                 mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
                 return mecmDeploymentInfo;
             } else if (jsonData.size() > 0) {
