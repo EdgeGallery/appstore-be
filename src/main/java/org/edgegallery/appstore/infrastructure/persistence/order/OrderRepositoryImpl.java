@@ -62,10 +62,4 @@ public class OrderRepositoryImpl implements OrderRepository {
     public Optional<Order> findByOrderId(String orderId) {
         return orderMapper.findByOrderId(orderId).map(OrderPo::toDomainModel);
     }
-
-    @Override
-    public void deleteOrderByPackageId(String packageId) {
-        orderMapper.deleteOrderByPackageId(packageId);
-    }
-
 }
