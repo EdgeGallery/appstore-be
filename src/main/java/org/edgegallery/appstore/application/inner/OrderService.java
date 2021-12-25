@@ -153,7 +153,7 @@ public class OrderService {
      */
     public String unDeployApp(Order order, String userId, String token) {
         order.setStatus(EnumOrderStatus.DEACTIVATING);
-        logOperationDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
+        setOrderDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
             EnumOrderOperation.DEACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
         return mecmService.deleteServer(userId, order.getMecPackageId(), token);
@@ -166,7 +166,7 @@ public class OrderService {
      * @param operationChinese operation Chinese name
      * @param operationEnglish operation English name
      */
-    public void logOperationDetail(Order order, String operationChinese, String operationEnglish) {
+    public void setOrderDetail(Order order, String operationChinese, String operationEnglish) {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String orderOperationDetailCn = currentTime + " " + operationChinese;
         String orderOperationDetailEn = currentTime + " " + operationEnglish;
@@ -244,15 +244,15 @@ public class OrderService {
     public void startActivatingOrder(Release release, Order order, String token, String userId) {
         String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
             userId, getVmDeployParams(release));
-        if (mecPkgId == null) {
+        if (StringUtils.isEmpty(mecPkgId)) {
             LOGGER.error("MEC package id is null, failed to create order");
             throw new AppException("Failed to create order", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
         }
         order.setMecPackageId(mecPkgId);
         order.setStatus(EnumOrderStatus.ACTIVATING);
+        setOrderDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
         LOGGER.info("Successfully uploaded package to north, order has been activated, mecPackageId: {}", mecPkgId);
-        logOperationDetail(order, EnumOrderOperation.ACTIVATED.getChinese(), EnumOrderOperation.ACTIVATED.getEnglish());
     }
 
 }

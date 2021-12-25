@@ -17,7 +17,6 @@
 package org.edgegallery.appstore.interfaces.order.facade;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
@@ -78,17 +77,17 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        if (!userName.equals("admin") && userId.equals(release.getUser().getUserId())) {
+        if (!Consts.SUPER_ADMIN_NAME.equals(userName) && userId.equals(release.getUser().getUserId())) {
             LOGGER.error("User can not subscribe to its own app, order creation failed");
             throw new AppException("User can not subscribe to its own app", ResponseConst.RET_SUBSCRIBE_OWN_APP);
         }
         String orderId = UUID.randomUUID().toString();
         String orderNum = orderService.generateOrderNum();
         Order order = new Order(orderId, orderNum, userId, userName, addOrderReqDto);
+        orderService.setOrderDetail(order, EnumOrderOperation.CREATED.getChinese(),
+            EnumOrderOperation.CREATED.getEnglish());
         orderRepository.addOrder(order);
         LOGGER.info("Created order successfully");
-        orderService.logOperationDetail(order, EnumOrderOperation.CREATED.getChinese(),
-            EnumOrderOperation.CREATED.getEnglish());
         orderService.startActivatingOrder(release, order, token, userId);
         return ResponseEntity.ok(new ResponseObject(CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum)
             .build(), new ErrorMessage(ResponseConst.RET_SUCCESS,null), "Created order Successfully"));
@@ -154,14 +153,13 @@ public class OrderServiceFacade {
             throw new AppException("unsubscribed orders can't be activated.",
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
-        if (userId.equals(order.getUserId()) || Consts.SUPER_ADMIN_NAME.equals(userName)) {
-            // upload package to north, if return mecm packageId is not empty, update status to Activating
-            Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
-            orderService.startActivatingOrder(release, order, token, userId);
-        } else {
+        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
             throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
+        // upload package to north, if return mecm packageId is not empty, update status to Activating
+        Release release = appService.getRelease(order.getAppId(), order.getAppPackageId());
+        orderService.startActivatingOrder(release, order, token, userId);
         return ResponseEntity.ok(new ResponseObject("activate order success",
             new ErrorMessage(ResponseConst.RET_SUCCESS, null), "activate order success."));
     }
