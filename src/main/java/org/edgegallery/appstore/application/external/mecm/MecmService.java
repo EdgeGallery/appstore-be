@@ -98,7 +98,7 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             String message = jsonBody.get("message").getAsString();
-                if (message.equalsIgnoreCase("Failed to create server")) {
+            if (message.equalsIgnoreCase("Failed to create server")) {
                 LOGGER.error("Failed to create server.");
                 return null;
             }
