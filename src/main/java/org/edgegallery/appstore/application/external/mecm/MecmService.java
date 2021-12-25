@@ -72,8 +72,7 @@ public class MecmService {
      * @param tenantId user id
      * @return Mecm package id
      */
-    public String upLoadPackageToNorth(String token, Release release, String hostList, String tenantId,
-        String params) {
+    public String upLoadPackageToNorth(String token, Release release, String hostList, String tenantId, String params) {
         if (StringUtils.isEmpty(token) || release == null || StringUtils.isEmpty(tenantId)) {
             LOGGER.error("Failed to validate input parameters of north task creation.");
             return null;
@@ -137,11 +136,16 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray jsonData = jsonBody.get("data").getAsJsonArray();
-            if (jsonData.size() > 0) {
+            MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
+            // When a failed case is deleted in mecm, http response 200 with none-empty mecmPkgId and empty data.
+            if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get("mecmPackageId").getAsString())) {
+                mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get("mecmPackageId").getAsString());
+                mecmDeploymentInfo.setMecmOperationalStatus("Status Empty");
+                return mecmDeploymentInfo;
+            } else if (jsonData.size() > 0) {
                 String status = jsonData.get(0).getAsJsonObject().get("status").getAsString();
-                MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
                 if (StringUtils.isEmpty(status)) {
-                    LOGGER.info("Mecm app deployment status is null.");
+                    LOGGER.error("Response status is null.");
                     return null;
                 }
                 mecmDeploymentInfo.setMecmOperationalStatus(status);
@@ -149,6 +153,7 @@ public class MecmService {
                 LOGGER.info("mecmAppPackageId is {}, status is {}", mecmAppPackageId, status);
                 return mecmDeploymentInfo;
             }
+            return null;
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Get deployment status from north exception {}", e.getMessage());
         }

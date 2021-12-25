@@ -84,9 +84,7 @@ public class OrderService {
         MecmDeploymentInfo mecmDeploymentInfo = mecmService.getDeploymentStatus(token, order.getMecPackageId(),
             order.getUserId());
         if (mecmDeploymentInfo == null || mecmDeploymentInfo.getMecmOperationalStatus() == null) {
-            order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
-            LOGGER.info("mecm deployment info or status is null.");
-            orderRepository.updateOrder(order);
+            LOGGER.error("mecm deployment info is null.");
             return;
         }
         if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
@@ -94,7 +92,8 @@ public class OrderService {
             LOGGER.info("Distributed and instantiated success, modify status to activated");
         } else if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Distribute Error")
             || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Instantiate Error")
-            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Create Error")) {
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Create Error")
+            || mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Status Empty")) {
             order.setStatus(EnumOrderStatus.ACTIVATE_FAILED);
             LOGGER.error("Distributed or Instantiated failed, modify status to activate failed");
         }
@@ -156,8 +155,7 @@ public class OrderService {
      */
     public String unDeployApp(Order order, String userId, String token) {
         order.setStatus(EnumOrderStatus.DEACTIVATING);
-        setOrderDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
-            EnumOrderOperation.DEACTIVATED.getEnglish());
+        setOrderDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(), EnumOrderOperation.DEACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
         return mecmService.deleteServer(userId, order.getMecPackageId(), token);
     }
@@ -231,8 +229,9 @@ public class OrderService {
         }
         Map<String, Object> params = new HashMap<>();
         List<Order> orders = orderRepository.queryOrders(params);
-        orders.stream().filter(r -> r.getStatus() == EnumOrderStatus.ACTIVATING
-            && !StringUtils.isEmpty(r.getMecPackageId())).forEach(p -> updateOrderStatus(token, p));
+        orders.stream()
+            .filter(r -> r.getStatus() == EnumOrderStatus.ACTIVATING && !StringUtils.isEmpty(r.getMecPackageId()))
+            .forEach(p -> updateOrderStatus(token, p));
         return true;
     }
 
@@ -245,8 +244,8 @@ public class OrderService {
      * @param userId id of current user
      */
     public void startActivatingOrder(Release release, Order order, String token, String userId) {
-        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(),
-            userId, getVmDeployParams(release));
+        String mecPkgId = mecmService.upLoadPackageToNorth(token, release, order.getMecHostIp(), userId,
+            getVmDeployParams(release));
         if (StringUtils.isEmpty(mecPkgId)) {
             LOGGER.error("MEC package id is null, failed to create order");
             throw new AppException("Failed to create order", ResponseConst.RET_UPLOAD_PACKAGE_TO_MECM_NORTH_FAILED);
