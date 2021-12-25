@@ -157,7 +157,6 @@ public class OrderTest {
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void get_VM_Deploy_param_success() {
         Release release = appService.getRelease("appid-test-0001", "packageid-0002");
-        String res = orderService.getVmDeployParams(release);
         Assert.assertNotNull(orderService.getVmDeployParams(release));
     }
 
