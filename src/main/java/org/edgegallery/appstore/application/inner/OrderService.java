@@ -97,7 +97,6 @@ public class OrderService {
             LOGGER.error("Distributed or Instantiated failed, modify status to activate failed");
         }
         orderRepository.updateOrder(order);
-        return;
     }
 
     /**
