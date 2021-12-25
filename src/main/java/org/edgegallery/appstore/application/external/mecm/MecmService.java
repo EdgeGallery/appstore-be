@@ -60,6 +60,9 @@ public class MecmService {
 
     private static final String MECM_DELETE_PACKAGE = "/north/v1/tenants/%s/packages/%s";
 
+    private static final String MECM_PACKAGE_ID = "mecmPackageId";
+
+
     @Value("${mecm.urls.north}")
     private String northUrl;
 
@@ -102,7 +105,7 @@ public class MecmService {
                 LOGGER.error("Failed to create server.");
                 return null;
             }
-            return jsonBody.get("mecmPackageId").getAsString();
+            return jsonBody.get(MECM_PACKAGE_ID).getAsString();
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to upload package to north, exception {}", e.getMessage());
         }
@@ -138,8 +141,8 @@ public class MecmService {
             JsonArray jsonData = jsonBody.get("data").getAsJsonArray();
             MecmDeploymentInfo mecmDeploymentInfo = new MecmDeploymentInfo();
             // When a failed case is deleted in mecm, http response 200 with none-empty mecmPkgId and empty data.
-            if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get("mecmPackageId").getAsString())) {
-                mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get("mecmPackageId").getAsString());
+            if (jsonData.size() == 0 && !StringUtils.isEmpty(jsonBody.get(MECM_PACKAGE_ID).getAsString())) {
+                mecmDeploymentInfo.setMecmAppPackageId(jsonBody.get(MECM_PACKAGE_ID).getAsString());
                 mecmDeploymentInfo.setMecmOperationalStatus("Instantiate Error");
                 return mecmDeploymentInfo;
             } else if (jsonData.size() > 0) {
