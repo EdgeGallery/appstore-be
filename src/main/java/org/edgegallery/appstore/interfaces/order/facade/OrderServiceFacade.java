@@ -77,7 +77,7 @@ public class OrderServiceFacade {
     public ResponseEntity<ResponseObject> createOrder(String userId, String userName, CreateOrderReqDto addOrderReqDto,
         String token) {
         Release release = appService.getRelease(addOrderReqDto.getAppId(), addOrderReqDto.getAppPackageId());
-        if (!userName.equals(Consts.SUPER_ADMIN_NAME) && userId.equals(release.getUser().getUserId())) {
+        if (!Consts.SUPER_ADMIN_NAME.equals(userName) && userId.equals(release.getUser().getUserId())) {
             LOGGER.error("User can not subscribe to its own app, order creation failed");
             throw new AppException("User can not subscribe to its own app", ResponseConst.RET_SUBSCRIBE_OWN_APP);
         }
