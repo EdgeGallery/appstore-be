@@ -19,6 +19,8 @@ package org.edgegallery.appstore.interfaces.apackage.facade;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -180,9 +182,10 @@ public class PackageServiceFacade {
             ins = fileService.get(release.getPackageFile());
         }
         String fileName = release.getAppBasicInfo().getAppName() + "_download" + ZIP_EXTENSION;
+        String encodeFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        headers.add("Content-Disposition", "attachment; filename=" + encodeFileName);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
@@ -195,10 +198,11 @@ public class PackageServiceFacade {
     public ResponseEntity<InputStreamResource> downloadIcon(String appId, String packageId) throws IOException {
         Release release = appService.getRelease(appId, packageId);
         String fileName = appUtil.getFileName(release, release.getIcon());
+        String encodeFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
         InputStream ins = fileService.get(release.getIcon());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        headers.add("Content-Disposition", "attachment; filename=" + encodeFileName);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(ins));
     }
 
