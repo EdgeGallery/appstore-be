@@ -214,7 +214,7 @@ public class PackageService {
         }
         if (docFile != null) {
             String mdContent = modifyAppDetail(docFile, release);
-            if (!StringUtils.isEmpty(mdContent)) {
+            if (mdContent != null) { // app detail may be empty content
                 release.getAppBasicInfo().setMarkDownContent(mdContent);
             }
         }
