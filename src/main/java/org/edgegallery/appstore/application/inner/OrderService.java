@@ -168,8 +168,8 @@ public class OrderService {
      */
     public void setOrderDetail(Order order, String operationChinese, String operationEnglish) {
         String currentTime = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String orderOperationDetailCn = currentTime + " " + operationChinese;
-        String orderOperationDetailEn = currentTime + " " + operationEnglish;
+        String orderOperationDetailCn = currentTime + "," + operationChinese;
+        String orderOperationDetailEn = currentTime + "," + operationEnglish;
         if (StringUtil.isEmpty(order.getDetailCn())) {
             order.setDetailCn(orderOperationDetailCn);
             order.setDetailEn(orderOperationDetailEn);
@@ -177,7 +177,6 @@ public class OrderService {
             order.setDetailCn(order.getDetailCn() + "\n" + orderOperationDetailCn);
             order.setDetailEn(order.getDetailEn() + "\n" + orderOperationDetailEn);
         }
-
     }
 
     /**
