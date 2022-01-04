@@ -39,7 +39,6 @@ import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
 import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
-import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
 import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
 import org.edgegallery.appstore.interfaces.controlleradvice.RestReturn;
@@ -63,7 +62,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.util.CollectionUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplicationWithAdmin.class)
@@ -185,14 +183,19 @@ public class OrderTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void query_orders_should_success() throws Exception {
-        MvcResult mvcResult = queryOrderList();
+        QueryOrdersReqDto queryOrdersReqDto = new QueryOrdersReqDto();
+        QueryCtrlDto queryCtrl = new QueryCtrlDto(0, 20, "", "");
+        queryOrdersReqDto.setQueryCtrl(queryCtrl);
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v1/orders/list")
+            .with(csrf()).content(gson.toJson(queryOrdersReqDto)).contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void activate_order_should_success() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
+        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         String testPkgId = "mecm-test-packageid";
@@ -208,7 +211,7 @@ public class OrderTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void activate_order_should_failed() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED.toString());
+        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         MvcResult result = mvc.perform(
@@ -223,7 +226,7 @@ public class OrderTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void activate_order_should_exception() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
+        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         String testPkgId = "";
@@ -355,26 +358,22 @@ public class OrderTest {
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void deactivate_order_should_success() throws Exception {
-        String msg = "Delete server success";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        MvcResult mvcResult = deactivateOrder();
-        Assert.assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-    }
-
-    private MvcResult deactivateOrder() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED.toString());
+        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
-        return mvc.perform(
-                MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+        // String msg = "Delete server success";
+        // Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.anyString(), Mockito.anyString())).thenReturn(msg);
+        MvcResult mvcResult =  mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void deactivate_order_should_failed() throws Exception {
-        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED.toString());
+        String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
         MvcResult result = mvc.perform(
@@ -384,31 +383,6 @@ public class OrderTest {
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
         Assert.assertEquals(ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER, restReturn.getRetCode());
-    }
-
-    private MvcResult queryOrderList() throws Exception {
-        QueryOrdersReqDto queryOrdersReqDto = new QueryOrdersReqDto();
-        QueryCtrlDto queryCtrl = new QueryCtrlDto(0, 20, "", "");
-        queryOrdersReqDto.setQueryCtrl(queryCtrl);
-        return mvc.perform(MockMvcRequestBuilders.post("/mec/appstore/v1/orders/list").with(csrf())
-            .content(gson.toJson(queryOrdersReqDto)).contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
-    }
-
-    private String getOrderIdByStatus(String status) throws Exception {
-        MvcResult mvcResult = queryOrderList();
-        if (mvcResult.getResponse().getStatus() != HttpStatus.OK.value()) {
-            return "";
-        }
-
-        Page orderResult = gson.fromJson(mvcResult.getResponse().getContentAsString(), Page.class);
-        if (orderResult == null || CollectionUtils.isEmpty(orderResult.getResults())) {
-            return "";
-        }
-
-        Optional<Map> firstMatchOrder = orderResult.getResults().stream()
-            .filter(item -> status.equals((String) ((Map) item).get("status"))).findFirst();
-        return firstMatchOrder.isPresent() ? (String) firstMatchOrder.get().get("orderId") : "";
     }
 
     private Order getOrder(EnumOrderStatus status) {
@@ -422,6 +396,11 @@ public class OrderTest {
         Optional<Order> order = orders.stream().filter(item -> status.equals(item.getStatus()))
             .findFirst();
         return order.orElse(null);
+    }
+
+    private String getOrderIdByStatus(EnumOrderStatus status) {
+        Order order = getOrder(status);
+        return order == null ? null : order.getOrderId();
     }
 
 }

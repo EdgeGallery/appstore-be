@@ -174,7 +174,7 @@ public class OrderServiceFacade {
     public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String role,
         QueryOrdersReqDto queryOrdersReqDto, String token) {
         Map<String, Object> queryOrderParams = new HashMap<>();
-        if (!role.contains("ROLE_APPSTORE_ADMIN")) {
+        if (!StringUtils.isEmpty(role) && !role.contains("ROLE_APPSTORE_ADMIN")) {
             queryOrderParams.put("userId", userId);
         }
         queryOrderParams.put("appId", queryOrdersReqDto.getAppId());
