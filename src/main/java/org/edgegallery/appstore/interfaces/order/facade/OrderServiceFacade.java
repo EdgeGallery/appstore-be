@@ -50,8 +50,6 @@ import org.springframework.stereotype.Service;
 public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
-    private static final String FAIL_TO_DELETE_PACKAGE = "failed to delete package";
-    private static final String FAIL_TO_DELETE_INSTANTIATION = "failed to delete instantiation";
     private static final String DELETE_SERVER_SUCCESS = "Delete server success";
 
     @Autowired

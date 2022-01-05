@@ -282,18 +282,20 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<PackageDto> updateAppById(MultipartFile iconFile, MultipartFile demoVideo,
         MultipartFile docFile, PackageDto packageDto, HttpServletRequest request) {
+        App app = appRepository.find(packageDto.getAppId()).orElseThrow(
+            () -> new EntityNotFoundException(App.class, packageDto.getAppId(), ResponseConst.RET_APP_NOT_FOUND));
+        Release releasePermission = app.findByPackageId(packageDto.getPackageId()).orElseThrow(
+            () -> new UnknownReleaseExecption(packageDto.getPackageId(), ResponseConst.RET_PACKAGE_NOT_FOUND));
+
         boolean isAdmin = false;
         String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
             isAdmin = true;
         }
-        App app = appRepository.find(packageDto.getAppId()).orElseThrow(
-            () -> new EntityNotFoundException(App.class, packageDto.getAppId(), ResponseConst.RET_APP_NOT_FOUND));
-        Release releasePermission = app.findByPackageId(packageDto.getPackageId()).orElseThrow(
-            () -> new UnknownReleaseExecption(packageDto.getPackageId(), ResponseConst.RET_PACKAGE_NOT_FOUND));
         releasePermission.checkPermission(
             new User((String) request.getAttribute("userId"), (String) request.getAttribute("userName")), isAdmin,
             ResponseConst.RET_NO_ACCESS_MODIFY_PACKAGE);
+
         packageService.updateAppById(iconFile, demoVideo, docFile, packageDto);
         Release release = packageRepository.findReleaseById(packageDto.getAppId(), packageDto.getPackageId());
         return ResponseEntity.ok(PackageDto.of(release));

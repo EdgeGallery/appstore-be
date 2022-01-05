@@ -212,35 +212,35 @@ insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, EXPERIENCESTATUS, deployMode)
     values ('packageid-0003', '/package/test/face.csar', '/user/test/icon.png', '', 10004, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version1', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 25, 'container');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname, instancetenentid,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, deployMode)
     values ('packageid-0004', '/package/test/face.csar', '/user/test/icon.png', '', 10005, 'file-trees', now(),
-    'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version2', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 'vm');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, deployMode)
     values ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', '', 10002, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version3', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER', 'vm');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
     values ('packageid-0005', '/package/test/face.csar', '/user/test/icon.png', '', 10006, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'container', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version4', 'game', 'container', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
     values ('packageid-0006', '/package/test/face.csar', '/user/test/icon.png', '', 10007, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'vm', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version5', 'game', 'vm', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
 insert into app_store_table(

@@ -22,8 +22,6 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
-import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ValueObject;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
