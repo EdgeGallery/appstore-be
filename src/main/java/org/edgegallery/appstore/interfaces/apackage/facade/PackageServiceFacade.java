@@ -154,10 +154,10 @@ public class PackageServiceFacade {
      * @param packageId package id.
      * @param user User object.
      * @param token access token.
-     * @param isDelete delete permission.
+     * @param isAdmin admin delete permission.
      */
-    public void unPublishPackage(String appId, String packageId, User user, String token, boolean isDelete) {
-        appService.unPublishPackage(appId, packageId, user, token, isDelete);
+    public void unPublishPackage(String appId, String packageId, User user, String token, boolean isAdmin) {
+        appService.unPublishPackage(appId, packageId, user, token, isAdmin);
     }
 
     /**
