@@ -30,7 +30,8 @@
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         MECHOST                  VARCHAR(100)       NULL,
         EXPERIENCESTATUS         INT       NULL,
-        CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
+        CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID),
+        CONSTRAINT package_name_provider_version_key UNIQUE("appname","provider","version")
     );
 
     create TABLE if not exists app_table (
@@ -56,7 +57,8 @@
         EXPERIENCEABLE           boolean            DEFAULT false,
         ISFREE                   boolean            DEFAULT true,
         PRICE                    NUMERIC(10,2)      NULL,
-        CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
+        CONSTRAINT app_table_pkey PRIMARY KEY (APPID),
+        CONSTRAINT app_name_provider_key UNIQUE("appname","provider")
     );
 
     create TABLE if not exists csar_package_score (
@@ -254,3 +256,7 @@
     alter table app_order drop column IF EXISTS MECM_INSTANCEID;
 
     alter table app_order drop column IF EXISTS DETAIL;
+
+    alter table app_table add CONSTRAINT app_name_provider_key UNIQUE("appname","provider");
+
+    alter table catalog_package_table add CONSTRAINT package_name_provider_version_key UNIQUE("appname","provider","version");
