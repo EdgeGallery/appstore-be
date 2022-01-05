@@ -33,14 +33,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.domain.constants.Consts;
-import org.edgegallery.appstore.domain.constants.ResponseConst;
-import org.edgegallery.appstore.domain.model.app.App;
-import org.edgegallery.appstore.domain.model.app.AppRepository;
-import org.edgegallery.appstore.domain.model.releases.Release;
-import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
@@ -63,6 +57,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Controller
 @RestSchema(schemaId = "package")
 @RequestMapping("/mec/appstore/v1")
@@ -72,9 +67,6 @@ public class PackageController {
 
     @Autowired
     private PackageServiceFacade packageServiceFacade;
-
-    @Autowired
-    private AppRepository appRepository;
 
     /**
      * delete application package.
@@ -100,13 +92,13 @@ public class PackageController {
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "package Id") @PathVariable("packageId")
         @Pattern(regexp = Consts.REG_APP_ID) String packageId, HttpServletRequest request) {
-        boolean isDelete = false;
+        boolean isAdmin = false;
         String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
-            isDelete = true;
+            isAdmin = true;
         }
         packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
-            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), isDelete);
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), isAdmin);
         return ResponseEntity.ok("delete App package success.");
     }
 
@@ -258,8 +250,7 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<PackageDto> modifyAppAttr(
-        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
-        @RequestParam("userName") String userName, @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) @NotNull(
+        @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) @NotNull(
         message = "appId should not be null.") String appId,
         @PathVariable("packageId") @Pattern(regexp = Consts.REG_APP_ID) @NotNull(
             message = "packageId should not be null.") String packageId,
@@ -273,16 +264,6 @@ public class PackageController {
         @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
             String experienceAble, HttpServletRequest request) {
-        boolean isModify = false;
-        String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
-        if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
-            isModify = true;
-        }
-        App app = appRepository.find(appId)
-            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
-        Release release = app.findByPackageId(packageId)
-            .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
-        release.checkPermission(new User(userId, userName), isModify, "modify");
         PackageDto packageDto = new PackageDto();
         packageDto.setAppId(appId);
         packageDto.setPackageId(packageId);
@@ -292,6 +273,6 @@ public class PackageController {
         packageDto.setShortDesc(shortDesc);
         packageDto.setShowType(showType);
         packageDto.setExperienceAble(Boolean.parseBoolean(experienceAble));
-        return packageServiceFacade.updateAppById(icon, video, doc, packageDto);
+        return packageServiceFacade.updateAppById(icon, video, doc, packageDto, request);
     }
 }
