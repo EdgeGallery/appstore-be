@@ -110,7 +110,7 @@ public class OrderServiceFacade {
             throw new AppException("inactivated orders can't be deactivated.",
                 ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
         }
-        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!userId.equals(order.getUserId())) {
             throw new PermissionNotAllowedException("can not deactivate order",
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
@@ -124,14 +124,13 @@ public class OrderServiceFacade {
         }
 
         String resultMessage = "deactivate order success";
-        if (unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_PACKAGE)
-            || unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_INSTANTIATION)) {
+        if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
+            LOGGER.info("Undeploy package successfully.");
+            order.setStatus(EnumOrderStatus.DEACTIVATED);
+        } else {
             LOGGER.error("Failed to undeploy package.");
             order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
             resultMessage = "fail to deactivate order";
-        } else if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
-            LOGGER.info("Undeploy package successfully.");
-            order.setStatus(EnumOrderStatus.DEACTIVATED);
         }
         orderRepository.updateOrder(order);
         return ResponseEntity.ok(new ResponseObject(resultMessage,
@@ -153,7 +152,7 @@ public class OrderServiceFacade {
             throw new AppException("unsubscribed orders can't be activated.",
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
-        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!userId.equals(order.getUserId())) {
             throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
@@ -172,10 +171,10 @@ public class OrderServiceFacade {
      * @return order list
      */
 
-    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
+    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String role,
         QueryOrdersReqDto queryOrdersReqDto, String token) {
         Map<String, Object> queryOrderParams = new HashMap<>();
-        if (!Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!StringUtils.isEmpty(role) && !role.contains("ROLE_APPSTORE_ADMIN")) {
             queryOrderParams.put("userId", userId);
         }
         queryOrderParams.put("appId", queryOrdersReqDto.getAppId());
