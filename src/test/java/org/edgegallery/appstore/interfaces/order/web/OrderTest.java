@@ -42,6 +42,7 @@ import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
 import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
 import org.edgegallery.appstore.interfaces.controlleradvice.RestReturn;
+import org.edgegallery.appstore.interfaces.order.facade.OrderServiceFacade;
 import org.edgegallery.appstore.interfaces.order.facade.dto.CreateOrderReqDto;
 import org.edgegallery.appstore.interfaces.order.facade.dto.QueryOrdersReqDto;
 import org.junit.After;
@@ -80,6 +81,9 @@ public class OrderTest {
     private MockMvc mvc;
 
     @Autowired
+    private OrderServiceFacade orderServiceFacade;
+
+    @Autowired
     private OrderService orderService;
 
     @Autowired
@@ -94,6 +98,10 @@ public class OrderTest {
     private HttpServer httpServer8001;
 
     private String token = "4687632346763131324564";
+
+    private String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+
+    private String userName = "test-username-fororder";
 
     private MvcResult createOrder() throws Exception {
         CreateOrderReqDto createOrderReqDto = new CreateOrderReqDto();
@@ -329,50 +337,51 @@ public class OrderTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_failed() {
-        Order order = getOrder(EnumOrderStatus.ACTIVATED);
-        assert (order != null);
-        String token = "testToken";
-        String userId = "testUserId";
-        String msg = "failed to delete package";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        Assert.assertEquals(msg, orderService.unDeployApp(order, userId, token));
-
-        msg = "failed to delete instantiation";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        Assert.assertEquals(msg, orderService.unDeployApp(order, userId, token));
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void unDeployApp_success() {
-        Order order = getOrder(EnumOrderStatus.ACTIVATED);
-        assert (order != null);
-        String token = "testToken";
-        String userId = "testUserId";
-        String msg = "Delete server success";
-        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
-        Assert.assertEquals("Delete server success", orderService.unDeployApp(order, userId, token));
-    }
-
-    @Test
-    @WithMockUser(roles = "APPSTORE_ADMIN")
     public void deactivate_order_should_success() throws Exception {
         String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
-        // String msg = "Delete server success";
-        // Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.anyString(), Mockito.anyString())).thenReturn(msg);
-        MvcResult mvcResult =  mvc.perform(
-            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print()).andReturn();
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), mvcResult.getResponse().getStatus());
+        String msg = "Delete server success";
+        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.anyString(), Mockito.anyString())).thenReturn(msg);
+
+        orderServiceFacade.deactivateOrder(userId, userName, orderId, token);
+        Optional<Order> order = orderRepository.findByOrderId(orderId);
+        Assert.assertTrue(order.isPresent());
+        Assert.assertEquals(EnumOrderStatus.DEACTIVATED, order.get().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "APPSTORE_ADMIN")
-    public void deactivate_order_should_failed() throws Exception {
+    public void deactivate_order_should_failed() {
+        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
+        Assert.assertNotNull(orderId);
+        Assert.assertNotEquals("", orderId);
+        String msg = "failed to delete package";
+        Mockito.when(mecmService.deleteServer(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(msg);
+        orderServiceFacade.deactivateOrder(userId, userName, orderId, token);
+        Optional<Order> order = orderRepository.findByOrderId(orderId);
+        Assert.assertTrue(order.isPresent());
+        Assert.assertEquals(EnumOrderStatus.DEACTIVATE_FAILED, order.get().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void deactivate_order_should_null() throws Exception {
+        String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
+        Assert.assertNotNull(orderId);
+        Assert.assertNotEquals("", orderId);
+        MvcResult result = mvc.perform(
+            MockMvcRequestBuilders.post("/mec/appstore/v1/orders/" + orderId + "/deactivation").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+            .andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.RET_DELETE_SERVER_FAILED, restReturn.getRetCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_ADMIN")
+    public void deactivate_order_should_forbidden() throws Exception {
         String orderId = getOrderIdByStatus(EnumOrderStatus.DEACTIVATED);
         Assert.assertNotNull(orderId);
         Assert.assertNotEquals("", orderId);
