@@ -133,10 +133,14 @@ public class Release implements ValueObject<Release> {
      *
      * @param user the user info of delete package.
      */
-    public void checkPermission(User user, String role) {
-        if (!this.getUser().getUserId().equals(user.getUserId()) && StringUtils.isEmpty(role)) {
+    public void checkPermission(User user, boolean isOperate, String flag) {
+        int constCode = ResponseConst.RET_NO_ACCESS_DELETE_PACKAGE;
+        if ("modify".equalsIgnoreCase(flag)) {
+            constCode = ResponseConst.RET_NO_ACCESS_MODIFY_PACKAGE;
+        }
+        if (!this.getUser().getUserId().equals(user.getUserId()) && !isOperate) {
             throw new PermissionNotAllowedException("operator do not have permission",
-                ResponseConst.RET_NO_ACCESS_DELETE_PACKAGE, user.getUserName());
+                constCode, user.getUserName());
 
         }
     }
