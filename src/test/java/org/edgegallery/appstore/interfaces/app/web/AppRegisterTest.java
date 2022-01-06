@@ -313,7 +313,8 @@ public class AppRegisterTest extends AppTest {
         chunk.setIdentifier("12240-test2048_1.0");
         chunk.setFilename("test2048_1.0.csar");
         chunk.setChunkNumber(1);
-        ResponseEntity<String> ress  = appServiceFacade.uploadImage(true,chunk);
+        ResponseEntity<String> uploadRes  = appServiceFacade.uploadImage(true,chunk);
+        Assert.assertEquals("upload package block success.", uploadRes.getBody().toString());
         ResponseEntity<String> res  = appServiceFacade.merge("test2048_1.0.csar","12240-test2048_1.0");
         HttpStatus ss = res.getStatusCode();
         Assert.assertEquals("200 OK", res.getStatusCode().toString());
