@@ -268,4 +268,4 @@
         THEN
             alter table catalog_package_table add constraint package_name_provider_version_key unique("appname","provider","version");
         END IF;
-    END$$;
+    END $$;
