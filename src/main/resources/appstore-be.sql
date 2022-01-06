@@ -257,6 +257,15 @@
 
     alter table app_order drop column IF EXISTS DETAIL;
 
-    alter table app_table add CONSTRAINT app_name_provider_key UNIQUE("appname","provider");
+    DO $$
+    BEGIN
+        IF NOT EXISTS (select constraint_name from information_schema.table_constraints where table_name = 'app_table' and constraint_name = 'app_name_provider_key')
+        THEN
+            alter table app_table add constraint app_name_provider_key unique("appname","provider");
+        END IF;
 
-    alter table catalog_package_table add CONSTRAINT package_name_provider_version_key UNIQUE("appname","provider","version");
+        IF NOT EXISTS (select constraint_name from information_schema.table_constraints where table_name = 'catalog_package_table' and constraint_name = 'package_name_provider_version_key')
+        THEN
+            alter table catalog_package_table add constraint package_name_provider_version_key unique("appname","provider","version");
+        END IF;
+    END$$;
