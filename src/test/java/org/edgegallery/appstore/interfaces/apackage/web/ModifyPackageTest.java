@@ -73,11 +73,11 @@ public class ModifyPackageTest extends AppTest {
         packageDto.setShortDesc("2048 game");
         packageDto.setShowType("inner-public");
         packageDto.setExperienceAble(true);
-        try{
-        ResponseEntity<PackageDto> resp = packageServiceFacade.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto, request);
-        PackageDto pack = resp.getBody();
-        Assert.assertNotNull(pack);
-        Assert.assertEquals("2048 game", pack.getShortDesc());
+        try {
+            ResponseEntity<PackageDto> resp = packageServiceFacade.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto, request);
+            PackageDto pack = resp.getBody();
+            Assert.assertNotNull(pack);
+            Assert.assertEquals("2048 game", pack.getShortDesc());
         } catch (FileOperateException e) {
             Assert.assertThrows("can not merge parts to file", NullPointerException.class, null);
         }

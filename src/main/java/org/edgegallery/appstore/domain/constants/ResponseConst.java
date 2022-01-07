@@ -496,9 +496,9 @@ public class ResponseConst {
     public static final int RET_SUBSCRIBE_OWN_APP = 16010;
 
     /**
-     * failed to delete server from mecm.
+     * Some parameters of unsubscribe are empty.
      */
-    public static final int RET_DELETE_SERVER_FAILED = 16011;
+    public static final int RET_DEACTIVATE_PARAM_INVALID = 16011;
     /**
      * right base error code.
      */
@@ -525,9 +525,9 @@ public class ResponseConst {
     public static final int RET_NO_ACCESS_ACTIVATE_ORDER = 18004;
 
     /**
-     * Permission not allowed to delete application package.
+     * Permission not allowed to modify application package.
      */
-    public static final int RET_NO_ACCESS_MODIFY_PACKAGE = 18003;
+    public static final int RET_NO_ACCESS_MODIFY_PACKAGE = 18005;
 
     /**
      * general base error code.
