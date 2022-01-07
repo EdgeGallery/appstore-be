@@ -181,7 +181,7 @@ public class MecmService {
             JsonArray hostInfo = jsonBody.get("data").getAsJsonArray();
             return new Gson().fromJson(hostInfo, List.class);
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to get mechosts, RestClientException is {}", e.getMessage());
+            LOGGER.error("Failed to get mechosts, exception is {}", e.getMessage());
         }
         return Collections.emptyList();
     }
@@ -195,10 +195,6 @@ public class MecmService {
      * @return delete server success or not
      */
     public String deleteServer(String userId, String packageId, String token) {
-        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(packageId) || StringUtils.isEmpty(token)) {
-            LOGGER.error("UserId or packageId or token is empty.");
-            return "UserId or packageId or token is empty";
-        }
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -208,8 +204,8 @@ public class MecmService {
         try {
             ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
             if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Failed to get response within Delete Server Interface.");
-                return "Failed";
+                LOGGER.error("Failed to invoke the delete instance interface, status {}.", response.getStatusCode());
+                return "Failed to delete server";
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray jsonData = jsonBody.get("data").getAsJsonArray();
@@ -217,8 +213,8 @@ public class MecmService {
                 return jsonData.get(0).getAsJsonObject().get("message").getAsString();
             }
         } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to get response within Delete Server Interface, exception {}", e.getMessage());
+            LOGGER.error("Delete server exception {}", e.getMessage());
         }
-        return null;
+        return "Delete server exception";
     }
 }

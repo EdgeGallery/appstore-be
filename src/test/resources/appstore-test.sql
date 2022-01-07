@@ -212,35 +212,35 @@ insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, EXPERIENCESTATUS, deployMode)
     values ('packageid-0003', '/package/test/face.csar', '/user/test/icon.png', '', 10004, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version1', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 25, 'container');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname, instancetenentid,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, deployMode)
     values ('packageid-0004', '/package/test/face.csar', '/user/test/icon.png', '', 10005, 'file-trees', now(),
-    'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'a8b4118a-4183-49a9-a915-1d37147c14d8','version2', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0002', 'Published', 'apt-taskid-0002', 'PROVIDER', 'vm');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER, deployMode)
     values ('packageid-0002', '/package/test/face.csar', '/user/test/icon.png', '', 10002, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version3', 'game', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER', 'vm');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
     values ('packageid-0005', '/package/test/face.csar', '/user/test/icon.png', '', 10006, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'container', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version4', 'game', 'container', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
 insert into catalog_package_table(
     packageid, packageaddress, iconaddress, demovideoaddress, size, filestructure, createtime, shortdesc, appname,
     version, applicationtype, deploymode, markdowncontent, affinity, industry, contact, appid, userid, username, status, TESTTASKID, PROVIDER)
     values ('packageid-0006', '/package/test/face.csar', '/user/test/icon.png', '', 10007, 'file-trees', now(),
-    'shortdesc', 'appname', 'version', 'game', 'vm', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
+    'shortdesc', 'appname', 'version5', 'game', 'vm', 'markdowncontent', 'affinity', 'industry', 'contact', 'appid-test-0001',
     'test-userid-0001', 'test-username-0001', 'Published', 'apt-taskid-0001', 'PROVIDER');
 
 insert into app_store_table(
@@ -280,14 +280,14 @@ merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,C
 merge into PACKAGE_UPLOAD_PROGRESS_TABLE(ID,PACKAGE_ID,MEAO_ID,STATUS,PROGRESS,CREATE_TIME) KEY(ID) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245bbb', 'package-3', 'meao-3', 'NORMAL','start','2020-01-03 00:00:00.000000');
 
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da971', 'ES0000000001', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0001');
+  values('7c555c26-2343-6456-958b-12f7ea4da971', 'ES0000000001', '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0001');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da972', 'ES0000000002', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0002');
+  values('7c555c26-2343-6456-958b-12f7ea4da972', 'ES0000000002', '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0002');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da973', 'ES0000000003', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', '2021-09-29 17:32:31.201', '2021-09-29 17:32:31.201', 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0003');
+  values('7c555c26-2343-6456-958b-12f7ea4da973', 'ES0000000003', '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'test-username-fororder', 'appid-test-0001', 'packageid-0003', '2021-09-29 17:32:31.201', '2021-09-29 17:32:31.201', 'ACTIVATED', '127.0.0.1', 'mecm-packageid-0003');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da974', 'ES0000000004', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0004', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0004');
+  values('7c555c26-2343-6456-958b-12f7ea4da974', 'ES0000000004', '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'test-username-fororder', 'appid-test-0001', 'packageid-0004', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0004');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
-  values('7c555c26-2343-6456-958b-12f7ea4da975', 'ES0000000005', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', 'test-username-fororder', 'appid-test-0001', 'packageid-0005', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0005');
+  values('7c555c26-2343-6456-958b-12f7ea4da975', 'ES0000000005', '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'test-username-fororder', 'appid-test-0001', 'packageid-0005', now(), now(), 'DEACTIVATED', '127.0.0.1', 'mecm-packageid-0005');
 insert into app_order(ORDERID, ORDERNUM, USERID, USERNAME, APPID, APPPACKAGEID, ORDERTIME, OPERATETIME, STATUS, MECM_HOSTIP, MECM_APPPACKAGEID)
   values('7c555c26-2343-6456-958b-12f7ea4da976', 'ES0000000006', 'testUserId', 'test-username-fororder', 'appid-test-0001', 'packageid-0004', now(), now(), 'ACTIVATING', '127.0.0.1', 'testPackageId');

@@ -279,6 +279,6 @@ public class MecmServiceTest {
     public void deleteServer_fail() {
         String userId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
         String mecmPkgId = "a09bca74-04cb-4bae-9ee2-9c5072ec9d4b";
-        Assert.assertNull(mecmService.deleteServer(userId, mecmPkgId, token));
+        Assert.assertEquals("Delete server exception", mecmService.deleteServer(userId, mecmPkgId, token));
     }
 }

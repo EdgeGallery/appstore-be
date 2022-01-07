@@ -525,6 +525,11 @@ public class ResponseConst {
     public static final int RET_NO_ACCESS_ACTIVATE_ORDER = 18004;
 
     /**
+     * Permission not allowed to modify application package.
+     */
+    public static final int RET_NO_ACCESS_MODIFY_PACKAGE = 18005;
+
+    /**
      * general base error code.
      */
     public static final int RET_GENERAL_BASE = 19000;

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
@@ -39,16 +40,21 @@ import org.edgegallery.appstore.application.external.atp.model.AtpTestDto;
 import org.edgegallery.appstore.application.inner.AppService;
 import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.application.packageupload.UploadPackageService;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
+import org.edgegallery.appstore.domain.model.app.App;
+import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
+import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
@@ -96,6 +102,9 @@ public class PackageServiceFacade {
 
     @Autowired
     private PackageRepository packageRepository;
+
+    @Autowired
+    private AppRepository appRepository;
 
     @Autowired
     private AppUtil appUtil;
@@ -154,10 +163,10 @@ public class PackageServiceFacade {
      * @param packageId package id.
      * @param user User object.
      * @param token access token.
-     * @param role user role.
+     * @param isAdmin admin delete permission.
      */
-    public void unPublishPackage(String appId, String packageId, User user, String token, String role) {
-        appService.unPublishPackage(appId, packageId, user, token, role);
+    public void unPublishPackage(String appId, String packageId, User user, String token, boolean isAdmin) {
+        appService.unPublishPackage(appId, packageId, user, token, isAdmin);
     }
 
     /**
@@ -269,9 +278,24 @@ public class PackageServiceFacade {
      * @param demoVideo app demo video.
      * @param docFile app detail md file.
      * @param packageDto packageDto.
+     * @param request HttpServletRequest.
      */
     public ResponseEntity<PackageDto> updateAppById(MultipartFile iconFile, MultipartFile demoVideo,
-        MultipartFile docFile, PackageDto packageDto) {
+        MultipartFile docFile, PackageDto packageDto, HttpServletRequest request) {
+        App app = appRepository.find(packageDto.getAppId()).orElseThrow(
+            () -> new EntityNotFoundException(App.class, packageDto.getAppId(), ResponseConst.RET_APP_NOT_FOUND));
+        Release releasePermission = app.findByPackageId(packageDto.getPackageId()).orElseThrow(
+            () -> new UnknownReleaseExecption(packageDto.getPackageId(), ResponseConst.RET_PACKAGE_NOT_FOUND));
+
+        boolean isAdmin = false;
+        String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
+        if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
+            isAdmin = true;
+        }
+        releasePermission.checkPermission(
+            new User((String) request.getAttribute("userId"), (String) request.getAttribute("userName")), isAdmin,
+            ResponseConst.RET_NO_ACCESS_MODIFY_PACKAGE);
+
         packageService.updateAppById(iconFile, demoVideo, docFile, packageDto);
         Release release = packageRepository.findReleaseById(packageDto.getAppId(), packageDto.getPackageId());
         return ResponseEntity.ok(PackageDto.of(release));

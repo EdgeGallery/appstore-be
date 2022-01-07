@@ -18,14 +18,18 @@ package org.edgegallery.appstore.interfaces.apackage.web;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.interfaces.AppTest;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +38,19 @@ public class ModifyPackageTest extends AppTest {
 
     @Autowired
     PackageServiceFacade packageServiceFacade;
+
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+
+    @Before
+    public void before(){
+        request = new MockHttpServletRequest();
+        request.setCharacterEncoding("UTF-8");
+        request.setAttribute("userId","5abdd29d-b281-4f96-8339-b5621a67d217");
+        request.setAttribute("userName", "test_userName");
+        request.setAttribute("authorities","ROLE_APPSTORE_ADMIN");
+        response = new MockHttpServletResponse();
+    }
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -56,10 +73,14 @@ public class ModifyPackageTest extends AppTest {
         packageDto.setShortDesc("2048 game");
         packageDto.setShowType("inner-public");
         packageDto.setExperienceAble(true);
-        ResponseEntity<PackageDto> resp = packageServiceFacade.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto);
-        PackageDto pack = resp.getBody();
-        Assert.assertNotNull(pack);
-        Assert.assertEquals("2048 game", pack.getShortDesc());
+        try {
+            ResponseEntity<PackageDto> resp = packageServiceFacade.updateAppById(iconMultiFile, videoMultiFile, docMultiFile, packageDto, request);
+            PackageDto pack = resp.getBody();
+            Assert.assertNotNull(pack);
+            Assert.assertEquals("2048 game", pack.getShortDesc());
+        } catch (FileOperateException e) {
+            Assert.assertThrows("can not merge parts to file", NullPointerException.class, null);
+        }
     }
 
 }
