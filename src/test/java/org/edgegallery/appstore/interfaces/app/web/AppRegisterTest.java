@@ -23,6 +23,7 @@ import com.github.dockerjava.api.exception.DockerClientException;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
@@ -297,6 +298,26 @@ public class AppRegisterTest extends AppTest {
         } catch (Exception e) {
             Assert.assertNull(e);
         }
+    }
+
+    @Test
+    @WithMockUser(roles = "APPSTORE_TENANT")
+    public void should_success_upload_with_Chun() throws IOException {
+        File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
+        FileInputStream fileInputStream = new FileInputStream(csarFile);
+        MultipartFile multipartFile = new MockMultipartFile("file", csarFile.getName(), "multipart/form-data",
+            IOUtils.toByteArray(fileInputStream));
+        Chunk chunk = new Chunk();
+        chunk.setFile(multipartFile);
+        chunk.setChunkSize(8 * 1024 * 1024L);
+        chunk.setIdentifier("12240-test2048_1.0");
+        chunk.setFilename("test2048_1.0.csar");
+        chunk.setChunkNumber(1);
+        ResponseEntity<String> uploadRes  = appServiceFacade.uploadImage(true,chunk);
+        Assert.assertEquals("upload package block success.", uploadRes.getBody().toString());
+        ResponseEntity<String> res  = appServiceFacade.merge("test2048_1.0.csar","12240-test2048_1.0");
+        HttpStatus ss = res.getStatusCode();
+        Assert.assertEquals("200 OK", res.getStatusCode().toString());
     }
 
     @Test
