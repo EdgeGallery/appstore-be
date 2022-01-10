@@ -153,16 +153,11 @@ public class OrderService {
      * @return mecm response message
      */
     public String unDeployApp(Order order, String userId, String token) {
-        String packageId = order.getMecPackageId();
-        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(packageId) || StringUtils.isEmpty(token)) {
-            LOGGER.error("UserId or packageId or token is empty.");
-            return null;
-        }
         order.setStatus(EnumOrderStatus.DEACTIVATING);
         setOrderDetail(order, EnumOrderOperation.DEACTIVATED.getChinese(),
             EnumOrderOperation.DEACTIVATED.getEnglish());
         orderRepository.updateOrder(order);
-        return mecmService.deleteServer(userId, packageId, token);
+        return mecmService.deleteServer(userId, order.getMecPackageId(), token);
     }
 
     /**

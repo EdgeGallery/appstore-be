@@ -114,14 +114,14 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
 
-        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
-        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
-        if (StringUtils.isEmpty(unDeployAppResult)) {
+        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(order.getMecPackageId()) || StringUtils.isEmpty(token)) {
             LOGGER.error("Some parameters of unsubscribe are empty.");
             throw new AppException("Some parameters of unsubscribe are empty.",
                 ResponseConst.RET_DEACTIVATE_PARAM_INVALID);
         }
 
+        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
+        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
         if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
             LOGGER.info("Undeploy package successfully.");
             order.setStatus(EnumOrderStatus.DEACTIVATED);
