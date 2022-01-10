@@ -79,6 +79,7 @@ public class UploadPackageService {
         ThirdSystem meaoInfo = getMeaoInfo(meaoId, token);
         if (meaoInfo == null) {
             LOGGER.error("get meao info fail.");
+            uploadHelper.changeProgressById(progressId, Consts.FAILED);
             throw new AppException("get meao info fail.");
         }
 
@@ -86,8 +87,7 @@ public class UploadPackageService {
         String meaoUrl = meaoInfo.getUrl();
         LOGGER.info("meaoUrl: {}", meaoUrl);
 
-        JSONObject session = getMeaoSession(meaoUrl, meaoInfo.getUsername(), meaoInfo.getPassword(),
-            meaoInfo.getVendor());
+        JSONObject session = getMeaoSession(meaoUrl, meaoInfo, progressId);
         String csrfToken = session.getString("csrfToken");
         String cookie = session.getString("session");
 
@@ -95,13 +95,13 @@ public class UploadPackageService {
         return uploadHelper.uploadBigSoftware(filePath, reqJson, csrfToken, cookie, meaoHost);
     }
 
-    private JSONObject getMeaoSession(String meaoUrl, String username, String password, String vendor) {
-        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_URL, vendor);
+    private JSONObject getMeaoSession(String meaoUrl, ThirdSystem meaoInfo, String progressId) {
+        String url = thirdSystemHost + String.format(Consts.MEAO_SESSION_URL, meaoInfo.getVendor());
 
         JSONObject obj = new JSONObject();
         obj.put("meaoUrl", meaoUrl);
-        obj.put("username", username);
-        obj.put("password", password);
+        obj.put("username", meaoInfo.getUsername());
+        obj.put("password", meaoInfo.getPassword());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<JSONObject> request = new HttpEntity<>(obj, headers);
@@ -114,11 +114,13 @@ public class UploadPackageService {
         } catch (RestClientException e) {
             LOGGER.error("Upload file shard failed, exception {}", e.getMessage());
         }
+        uploadHelper.changeProgressById(progressId, Consts.FAILED);
         throw new AppException("Get meao session failed");
     }
 
     /**
      * get meao info from third system.
+     *
      * @param meaoId meaoId
      * @param token token
      * @return ThirdSystem
