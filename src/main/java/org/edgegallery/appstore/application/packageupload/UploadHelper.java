@@ -55,10 +55,6 @@ public class UploadHelper {
     @Value("${thirdSystem.url}")
     private String thirdSystemHost;
 
-    public static final String FAILED = "failed";
-
-    public static final String SUCCESS = "success";
-
     /**
      * upload Big Software.
      *
@@ -121,7 +117,7 @@ public class UploadHelper {
                 upPackage.setShardCount(count);
                 ret = uploadFileShard(header, "https://" + hostUrl + url, upPackage, req, buffer);
                 if (ret.getInteger("retCode") == -1) {
-                    updateProgressStatus(progress, FAILED);
+                    updateProgressStatus(progress, Consts.FAILED);
                     LOGGER.error("upload failed: {}", ret);
                     return ret;
                 }
@@ -141,7 +137,7 @@ public class UploadHelper {
             byte[] ednBuffer = new byte[(int) length];
             int readCount = input.read(ednBuffer);
             if (readCount == -1) {
-                updateProgressStatus(progress, FAILED);
+                updateProgressStatus(progress, Consts.FAILED);
                 LOGGER.error("upload failed: {}", ret.toString());
                 return ret;
             }
@@ -156,13 +152,13 @@ public class UploadHelper {
 
             // update upload progress to 100%
             progress.setProgress("100");
-            updateProgressStatus(progress, SUCCESS);
+            updateProgressStatus(progress, Consts.SUCCESS);
 
             return ret;
         } catch (IOException e) {
             LOGGER.error("uploadBigSoftware IOException");
         }
-        updateProgressStatus(progress, FAILED);
+        updateProgressStatus(progress, Consts.FAILED);
         ret.put("retCode", -1);
         LOGGER.error("upload failed: {}", ret.toString());
         return ret;
@@ -198,6 +194,21 @@ public class UploadHelper {
             LOGGER.error("Upload file shard failed, exception {}", e.getMessage());
         }
         throw new AppException("Upload file shard failed");
+    }
+
+    /**
+     * changeProgressById.
+     *
+     * @param progressId progressId
+     * @param status status
+     */
+    public void changeProgressById(String progressId, String status) {
+        PackageUploadProgress progress = progressFacade.getProgress(progressId).getBody();
+        if (progress == null) {
+            throw new AppException("process not exist.");
+        }
+
+        updateProgressStatus(progress, status);
     }
 
     private void updateProgressStatus(PackageUploadProgress progress, String status) {

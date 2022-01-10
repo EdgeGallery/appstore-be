@@ -84,6 +84,10 @@ public final class Consts {
 
     public static final String ACCESS_TOKEN_STR = "access_token";
 
+    public static final String FAILED = "failed";
+
+    public static final String SUCCESS = "success";
+
     public static final int MAX_DETAILS_STRING_LENGTH = 1024;
 
     private Consts() {
