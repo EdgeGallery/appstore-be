@@ -40,6 +40,7 @@ import org.edgegallery.appstore.domain.model.order.Order;
 import org.edgegallery.appstore.domain.model.order.OrderRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.QueryCtrlDto;
+import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.interfaces.TestApplicationWithAdmin;
 import org.edgegallery.appstore.interfaces.controlleradvice.RestReturn;
 import org.edgegallery.appstore.interfaces.order.facade.OrderServiceFacade;
@@ -350,7 +351,7 @@ public class OrderTest {
         Assert.assertEquals(EnumOrderStatus.DEACTIVATED, order.get().getStatus());
     }
 
-    @Test
+    @Test(expected = AppException.class)
     @WithMockUser(roles = "APPSTORE_ADMIN")
     public void deactivate_order_should_failed() {
         String orderId = getOrderIdByStatus(EnumOrderStatus.ACTIVATED);
@@ -376,7 +377,7 @@ public class OrderTest {
             .andDo(MockMvcResultHandlers.print()).andReturn();
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
         RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
-        Assert.assertEquals(ResponseConst.RET_DELETE_SERVER_FAILED, restReturn.getRetCode());
+        Assert.assertEquals(ResponseConst.RET_DEACTIVATE_PARAM_INVALID, restReturn.getRetCode());
     }
 
     @Test

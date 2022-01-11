@@ -496,9 +496,9 @@ public class ResponseConst {
     public static final int RET_SUBSCRIBE_OWN_APP = 16010;
 
     /**
-     * failed to delete server from mecm.
+     * Some parameters of unsubscribe are empty.
      */
-    public static final int RET_DELETE_SERVER_FAILED = 16011;
+    public static final int RET_DEACTIVATE_PARAM_INVALID = 16011;
     /**
      * right base error code.
      */

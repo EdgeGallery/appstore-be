@@ -135,7 +135,6 @@ public class Release implements ValueObject<Release> {
         if (!this.getUser().getUserId().equals(user.getUserId()) && !isAdmin) {
             throw new PermissionNotAllowedException("operator do not have permission",
                 constCode, user.getUserName());
-
         }
     }
 

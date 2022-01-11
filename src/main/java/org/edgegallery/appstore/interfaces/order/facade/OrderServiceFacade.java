@@ -86,6 +86,7 @@ public class OrderServiceFacade {
             EnumOrderOperation.CREATED.getEnglish());
         orderRepository.addOrder(order);
         LOGGER.info("Created order successfully");
+
         orderService.startActivatingOrder(release, order, token, userId);
         return ResponseEntity.ok(new ResponseObject(CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum)
             .build(), new ErrorMessage(ResponseConst.RET_SUCCESS,null), "Created order Successfully"));
@@ -113,26 +114,27 @@ public class OrderServiceFacade {
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
 
-        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
-        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
-        if (StringUtils.isEmpty(unDeployAppResult)) {
-            LOGGER.error("Failed to utilize delete server interface, undeploy app result is null.");
-            throw new AppException("Failed to utilize delete server interface.",
-                ResponseConst.RET_DELETE_SERVER_FAILED);
+        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(order.getMecPackageId()) || StringUtils.isEmpty(token)) {
+            LOGGER.error("Some parameters of unsubscribe are empty.");
+            throw new AppException("Some parameters of unsubscribe are empty.",
+                ResponseConst.RET_DEACTIVATE_PARAM_INVALID);
         }
 
-        String resultMessage = "deactivate order success";
+        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
+        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
         if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
             LOGGER.info("Undeploy package successfully.");
             order.setStatus(EnumOrderStatus.DEACTIVATED);
-        } else {
-            LOGGER.error("Failed to undeploy package.");
-            order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
-            resultMessage = "fail to deactivate order";
+            orderRepository.updateOrder(order);
+            return ResponseEntity.ok(new ResponseObject("deactivate order success",
+                new ErrorMessage(ResponseConst.RET_SUCCESS, null), "deactivate order success"));
         }
+
+        LOGGER.error("Failed to undeploy package.");
+        order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
         orderRepository.updateOrder(order);
-        return ResponseEntity.ok(new ResponseObject(resultMessage,
-            new ErrorMessage(ResponseConst.RET_SUCCESS, null), resultMessage));
+        throw new AppException("Failed to deactivate order.",
+            ResponseConst.RET_DEACTIVATE_ORDER_FAILED);
     }
 
     /**
