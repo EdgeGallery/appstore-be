@@ -30,8 +30,7 @@
         EXPERIENCEABLEIP         VARCHAR(100)       NULL,
         MECHOST                  VARCHAR(100)       NULL,
         EXPERIENCESTATUS         INT       NULL,
-        CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID),
-        CONSTRAINT package_name_provider_version_key UNIQUE("appname","provider","version")
+        CONSTRAINT catalog_package_table_pkey PRIMARY KEY (PACKAGEID)
     );
 
     create TABLE if not exists app_table (
@@ -57,8 +56,7 @@
         EXPERIENCEABLE           boolean            DEFAULT false,
         ISFREE                   boolean            DEFAULT true,
         PRICE                    NUMERIC(10,2)      NULL,
-        CONSTRAINT app_table_pkey PRIMARY KEY (APPID),
-        CONSTRAINT app_name_provider_key UNIQUE("appname","provider")
+        CONSTRAINT app_table_pkey PRIMARY KEY (APPID)
     );
 
     create TABLE if not exists csar_package_score (
@@ -256,17 +254,4 @@
     alter table app_order drop column IF EXISTS MECM_INSTANCEID;
 
     alter table app_order drop column IF EXISTS DETAIL;
-
-    do '
-    BEGIN
-        IF NOT EXISTS (select constraint_name from information_schema.table_constraints where table_name = ''app_table'' and constraint_name = ''app_name_provider_key'')
-        THEN
-            alter table app_table add CONSTRAINT app_name_provider_key UNIQUE("appname","provider");
-        END IF;
-
-        IF NOT EXISTS (select constraint_name from information_schema.table_constraints where table_name = ''catalog_package_table'' and constraint_name = ''package_name_provider_version_key'')
-        THEN
-            alter table catalog_package_table add CONSTRAINT package_name_provider_version_key UNIQUE("appname","provider","version");
-        END IF;
-    end ';
 
