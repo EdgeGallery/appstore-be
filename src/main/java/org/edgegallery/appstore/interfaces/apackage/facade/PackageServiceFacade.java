@@ -226,6 +226,11 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
         throws IOException {
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
+        Release release = appService.download(appId, packageId);
+        if ("container".equalsIgnoreCase(release.getDeployMode())) {
+            throw new AppException("can not support container app.", ResponseConst.RET_CONTAINER_NOT_SUPPORT);
+        }
         // build upload progress data
         String progressId = UUID.randomUUID().toString();
         Date createTime = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -233,11 +238,6 @@ public class PackageServiceFacade {
         progressFacade.createProgress(progress);
         LOGGER.info("progressId create: {}}", progressId);
 
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        Release release = appService.download(appId, packageId);
-        if ("container".equalsIgnoreCase(release.getDeployMode())) {
-            return ResponseEntity.ok(new ResponseObject("Not Support", errMsg, "can not support container app."));
-        }
         String storageAddress = release.getPackageFile().getStorageAddress();
         String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
         String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
