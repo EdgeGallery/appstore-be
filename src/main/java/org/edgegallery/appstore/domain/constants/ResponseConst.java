@@ -441,7 +441,7 @@ public class ResponseConst {
     public static final int RET_INSTANTIATE_FAILED = 15107;
 
     /**
-     * container not support
+     * container not support.
      */
     public static final int RET_CONTAINER_NOT_SUPPORT = 15108;
 

@@ -217,7 +217,6 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
         throws IOException {
-        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         Release release = appService.download(appId, packageId);
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
             throw new AppException("can not support container app.", ResponseConst.RET_CONTAINER_NOT_SUPPORT);
@@ -239,6 +238,7 @@ public class PackageServiceFacade {
         }
 
         // start a thread to upload package to meao
+        ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
         new Thread(() -> uploadPackageService
             .uploadPackage(fileZipName + ZIP_EXTENSION, packageId, meaoId, token, progressId).toString()).start();
         return ResponseEntity.ok(new ResponseObject("Uploading", errMsg, "Uploading package takes a long time."));
