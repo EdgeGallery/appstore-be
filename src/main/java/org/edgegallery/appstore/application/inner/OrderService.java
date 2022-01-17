@@ -87,6 +87,7 @@ public class OrderService {
             LOGGER.error("mecm deployment info is null.");
             return;
         }
+
         if (mecmDeploymentInfo.getMecmOperationalStatus().equalsIgnoreCase("Finished")) {
             order.setStatus(EnumOrderStatus.ACTIVATED);
             LOGGER.info("Distributed and instantiated success, modify status to activated");

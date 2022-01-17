@@ -27,7 +27,7 @@
     <select id="findByAppNameAndProvider"
             resultType="org.edgegallery.appstore.infrastructure.persistence.app.AppPo"
             parameterType="String">
-        select * from app_table where appname = #{param1} and provider = #{param2}
+        select * from app_table where appname = #{param1} and provider = #{param2} limit 1
     </select>
 
     <update id="update"

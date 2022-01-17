@@ -89,16 +89,15 @@ public class PackageController {
         @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
-        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
-            regexp = Consts.REG_APP_ID) String packageId,
-        HttpServletRequest request) {
-        String role = "";
+        @ApiParam(value = "package Id") @PathVariable("packageId")
+        @Pattern(regexp = Consts.REG_APP_ID) String packageId, HttpServletRequest request) {
+        boolean isAdmin = false;
         String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
-            role = "ROLE_APPSTORE_ADMIN";
+            isAdmin = true;
         }
         packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
-            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), role);
+            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), isAdmin);
         return ResponseEntity.ok("delete App package success.");
     }
 
@@ -267,7 +266,7 @@ public class PackageController {
         @ApiParam(value = "app shortDesc") @RequestPart(value = "shortDesc", required = false) String shortDesc,
         @ApiParam(value = "app showType") @RequestPart(value = "showType", required = false) String showType,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
-            String experienceAble) {
+            String experienceAble, HttpServletRequest request) {
         PackageDto packageDto = new PackageDto();
         packageDto.setAppId(appId);
         packageDto.setPackageId(packageId);
@@ -277,6 +276,6 @@ public class PackageController {
         packageDto.setShortDesc(shortDesc);
         packageDto.setShowType(showType);
         packageDto.setExperienceAble(Boolean.parseBoolean(experienceAble));
-        return packageServiceFacade.updateAppById(icon, video, doc, packageDto);
+        return packageServiceFacade.updateAppById(icon, video, doc, packageDto, request);
     }
 }

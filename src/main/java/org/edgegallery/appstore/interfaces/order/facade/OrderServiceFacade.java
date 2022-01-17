@@ -50,8 +50,6 @@ import org.springframework.stereotype.Service;
 public class OrderServiceFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceFacade.class);
-    private static final String FAIL_TO_DELETE_PACKAGE = "failed to delete package";
-    private static final String FAIL_TO_DELETE_INSTANTIATION = "failed to delete instantiation";
     private static final String DELETE_SERVER_SUCCESS = "Delete server success";
 
     @Autowired
@@ -88,6 +86,7 @@ public class OrderServiceFacade {
             EnumOrderOperation.CREATED.getEnglish());
         orderRepository.addOrder(order);
         LOGGER.info("Created order successfully");
+
         orderService.startActivatingOrder(release, order, token, userId);
         return ResponseEntity.ok(new ResponseObject(CreateOrderRspDto.builder().orderId(orderId).orderNum(orderNum)
             .build(), new ErrorMessage(ResponseConst.RET_SUCCESS,null), "Created order Successfully"));
@@ -110,32 +109,32 @@ public class OrderServiceFacade {
             throw new AppException("inactivated orders can't be deactivated.",
                 ResponseConst.RET_NOT_ALLOWED_DEACTIVATE_ORDER);
         }
-        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!userId.equals(order.getUserId())) {
             throw new PermissionNotAllowedException("can not deactivate order",
                 ResponseConst.RET_NO_ACCESS_DEACTIVATE_ORDER, userName);
         }
 
-        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
-        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
-        if (StringUtils.isEmpty(unDeployAppResult)) {
-            LOGGER.error("Failed to utilize delete server interface, undeploy app result is null.");
-            throw new AppException("Failed to utilize delete server interface.",
-                ResponseConst.RET_DELETE_SERVER_FAILED);
+        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(order.getMecPackageId()) || StringUtils.isEmpty(token)) {
+            LOGGER.error("Some parameters of unsubscribe are empty.");
+            throw new AppException("Some parameters of unsubscribe are empty.",
+                ResponseConst.RET_DEACTIVATE_PARAM_INVALID);
         }
 
-        String resultMessage = "deactivate order success";
-        if (unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_PACKAGE)
-            || unDeployAppResult.equalsIgnoreCase(FAIL_TO_DELETE_INSTANTIATION)) {
-            LOGGER.error("Failed to undeploy package.");
-            order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
-            resultMessage = "fail to deactivate order";
-        } else if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
+        // undeploy app, if success, update status to deactivated, if failed, update status to deactivate_failed
+        String unDeployAppResult = orderService.unDeployApp(order, userId, token);
+        if (unDeployAppResult.equalsIgnoreCase(DELETE_SERVER_SUCCESS)) {
             LOGGER.info("Undeploy package successfully.");
             order.setStatus(EnumOrderStatus.DEACTIVATED);
+            orderRepository.updateOrder(order);
+            return ResponseEntity.ok(new ResponseObject("deactivate order success",
+                new ErrorMessage(ResponseConst.RET_SUCCESS, null), "deactivate order success"));
         }
+
+        LOGGER.error("Failed to undeploy package.");
+        order.setStatus(EnumOrderStatus.DEACTIVATE_FAILED);
         orderRepository.updateOrder(order);
-        return ResponseEntity.ok(new ResponseObject(resultMessage,
-            new ErrorMessage(ResponseConst.RET_SUCCESS, null), resultMessage));
+        throw new AppException("Failed to deactivate order.",
+            ResponseConst.RET_DEACTIVATE_ORDER_FAILED);
     }
 
     /**
@@ -153,7 +152,7 @@ public class OrderServiceFacade {
             throw new AppException("unsubscribed orders can't be activated.",
                 ResponseConst.RET_NOT_ALLOWED_ACTIVATE_ORDER);
         }
-        if (!userId.equals(order.getUserId()) && !Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!userId.equals(order.getUserId())) {
             throw new PermissionNotAllowedException("can not activate order",
                 ResponseConst.RET_NO_ACCESS_ACTIVATE_ORDER, userName);
         }
@@ -172,10 +171,10 @@ public class OrderServiceFacade {
      * @return order list
      */
 
-    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String userName,
+    public ResponseEntity<Page<OrderDto>> queryOrders(String userId, String role,
         QueryOrdersReqDto queryOrdersReqDto, String token) {
         Map<String, Object> queryOrderParams = new HashMap<>();
-        if (!Consts.SUPER_ADMIN_NAME.equals(userName)) {
+        if (!StringUtils.isEmpty(role) && !role.contains("ROLE_APPSTORE_ADMIN")) {
             queryOrderParams.put("userId", userId);
         }
         queryOrderParams.put("appId", queryOrdersReqDto.getAppId());

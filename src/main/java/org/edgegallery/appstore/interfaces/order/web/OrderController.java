@@ -138,7 +138,7 @@ public class OrderController {
         HttpServletRequest request) {
         LOGGER.info("enter query order.");
         return orderServiceFacade.queryOrders((String) request.getAttribute(Consts.USERID),
-            (String) request.getAttribute(Consts.USERNAME), queryOrdersReqDto,
+            (String) request.getAttribute(Consts.AUTHORITIES), queryOrdersReqDto,
             request.getHeader(Consts.ACCESS_TOKEN_STR));
     }
 

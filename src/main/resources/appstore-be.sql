@@ -254,3 +254,4 @@
     alter table app_order drop column IF EXISTS MECM_INSTANCEID;
 
     alter table app_order drop column IF EXISTS DETAIL;
+
