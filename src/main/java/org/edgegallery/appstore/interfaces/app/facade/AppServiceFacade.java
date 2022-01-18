@@ -219,7 +219,7 @@ public class AppServiceFacade {
             demoVideoFile = getFile(demoVideo, new VideoChecker(dir), fileParent);
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
-        if (!appUtil.checkPackageValid(fileParent)) {
+        if (!appUtil.checkPackageIntegrity(fileParent)) {
             throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
         }
         String fileNameExtension = fileStorageAddress.substring(fileStorageAddress.lastIndexOf("."));
@@ -267,7 +267,7 @@ public class AppServiceFacade {
         }
         release = new Release(packageAFile, icon, demoVideoFile, user, appParam, appClass);
         String checkPath = fileAddress.substring(0, fileAddress.lastIndexOf("."));
-        if (!appUtil.checkPackageValid(checkPath)) {
+        if (!appUtil.checkPackageIntegrity(checkPath)) {
             throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
         }
         String fileNameExtension = fileAddress.substring(fileAddress.lastIndexOf("."));
@@ -308,7 +308,7 @@ public class AppServiceFacade {
             }
 
             if (!isImgZipExist) {
-                if (!appUtil.checkPackageValid(fileParent)) {
+                if (!appUtil.checkPackageIntegrity(fileParent)) {
                     throw new AppException(PACKAGE_ILLEGAL, ResponseConst.RET_PACKAGE_ILLEGAL);
                 }
                 FileUtils.forceDelete(new File(fileAddress));

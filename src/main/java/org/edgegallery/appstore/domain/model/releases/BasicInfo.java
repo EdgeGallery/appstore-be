@@ -424,10 +424,12 @@ public class BasicInfo {
         content.append(srcMsg.toString());
 
         // add signature
-        String cmsEncrypted = signPackage(srcMsg.toString(), keyPath, keyPwd);
-        content.append("-----BEGIN CMS-----").append(MF_NEWLINE)
-            .append(cmsEncrypted).append(MF_NEWLINE)
-            .append("-----END CMS-----").append(MF_NEWLINE);
+        if (!StringUtils.isEmpty(keyPwd) && new File(keyPath).exists()) {
+            String cmsEncrypted = signPackage(srcMsg.toString(), keyPath, keyPwd);
+            content.append("-----BEGIN CMS-----").append(MF_NEWLINE)
+                .append(cmsEncrypted).append(MF_NEWLINE)
+                .append("-----END CMS-----").append(MF_NEWLINE);
+        }
         return content.toString();
     }
 
