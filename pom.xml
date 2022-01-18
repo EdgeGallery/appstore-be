@@ -314,7 +314,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.apache.tomcat.embed</groupId>
-            <version>9.0.44</version>
+            <version>9.0.56</version>
         </dependency>
         <dependency>
             <groupId>org.reactivestreams</groupId>
