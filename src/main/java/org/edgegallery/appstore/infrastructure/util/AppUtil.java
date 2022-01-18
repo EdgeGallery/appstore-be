@@ -746,7 +746,7 @@ public class AppUtil {
      * @param fileParent package file parent.
      * @return boolean
      */
-    public boolean checkPackageValid(String fileParent) {
+    public boolean checkPackageIntegrity(String fileParent) {
         File mfFile = getFile(fileParent, MF_EXTENSION);
         File sourceFile = mfFile.getParentFile();
         File parentFile = new File(fileParent);
@@ -771,9 +771,12 @@ public class AppUtil {
         }
         try {
             String signStr = getSignedData(fileHandlerMf);
-            if (!StringUtils.isEmpty(signStr)) {
-                return Signature.signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
+            if (StringUtils.isEmpty(signStr)) {
+                LOGGER.info("the package is not signed, add signature.");
+                new BasicInfo().rewriteManifestWithImage(mfFile, "", keyPath, keyPwd);
+                return true;
             }
+            return Signature.signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
         } catch (CMSException e) {
             LOGGER.error("signedDataVerify catch exception: {}", e.getMessage());
         }
