@@ -106,6 +106,12 @@
             <artifactId>netty-handler</artifactId>
             <groupId>io.netty</groupId>
             <version>4.1.72.Final</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-tcnative-classes</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <artifactId>netty-handler-proxy</artifactId>
