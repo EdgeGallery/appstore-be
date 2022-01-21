@@ -267,7 +267,11 @@ public class PackageService {
             if (docFile != null) {
                 File tempFile = transMultiFileToFile(docFile, packagePath);
                 File srcFile = appUtil.getFile(fileParent + "/Artifacts/Docs", "md");
-                FileUtils.copyFile(tempFile, srcFile);
+                if (srcFile != null) {
+                    FileUtils.copyFile(tempFile, srcFile);
+                } else {
+                    FileUtils.copyFileToDirectory(tempFile, new File(fileParent + "/Artifacts/Docs"));
+                }
             }
             if (!StringUtils.isEmpty(shortDesc)) {
                 File mfFile = appUtil.getFile(fileParent, "mf");
