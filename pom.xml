@@ -169,23 +169,8 @@
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>5.2.19.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>5.2.19.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.2.19.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>5.1.20.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
