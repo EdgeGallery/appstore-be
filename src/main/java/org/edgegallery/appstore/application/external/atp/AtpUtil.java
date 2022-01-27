@@ -136,35 +136,4 @@ public class AtpUtil {
         }
         return status;
     }
-
-    /**
-     * delete test report by taskId from atp.
-     *
-     * @param taskId taskId
-     * @param token token
-     */
-    public void deleteTestReportFromAtp(String taskId, String token) {
-        if (taskId == null || token == null) {
-            LOGGER.error("invalid parameters, taskId {}", taskId);
-            return;
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        HttpEntity<String> request = new HttpEntity<>(headers);
-
-        // the delete and query task URL is the same, just method is different.
-        String url = String.format(queryTaskUrl, taskId);
-        LOGGER.info("delete test report frm atp, url: {}", url);
-        try {
-            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, request, String.class);
-            if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                LOGGER.error("Failed to delete test report from atp response, the taskId is {}, The status code is {}",
-                    taskId, response.getStatusCode());
-            }
-
-        } catch (RestClientException | NullPointerException e) {
-            LOGGER.error("Failed to delete test report from atp which taskId is {} exception {}", taskId,
-                e.getMessage());
-        }
-    }
 }
