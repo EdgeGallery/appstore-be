@@ -485,7 +485,6 @@ public class AppService {
         app.unPublish(release);
         packageRepository.removeRelease(release);
         deletePullablePackage(release);
-        deleteTestReport(release, token);
         if (!app.hasPublishedRelease()) {
             app.setStatus(EnumAppStatus.UnPublish);
             appRepository.store(app);
@@ -526,7 +525,6 @@ public class AppService {
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());
         app.getReleases().forEach(this::deletePullablePackage);
-        app.getReleases().forEach(release -> deleteTestReport(release, token));
     }
 
     // delete release file
@@ -536,10 +534,6 @@ public class AppService {
         if (release.getDemoVideo() != null) {
             fileService.delete(release.getDemoVideo());
         }
-    }
-
-    private void deleteTestReport(Release release, String token) {
-        atpService.deleteTestReport(token, release.getTestTaskId());
     }
 
     private void deletePullablePackage(Release release) {

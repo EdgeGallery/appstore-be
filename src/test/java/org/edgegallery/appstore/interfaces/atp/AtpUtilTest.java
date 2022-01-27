@@ -47,8 +47,6 @@ public class AtpUtilTest {
 
     private HttpServer httpServer;
 
-    private boolean isDelete = false;
-
     private String token = "123456789";
 
     @Before
@@ -90,9 +88,6 @@ public class AtpUtilTest {
                     byte[] response = dtp.getBytes();
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                     exchange.getResponseBody().write(response);
-                } else if (method.equals("DELETE")) {
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
-                    isDelete = true;
                 }
                 exchange.close();
             }
@@ -138,26 +133,4 @@ public class AtpUtilTest {
         String status = atpUtil.getTaskStatusFromAtp("atp-test-id", null);
         Assert.assertEquals("", status);
     }
-
-    @Test
-    public void should_success_when_del_report_from_atp() {
-        isDelete = false;
-        atpUtil.deleteTestReportFromAtp("atp-test-id", "123456789");
-        Assert.assertTrue(isDelete);
-    }
-
-    @Test
-    public void should_failed_when_del_report_no_token() {
-        isDelete = false;
-        atpUtil.deleteTestReportFromAtp("atp-test-id", null);
-        Assert.assertFalse(isDelete);
-    }
-
-    @Test
-    public void should_failed_when_del_report_with_error_token() {
-        isDelete = false;
-        atpUtil.deleteTestReportFromAtp("atp-test-id", "111111");
-        Assert.assertFalse(isDelete);
-    }
-
 }
