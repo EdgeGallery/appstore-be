@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -115,13 +116,13 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
                     LOGGER.error("read payload is " + payload);
-                    if (payload.contains("RestReturn xmlns")) {
-                        result = "response body is xml format";
-                    } else {
+                    try {
                         JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
                         if (element != null && !element.isJsonNull()) {
                             result = element.getAsString();
                         }
+                    } catch (JsonSyntaxException e) {
+                        result = "response is not json format";
                     }
                 } catch (UnsupportedEncodingException e) {
                     result = "read response body exception";
