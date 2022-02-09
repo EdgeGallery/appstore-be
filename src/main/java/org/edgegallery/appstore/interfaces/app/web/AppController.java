@@ -107,7 +107,7 @@ public class AppController {
     @ApiOperation(value = "upload app package", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
-        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
