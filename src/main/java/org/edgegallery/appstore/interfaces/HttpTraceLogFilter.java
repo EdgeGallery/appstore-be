@@ -114,7 +114,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
             if (buf.length > 0) {
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
-                    logger.error("read paylod is" + payload);
+                    LOGGER.error("read payload is " + payload);
                     if (payload.contains("RestReturn xmlns")) {
                         result = "response body is xml format";
                     } else {
