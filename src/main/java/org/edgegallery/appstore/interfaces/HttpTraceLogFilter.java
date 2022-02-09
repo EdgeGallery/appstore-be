@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,15 +31,23 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 
-public class HttpTraceLogFilter extends OncePerRequestFilter {
+@Component
+public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpTraceLogFilter.class);
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -53,12 +61,14 @@ public class HttpTraceLogFilter extends OncePerRequestFilter {
         }
 
         String accessId = UUID.randomUUID().toString();
-        try {
-            logForRequest(accessId, request);
-            filterChain.doFilter(request, response);
-        } finally {
-            logForResponse(accessId, response);
-            updateResponse(response);
+        if (!(request.getRequestURI().equals("/health"))) {
+            try {
+                logForRequest(accessId, request);
+                filterChain.doFilter(request, response);
+            } finally {
+                logForResponse(accessId, response);
+                updateResponse(response);
+            }
         }
     }
 
@@ -104,10 +114,14 @@ public class HttpTraceLogFilter extends OncePerRequestFilter {
             if (buf.length > 0) {
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
-                    logger.error("read paylod is" + payload);
-                    JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
-                    if (element != null && !element.isJsonNull()) {
-                        result = element.getAsString();
+                    LOGGER.error("read payload is " + payload);
+                    if (payload.contains("RestReturn xmlns")) {
+                        result = "response body is xml format";
+                    } else {
+                        JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
+                        if (element != null && !element.isJsonNull()) {
+                            result = element.getAsString();
+                        }
                     }
                 } catch (UnsupportedEncodingException e) {
                     result = "read response body exception";
