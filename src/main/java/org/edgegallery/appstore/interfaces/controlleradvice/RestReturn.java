@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -49,13 +49,13 @@ public class RestReturn {
     // error message params
     private List<String> params;
 
+    private Object data;
+
+    /**
+     * getTimestamp.
+     */
     public Date getTimestamp() {
         return new Date(timestamp.getTime());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath(), getRetCode(), getParams());
     }
 
     @Override
@@ -67,9 +67,13 @@ public class RestReturn {
             return false;
         }
         RestReturn that = (RestReturn) o;
-        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp()) && Objects
-            .equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage()) && Objects
-            .equals(getPath(), that.getPath()) && getRetCode() == that.getRetCode() && Objects
-            .equals(getParams(), that.getParams());
+        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp())
+            && Objects.equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage())
+            && Objects.equals(getPath(), that.getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath());
     }
 }
