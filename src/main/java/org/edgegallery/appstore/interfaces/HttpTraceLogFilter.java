@@ -116,15 +116,11 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
                     LOGGER.error("read payload is " + payload);
-                    try {
-                        JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
-                        if (element != null && !element.isJsonNull()) {
-                            result = element.getAsString();
-                        }
-                    } catch (JsonSyntaxException e) {
-                        result = "response is not json format";
+                    JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
+                    if (element != null && !element.isJsonNull()) {
+                        result = element.getAsString();
                     }
-                } catch (UnsupportedEncodingException e) {
+                } catch (UnsupportedEncodingException | JsonSyntaxException  e) {
                     result = "read response body exception";
                 }
             }
