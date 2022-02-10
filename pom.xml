@@ -33,6 +33,11 @@
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
         <spring-security-oauth2-autoconfigure.version>2.2.2.RELEASE</spring-security-oauth2-autoconfigure.version>
         <tomcat.embed.version>9.0.56</tomcat.embed.version>
+        <spring.version>5.2.19.RELEASE</spring.version>
+        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+        <spring-security.version>5.3.13.RELEASE</spring-security.version>
+        <logging.log4j.version>2.17.1</logging.log4j.version>
+        <io.netty.version>4.1.72.Final</io.netty.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -60,52 +65,52 @@
         <dependency>
             <artifactId>netty-common</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-buffer</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-resolver</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-transport</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-dns</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-http</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-http2</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-socks</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-handler</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -116,12 +121,12 @@
         <dependency>
             <artifactId>netty-handler-proxy</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <artifactId>netty-resolver-dns</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
+            <version>${io.netty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicecomb</groupId>
@@ -170,37 +175,47 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.1.20.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>5.3.13.RELEASE</version>
+            <version>${spring-security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>5.3.13.RELEASE</version>
+            <version>${spring-security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>5.3.13.RELEASE</version>
+            <version>${spring-security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
@@ -253,7 +268,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-websocket</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -263,12 +278,12 @@
         <dependency>
             <artifactId>spring-web</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-aop</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -322,7 +337,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-core</artifactId>
@@ -348,7 +363,7 @@
         <dependency>
             <artifactId>spring-jcl</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-websocket</artifactId>
@@ -374,12 +389,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>2.3.3.RELEASE</version>
+            <version>${spring-boot.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-boot-starter-logging</artifactId>
@@ -407,7 +422,7 @@
         <dependency>
             <artifactId>spring-tx</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <artifactId>json-smart</artifactId>
@@ -417,7 +432,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>2.3.3.RELEASE</version>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -450,12 +465,12 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.17.1</version>
+            <version>${logging.log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.17.1</version>
+            <version>${logging.log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -465,7 +480,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.17.1</version>
+            <version>${logging.log4j.version}</version>
         </dependency>
         <!-- gson -->
         <dependency>
@@ -511,7 +526,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>5.3.13.RELEASE</version>
+            <version>${spring-security.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -593,7 +608,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.19.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
