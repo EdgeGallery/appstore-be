@@ -162,11 +162,10 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      * @param user User object.
-     * @param token access token.
      * @param isAdmin admin delete permission.
      */
-    public void unPublishPackage(String appId, String packageId, User user, String token, boolean isAdmin) {
-        appService.unPublishPackage(appId, packageId, user, token, isAdmin);
+    public void deletePackage(String appId, String packageId, User user, boolean isAdmin) {
+        appService.deletePackage(appId, packageId, user, isAdmin);
     }
 
     /**
@@ -437,6 +436,19 @@ public class PackageServiceFacade {
             }
         }
         LOGGER.info("End schedule delete temp file.");
+    }
+
+    /**
+     * offShelf package.
+     *
+     * @param appId app id
+     * @param packageId package id
+     * @param user user info
+     * @param isAdmin if admin role
+     */
+    public ResponseEntity<String> offShelfPackage(String appId, String packageId, User user, boolean isAdmin) {
+        packageService.offShelfPackage(appId, packageId, user, isAdmin);
+        return ResponseEntity.ok("OffShelf Success");
     }
 
 }

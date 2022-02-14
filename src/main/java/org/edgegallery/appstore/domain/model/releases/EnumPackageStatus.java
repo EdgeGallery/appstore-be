@@ -41,6 +41,9 @@ public enum EnumPackageStatus {
     // test success
     Test_success("success"),
 
+    // take package off shelf
+    OffShelf("offShelf"),
+
     // package is published
     Published("publish");
 
@@ -80,7 +83,7 @@ public enum EnumPackageStatus {
     }
 
     public static boolean needRefresh(EnumPackageStatus status) {
-        return status != Published && status != Test_success && status != Upload;
+        return status != Published && status != OffShelf && status != Test_success && status != Upload;
     }
 
     public String getText() {

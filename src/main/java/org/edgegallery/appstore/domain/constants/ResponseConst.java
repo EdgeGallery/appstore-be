@@ -246,6 +246,11 @@ public class ResponseConst {
     public static final int RET_PULL_PACKAGE_FAILED = 11010;
 
     /**
+     * The application can be taken off shelf only after it is published.
+     */
+    public static final int RET_OFFSHELF_NO_PUBLISH = 11011;
+
+    /**
      * comment base error code.
      */
     public static final int RET_COMMENT_BASE = 12000;
@@ -533,6 +538,11 @@ public class ResponseConst {
      * Permission not allowed to modify application package.
      */
     public static final int RET_NO_ACCESS_MODIFY_PACKAGE = 18005;
+
+    /**
+     * Permission not allowed to take the application package off shelf.
+     */
+    public static final int RET_NO_ACCESS_OFFSHELF_PACKAGE = 18006;
 
     /**
      * general base error code.

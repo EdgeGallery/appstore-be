@@ -244,8 +244,8 @@ public class AppController {
         @RequestParam("userName") String userName,
         @ApiParam(value = "app id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         HttpServletRequest request) {
-        appServiceFacade.unPublishApp(appId, new User(userId, userName),
-            (String) request.getAttribute(Consts.AUTHORITIES), (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
+        appServiceFacade.deleteAppById(appId, new User(userId, userName),
+            (String) request.getAttribute(Consts.AUTHORITIES));
         return ResponseEntity.ok("delete App success.");
     }
 

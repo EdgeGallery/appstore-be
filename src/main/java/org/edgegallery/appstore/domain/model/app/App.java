@@ -186,7 +186,7 @@ public class App implements Entity {
         return releases.stream().filter(it -> it.getPackageId().equals(packageId)).findAny();
     }
 
-    public void unPublish(Release release) {
+    public void removeRelease(Release release) {
         releases.remove(release);
     }
 
