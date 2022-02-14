@@ -513,7 +513,7 @@ public class AppService {
     }
 
     /**
-     * unPublish app.
+     * delete app.
      *
      * @param app app object.
      */

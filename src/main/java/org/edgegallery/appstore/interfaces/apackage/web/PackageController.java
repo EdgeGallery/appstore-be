@@ -278,6 +278,16 @@ public class PackageController {
         return packageServiceFacade.updateAppById(icon, video, doc, packageDto, request);
     }
 
+    /**
+     * offShelf package by appId and packageId.
+     *
+     * @param packageId  package id
+     * @param appId  app id
+     * @param userId  user id
+     * @param userName user name
+     * @param request request info
+     * @return string
+     */
     @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/offShelf", produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "offShelf the package.", response = String.class)
     @ApiResponses(value = {
