@@ -34,9 +34,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 public class OffShelfPackageTest extends AppTest {
-    private String testUserId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-
-    private String testUserName = "test-username-offShelf";
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
@@ -60,21 +57,42 @@ public class OffShelfPackageTest extends AppTest {
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_failed() throws Exception {
+        String testAppId = "3993111199fe4cd8881f04ca8c4fe09e";
+        String testPackageId = "3993111199fe4cd8881f04ca8c4fe09e";
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/offShelf", testAppId, testPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
+            .param("userId", userId).param("userName", userName)
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.RET_APP_NOT_FOUND, restReturn.getRetCode());
+
+        result = mvc.perform(MockMvcRequestBuilders
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/offShelf", appId, testPackageId)).with(csrf())
+            .content(gson.toJson(new PublishAppReqDto()))
+            .param("userId", userId).param("userName", userName)
+            .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+        restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        Assert.assertEquals(ResponseConst.RET_PACKAGE_NOT_FOUND, restReturn.getRetCode());
+
         Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
             r.setStatus(EnumPackageStatus.Test_success.toString());
             packageMapper.updateRelease(r);
         });
-        MvcResult result = mvc.perform(MockMvcRequestBuilders
+        result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/offShelf", appId, unPublishedPackageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", userId).param("userName", userName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
 
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
-        RestReturn restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
+        restReturn = gson.fromJson(result.getResponse().getContentAsString(), RestReturn.class);
         Assert.assertEquals(ResponseConst.RET_OFFSHELF_NO_PUBLISH, restReturn.getRetCode());
 
-
+        String testUserId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
+        String testUserName = "test-username-offShelf";
         result = mvc.perform(MockMvcRequestBuilders
             .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/offShelf", appId, packageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
