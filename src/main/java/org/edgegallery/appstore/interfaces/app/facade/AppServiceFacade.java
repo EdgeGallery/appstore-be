@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -397,13 +397,12 @@ public class AppServiceFacade {
      * @param appId app id.
      * @param user User object.
      * @param authorities role info.
-     * @param token access token.
      */
-    public void unPublishApp(String appId, User user, String authorities, String token) {
+    public void deleteAppById(String appId, User user, String authorities) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
-            appService.unPublish(app, token);
+            appService.deleteApp(app);
         } else {
             throw new PermissionNotAllowedException("can not delete app", ResponseConst.RET_NO_ACCESS_DELETE_APP,
                 user.getUserName());

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class PackageController {
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> unPublishPackage(
+    public ResponseEntity<String> deletePackage(
         @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
         @RequestParam("userName") String userName,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
@@ -96,8 +96,7 @@ public class PackageController {
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
             isAdmin = true;
         }
-        packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName),
-            (String) request.getAttribute(Consts.ACCESS_TOKEN_STR), isAdmin);
+        packageServiceFacade.deletePackage(appId, packageId, new User(userId, userName), isAdmin);
         return ResponseEntity.ok("delete App package success.");
     }
 
@@ -277,5 +276,38 @@ public class PackageController {
         packageDto.setShowType(showType);
         packageDto.setExperienceAble(Boolean.parseBoolean(experienceAble));
         return packageServiceFacade.updateAppById(icon, video, doc, packageDto, request);
+    }
+
+    /**
+     * offShelf package by appId and packageId.
+     *
+     * @param packageId  package id
+     * @param appId  app id
+     * @param userId  user id
+     * @param userName user name
+     * @param request request info
+     * @return string
+     */
+    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/offShelf", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "offShelf the package.", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 404, message = "microservice not found", response = String.class),
+        @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
+        @ApiResponse(code = 500, message = "resource grant error", response = String.class)
+    })
+    @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
+    public ResponseEntity<String> offShelfPackage(
+        @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
+            regexp = Consts.REG_APP_ID) String packageId,
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @RequestParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId,
+        @RequestParam("userName") String userName,
+        HttpServletRequest request) {
+        boolean isAdmin = false;
+        String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
+        if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
+            isAdmin = true;
+        }
+        return packageServiceFacade.offShelfPackage(appId, packageId, new User(userId, userName), isAdmin);
     }
 }

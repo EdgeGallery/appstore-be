@@ -1,4 +1,4 @@
-/* Copyright 2020-2021 Huawei Technologies Co., Ltd.
+/* Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
+import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
 import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
@@ -84,8 +85,9 @@ public class PackageService {
      */
     public void publishPackage(String appId, String packageId, PublishAppReqDto publishAppReq) {
         Release release = packageRepository.findReleaseById(appId, packageId);
-        if (release.getStatus() != EnumPackageStatus.Test_success) {
-            LOGGER.error("Test status is {}, publish failed", release.getStatus());
+        if (release.getStatus() != EnumPackageStatus.Test_success
+            && release.getStatus() != EnumPackageStatus.OffShelf) {
+            LOGGER.error("Package status is {}, publish failed", release.getStatus());
             throw new AppException("Test status is not success, publish failed", ResponseConst.RET_PUBLISH_NO_TESTED);
         }
         if (!appRepository.find(appId).isPresent()) {
@@ -308,5 +310,34 @@ public class PackageService {
      */
     public Integer countTotalForCreateTime(int limit, int offset, Date startDate, Date endDate) {
         return packageRepository.countTotalForCreateTime(limit, offset, startDate, endDate);
+    }
+
+    /**
+     * offShelf a package.
+     *
+     * @param appId app id
+     * @param packageId package id
+     * @param user user info
+     * @param isAdmin if admin role
+     */
+    public void offShelfPackage(String appId, String packageId, User user, boolean isAdmin) {
+        Release release = packageRepository.findReleaseById(appId, packageId);
+        if (release.getStatus() != EnumPackageStatus.Published) {
+            LOGGER.error("Package status is {}, offShelf failed", release.getStatus());
+            throw new AppException("The application can be taken off shelf only after it is published.",
+                ResponseConst.RET_OFFSHELF_NO_PUBLISH);
+        }
+        release.checkPermission(user, isAdmin, ResponseConst.RET_NO_ACCESS_OFFSHELF_PACKAGE);
+
+        Optional<App> existApp = appRepository.find(appId);
+        if (!existApp.isPresent()) {
+            throw new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND);
+        }
+        App app = existApp.get();
+        app.setStatus(EnumAppStatus.UnPublish);
+        appRepository.store(app);
+
+        release.setStatus(EnumPackageStatus.OffShelf);
+        packageRepository.updateRelease(release);
     }
 }

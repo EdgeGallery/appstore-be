@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -470,19 +470,18 @@ public class AppService {
      * @param appId app id.
      * @param packageId package id.
      * @param user obj of User.
-     * @param token access token.
      * @param isAdmin admin delete permission.
      */
     @Transactional(rollbackFor = Exception.class)
-    public void unPublishPackage(String appId, String packageId, User user, String token, boolean isAdmin) {
-        LOGGER.info("unPublishPackage appId {}, packageId {}", appId, packageId);
+    public void deletePackage(String appId, String packageId, User user, boolean isAdmin) {
+        LOGGER.info("delete Package appId {}, packageId {}", appId, packageId);
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
             .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
         release.checkPermission(user, isAdmin, ResponseConst.RET_NO_ACCESS_DELETE_PACKAGE);
 
-        app.unPublish(release);
+        app.removeRelease(release);
         packageRepository.removeRelease(release);
         deletePullablePackage(release);
         if (!app.hasPublishedRelease()) {
@@ -492,7 +491,7 @@ public class AppService {
         deleteReleaseFile(release);
 
         if (app.getReleases().isEmpty()) {
-            unPublish(app, token);
+            deleteApp(app);
         }
     }
 
@@ -514,13 +513,12 @@ public class AppService {
     }
 
     /**
-     * unPublish app.
+     * delete app.
      *
      * @param app app object.
-     * @param token access token
      */
     @Transactional(rollbackFor = Exception.class)
-    public void unPublish(App app, String token) {
+    public void deleteApp(App app) {
         app.getReleases().forEach(this::deleteReleaseFile);
         appRepository.remove(app.getAppId());
         commentRepository.removeByAppId(app.getAppId());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Huawei Technologies Co., Ltd.
+ * Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -244,6 +244,11 @@ public class ResponseConst {
      * pull package exception.
      */
     public static final int RET_PULL_PACKAGE_FAILED = 11010;
+
+    /**
+     * The application can be taken off shelf only after it is published.
+     */
+    public static final int RET_OFFSHELF_NO_PUBLISH = 11011;
 
     /**
      * comment base error code.
@@ -533,6 +538,11 @@ public class ResponseConst {
      * Permission not allowed to modify application package.
      */
     public static final int RET_NO_ACCESS_MODIFY_PACKAGE = 18005;
+
+    /**
+     * Permission not allowed to take the application package off shelf.
+     */
+    public static final int RET_NO_ACCESS_OFFSHELF_PACKAGE = 18006;
 
     /**
      * general base error code.
