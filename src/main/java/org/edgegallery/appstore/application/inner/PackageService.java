@@ -37,6 +37,7 @@ import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.IconChecker;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
+import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.releases.VideoChecker;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
@@ -321,21 +322,23 @@ public class PackageService {
      * @param isAdmin if admin role
      */
     public void offShelfPackage(String appId, String packageId, User user, boolean isAdmin) {
-        Release release = packageRepository.findReleaseById(appId, packageId);
+        App app = appRepository.find(appId)
+            .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
+        Release release = app.findByPackageId(packageId)
+            .orElseThrow(() -> new UnknownReleaseExecption(packageId, ResponseConst.RET_PACKAGE_NOT_FOUND));
+
+        release.checkPermission(user, isAdmin, ResponseConst.RET_NO_ACCESS_OFFSHELF_PACKAGE);
+
         if (release.getStatus() != EnumPackageStatus.Published) {
             LOGGER.error("Package status is {}, offShelf failed", release.getStatus());
             throw new AppException("The application can be taken off shelf only after it is published.",
                 ResponseConst.RET_OFFSHELF_NO_PUBLISH);
         }
-        release.checkPermission(user, isAdmin, ResponseConst.RET_NO_ACCESS_OFFSHELF_PACKAGE);
 
-        Optional<App> existApp = appRepository.find(appId);
-        if (!existApp.isPresent()) {
-            throw new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND);
+        if (!app.hasPublishedRelease()) {
+            app.setStatus(EnumAppStatus.UnPublish);
+            appRepository.store(app);
         }
-        App app = existApp.get();
-        app.setStatus(EnumAppStatus.UnPublish);
-        appRepository.store(app);
 
         release.setStatus(EnumPackageStatus.OffShelf);
         packageRepository.updateRelease(release);
