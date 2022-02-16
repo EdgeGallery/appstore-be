@@ -335,12 +335,12 @@ public class PackageService {
                 ResponseConst.RET_OFFSHELF_NO_PUBLISH);
         }
 
+        release.setStatus(EnumPackageStatus.OffShelf);
+        packageRepository.updateRelease(release);
+
         if (!app.hasPublishedRelease()) {
             app.setStatus(EnumAppStatus.UnPublish);
             appRepository.store(app);
         }
-
-        release.setStatus(EnumPackageStatus.OffShelf);
-        packageRepository.updateRelease(release);
     }
 }
