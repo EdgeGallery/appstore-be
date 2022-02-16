@@ -342,5 +342,6 @@ public class PackageService {
             app.setStatus(EnumAppStatus.UnPublish);
             appRepository.store(app);
         }
+        LOGGER.info("Take {} off shelf successfully", app.getAppName());
     }
 }

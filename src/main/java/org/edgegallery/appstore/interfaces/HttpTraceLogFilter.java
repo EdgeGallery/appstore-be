@@ -53,7 +53,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
                 filterChain.doFilter(request, response);
             } finally {
                 requestLog.setResponseLog(logForResponse(response));
-                LOGGER.info("Http Request log: {}", new Gson().toJson(requestLog));
+                LOGGER.info("Http trace log: {}", new Gson().toJson(requestLog));
             }
         } else {
             filterChain.doFilter(request, response);
