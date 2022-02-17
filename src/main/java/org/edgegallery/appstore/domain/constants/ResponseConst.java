@@ -579,6 +579,16 @@ public class ResponseConst {
      */
     public static final int RET_FILE_PATH_INVALID = 19006;
 
+    /**
+     * delete directory failed.
+     */
+    public static final int RET_DEL_DIR_FAILED = 19007;
+
+    /**
+     * delete directory or move file to directory failed.
+     */
+    public static final int RET_DEL_MOVE_DIR_FAILED = 19008;
+
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
     }

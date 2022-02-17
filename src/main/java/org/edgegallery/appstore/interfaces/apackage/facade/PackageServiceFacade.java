@@ -174,14 +174,14 @@ public class PackageServiceFacade {
      * @param appId app id.
      * @param packageId package id.
      */
-    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId, boolean isDownloadImage,
-        String token) throws IOException {
+    public ResponseEntity<InputStreamResource> downloadPackage(String appId, String packageId,
+        boolean isDownloadImage) throws IOException {
         Release release = appService.download(appId, packageId);
         InputStream ins;
         if (isDownloadImage) {
             String storageAddress = release.getPackageFile().getStorageAddress();
             String fileParent = storageAddress.substring(0, storageAddress.lastIndexOf(ZIP_POINT));
-            appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
+            appUtil.loadZipIntoPackage(storageAddress, fileParent);
             String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
                 + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
             String fileAddress = appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
@@ -241,7 +241,7 @@ public class PackageServiceFacade {
         String fileZipName = new File(storageAddress).getParentFile().getCanonicalFile() + File.separator
             + TEMP_EXPIRE_PREFIX + release.getAppBasicInfo().getAppName();
         if (!new File(fileZipName + ZIP_EXTENSION).exists()) {
-            appUtil.loadZipIntoPackage(storageAddress, token, fileParent);
+            appUtil.loadZipIntoPackage(storageAddress, fileParent);
             appUtil.compressAndDeleteFile(fileParent, fileZipName, ZIP_EXTENSION);
         }
 

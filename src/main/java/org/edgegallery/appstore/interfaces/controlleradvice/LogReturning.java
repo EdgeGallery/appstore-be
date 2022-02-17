@@ -29,6 +29,10 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 public @interface LogReturning {
+    /**
+     * log level.
+     *
+     */
     String level() default "info";
 }
 
