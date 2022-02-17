@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.controlleradvice;
 
+import com.google.gson.Gson;
 import java.io.FileNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -27,6 +28,8 @@ import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
 import org.edgegallery.appstore.domain.shared.exceptions.PermissionNotAllowedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,6 +44,10 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 @ControllerAdvice
 public class GlobalExceptionConvert {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionConvert.class);
+
+    private static final Gson GSON = new Gson();
+
     /**
      * Handle Exception.
      *
@@ -52,15 +59,19 @@ public class GlobalExceptionConvert {
             || e instanceof MethodArgumentNotValidException || e instanceof MissingPathVariableException) {
             return badRequestResponse(request, e);
         }
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(ResponseConst.RET_FAIL).params(null).build();
+        LOGGER.error("defaultException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     private RestReturn badRequestResponse(HttpServletRequest request, Exception e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
             .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(ResponseConst.RET_FAIL).params(null).build();
+        LOGGER.error("badRequestResponse: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -80,9 +91,11 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public RestReturn accessDeniedException(HttpServletRequest request, AccessDeniedException e) {
-        return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(ResponseConst.RET_FAIL).params(null).build();
+        LOGGER.error("accessDeniedException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -92,9 +105,11 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public RestReturn runtimeException(HttpServletRequest request, RuntimeException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(ResponseConst.RET_FAIL).params(null).build();
+        LOGGER.error("runtimeException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -146,10 +161,12 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = EntityNotFoundException.class)
     @ResponseBody
     public RestReturn entityNotFoundException(HttpServletRequest request, EntityNotFoundException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
+        LOGGER.error("entityNotFoundException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -159,9 +176,11 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = FileNotFoundException.class)
     @ResponseBody
     public RestReturn fileNotFoundException(HttpServletRequest request, FileNotFoundException e) {
-        return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(ResponseConst.RET_FAIL).params(null).build();
+        LOGGER.error("fileNotFoundException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -171,10 +190,12 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = UnknownReleaseExecption.class)
     @ResponseBody
     public RestReturn unknownReleaseException(HttpServletRequest request, UnknownReleaseExecption e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
+        LOGGER.error("unknownReleaseException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -184,9 +205,11 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = PermissionNotAllowedException.class)
     @ResponseBody
     public RestReturn permissionNotAccessException(HttpServletRequest request, PermissionNotAllowedException e) {
-        return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams()).build();
+        LOGGER.error("permissionNotAccessException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -196,10 +219,12 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = FileOperateException.class)
     @ResponseBody
     public RestReturn fileOperateException(HttpServletRequest request, FileOperateException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
+        LOGGER.error("fileOperateException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -209,10 +234,12 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = AppException.class)
     @ResponseBody
     public RestReturn appException(HttpServletRequest request, AppException e) {
-        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
+        LOGGER.error("appException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 
     /**
@@ -222,9 +249,11 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = IllegalRequestException.class)
     @ResponseBody
     public RestReturn illegalRequestException(HttpServletRequest request, IllegalRequestException e) {
-        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+        RestReturn restReturn = RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
             .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
             .params(e.getErrMsg().getParams()).build();
+        LOGGER.error("illegalRequestException: {}", GSON.toJson(restReturn));
+        return restReturn;
     }
 }
