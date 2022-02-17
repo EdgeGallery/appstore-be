@@ -30,8 +30,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogAspectHandler {
 
+    private static final String METHOD_RETURN = "method:{} return:{}";
+
     @Pointcut("@annotation(org.edgegallery.appstore.interfaces.controlleradvice.LogReturning)")
     public void logPointCut() {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -50,14 +53,14 @@ public class LogAspectHandler {
 
         switch (level.toLowerCase(Locale.ROOT)) {
             case "error":
-                logger.error("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.error(METHOD_RETURN, method.getName(), new Gson().toJson(returnValue));
                 return;
             case "warn":
-                logger.warn("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.warn(METHOD_RETURN, method.getName(), new Gson().toJson(returnValue));
                 return;
             case "info":
             default:
-                logger.info("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.info(METHOD_RETURN, method.getName(), new Gson().toJson(returnValue));
         }
     }
 }
