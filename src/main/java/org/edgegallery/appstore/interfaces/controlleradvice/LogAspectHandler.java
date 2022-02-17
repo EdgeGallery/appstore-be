@@ -34,24 +34,30 @@ public class LogAspectHandler {
     public void logPointCut() {
     }
 
+    /**
+     * record return info into log file.
+     *
+     * @param joinPoint join point
+     * @param returnValue return value
+     */
     @AfterReturning(value = "logPointCut()", returning = "returnValue")
     public void saveReturn(JoinPoint joinPoint, Object returnValue) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         LogReturning logReturning = method.getAnnotation(LogReturning.class);
         String level = logReturning.level();
-        Logger LOGGER = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
+        Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
 
         switch (level.toLowerCase(Locale.ROOT)) {
             case "error":
-                LOGGER.error("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.error("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
                 return;
             case "warn":
-                LOGGER.warn("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.warn("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
                 return;
             case "info":
             default:
-                LOGGER.info("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
+                logger.info("method:{} return:{}", method.getName(), new Gson().toJson(returnValue));
         }
     }
 }

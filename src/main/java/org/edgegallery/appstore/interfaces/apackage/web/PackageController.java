@@ -135,13 +135,12 @@ public class PackageController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
     public ResponseEntity<InputStreamResource> downloadPackage(
-        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId,
-        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
         @ApiParam(value = "isDownloadImage")
         @RequestParam(value = "isDownloadImage", required = false, defaultValue = "false") boolean isDownloadImage,
-        HttpServletRequest request) throws IOException {
+        @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
+        @ApiParam(value = "package Id") @PathVariable("packageId") String packageId) throws IOException {
         return packageServiceFacade
-            .downloadPackage(appId, packageId, isDownloadImage, (String) request.getAttribute(Consts.ACCESS_TOKEN_STR));
+            .downloadPackage(appId, packageId, isDownloadImage);
     }
 
     @GetMapping(value = "/apps/{appId}/packages/{packageId}/icon", produces = "application/octet-stream")

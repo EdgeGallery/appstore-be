@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -82,6 +81,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -212,40 +212,27 @@ public class AppUtil {
      * download image by imageUrl from fileSystem.
      *
      * @param url image url
-     * @param token token
-     * @return boolean
+     * @param imagePath image path
      */
-    public byte[] downloadImageFromFileSystem(String token, String url) {
-        LOGGER.info("download images status from fileSystem, url: {}", url);
+    public void downloadImageFromFileSystem(String url, String imagePath) {
+        LOGGER.info("download images from fileSystem, url: {}", url);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
         RestTemplate restObject = new RestTemplate(requestFactory);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setConnection("close");
-        headers.set("access_token", token);
-        byte[] result = null;
-        ResponseEntity<byte[]> response;
         try {
-            response = restObject.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
-            if (response.getStatusCode() != HttpStatus.OK) {
-                LOGGER.error("download file error, response is {}", response.getBody());
-                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
-            }
-            result = response.getBody();
-            if (result == null) {
-                LOGGER.error("download file error, response is null");
-                throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
-            }
-
+            RequestCallback requestCallback = request -> request.getHeaders()
+                .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
+            restObject.execute(url, HttpMethod.GET, requestCallback, clientHttpResponse -> {
+                java.nio.file.Files.copy(clientHttpResponse.getBody(), Paths.get(imagePath));
+                return null;
+            });
         } catch (RestClientException e) {
             LOGGER.error("Failed to get image status which imageId exception {}", e.getMessage());
             throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
         }
 
         LOGGER.info("download image from file-system successfully.");
-        return result;
     }
 
     /**
@@ -513,7 +500,7 @@ public class AppUtil {
      *
      * @param fileAddress file storage object url.
      */
-    public void loadZipIntoPackage(String fileAddress, String token, String fileParent) {
+    public void loadZipIntoPackage(String fileAddress, String fileParent) {
         //get unzip  temp folder under csar folder
         try {
             File tempFolder = new File(fileParent);
@@ -526,7 +513,7 @@ public class AppUtil {
             File file = new File(fileParent);
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
-                String imgZipPath = getImgZipPath(token, fileParent, files);
+                String imgZipPath = getImgZipPath(fileParent, files);
                 addImageFileInfo(fileParent, imgZipPath);
             }
         }  catch (IOException e) {
@@ -535,7 +522,7 @@ public class AppUtil {
         }
     }
 
-    private String getImgZipPath(String token, String fileParent, File[] files) throws IOException {
+    private String getImgZipPath(String fileParent, File[] files) throws IOException {
         String imgZipPath = null;
         for (File f : files) {
             if (f.isDirectory() && f.getName().equals(IMAGE)) {
@@ -544,7 +531,7 @@ public class AppUtil {
                     boolean presentZip = Arrays.stream(zipFileArrays)
                         .anyMatch(m1 -> m1.toString().contains(ZIP_EXTENSION));
                     if (!presentZip) {
-                        imgZipPath = addImageFile(token, fileParent, f);
+                        imgZipPath = addImageFile(fileParent, f);
                     }
                 }
             }
@@ -552,13 +539,11 @@ public class AppUtil {
         return imgZipPath;
     }
 
-    private String addImageFile(String token, String fileParent, File f) throws IOException {
+    private String addImageFile(String fileParent, File f) throws IOException {
         String imgZipPath = null;
         String outPath = f.getCanonicalPath();
         List<SwImgDesc> imgDecsLists = getSwImageDescInfo(outPath);
         for (SwImgDesc imageDesc : imgDecsLists) {
-            String pathname = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
-            byte[] result = downloadImageFromFileSystem(token, pathname);
             String imageName = imageDesc.getName();
             if (imageName.contains(COLON)) {
                 imageName = imageName.substring(0, imageName.lastIndexOf(":"));
@@ -570,20 +555,9 @@ public class AppUtil {
                 throw new AppException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
             }
             File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
-            if (!fileImage.exists() && !fileImage.createNewFile()) {
-                LOGGER.error("create download file error");
-                throw new FileOperateException("create file failed", ResponseConst.RET_CREATE_FILE_FAILED);
-            }
-            try (InputStream inputStream = new ByteArrayInputStream(result);
-                 OutputStream outputStream = new FileOutputStream(fileImage)) {
-                int len = 0;
-                byte[] buf = new byte[1024];
-                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                    outputStream.write(buf, 0, len);
-                }
-                outputStream.flush();
-            }
             imgZipPath = fileImage.getCanonicalPath();
+            String url = imageDesc.getSwImage() + DOWNLOAD_ZIP_IMAGE;
+            downloadImageFromFileSystem(url, imgZipPath);
             updateJsonFile(imageDesc, imgDecsLists, fileParent, imgZipPath);
         }
         return imgZipPath;
@@ -608,7 +582,7 @@ public class AppUtil {
             FileUtils.deleteDirectory(new File(intendedDir));
             FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
         } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+            throw new AppException("failed to delete or move directory", ResponseConst.RET_DEL_MOVE_DIR_FAILED);
         }
         return fileStorageAdd;
     }
@@ -629,7 +603,7 @@ public class AppUtil {
         try {
             FileUtils.deleteDirectory(new File(destinationFile));
         } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
+            throw new AppException("failed to delete directory", ResponseConst.RET_DEL_DIR_FAILED);
         }
         return zipFileName;
     }
