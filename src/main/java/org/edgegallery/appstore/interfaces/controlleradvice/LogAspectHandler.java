@@ -34,7 +34,7 @@ public class LogAspectHandler {
 
     @Pointcut("@annotation(org.edgegallery.appstore.interfaces.controlleradvice.LogReturning)")
     public void logPointCut() {
-        throw new UnsupportedOperationException();
+        // do nothing.
     }
 
     /**
