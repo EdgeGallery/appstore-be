@@ -39,7 +39,7 @@ public class PackageChecker extends AbstractFileChecker {
 
     private static final int BUFFER = 512;
 
-    private static final Long TOOBIG = 0x280000000L; // max size of unzipped data, 100MB 0x6400000
+    private static final Long TOOBIG = 0x280000000L; // max size of unzipped data, 10GB
 
     private static final int TOOMANY = 1024; // max number of files
 

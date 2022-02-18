@@ -589,6 +589,21 @@ public class ResponseConst {
      */
     public static final int RET_DEL_MOVE_DIR_FAILED = 19008;
 
+    /**
+     * delete file failed.
+     */
+    public static final int RET_DEL_FILE_FAILED = 19009;
+
+    /**
+     * move directory failed.
+     */
+    public static final int RET_MOVE_DIR_FAILED = 19010;
+
+    /**
+     * copy directory failed.
+     */
+    public static final int RET_COPY_DIR_FAILED = 19011;
+
     private ResponseConst() {
         throw new IllegalStateException("Utility class");
     }
