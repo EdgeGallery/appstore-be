@@ -34,7 +34,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -248,7 +247,7 @@ public class AppUtil {
         String textFieldName = "textField";
         FileItem item = factory.createItem(textFieldName, "text/plain", true, originalFilename);
         File newfile = new File(filePath);
-        int bytesRead = 0;
+        int bytesRead;
         byte[] buffer = new byte[MAX_NET_FILE_SIZE];
         try {
             FileInputStream fis = new FileInputStream(newfile);
@@ -277,12 +276,12 @@ public class AppUtil {
         if (files != null && files.length > 0) {
             for (File fl : files) {
                 if (fl.isDirectory() && fl.getName().equals(IMAGE)) {
-                    File[] filezipArrays = fl.listFiles();
-                    if (filezipArrays == null || filezipArrays.length == 0) {
+                    File[] zipFiles = fl.listFiles();
+                    if (zipFiles == null || zipFiles.length == 0) {
                         throw new AppException("there is no file in path /Image", ResponseConst.RET_FILE_NOT_FOUND,
                             "/Image");
                     }
-                    checkImageExist(atpMetadata, fileParent, filezipArrays, userId, fl, fileNameExtension);
+                    checkImageExist(atpMetadata, fileParent, zipFiles, userId, fl, fileNameExtension);
                 }
             }
         }
@@ -629,7 +628,7 @@ public class AppUtil {
     private void compressFile(ZipOutputStream out, File file, String dir) throws IOException {
         try (FileInputStream fis = new FileInputStream(file)) {
             out.putNextEntry(new ZipEntry(dir));
-            int j = 0;
+            int j;
             byte[] buffer = new byte[1024];
             while ((j = fis.read(buffer)) > 0) {
                 out.write(buffer, 0, j);
@@ -637,63 +636,6 @@ public class AppUtil {
         } catch (FileNotFoundException e) {
             LOGGER.error("createCompressedFile: can not find param file, {}", e.getMessage());
             throw new AppException("can not find file", ResponseConst.RET_COMPRESS_FAILED);
-        }
-    }
-
-    /**
-     * zip files.
-     * @param srcfile source file list
-     * @param zipfile to be zipped file
-     */
-    public void zipFiles(List<File> srcfile, File zipfile) {
-        List<String> entryPaths = new ArrayList<>();
-        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile));) {
-            for (File file : srcfile) {
-                if (file.isFile()) {
-                    addFileToZip(out, file, entryPaths);
-                } else if (file.isDirectory()) {
-                    entryPaths.add(file.getName());
-                    addFolderToZip(out, file, entryPaths);
-                    entryPaths.remove(entryPaths.size() - 1);
-                }
-            }
-        } catch (IOException e) {
-            throw new AppException(ZIP_PACKAGE_ERR_MESSAGES, ResponseConst.RET_COMPRESS_FAILED);
-        }
-    }
-
-    private static void addFolderToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
-        out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/"));
-        out.closeEntry();
-        File[] files = file.listFiles();
-        if (files == null || files.length == 0) {
-            return;
-        }
-        for (File subFile : files) {
-            if (subFile.isFile()) {
-                addFileToZip(out, subFile, entryPaths);
-            } else if (subFile.isDirectory()) {
-                entryPaths.add(subFile.getName());
-                addFolderToZip(out, subFile, entryPaths);
-                entryPaths.remove(entryPaths.size() - 1);
-            }
-        }
-    }
-
-    private static void addFileToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
-        byte[] buf = new byte[1024];
-        try (FileInputStream in = new FileInputStream(file)) {
-            if (!entryPaths.isEmpty()) {
-                out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/")
-                    + "/" + file.getName()));
-            } else {
-                out.putNextEntry(new ZipEntry(file.getName()));
-            }
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            out.closeEntry();
         }
     }
 

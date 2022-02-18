@@ -242,7 +242,7 @@ public class AppServiceFacade {
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
         String fileParent = dir + File.separator + fileDir;
         fileAddress = dir + File.separator + fileAddress;
-        MultipartFile multipartFile = null;
+        MultipartFile multipartFile;
         FileItem fileItem = AppUtil.createFileItem(fileAddress);
         multipartFile = new CommonsMultipartFile(fileItem);
         AbstractFileChecker fileChecker = new PackageChecker(fileParent);
