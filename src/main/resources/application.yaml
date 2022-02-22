@@ -58,8 +58,8 @@ spring:
     allow-bean-definition-overriding: true
   servlet:
     multipart:
-      max-file-size: 5120MB
-      max-request-size: 5120MB
+      max-file-size: 50MB
+      max-request-size: 50MB
 security:
   oauth2:
     resource:
