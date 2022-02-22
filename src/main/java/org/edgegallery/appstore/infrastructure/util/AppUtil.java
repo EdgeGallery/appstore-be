@@ -166,6 +166,7 @@ public class AppUtil {
                 }
             }
         } catch (IOException e) {
+            LOGGER.error("Failed to get app class. errorMsg: {}", e.getMessage());
             throw new AppException("failed to get app class.", ResponseConst.RET_GET_APP_CLASS_FAILED);
         }
         return null;
@@ -195,15 +196,15 @@ public class AppUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         HttpEntity<String> request = new HttpEntity<>(headers);
-        LOGGER.info("get images status from fileSystem, url: {}", url);
+        LOGGER.info("Check images exist from fileSystem, url: {}", url);
         try {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-            LOGGER.info("get image from file system status: {}", response.getStatusCode());
+            LOGGER.info("Check images exist from fileSystem status: {}", response.getStatusCode());
             return HttpStatus.OK.equals(response.getStatusCode());
         } catch (RestClientException  e) {
-            LOGGER.error("get image from file system exception, Url is {}, exception {}", url, e.getMessage());
-            throw new AppException("get image from file system exception.", ResponseConst.RET_IMAGE_NOT_EXIST, url);
+            LOGGER.error("Check images exist failed, url is {}, exception {}", url, e.getMessage());
+            throw new AppException("Check images from fileSystem exception.", ResponseConst.RET_IMAGE_NOT_EXIST, url);
         }
     }
 
@@ -214,7 +215,7 @@ public class AppUtil {
      * @param imagePath image path
      */
     public void downloadImageFromFileSystem(String url, String imagePath) {
-        LOGGER.info("download images from fileSystem, url: {}", url);
+        LOGGER.info("Download images from fileSystem, url: {}", url);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -231,7 +232,7 @@ public class AppUtil {
             throw new AppException(DOWNLOAD_IMAGE_FAIL, ResponseConst.RET_DOWNLOAD_IMAGE_FAILED, url);
         }
 
-        LOGGER.info("download image from file-system successfully.");
+        LOGGER.info("Download image from file-system successfully.");
     }
 
     /**
@@ -246,11 +247,11 @@ public class AppUtil {
         FileItemFactory factory = new DiskFileItemFactory(FILE_TEMPORARY_VALUE, null);
         String textFieldName = "textField";
         FileItem item = factory.createItem(textFieldName, "text/plain", true, originalFilename);
-        File newfile = new File(filePath);
+        File newFile = new File(filePath);
         int bytesRead;
         byte[] buffer = new byte[MAX_NET_FILE_SIZE];
         try {
-            FileInputStream fis = new FileInputStream(newfile);
+            FileInputStream fis = new FileInputStream(newFile);
             OutputStream os = item.getOutputStream();
             while ((bytesRead = fis.read(buffer, 0, MAX_NET_FILE_SIZE)) != -1) {
                 os.write(buffer, 0, bytesRead);
@@ -258,6 +259,7 @@ public class AppUtil {
             os.close();
             fis.close();
         } catch (IOException e) {
+            LOGGER.error("Package File name is Illegal. errorMsg: {}", e.getMessage());
             throw new AppException("Package File name is Illegal.", ResponseConst.RET_FILE_NOT_FOUND);
         }
         return item;
@@ -301,9 +303,8 @@ public class AppUtil {
                         FileUtils.deleteDirectory(new File(fileParent));
                     }
                 } catch (IOException e) {
-                    LOGGER.error("delete file error {}", e.getMessage());
-                    throw new AppException("the image of this application does not exist.",
-                        ResponseConst.RET_IMAGE_NOT_EXIST, pathUrl);
+                    LOGGER.error("Delete directory {} failed, errorMsg: {}", fileParent, e.getMessage());
+                    throw new AppException("delete package's directory failed.", ResponseConst.RET_DEL_DIR_FAILED);
                 }
             }
         } else {
@@ -311,7 +312,7 @@ public class AppUtil {
                 uploadFileToFileServer(userId, fileParent, imageFolder);
                 organizedFile(fileParent, fileNameExtension);
             } catch (IOException e) {
-                LOGGER.error("failed to add image zip to fileServer {} ", e.getMessage());
+                LOGGER.error("Failed to add image zip to fileServer {} ", e.getMessage());
                 throw new AppException(ADD_IMAGE_FILE_FAILED, ResponseConst.RET_IMAGE_TO_FILE_SERVER_FAILED);
             }
         }
@@ -431,6 +432,7 @@ public class AppUtil {
                     + File.separator + entry.getName();
             }
         } catch (IOException e) {
+            LOGGER.error("Failed to get image path from image file. errorMsg: {}", e.getMessage());
             throw new AppException("failed to get image path from image file.",
                 ResponseConst.RET_PARSE_FILE_EXCEPTION);
         }
@@ -490,7 +492,7 @@ public class AppUtil {
              BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
-            LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
+            LOGGER.error("Write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
 
@@ -505,7 +507,7 @@ public class AppUtil {
             File tempFolder = new File(fileParent);
             FileUtils.deleteDirectory(tempFolder);
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                LOGGER.error("create upload path failed");
+                LOGGER.error("Create upload path failed");
                 throw new FileOperateException("create download file error", ResponseConst.RET_MAKE_DIR_FAILED);
             }
             unzipApplicationPackage(fileAddress, fileParent);
@@ -516,7 +518,7 @@ public class AppUtil {
                 addImageFileInfo(fileParent, imgZipPath);
             }
         }  catch (IOException e) {
-            LOGGER.error("failed to add image zip to package {} ", e.getMessage());
+            LOGGER.error("Failed to add image zip to package {} ", e.getMessage());
             throw new AppException(ADD_IMAGE_FILE_FAILED, ResponseConst.RET_IMAGE_TO_PACKAGE_FAILED);
         }
     }
@@ -550,7 +552,7 @@ public class AppUtil {
             LOGGER.info("output image path:{}", outPath);
             File imageDir = new File(outPath);
             if (!imageDir.exists() && !imageDir.mkdirs()) {
-                LOGGER.error("create upload path failed");
+                LOGGER.error("Create upload path failed");
                 throw new AppException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
             }
             File fileImage = new File(outPath + File.separator + imageName + ZIP_EXTENSION);
@@ -581,6 +583,7 @@ public class AppUtil {
             FileUtils.deleteDirectory(new File(intendedDir));
             FileUtils.moveFileToDirectory(new File(zipFileName), new File(intendedDir), true);
         } catch (IOException e) {
+            LOGGER.error("Failed to delete or move file to directory, errorMsg: {}", e.getMessage());
             throw new AppException("failed to delete or move directory", ResponseConst.RET_DEL_MOVE_DIR_FAILED);
         }
         return fileStorageAdd;
@@ -593,6 +596,7 @@ public class AppUtil {
      * @param fileName compress file name.
      */
     public String compressAndDeleteFile(String destinationFile, String fileName, String fileExtension) {
+        LOGGER.info("Begin to compress file.");
         String zipFileName = fileName.concat(fileExtension);
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName))) {
             createCompressedFile(out, new File(destinationFile), "");
@@ -604,6 +608,7 @@ public class AppUtil {
         } catch (IOException e) {
             throw new AppException("failed to delete directory", ResponseConst.RET_DEL_DIR_FAILED);
         }
+        LOGGER.info("Add image to compressed file successfully.");
         return zipFileName;
     }
 
@@ -616,8 +621,8 @@ public class AppUtil {
 
             dir = dir.length() == 0 ? "" : dir + "/";
             if (files != null && files.length > 0) {
-                for (int i = 0; i < files.length; i++) {
-                    createCompressedFile(out, files[i], dir + files[i].getName());
+                for (File value : files) {
+                    createCompressedFile(out, value, dir + value.getName());
                 }
             }
         } else {
@@ -668,7 +673,7 @@ public class AppUtil {
         File sourceFile = mfFile.getParentFile();
         File parentFile = new File(fileParent);
         if (!sourceFile.getPath().equals(parentFile.getPath())) {
-            LOGGER.info("the package has checked, no need check more.");
+            LOGGER.info("The package has checked, no need check more.");
             return true;
         }
 
@@ -682,20 +687,20 @@ public class AppUtil {
         for (Map.Entry<String, String> entry : entries) {
             String sourceFilePath = fileParent + File.separator + entry.getKey();
             if (!entry.getValue().equals(getHashValue(sourceFilePath))) {
-                LOGGER.error("the sourceFile {} hash value is incorrect", entry.getKey());
+                LOGGER.error("The sourceFile {} hash value is incorrect", entry.getKey());
                 return false;
             }
         }
         try {
             String signStr = getSignedData(fileHandlerMf);
             if (StringUtils.isEmpty(signStr)) {
-                LOGGER.info("the package is not signed, add signature.");
+                LOGGER.info("The package is not signed, add signature.");
                 new BasicInfo().rewriteManifestWithImage(mfFile, "", keyPath, keyPwd);
                 return true;
             }
             return Signature.signedDataVerify(signStr.getBytes(StandardCharsets.UTF_8));
         } catch (CMSException e) {
-            LOGGER.error("signedDataVerify catch exception: {}", e.getMessage());
+            LOGGER.error("Verify signed data catch exception: {}", e.getMessage());
         }
         return false;
     }
@@ -717,7 +722,7 @@ public class AppUtil {
         try (FileInputStream fis = new FileInputStream(sourceFilePath)) {
             return DigestUtils.sha256Hex(fis);
         } catch (IOException e) {
-            LOGGER.error("get hash value of source file failed {}", sourceFilePath);
+            LOGGER.error("Get hash value of source file failed {}", sourceFilePath);
             throw new AppException("get hash value of source file failed",
                 ResponseConst.RET_MF_CONTENT_INVALID, sourceFilePath);
         }
@@ -783,7 +788,6 @@ public class AppUtil {
      * @return list of image details
      */
     public List<SwImgDesc> getSwImageDescInfo(String parentDir) {
-
         File swImageFile = getFileFromPackage(parentDir, "SwImageDesc.json");
         if (swImageFile == null) {
             return Collections.emptyList();
@@ -792,10 +796,10 @@ public class AppUtil {
             String swImageDesc = FileUtils.readFileToString(swImageFile, StandardCharsets.UTF_8);
             List<SwImgDesc> swImgDesc = new Gson().fromJson(swImageDesc,
                 new TypeToken<List<SwImgDesc>>() { }.getType());
-            LOGGER.info("sw image descriptors: {}", swImgDesc);
+            LOGGER.info("The sw image descriptors: {}", swImgDesc);
             return swImgDesc;
         } catch (IOException e) {
-            LOGGER.error("failed to get sw image descriptor file {}", e.getMessage());
+            LOGGER.error("Failed to get sw image descriptor file {}", e.getMessage());
             throw new AppException("failed to get sw image descriptor file", ResponseConst.RET_GET_IMAGE_DESC_FAILED);
         }
 
@@ -809,7 +813,6 @@ public class AppUtil {
      * @return file,
      */
     public File getFileFromPackage(String parentDir, String file) {
-
         List<File> files = (List<File>) FileUtils.listFiles(new File(parentDir), null, true);
         try {
             for (File fileEntry : files) {

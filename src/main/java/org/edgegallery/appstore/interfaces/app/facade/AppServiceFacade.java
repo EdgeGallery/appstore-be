@@ -16,6 +16,7 @@
 
 package org.edgegallery.appstore.interfaces.app.facade;
 
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -126,7 +127,6 @@ public class AppServiceFacade {
     public ResponseEntity<String> uploadImage(boolean isMultipart, Chunk chunk) {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
-
             if (file == null) {
                 LOGGER.error("can not find any needed file");
                 throw new IllegalRequestException("can not find any needed file", ResponseConst.RET_PARAM_INVALID);
@@ -142,6 +142,7 @@ public class AppServiceFacade {
             try (InputStream inputStream = file.getInputStream()) {
                 FileUtils.copyInputStreamToFile(inputStream, outFile);
             } catch (IOException e) {
+                LOGGER.error("Failed to copy part stream to file, errorMsg: {}", e.getMessage());
                 throw new FileOperateException("can not copy part to file", ResponseConst.RET_COPY_FILE_FAILED);
             }
         }
@@ -178,6 +179,7 @@ public class AppServiceFacade {
                 }
             }
         } catch (IOException e) {
+            LOGGER.error("Failed to merge file, errorMsg: {}", e.getMessage());
             throw new FileOperateException("can not merge parts to file", ResponseConst.RET_COPY_FILE_FAILED);
         }
 
@@ -186,6 +188,7 @@ public class AppServiceFacade {
 
     private void checkDir(File fileDir) {
         if (!fileDir.exists() && !fileDir.mkdirs()) {
+            LOGGER.error("Make directory failed.");
             throw new FileOperateException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
         }
     }
@@ -196,6 +199,7 @@ public class AppServiceFacade {
     public RegisterRespDto appRegistering(User user, MultipartFile packageFile, AppParam appParam,
         MultipartFile iconFile, MultipartFile demoVideo, AtpMetadata atpMetadata) {
         if (!appParam.checkValidParam(appParam)) {
+            LOGGER.error("App param is invalid! app param: {}", new Gson().toJson(appParam));
             throw new AppException("app param is invalid!", ResponseConst.RET_PARAM_INVALID);
         }
 
@@ -228,6 +232,7 @@ public class AppServiceFacade {
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
         }
+        LOGGER.info("Upload and register app successfully.");
         return dto;
     }
 
@@ -237,6 +242,7 @@ public class AppServiceFacade {
     public ResponseEntity<RegisterRespDto> appRegister(User user, AppParam appParam, MultipartFile iconFile,
         MultipartFile demoVideo, AtpMetadata atpMetadata, String fileAddress) {
         if (!appParam.checkValidParam(appParam)) {
+            LOGGER.error("App param is invalid! app param: {}", new Gson().toJson(appParam));
             throw new AppException("app param is invalid!", ResponseConst.RET_PARAM_INVALID);
         }
         String fileDir = fileAddress.substring(0, fileAddress.lastIndexOf(File.separator));
@@ -276,6 +282,7 @@ public class AppServiceFacade {
         if (atpMetadata.getTestTaskId() != null) {
             appService.loadTestTask(dto.getAppId(), dto.getPackageId(), atpMetadata);
         }
+        LOGGER.info("Upload and register app successfully.");
         return ResponseEntity.ok(dto);
     }
 
@@ -320,9 +327,10 @@ public class AppServiceFacade {
                 fileAddress = appUtil.compressCsarAppPackage(fileParent);
             }
         } catch (FileNotFoundException ex) {
+            LOGGER.error("File not found, errorMsg: {}", ex.getMessage());
             throw new AppException(ex.getMessage(), ResponseConst.RET_FILE_NOT_FOUND, fileAddress);
         } catch (IOException ex) {
-            LOGGER.debug("failed to delete csar package {}", ex.getMessage());
+            LOGGER.debug("Failed to delete package, errorMsg: {}", ex.getMessage());
         }
 
         return new AFile(fileName, fileAddress);
@@ -404,6 +412,7 @@ public class AppServiceFacade {
         if (user.getUserId().equals(app.getUserId()) || authorities.contains(ROLE_APPSTORE_ADMIN)) {
             appService.deleteApp(app);
         } else {
+            LOGGER.error("{} can not delete app {}", user.getUserName(), app.getAppName());
             throw new PermissionNotAllowedException("can not delete app", ResponseConst.RET_NO_ACCESS_DELETE_APP,
                 user.getUserName());
         }
@@ -440,8 +449,7 @@ public class AppServiceFacade {
      * set hot apps.
      */
     public ResponseEntity<String> setHotApps(String[] appIds) {
-        for (int i = 0; i < appIds.length; i++) {
-            String appId = appIds[i];
+        for (String appId : appIds) {
             App app = appRepository.find(appId)
                 .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
             app.setHotApp(!app.isHotApp());

@@ -235,7 +235,7 @@ public class PackageService {
         try {
             return FileUtils.readFileToString(tempFile, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.error("read file error, {}", e.getMessage());
+            LOGGER.error("Read file failed, errorMsg: {}", e.getMessage());
             return null;
         }
     }
@@ -251,7 +251,7 @@ public class PackageService {
             multipartFile.transferTo(tempFile);
             return tempFile;
         } catch (IOException e) {
-            LOGGER.error("transfer multipartFile to file error, {}", e.getMessage());
+            LOGGER.error("Failed to transfer multipartFile to file, errorMsg: {}", e.getMessage());
             return null;
         }
     }
@@ -286,7 +286,7 @@ public class PackageService {
             String fileExtension = packagePath.substring(packagePath.lastIndexOf("."));
             appUtil.compressAndDeleteFile(fileParent, fileParent, fileExtension);
         } catch (IOException e) {
-            LOGGER.error("modifyPackageFile catch exception {}.", e.getMessage());
+            LOGGER.error("Failed to modify package file, errorMsg: {}.", e.getMessage());
         }
     }
 

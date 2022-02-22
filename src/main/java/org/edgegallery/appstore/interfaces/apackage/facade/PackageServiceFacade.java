@@ -224,6 +224,7 @@ public class PackageServiceFacade {
         throws IOException {
         Release release = appService.download(appId, packageId);
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
+            LOGGER.error("Can not support to sync container app.");
             throw new AppException("can not support container app.", ResponseConst.RET_CONTAINER_NOT_SUPPORT);
         }
         // build upload progress data
@@ -289,6 +290,7 @@ public class PackageServiceFacade {
             ResponseConst.RET_NO_ACCESS_MODIFY_PACKAGE);
 
         packageService.updateAppById(iconFile, demoVideo, docFile, packageDto);
+        LOGGER.info("Update package successfully.");
         Release release = packageRepository.findReleaseById(packageDto.getAppId(), packageDto.getPackageId());
         return ResponseEntity.ok(PackageDto.of(release));
     }
@@ -330,6 +332,7 @@ public class PackageServiceFacade {
                 packageService.getPackageByCreateTime(limit, offset, startDate, endDate).stream().map(PackageDto::of)
                     .collect(Collectors.toList()), limit, offset, total);
         } catch (ParseException e) {
+            LOGGER.error("The time parameter format is incorrect. startTime: {}, endTime: {}", startTime, endTime);
             throw new AppException("The time parameter format is incorrect.", ResponseConst.RET_PARAM_INVALID);
         }
     }
