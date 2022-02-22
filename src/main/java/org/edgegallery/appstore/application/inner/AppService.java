@@ -153,7 +153,6 @@ public class AppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public RegisterRespDto registerApp(Release release) {
-
         Optional<App> existedApp = appRepository.findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
             release.getAppBasicInfo().getProvider());
         App app;
@@ -191,11 +190,9 @@ public class AppService {
      * @param swImageDesc software image descriptor file content
      */
     public void updateRepoInfoInSwImageDesc(File swImageDesc) {
-
         try {
             String descStr = FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8);
             JsonArray swImgDescArray = new JsonParser().parse(descStr).getAsJsonArray();
-
             for (JsonElement desc : swImgDescArray) {
                 JsonObject jsonObject = desc.getAsJsonObject();
                 String swImage = jsonObject.get(SWIMAGE).getAsString();
@@ -209,7 +206,7 @@ public class AppService {
             appUtil.writeFile(swImageDesc, gson.toJson(swImgDescArray));
             LOGGER.info("Updated swImages : {}", swImgDescArray);
         } catch (IOException e) {
-            LOGGER.info("failed to update sw image descriptor");
+            LOGGER.info("Failed to update sw image descriptor");
             throw new AppException("Failed to update repo info to image descriptor file",
                 ResponseConst.RET_UPDATE_IMAGE_FAILED);
         }
@@ -221,13 +218,13 @@ public class AppService {
      * @param parentDir parent Dir
      */
     public void updateAppPackageWithRepoInfo(String parentDir) {
-
         File swImageDesc = appUtil.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         updateRepoInfoInSwImageDesc(swImageDesc);
         String unZipPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
 
         File chartsTar = appUtil.getFileFromPackage(parentDir, "/Artifacts/Deployment/Charts/");
         if (chartsTar == null) {
+            LOGGER.error("Failed to find /Artifacts/Deployment/Charts/ file");
             throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND,
                 "/Artifacts/Deployment/Charts/");
         }
@@ -244,11 +241,12 @@ public class AppService {
             FileUtils.forceDelete(chartsTar);
             File valuesYaml = appUtil.getFileFromPackage(unZipPath, "/values.yaml");
             if (valuesYaml == null) {
+                LOGGER.error("Failed to find /Artifacts/Deployment/Charts/values.yaml file");
                 throw new AppException("failed to find values yaml", ResponseConst.RET_FILE_NOT_FOUND, "/values.yaml");
             }
 
             //update values.yaml
-            Map<String, Object> values = loadvaluesYaml(valuesYaml);
+            Map<String, Object> values = loadValuesYaml(valuesYaml);
             ImgLoc imageLoc = null;
             for (String key : values.keySet()) {
                 if (IMAGE_LOCATION.equals(key)) {
@@ -272,7 +270,7 @@ public class AppService {
             LOGGER.info("Charts Parent path is {}", valuesYaml.getParent());
             FileUtils.deleteDirectory(unZipPathDir);
         } catch (IOException e) {
-            LOGGER.info("Delete temporary unzip directory failed {}", e.getMessage());
+            LOGGER.error("Delete temporary unzip directory failed {}", e.getMessage());
         }
     }
 
@@ -281,13 +279,13 @@ public class AppService {
      *
      * @param valuesYaml values file
      */
-    private Map<String, Object> loadvaluesYaml(File valuesYaml) {
-
+    private Map<String, Object> loadValuesYaml(File valuesYaml) {
         Map<String, Object> valuesYamlMap;
         Yaml yaml = new Yaml(new SafeConstructor());
         try (InputStream inputStream = new FileInputStream(valuesYaml)) {
             valuesYamlMap = yaml.load(inputStream);
         } catch (IOException e) {
+            LOGGER.error("Failed to load value yaml form charts, {}", e.getMessage());
             throw new AppException("failed to load value yaml form charts", ResponseConst.RET_LOAD_YAML_FAILED);
         }
         return valuesYamlMap;
@@ -326,7 +324,6 @@ public class AppService {
      * @param imageInfoList list of images
      */
     public void downloadAppImage(List<SwImgDesc> imageInfoList) {
-
         String[] sourceRepoHost;
         for (SwImgDesc imageInfo : imageInfoList) {
             LOGGER.info("Download docker image {} ", imageInfo.getSwImage());
@@ -338,6 +335,7 @@ public class AppService {
                 dockerClient.pullImageCmd(imageInfo.getSwImage()).exec(new PullImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                LOGGER.error("Failed to pull image {}, errorMsg: {}", imageInfo.getSwImage(), e.getMessage());
                 throw new AppException(PULL_IMAGE_ERR_MESSAGES, ResponseConst.RET_PULL_IMAGE_FAILED,
                     imageInfo.getSwImage());
             } catch (Exception e) {
@@ -357,7 +355,6 @@ public class AppService {
      * @param imageInfoList list of images
      */
     public void uploadAppImage(List<SwImgDesc> imageInfoList) {
-
         for (SwImgDesc imageInfo : imageInfoList) {
             LOGGER.info("Docker image to  upload: {}", imageInfo.getSwImage());
 
@@ -381,9 +378,10 @@ public class AppService {
                 dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                LOGGER.error("Failed to push image {}, errorMsg: {}", uploadImgName, e.getMessage());
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             } catch (Exception e) {
-                LOGGER.error("failed to push image {}, errormsg: {}", uploadImgName, e.getMessage());
+                LOGGER.error("Failed to push image {}, errorMsg: {}", uploadImgName, e.getMessage());
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             }
         }
@@ -414,6 +412,7 @@ public class AppService {
                 }
             }
         } catch (IOException ex) {
+            LOGGER.error("Failed to decompress file, errorMsg: {}", ex.getMessage());
             throw new AppException("failed to decompress, IO exception " + ex.getMessage(),
                 ResponseConst.RET_DECOMPRESS_FAILED);
         }
@@ -431,14 +430,13 @@ public class AppService {
              TarArchiveOutputStream outStream = new TarArchiveOutputStream(gipOutStream)) {
 
             addFileToTar(sourceDir, "", outStream);
-
         } catch (IOException e) {
+            LOGGER.error("Failed to compress file, errorMsg: {}", e.getMessage());
             throw new AppException("failed to compress " + e.getMessage(), ResponseConst.RET_COMPRESS_FAILED);
         }
     }
 
     private void addFileToTar(String filePath, String parent, TarArchiveOutputStream tarArchive) throws IOException {
-
         File file = new File(filePath);
         LOGGER.info("compressing... {}", file.getName());
         String entry = parent + file.getName();
@@ -460,6 +458,7 @@ public class AppService {
                 }
             }
         } catch (IOException e) {
+            LOGGER.error("Failed to add file to tar, errorMsg: {}", e.getMessage());
             throw new AppException("failed to compress " + e.getMessage(), ResponseConst.RET_COMPRESS_FAILED);
         }
     }

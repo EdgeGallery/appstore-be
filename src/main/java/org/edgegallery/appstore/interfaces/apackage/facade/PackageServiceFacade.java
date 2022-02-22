@@ -42,19 +42,16 @@ import org.edgegallery.appstore.application.inner.PackageService;
 import org.edgegallery.appstore.application.packageupload.UploadPackageService;
 import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
-import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppRepository;
 import org.edgegallery.appstore.domain.model.releases.AbstractFileChecker;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
 import org.edgegallery.appstore.domain.model.releases.Release;
-import org.edgegallery.appstore.domain.model.releases.UnknownReleaseExecption;
 import org.edgegallery.appstore.domain.model.user.User;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.Page;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.AppException;
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.infrastructure.files.LocalFileServiceImpl;
 import org.edgegallery.appstore.infrastructure.persistence.meao.PackageUploadProgress;
 import org.edgegallery.appstore.infrastructure.util.AppUtil;
@@ -227,6 +224,7 @@ public class PackageServiceFacade {
         throws IOException {
         Release release = appService.download(appId, packageId);
         if ("container".equalsIgnoreCase(release.getDeployMode())) {
+            LOGGER.error("Can not support to sync container app.");
             throw new AppException("can not support container app.", ResponseConst.RET_CONTAINER_NOT_SUPPORT);
         }
         // build upload progress data
@@ -281,21 +279,18 @@ public class PackageServiceFacade {
      */
     public ResponseEntity<PackageDto> updateAppById(MultipartFile iconFile, MultipartFile demoVideo,
         MultipartFile docFile, PackageDto packageDto, HttpServletRequest request) {
-        App app = appRepository.find(packageDto.getAppId()).orElseThrow(
-            () -> new EntityNotFoundException(App.class, packageDto.getAppId(), ResponseConst.RET_APP_NOT_FOUND));
-        Release releasePermission = app.findByPackageId(packageDto.getPackageId()).orElseThrow(
-            () -> new UnknownReleaseExecption(packageDto.getPackageId(), ResponseConst.RET_PACKAGE_NOT_FOUND));
-
         boolean isAdmin = false;
         String authorities = (String) request.getAttribute(Consts.AUTHORITIES);
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
             isAdmin = true;
         }
+        Release releasePermission = appService.getRelease(packageDto.getAppId(), packageDto.getPackageId());
         releasePermission.checkPermission(
             new User((String) request.getAttribute("userId"), (String) request.getAttribute("userName")), isAdmin,
             ResponseConst.RET_NO_ACCESS_MODIFY_PACKAGE);
 
         packageService.updateAppById(iconFile, demoVideo, docFile, packageDto);
+        LOGGER.info("Update package successfully.");
         Release release = packageRepository.findReleaseById(packageDto.getAppId(), packageDto.getPackageId());
         return ResponseEntity.ok(PackageDto.of(release));
     }
@@ -337,6 +332,7 @@ public class PackageServiceFacade {
                 packageService.getPackageByCreateTime(limit, offset, startDate, endDate).stream().map(PackageDto::of)
                     .collect(Collectors.toList()), limit, offset, total);
         } catch (ParseException e) {
+            LOGGER.error("The time parameter format is incorrect. startTime: {}, endTime: {}", startTime, endTime);
             throw new AppException("The time parameter format is incorrect.", ResponseConst.RET_PARAM_INVALID);
         }
     }
@@ -389,7 +385,7 @@ public class PackageServiceFacade {
      *
      * @param tempZip tempZip file.
      */
-    public long getExpirTime(File tempZip) {
+    public long getExpireTime(File tempZip) {
         long startTime = tempZip.lastModified();
         long endTime = new Date().getTime();
         return endTime - startTime;
@@ -429,7 +425,7 @@ public class PackageServiceFacade {
         List<File> files = searchTempFiles(new File(packageDir), TEMP_EXPIRE_PREFIX);
         LOGGER.info("schedule find temp file count is {}", files.size());
         for (File tempFile : files) {
-            long expireTime = getExpirTime(tempFile);
+            long expireTime = getExpireTime(tempFile);
             if (expireTime >= CLEAN_ENV_WAIT_TIME) {
                 LOGGER.info("Start schedule delete temp file is {}", tempFile);
                 FileUtils.deleteQuietly(tempFile);
