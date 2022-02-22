@@ -138,7 +138,7 @@ public class ScheduleTaskTest extends AppTest {
     public void should_success_getExpirTime() throws Exception {
         packageServiceFacade.scheduledDeletePackage();
         File tempFile = Resources.getResourceAsFile("testfile/logo.png");
-        long expTime = packageServiceFacade.getExpirTime(tempFile);
+        long expTime = packageServiceFacade.getExpireTime(tempFile);
         Assert.assertTrue(expTime > 0);
     }
 

@@ -153,7 +153,6 @@ public class AppService {
      */
     @Transactional(rollbackFor = Exception.class)
     public RegisterRespDto registerApp(Release release) {
-
         Optional<App> existedApp = appRepository.findByAppNameAndProvider(release.getAppBasicInfo().getAppName(),
             release.getAppBasicInfo().getProvider());
         App app;
@@ -191,11 +190,9 @@ public class AppService {
      * @param swImageDesc software image descriptor file content
      */
     public void updateRepoInfoInSwImageDesc(File swImageDesc) {
-
         try {
             String descStr = FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8);
             JsonArray swImgDescArray = new JsonParser().parse(descStr).getAsJsonArray();
-
             for (JsonElement desc : swImgDescArray) {
                 JsonObject jsonObject = desc.getAsJsonObject();
                 String swImage = jsonObject.get(SWIMAGE).getAsString();
@@ -221,7 +218,6 @@ public class AppService {
      * @param parentDir parent Dir
      */
     public void updateAppPackageWithRepoInfo(String parentDir) {
-
         File swImageDesc = appUtil.getFileFromPackage(parentDir, "Image/SwImageDesc.json");
         updateRepoInfoInSwImageDesc(swImageDesc);
         String unZipPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
@@ -248,7 +244,7 @@ public class AppService {
             }
 
             //update values.yaml
-            Map<String, Object> values = loadvaluesYaml(valuesYaml);
+            Map<String, Object> values = loadValuesYaml(valuesYaml);
             ImgLoc imageLoc = null;
             for (String key : values.keySet()) {
                 if (IMAGE_LOCATION.equals(key)) {
@@ -281,8 +277,7 @@ public class AppService {
      *
      * @param valuesYaml values file
      */
-    private Map<String, Object> loadvaluesYaml(File valuesYaml) {
-
+    private Map<String, Object> loadValuesYaml(File valuesYaml) {
         Map<String, Object> valuesYamlMap;
         Yaml yaml = new Yaml(new SafeConstructor());
         try (InputStream inputStream = new FileInputStream(valuesYaml)) {
@@ -326,7 +321,6 @@ public class AppService {
      * @param imageInfoList list of images
      */
     public void downloadAppImage(List<SwImgDesc> imageInfoList) {
-
         String[] sourceRepoHost;
         for (SwImgDesc imageInfo : imageInfoList) {
             LOGGER.info("Download docker image {} ", imageInfo.getSwImage());
@@ -357,7 +351,6 @@ public class AppService {
      * @param imageInfoList list of images
      */
     public void uploadAppImage(List<SwImgDesc> imageInfoList) {
-
         for (SwImgDesc imageInfo : imageInfoList) {
             LOGGER.info("Docker image to  upload: {}", imageInfo.getSwImage());
 
@@ -383,7 +376,7 @@ public class AppService {
                 Thread.currentThread().interrupt();
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             } catch (Exception e) {
-                LOGGER.error("failed to push image {}, errormsg: {}", uploadImgName, e.getMessage());
+                LOGGER.error("failed to push image {}, errorMsg: {}", uploadImgName, e.getMessage());
                 throw new AppException(PUSH_IMAGE_ERR_MESSAGES, ResponseConst.RET_PUSH_IMAGE_FAILED, uploadImgName);
             }
         }
@@ -438,7 +431,6 @@ public class AppService {
     }
 
     private void addFileToTar(String filePath, String parent, TarArchiveOutputStream tarArchive) throws IOException {
-
         File file = new File(filePath);
         LOGGER.info("compressing... {}", file.getName());
         String entry = parent + file.getName();
