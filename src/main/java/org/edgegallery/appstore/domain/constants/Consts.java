@@ -90,7 +90,7 @@ public final class Consts {
 
     public static final String OS_OPENSTACK = "OpenStack";
 
-    public static final String OS_K8S = "K8s";
+    public static final String OS_K8S = "K8S";
 
     public static final String APP_CONTAINER = "container";
 

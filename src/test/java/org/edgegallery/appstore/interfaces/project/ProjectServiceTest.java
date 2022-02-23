@@ -25,9 +25,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
@@ -40,21 +38,17 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.appstore.application.external.mecm.MecmService;
-import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
 import org.edgegallery.appstore.domain.model.releases.EnumPackageStatus;
 import org.edgegallery.appstore.domain.model.system.lcm.DistributeResponse;
 import org.edgegallery.appstore.domain.model.system.lcm.UploadResponse;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.infrastructure.persistence.apackage.PackageMapper;
 import org.edgegallery.appstore.interfaces.AppTest;
-import org.edgegallery.appstore.interfaces.order.web.MecmRespDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -205,7 +199,7 @@ public class ProjectServiceTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_success_when_deploy_apk() throws IOException {
+    public void should_success_when_deploy_apk() {
         projectService.setInstantiateAppSleepTime(1000);
         projectService.setUploadPkgSleepTime(1000);
         Optional.ofNullable(packageMapper.findReleaseById(unPublishedPackageId)).ifPresent(r -> {
@@ -224,7 +218,7 @@ public class ProjectServiceTest extends AppTest {
         ResponseEntity<ResponseObject> response = projectService
             .deployAppById("appid-test-0001", unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, response.getStatusCode().value());
-        Assert.assertEquals("get app url success.", Objects.requireNonNull(response.getBody()).getMessage());
+        Assert.assertEquals("get app url successfully.", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
     @Test
@@ -255,7 +249,7 @@ public class ProjectServiceTest extends AppTest {
         ResponseEntity<ResponseObject> ret = projectService.getNodeStatus(unPublishedPackageId, "userId", "123456789");
         Assert.assertEquals(200, ret.getStatusCode().value());
         System.out.println(Objects.requireNonNull(ret.getBody()).getMessage());
-        Assert.assertEquals("get app url success.", Objects.requireNonNull(ret.getBody()).getMessage());
+        Assert.assertEquals("get node status successfully.", Objects.requireNonNull(ret.getBody()).getMessage());
     }
 
     @Test
