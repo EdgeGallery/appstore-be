@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.edgegallery.appstore.domain.model.system.lcm.UploadedFile;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.domain.shared.exceptions.CustomException;
-import org.edgegallery.appstore.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.appstore.domain.shared.exceptions.FileOperateException;
 import org.edgegallery.appstore.domain.shared.exceptions.HostException;
 import org.edgegallery.appstore.domain.shared.exceptions.IllegalRequestException;
@@ -73,9 +72,9 @@ public class SystemService {
 
     private static final int VNC_PORT = 22;
 
-    private static final String ADD_MEC_HOST_FAILED = "add mec host to lcm failed.";
+    private static final String ADD_MEC_HOST_FAILED = "Add mec host to lcm failed.";
 
-    private static final String HEALTH_CHECK_FAILED = "health check failed, current ip or port can't be used.";
+    private static final String HEALTH_CHECK_FAILED = "Health check failed, current ip or port is unreachable.";
 
     @Autowired
     private HostMapper hostMapper;
@@ -91,7 +90,7 @@ public class SystemService {
      * getAllHosts.
      * @param name name.
      * @param os os.
-     * @return
+     * @return all mep host info
      */
     public List<MepHost> getAllHosts(String name, String os) {
         LOGGER.info("Get all hosts success.");
@@ -101,29 +100,25 @@ public class SystemService {
     /**
      * createHost.
      *
-     * @return
+     * @return create host result
      */
     @Transactional
     public Either<ResponseObject, Boolean> createHost(MepHost host, String token) {
         if (StringUtils.isBlank(host.getUserId())) {
             LOGGER.error("Create host failed, userId is empty");
-            throw new EntityNotFoundException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
+            throw new HostException("Create host failed, userId is empty.", ResponseConst.USERID_IS_EMPTY);
         }
-        boolean addMecHostRes = addMecHostToLcm(host);
-        if (!addMecHostRes) {
-            String msg = "add mec host to lcm fail";
-            LOGGER.error(msg);
-            throw new EntityNotFoundException(ADD_MEC_HOST_FAILED, ResponseConst.ADD_HOST_TO_LCM_FAILED);
+        if (!addMecHostToLcm(host)) {
+            LOGGER.error("Failed to add mec host to lcm.");
+            throw new HostException(ADD_MEC_HOST_FAILED, ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host, uploadedFile.getFilePath(), token);
-            if (!uploadRes) {
-                String msg = "Create host failed,upload config file error";
-                LOGGER.error(msg);
-                throw new EntityNotFoundException("Create host failed,upload config file error.",
+            if (!uploadFileToLcm(host, uploadedFile.getFilePath(), token)) {
+                LOGGER.error("Failed to upload config file to lcm.");
+                throw new HostException("Create host failed, upload config file error.",
                     ResponseConst.UPLOAD_CONFIG_FILE_ERROR);
             }
         }
@@ -132,7 +127,7 @@ public class SystemService {
         int ret = hostMapper.createHost(host);
         if (ret <= 0) {
             LOGGER.error("Create host failed ");
-            throw new EntityNotFoundException("Can not create a host.", ResponseConst.CREATE_HOST_ERROR);
+            throw new HostException("Can not create a host.", ResponseConst.CREATE_HOST_ERROR);
         }
         LOGGER.info("Crete host {} success ", host.getHostId());
         return Either.right(true);
@@ -142,68 +137,60 @@ public class SystemService {
     /**
      * deleteHost.
      *
-     * @return
+     * @return delete host result
      */
     @Transactional
     public Either<ResponseObject, Boolean> deleteHost(String hostId, String token) {
         MepHost host = hostMapper.getHost(hostId);
-        //health check
-        boolean healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
-        if (!healRes) {
+        // health check
+        if (!HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort())) {
             LOGGER.error(HEALTH_CHECK_FAILED);
             throw new HostException(HEALTH_CHECK_FAILED, ResponseConst.HEALTH_CHECK_FAILED);
         }
-        // delete mechost from lcm
-        boolean deleteLcmMecHostRes = deleteMecHostFromLcm(host, token);
-        if (!deleteLcmMecHostRes) {
-            String msg = "delete mec host from lcm fail";
-            LOGGER.error(msg);
-            throw new HostException(ADD_MEC_HOST_FAILED, ResponseConst.DELETE_HOST_FROM_LCM_FAILED);
+        // delete mec host from lcm
+        if (!deleteMecHostFromLcm(host, token)) {
+            LOGGER.error("Failed to delete mec host from lcm");
+            throw new HostException("Failed to delete mec host from lcm", ResponseConst.DELETE_HOST_FROM_LCM_FAILED);
         }
         int res = hostMapper.deleteHost(hostId);
         if (res < 1) {
-            LOGGER.error("Delete host {} failed", hostId);
-            throw new EntityNotFoundException("Delete host failed.", ResponseConst.DELETE_HOST_FAILED);
+            LOGGER.error("Delete host {} from database failed", hostId);
+            throw new HostException("Delete host from database failed.", ResponseConst.DELETE_HOST_FAILED);
         }
-        LOGGER.info("Delete host {} success", hostId);
+        LOGGER.info("Delete host {} successfully", hostId);
         return Either.right(true);
     }
 
     /**
      * updateHost.
      *
-     * @return
+     * @return update host result
      */
     @Transactional
     public Either<ResponseObject, Boolean> updateHost(String hostId, MepHost host, String token) {
-        //health check
-        boolean healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
-        if (!healRes) {
+        // health check
+        if (!HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort())) {
             LOGGER.error(HEALTH_CHECK_FAILED);
             throw new HostException(HEALTH_CHECK_FAILED, ResponseConst.HEALTH_CHECK_FAILED);
         }
-        // add mechost to lcm
-        boolean addMecHostRes = addMecHostToLcm(host);
-        if (!addMecHostRes) {
-            String msg = "add mec host to lcm fail";
-            LOGGER.error(msg);
+        // add mec host to lcm
+        if (!addMecHostToLcm(host)) {
+            LOGGER.error("Failed to add mec host to lcm");
             throw new HostException(ADD_MEC_HOST_FAILED, ResponseConst.ADD_HOST_TO_LCM_FAILED);
         }
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host, uploadedFile.getFilePath(), token);
-            if (!uploadRes) {
-                String msg = "Create host failed,upload config file error";
-                LOGGER.error(msg);
-                throw new HostException("Create host failed,upload config file error.",
+            if (!uploadFileToLcm(host, uploadedFile.getFilePath(), token)) {
+                LOGGER.error("Failed to upload config file to lcm");
+                throw new HostException("Update host failed, upload config file error.",
                     ResponseConst.UPLOAD_CONFIG_FILE_ERROR);
             }
         }
         MepHost currentHost = hostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
-            throw new HostException("Can not find the host.}", ResponseConst.NOT_GET_HOST_ERROR);
+            throw new HostException("Can not find the host.", ResponseConst.NOT_GET_HOST_ERROR);
         }
 
         host.setHostId(hostId); // no need to set hostId by user
@@ -213,26 +200,26 @@ public class SystemService {
             LOGGER.info("Update host {} success", hostId);
             return Either.right(true);
         }
-        LOGGER.error("Update host {} failed", hostId);
-        throw new HostException("Can not update the host.", ResponseConst.RET_UPDATE_HOST_FAILED);
+        LOGGER.error("Update host {} from database failed", hostId);
+        throw new HostException("Update host from database failed.", ResponseConst.RET_UPDATE_HOST_FAILED);
     }
 
     /**
      * getHost.
      *
-     * @return
+     * @return query host result
      */
     public Either<ResponseObject, MepHost> getHost(String hostId) {
         MepHost host = hostMapper.getHost(hostId);
         if (host != null) {
-            LOGGER.info("Get host {} success", hostId);
+            LOGGER.info("Get host {} successfully", hostId);
             return Either.right(host);
-        } else {
-            LOGGER.error("Can not find host by {}", hostId);
-            ErrorMessage errMsg = new ErrorMessage(Response.Status.BAD_REQUEST.getStatusCode(), null);
-            ResponseObject error = new ResponseObject(null, errMsg, "Can not find the host.");
-            return Either.left(error);
         }
+
+        LOGGER.error("Can not find host by {}", hostId);
+        ErrorMessage errMsg = new ErrorMessage(Response.Status.BAD_REQUEST.getStatusCode(), null);
+        ResponseObject error = new ResponseObject(null, errMsg, "Can not find the host.");
+        return Either.left(error);
     }
 
     /**
@@ -240,7 +227,7 @@ public class SystemService {
      * @param host mecHost.
      * @param filePath filePath.
      * @param token token.
-     * @return
+     * @return upload config file successfully or failed, true or false.
      */
     public boolean uploadFileToLcm(MepHost host, String filePath, String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
@@ -256,17 +243,17 @@ public class SystemService {
         try {
             String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_UPLOAD_FILE
                 .replace(TENANT_ID, host.getUserId());
-            LOGGER.info(" upload file url is {}", url);
+            LOGGER.info("The url of uploading file is: {}", url);
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("upload file lcm log:{}", response);
+            LOGGER.info("The response of uploading file is:{}", response);
         } catch (Exception e) {
-            LOGGER.error("Failed to upload file lcm, exception {}", e.getMessage());
+            LOGGER.error("Failed to upload file to lcm, errorMsg: {}", e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed to upload file lcm, filePath is {}", filePath);
+        LOGGER.error("Failed to upload file to lcm, filePath is {}", filePath);
         return false;
     }
 
@@ -280,12 +267,12 @@ public class SystemService {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
-            LOGGER.info("APPlCM delete mec host log:{}", response);
+            LOGGER.info("The response of deleting mec host from lcm is: {}", response);
         } catch (CustomException e) {
-            LOGGER.error("Failed delete mec host mecHost exception {}", e.getBody());
+            LOGGER.error("Failed to delete mec host mecHost, errorMsg: {}", e.getBody());
             return false;
         } catch (RestClientException e) {
-            LOGGER.error("Failed delete mec host mecHost is {} exception {}", host.getMecHost(), e.getMessage());
+            LOGGER.error("Failed delete mec host mecHost {}, errorMsg: {}", host.getMecHost(), e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -301,10 +288,10 @@ public class SystemService {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHost());
         body.setMechostName(host.getName());
-        if (host.getOs().equals("OpenStack") || host.getOs().equals("FusionSphere")) {
-            body.setVim("OpenStack");
+        if (host.getOs().equals(Consts.OS_OPENSTACK) || host.getOs().equals("FusionSphere")) {
+            body.setVim(Consts.OS_OPENSTACK);
         } else {
-            body.setVim("K8s");
+            body.setVim(Consts.OS_K8S);
         }
         body.setOrigin("appstore");
         //add headers
@@ -314,32 +301,32 @@ public class SystemService {
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
         String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST
             .replace(TENANT_ID, host.getUserId());
-        LOGGER.info("add mec host url:{}", url);
+        LOGGER.info("The url of adding mec host is: {}", url);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("add mec host to lcm log:{}", response);
+            LOGGER.info("The response of adding mec host to lcm is: {}", response);
         } catch (CustomException e) {
-            LOGGER.error("Failed add mec host to lcm exception {}", e.getBody());
+            LOGGER.error("Failed to add mec host to lcm, errorMsg: {}", e.getBody());
             return false;
         } catch (RestClientException e) {
-            LOGGER.error("Failed add mec host to lcm exception {}", e.getMessage());
+            LOGGER.error("Failed to add mec host to lcm, errorMsg: {}", e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed add mec host to lcm");
+        LOGGER.error("Failed to add mec host to lcm");
         return false;
     }
 
     /**
      * uploadFile.
      *
-     * @return
+     * @return upload file result
      */
     public Either<ResponseObject, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
-        LOGGER.info("Begin upload file");
+        LOGGER.info("Begin to upload file");
         UploadedFile result = new UploadedFile();
         String fileName = uploadFile.getOriginalFilename();
         if (!AbstractFileChecker.isValid(fileName)) {
@@ -348,16 +335,12 @@ public class SystemService {
         }
         String fileId = UUID.randomUUID().toString();
         String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
-        String fileRealPath = upLoadDir + fileId;
         File dir = new File(upLoadDir);
-        if (!dir.isDirectory()) {
-            boolean isSuccess = dir.mkdirs();
-            if (!isSuccess) {
-                throw new FileOperateException("create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
-            }
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            throw new FileOperateException("Create folder failed", ResponseConst.RET_MAKE_DIR_FAILED);
         }
 
-        File newFile = new File(fileRealPath);
+        File newFile = new File(upLoadDir + fileId);
         try {
             uploadFile.transferTo(newFile);
             result.setFileName(fileName);
@@ -368,11 +351,11 @@ public class SystemService {
             result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
             uploadedFileMapper.saveFile(result);
         } catch (IOException e) {
-            LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
-            throw new FileOperateException("save file exception.", ResponseConst.RET_SAVE_FILE_EXCEPTION);
+            LOGGER.error("Failed to save file with IOException: {}", e.getMessage());
+            throw new FileOperateException("Save file exception.", ResponseConst.RET_SAVE_FILE_EXCEPTION);
         }
-        LOGGER.info("upload file success {}", fileName);
-        //upload success
+        LOGGER.info("Upload file {} successfully", fileName);
+        // upload success
         result.setFilePath("");
         return Either.right(result);
     }

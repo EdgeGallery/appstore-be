@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.order.EnumOrderOperation;
 import org.edgegallery.appstore.domain.model.order.EnumOrderStatus;
@@ -186,11 +187,11 @@ public class OrderService {
      * @param release release.
      */
     public String getVmDeployParams(Release release) {
-        if ("container".equalsIgnoreCase(release.getDeployMode())) {
+        if (Consts.APP_CONTAINER.equalsIgnoreCase(release.getDeployMode())) {
             return "";
         }
         String parameter;
-        List<MepHost> mepHosts = hostMapper.getHostsByCondition("", "OpenStack");
+        List<MepHost> mepHosts = hostMapper.getHostsByCondition("", Consts.OS_OPENSTACK);
         if (CollectionUtils.isEmpty(mepHosts)) {
             LOGGER.info("there is not host info.");
             parameter = "app_mp1_ip=192.168.226.0/24;app_n6_ip=192.168.225.0/24;app_internet_ip=192.168.227.0/24";

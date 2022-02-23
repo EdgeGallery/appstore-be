@@ -19,6 +19,7 @@ package org.edgegallery.appstore.interfaces.system.web;
 import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.system.EnumHostStatus;
 import org.edgegallery.appstore.domain.model.system.MepHost;
 import org.edgegallery.appstore.domain.shared.ResponseObject;
@@ -117,7 +118,7 @@ public class SystemServiceTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        host.setOs("K8s");
+        host.setOs(Consts.OS_K8S);
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "add mec host to lcm failed.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
@@ -137,7 +138,7 @@ public class SystemServiceTest {
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setConfigId("errorId");
-        host.setOs("K8s");
+        host.setOs(Consts.OS_K8S);
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "add mec host to lcm failed.");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
@@ -157,7 +158,7 @@ public class SystemServiceTest {
         host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setConfigId("errorId");
-        host.setOs("K8s");
+        host.setOs(Consts.OS_K8S);
         host.setUserId(UUID.randomUUID().toString());
         expectedEx.expectMessage( "health check failed, current ip or port can't be used.");
         Either<ResponseObject, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
