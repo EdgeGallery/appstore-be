@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Huawei Technologies Co., Ltd.
+ * Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -87,6 +87,14 @@ public final class Consts {
     public static final String FAILED = "failed";
 
     public static final String SUCCESS = "success";
+
+    public static final String OS_OPENSTACK = "OpenStack";
+
+    public static final String OS_K8S = "K8s";
+
+    public static final String APP_CONTAINER = "container";
+
+    public static final String APP_VM = "vm";
 
     public static final int MAX_DETAILS_STRING_LENGTH = 1024;
 

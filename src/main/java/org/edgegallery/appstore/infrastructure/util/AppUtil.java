@@ -53,6 +53,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cms.CMSException;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.SwImgDesc;
 import org.edgegallery.appstore.domain.model.appd.AppdFileHandlerFactory;
@@ -270,7 +271,7 @@ public class AppUtil {
      */
     public void checkImage(AtpMetadata atpMetadata, String fileParent, String appClass, String userId,
         String fileNameExtension) {
-        if (!StringUtils.isEmpty(appClass) && appClass.equals("container")) {
+        if (!StringUtils.isEmpty(appClass) && appClass.equals(Consts.APP_CONTAINER)) {
             return;
         }
         File file = new File(fileParent);

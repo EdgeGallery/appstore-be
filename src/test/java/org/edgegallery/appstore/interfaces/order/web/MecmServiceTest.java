@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.external.mecm.dto.MecmDeploymentInfo;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.model.releases.AFile;
 import org.edgegallery.appstore.domain.model.releases.BasicInfo;
 import org.edgegallery.appstore.domain.model.releases.Release;
@@ -84,7 +85,7 @@ public class MecmServiceTest {
                     mechost.put("mechostIp", hostIp);
                     mechost.put("mechostName", "38node1");
                     mechost.put("mechostCity", "xian");
-                    mechost.put("vim", "K8s");
+                    mechost.put("vim", Consts.OS_K8S);
                     mechost.put("affinity", "X86");
                     mechosts.add(mechost);
                     Map<String, Object> rsp = new HashMap<>();

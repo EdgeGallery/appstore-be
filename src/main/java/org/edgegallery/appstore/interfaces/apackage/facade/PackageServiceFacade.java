@@ -223,7 +223,7 @@ public class PackageServiceFacade {
     public ResponseEntity<ResponseObject> syncPackage(String appId, String packageId, String meaoId, String token)
         throws IOException {
         Release release = appService.download(appId, packageId);
-        if ("container".equalsIgnoreCase(release.getDeployMode())) {
+        if (Consts.APP_CONTAINER.equalsIgnoreCase(release.getDeployMode())) {
             LOGGER.error("Can not support to sync container app.");
             throw new AppException("can not support container app.", ResponseConst.RET_CONTAINER_NOT_SUPPORT);
         }

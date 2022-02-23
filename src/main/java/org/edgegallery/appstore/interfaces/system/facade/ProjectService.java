@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.EnumExperienceStatus;
 import org.edgegallery.appstore.domain.model.releases.PackageRepository;
@@ -72,23 +73,15 @@ public class ProjectService {
     private static final int CLEAN_ENV_WAIT_TIME = 24;
 
     /**
-     * get worksrtatus wait 5 minites.
+     * get work status wait 5 minutes.
      */
-    private static final int GET_WORKSTATUS_WAIT_TIME = 5 * 1000 * 60;
+    private static final int GET_WORK_STATUS_WAIT_TIME = 5 * 1000 * 60;
 
     /**
-     * get terminate app result wait 2 minites.
+     * get terminate app result wait 2 minutes.
      */
 
     private static final String STATUS_DATA = "data";
-
-    private static final String CONTAINER = "container";
-
-    private static final String VM = "vm";
-
-    private static final String K8S = "K8S";
-
-    private static final String OPENSTACK = "OpenStack";
 
     private static final int IP_BINARY_BITS = 32;
 
@@ -96,7 +89,7 @@ public class ProjectService {
 
     private static final int IP_CALCULATE_BASE = 2;
 
-    private static final String SLEEP_FAILED = "sleep fail! {}";
+    private static final String SLEEP_FAILED = "Sleep exception: {}";
 
     private static final String SERVICES = "services";
 
@@ -104,12 +97,12 @@ public class ProjectService {
 
     private static final String USER_ID = "userId";
 
-    private static final String INSTANTIATE_FAILED = "instantiate package failed.";
+    private static final String INSTANTIATE_FAILED = "Instantiate package failed.";
 
     private static final String APP_INSTANCE_ID = "appInstanceId";
 
     /**
-     * get terminate app result wait 2 minites.
+     * get terminate app result wait 2 minutes.
      */
     private static final int GET_TERMINATE_RESULT_TIME = 5 * 1000 * 60;
 
@@ -147,26 +140,23 @@ public class ProjectService {
     public boolean deployTestConfigToAppLcm(Map<String, String> deployParams, MepHost mepHost,
         AppReleasePo appReleasePo, LcmLog lcmLog) {
         Map<String, String> inputParams = new HashMap<>();
-        if (VM.equals(appReleasePo.getDeployMode())) {
+        if (Consts.APP_VM.equals(appReleasePo.getDeployMode())) {
             inputParams = getInputParams(mepHost.getParameter(), mepHost.getMecHost());
         }
-        boolean uploadRes = uploadPackage(deployParams, mepHost, appReleasePo, lcmLog, inputParams);
-        if (!uploadRes) {
+        if (!uploadPackage(deployParams, mepHost, appReleasePo, lcmLog, inputParams)) {
             return false;
         }
+
         updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.DISTRIBUTING.getProgress());
-        boolean distributeRes = distributePkg(deployParams.get(USER_ID), mepHost, deployParams.get(TOKEN), appReleasePo,
-            lcmLog);
-        if (!distributeRes) {
+        if (!distributePkg(deployParams.get(USER_ID), mepHost, deployParams.get(TOKEN), appReleasePo, lcmLog)) {
             String pkgId = appReleasePo.getInstancePackageId();
             HttpClientUtil.deletePkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId);
-            LOGGER.error("distributed package failed.");
+            LOGGER.error("Distributed package failed.");
             return false;
         }
         updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATING.getProgress());
         // instantiate application
-        boolean instantRes = instantiateApp(mepHost, deployParams, lcmLog, appReleasePo, inputParams);
-        if (!instantRes) {
+        if (!instantiateApp(mepHost, deployParams, lcmLog, appReleasePo, inputParams)) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATE_FAILED.getProgress());
             String pkgId = appReleasePo.getInstancePackageId();
             HttpClientUtil.deleteHost(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(), deployParams, pkgId,
@@ -175,7 +165,7 @@ public class ProjectService {
             LOGGER.error(INSTANTIATE_FAILED);
             return false;
         }
-        LOGGER.info("after instant {}", instantRes);
+        LOGGER.info("Instantiate app successfully.");
         return true;
     }
 
@@ -194,7 +184,6 @@ public class ProjectService {
         long startTime = new Date().getTime();
         boolean instantiateRes = HttpClientUtil.instantiateApp(mepHost, deployParams, lcmLog,
             appReleasePo.getInstancePackageId(), inputParams);
-        LOGGER.info("instantiate res {}", instantiateRes);
         if (!instantiateRes) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATE_FAILED.getProgress());
             LOGGER.error(INSTANTIATE_FAILED);
@@ -209,11 +198,11 @@ public class ProjectService {
             Thread.currentThread().interrupt();
         }
 
-        String packageStatus = "";
+        String packageStatus;
         String status = "";
         long endTime;
         String enumStatus = EnumExperienceStatus.INSTANTIATED.getText();
-        if (VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
+        if (Consts.APP_VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
             enumStatus = EnumExperienceStatus.VM_INSTANTIATED.getText();
         }
         while (!enumStatus.equalsIgnoreCase(status)) {
@@ -233,7 +222,7 @@ public class ProjectService {
                 Thread.currentThread().interrupt();
             }
             endTime = new Date().getTime();
-            if ((endTime - startTime) > GET_WORKSTATUS_WAIT_TIME) {
+            if ((endTime - startTime) > GET_WORK_STATUS_WAIT_TIME) {
                 lcmLog.setLog(INSTANTIATE_FAILED);
                 return false;
             }
@@ -253,13 +242,11 @@ public class ProjectService {
      */
     public boolean distributePkg(String userId, MepHost mepHost, String token, AppReleasePo appReleasePo,
         LcmLog lcmLog) {
-        boolean distributeRes = HttpClientUtil.distributePkg(mepHost, userId, token,
-            appReleasePo.getInstancePackageId(), lcmLog);
-        LOGGER.info("distribute res {}", distributeRes);
-        if (!distributeRes) {
+        if (!HttpClientUtil.distributePkg(mepHost, userId, token, appReleasePo.getInstancePackageId(), lcmLog)) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.DISTRIBUTE_FAILED.getProgress());
             lcmLog.setLog("distributed package failed.");
             lcmLog.setRetCode(ResponseConst.RET_DISTRIBUTE_FAILED);
+            LOGGER.error("Failed to distribute package to lcm.");
             return false;
         }
         return confirmResult(mepHost, userId, token, appReleasePo);
@@ -279,10 +266,10 @@ public class ProjectService {
         LcmLog lcmLog, Map<String, String> inputParams) {
         String uploadRes = HttpClientUtil.uploadPkg(mepHost.getProtocol(), mepHost.getLcmIp(), mepHost.getPort(),
             deployParams, lcmLog);
-        LOGGER.info("upload res {}", uploadRes);
+        LOGGER.info("Upload package result is: {}", uploadRes);
         if (StringUtils.isEmpty(uploadRes)) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.UPLOAD_FAILED.getProgress());
-            LOGGER.error("upload to remote file server failed.");
+            LOGGER.error("Upload to remote file server failed.");
             lcmLog.setLog("upload to remote file server failed.");
             lcmLog.setRetCode(ResponseConst.RET_UPLOAD_FILE_FAILED);
             return false;
@@ -296,7 +283,7 @@ public class ProjectService {
         String pkgId = uploadResponse.getPackageId();
         appReleasePo.setInstancePackageId(pkgId);
         // This is the IP used to record the vm application online experience
-        if (VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
+        if (Consts.APP_VM.equalsIgnoreCase(appReleasePo.getDeployMode())) {
             String vmExperienceIP = InputParameterUtil.getExperienceIp(mepHost.getParameter());
             appReleasePo.setExperienceAbleIp(vmExperienceIP);
         }
@@ -315,7 +302,7 @@ public class ProjectService {
      */
     public boolean confirmResult(MepHost mepHost, String userId, String token, AppReleasePo appReleasePo) {
         long startTime = new Date().getTime();
-        String resultInfo = "";
+        String resultInfo;
         String status = "";
         long endTime;
         while (!EnumExperienceStatus.DISTRIBUTED.getText().equalsIgnoreCase(status)) {
@@ -415,11 +402,11 @@ public class ProjectService {
      */
     public Either<ResponseObject, Boolean> cleanTestEnv(String packageId, String token) {
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
-        String instanceTenentId = appReleasePo.getInstanceTenentId();
+        String instanceTenantId = appReleasePo.getInstanceTenentId();
         String appInstanceId = appReleasePo.getAppInstanceId();
         String pkgId = appReleasePo.getInstancePackageId();
         MepHost mepHost = judgeHost(appReleasePo.getDeployMode());
-        boolean cleanResult = deleteDeployedApp(mepHost, instanceTenentId, appInstanceId, pkgId, token);
+        boolean cleanResult = deleteDeployedApp(mepHost, instanceTenantId, appInstanceId, pkgId, token);
         if (cleanResult) {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.CLEAN_ENV_SUCCESS.getProgress());
         }
@@ -434,16 +421,15 @@ public class ProjectService {
      * @param deployMode deployMode.
      */
     public MepHost judgeHost(String deployMode) {
-        String os = "";
-        List<MepHost> mepHosts = null;
-        if (CONTAINER.equalsIgnoreCase(deployMode)) {
-            os = K8S;
+        String os;
+        if (Consts.APP_CONTAINER.equalsIgnoreCase(deployMode)) {
+            os = Consts.OS_K8S;
         } else {
-            os = OPENSTACK;
+            os = Consts.OS_OPENSTACK;
         }
-        mepHosts = hostMapper.getHostsByCondition("", os);
+        List<MepHost> mepHosts = hostMapper.getHostsByCondition("", os);
         if (CollectionUtils.isEmpty(mepHosts)) {
-            throw new IllegalRequestException("please register host", ResponseConst.HOST_EMPTY_ERROR);
+            throw new IllegalRequestException("Please register host", ResponseConst.HOST_EMPTY_ERROR);
         }
         //in  experience online scenario, the first sandbox of the array is used by default.
         return mepHosts.get(0);
@@ -464,25 +450,8 @@ public class ProjectService {
         deployParams.put(TOKEN, token);
         String workStatus = HttpClientUtil.getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
             deployParams);
-        LOGGER.info("pod workStatus: {}", workStatus);
+        LOGGER.info("The pod work status: {}", workStatus);
         return workStatus;
-    }
-
-    /**
-     * get experience status.
-     *
-     * @param packageId packageId.
-     * @param userId userId.
-     * @param mepHost mepHost.
-     * @param token token.
-     * @param lcmLog lcmLog.
-     * @return work status.
-     */
-    public String getPackageStatus(String packageId, String userId, MepHost mepHost, String token, LcmLog lcmLog) {
-        String packageStatus = HttpClientUtil.getPackageStatus(mepHost.getProtocol(), mepHost.getLcmIp(),
-            mepHost.getPort(), userId, token, lcmLog);
-        LOGGER.info("pod workStatus: {}", packageStatus);
-        return packageStatus;
     }
 
     /**
@@ -493,19 +462,6 @@ public class ProjectService {
     public static int parseStatus(String status) {
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
         return jsonObject.get("retCode").getAsInt();
-
-    }
-
-    /**
-     * parse experience status.
-     *
-     * @param status status.
-     * @return experience status.
-     */
-    public static String parseExperienceStatus(String status) {
-        return new JsonParser().parse(status).getAsJsonObject().get(STATUS_DATA).getAsJsonArray().get(0)
-            .getAsJsonObject().get("mecHostInfo").getAsJsonArray().get(0).getAsJsonObject().get("status").getAsString();
-
     }
 
     /**
@@ -518,7 +474,7 @@ public class ProjectService {
     public String parseInstantiateResult(String status, String enumStatus, String deployMode) {
         String podStatus = null;
         JsonObject jsonObject = new JsonParser().parse(status).getAsJsonObject();
-        if (VM.equalsIgnoreCase(deployMode)) {
+        if (Consts.APP_VM.equalsIgnoreCase(deployMode)) {
             podStatus = jsonObject.get("status").getAsString();
             if (!enumStatus.equalsIgnoreCase(podStatus)) {
                 return podStatus;
@@ -578,14 +534,12 @@ public class ProjectService {
             boolean deleteHostRes = HttpClientUtil.deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(),
                 deployParams, pkgId, host.getMecHost());
             if (!deleteHostRes) {
-                LOGGER.error("delete host records failed after instantiateApp.");
+                LOGGER.error("Delete host records failed after terminating app.");
                 return false;
             }
             // delete pkg of lcm
-            boolean deletePkgRes = HttpClientUtil.deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                deployParams, pkgId);
-            if (!deletePkgRes) {
-                LOGGER.error("delete package failed after instantiateApp.");
+            if (!HttpClientUtil.deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), deployParams, pkgId)) {
+                LOGGER.error("Delete package failed after terminating app.");
                 return false;
             }
         }
@@ -619,7 +573,6 @@ public class ProjectService {
         MepHost mepHost = judgeHost(appReleasePo.getDeployMode());
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         LOGGER.info("Get all hosts success.");
-        String instanceTenentId = userId;
         Release release = packageRepository.findReleaseById(appId, packageId);
         String filePath = release.getPackageFile().getStorageAddress();
         String appInstanceId = appReleasePo.getAppInstanceId();
@@ -633,12 +586,12 @@ public class ProjectService {
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.UPLOADING.getProgress());
             boolean instantRes = deployTestConfigToAppLcm(deployParams, mepHost, appReleasePo, lcmLog);
             if (!instantRes) {
-                LOGGER.error("instantiate application failed, response is null");
+                LOGGER.error("Instantiate application failed, response is null");
                 return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, lcmLog.getLog()));
             }
             updateExperienceStatus(appReleasePo.getPackageId(), EnumExperienceStatus.INSTANTIATED.getProgress());
             appReleasePo.setAppInstanceId(appInstanceId);
-            appReleasePo.setInstanceTenentId(instanceTenentId);
+            appReleasePo.setInstanceTenentId(userId);
             SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             appReleasePo.setStartExpTime(time.format(new Date()));
             packageMapper.updateAppInstanceApp(appReleasePo);
@@ -652,7 +605,7 @@ public class ProjectService {
         // If it is a vm package, it will get the IP in parameter and return it to the foreground
         String workStatus = getWorkStatus(appInstanceId, userId, mepHost, token);
         List<Experience> experienceInfoList;
-        if (CONTAINER.equals(appReleasePo.getDeployMode())) {
+        if (Consts.APP_CONTAINER.equals(appReleasePo.getDeployMode())) {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         } else {
             experienceInfoList = getVmExperienceInfo(workStatus, appReleasePo.getAppName());
@@ -676,7 +629,6 @@ public class ProjectService {
      * @param token token.
      */
     public ResponseEntity<ResponseObject> getNodeStatus(String packageId, String userId, String token) {
-        String workStatus = "";
         String showInfo = "";
         ErrorMessage errMsg = new ErrorMessage(ResponseConst.RET_FAIL, null);
         AppReleasePo appReleasePo = packageMapper.findReleaseById(packageId);
@@ -686,15 +638,15 @@ public class ProjectService {
         // If the VM application is not released, you can determine whether the vm application is released
         // by checking whether the instance ID is empty.
         // If the appInstanceId is null for a vm application, the appInstanceId is released
-        if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId) || StringUtils.isEmpty(
-            token)) {
+        if (StringUtils.isEmpty(appReleasePo.getAppInstanceId()) || StringUtils.isEmpty(userId)
+            || StringUtils.isEmpty(token)) {
             return ResponseEntity.ok(new ResponseObject(showInfo, errMsg, "this package not instantiate"));
         }
-        workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mepHost, token);
+        String workStatus = getWorkStatus(appReleasePo.getAppInstanceId(), userId, mepHost, token);
         if (StringUtils.isEmpty(workStatus)) {
             return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "this package not instantiate"));
         }
-        if (VM.equals(appReleasePo.getDeployMode())) {
+        if (Consts.APP_VM.equals(appReleasePo.getDeployMode())) {
             experienceInfoList = getVmExperienceInfo(workStatus, appReleasePo.getAppName());
         } else {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
@@ -728,17 +680,17 @@ public class ProjectService {
     public boolean cleanUnreleasedEnv() {
         List<AppReleasePo> packageList = packageMapper.findReleaseNoCondtion();
         if (CollectionUtils.isEmpty(packageList)) {
-            LOGGER.error("get package List is empty");
+            LOGGER.error("Get package list is empty.");
             return false;
         }
         // Call by service nameuser-mgmtLogin interface
         try {
             String accessToken = httpClientUtil.getAccessToken();
             if (StringUtils.isEmpty(accessToken)) {
-                LOGGER.error("call login or clean env interface occur error,accesstoken is empty");
+                LOGGER.error("Get access token failed, access token is empty");
                 return false;
             }
-            Instant dateOfProject = null;
+            Instant dateOfProject;
             for (AppReleasePo packageObj : packageList) {
                 DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 String createDate = packageObj.getStartExpTime();
@@ -754,7 +706,7 @@ public class ProjectService {
                 }
             }
         } catch (ParseException e) {
-            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+            LOGGER.error("Parse date failed, errorMsg: {}", e.getMessage());
         }
         return true;
     }

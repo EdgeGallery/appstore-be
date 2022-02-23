@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.mecm.MecmService;
 import org.edgegallery.appstore.application.inner.AppService;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.releases.Release;
 import org.edgegallery.appstore.domain.shared.ErrorMessage;
@@ -57,7 +58,7 @@ public class MecmWrapperServiceFacade {
         List<MecmHostDto> respDataDto;
         if (!StringUtils.isEmpty(appId) && !StringUtil.isEmpty(packageId)) {
             Release release = appService.getRelease(appId, packageId);
-            String vim = release.getDeployMode().equalsIgnoreCase("container") ? "K8s" : "OpenStack";
+            String vim = release.getDeployMode().equalsIgnoreCase(Consts.APP_CONTAINER) ? Consts.OS_K8S : Consts.OS_OPENSTACK;
             List<Map<String, Object>> resMecHosts = mecmHosts.stream()
                 .filter(r -> String.valueOf(r.get("vim")).equalsIgnoreCase(vim)).collect(Collectors.toList());
             LOGGER.info("after filtering by deploy mode {}, size is {}", release.getDeployMode(), resMecHosts.size());

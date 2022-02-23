@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.appstore.application.external.atp.model.AtpMetadata;
 import org.edgegallery.appstore.application.inner.AppService;
+import org.edgegallery.appstore.domain.constants.Consts;
 import org.edgegallery.appstore.domain.constants.ResponseConst;
 import org.edgegallery.appstore.domain.model.app.App;
 import org.edgegallery.appstore.domain.model.app.AppPageCriteria;
@@ -88,8 +89,6 @@ public class AppServiceFacade {
     public static final String HEADER_VALUE = "attachment; filename=";
 
     private static final String ROLE_APPSTORE_ADMIN = "ROLE_APPSTORE_ADMIN";
-
-    private static final String VM = "vm";
 
     private static final String PACKAGE_ILLEGAL = "the app package is illegal and may have been tampered!";
 
@@ -209,7 +208,7 @@ public class AppServiceFacade {
         String fileStorageAddress = fileService.saveTo(tempFile, fileParent);
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileStorageAddress);
-        if (!StringUtils.isEmpty(appClass) && VM.equals(appClass)) {
+        if (!StringUtils.isEmpty(appClass) && Consts.APP_VM.equals(appClass)) {
             packageAFile = new AFile(packageFile.getOriginalFilename(), fileStorageAddress);
 
         } else {
@@ -259,7 +258,7 @@ public class AppServiceFacade {
         }
         AFile packageAFile;
         String appClass = appUtil.getAppClass(fileAddress);
-        if (!StringUtils.isEmpty(appClass) && VM.equals(appClass)) {
+        if (!StringUtils.isEmpty(appClass) && Consts.APP_VM.equals(appClass)) {
             packageAFile = new AFile(multipartFile.getOriginalFilename(), fileAddress);
         } else {
             packageAFile = getPkgFile(multipartFile.getOriginalFilename(), fileAddress, fileParent);
