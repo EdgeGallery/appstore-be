@@ -58,7 +58,8 @@ public class MecmWrapperServiceFacade {
         List<MecmHostDto> respDataDto;
         if (!StringUtils.isEmpty(appId) && !StringUtil.isEmpty(packageId)) {
             Release release = appService.getRelease(appId, packageId);
-            String vim = release.getDeployMode().equalsIgnoreCase(Consts.APP_CONTAINER) ? Consts.OS_K8S : Consts.OS_OPENSTACK;
+            String vim = release.getDeployMode().equalsIgnoreCase(Consts.APP_CONTAINER) ? Consts.OS_K8S
+                : Consts.OS_OPENSTACK;
             List<Map<String, Object>> resMecHosts = mecmHosts.stream()
                 .filter(r -> String.valueOf(r.get("vim")).equalsIgnoreCase(vim)).collect(Collectors.toList());
             LOGGER.info("after filtering by deploy mode {}, size is {}", release.getDeployMode(), resMecHosts.size());
