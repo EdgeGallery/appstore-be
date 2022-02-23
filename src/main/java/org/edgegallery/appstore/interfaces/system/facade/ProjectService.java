@@ -618,7 +618,7 @@ public class ProjectService {
             Thread.currentThread().interrupt();
         }
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url success."));
+        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url successfully."));
     }
 
     /**
@@ -652,7 +652,7 @@ public class ProjectService {
             experienceInfoList = getExperienceInfo(workStatus, mepHost);
         }
         errMsg = new ErrorMessage(ResponseConst.RET_SUCCESS, null);
-        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get app url success."));
+        return ResponseEntity.ok(new ResponseObject(experienceInfoList, errMsg, "get node status successfully."));
     }
 
     /**
