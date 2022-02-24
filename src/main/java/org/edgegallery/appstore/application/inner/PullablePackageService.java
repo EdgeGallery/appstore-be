@@ -267,7 +267,7 @@ public class PullablePackageService {
     public List<PushablePackageDto> filterPullablePackages(List<PushablePackageDto> packages, String userId) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
-            AtomicBoolean bExist = new AtomicBoolean(false);
+            AtomicBoolean isExisted = new AtomicBoolean(false);
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
@@ -275,12 +275,12 @@ public class PullablePackageService {
                     .filter(r -> r.getStatus() == EnumPackageStatus.Published || userId.equals(r.getUser().getUserId()))
                     .forEach(r1 -> {
                         if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
-                            bExist.set(true);
+                            isExisted.set(true);
                             LOGGER.info("The same app has existed. packages name is: {}", dto.getName());
                         }
                     });
             }
-            if (!bExist.get()) {
+            if (!isExisted.get()) {
                 result.add(dto);
             }
         }
