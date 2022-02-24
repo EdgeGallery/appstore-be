@@ -1,4 +1,4 @@
-/* Copyright 2021 Huawei Technologies Co., Ltd.
+/* Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class PullablePackageService {
      */
     public Page<PushablePackageDto> queryAllPullablePackagesV2(int limit, int offset, String appName, String sortType,
         String sortItem) {
-        LOGGER.info("pullablePackageService queryAllPullablePackages come in");
+        LOGGER.info("Begin to query all pullable packages.");
         return pushablePackageRepository.queryAllPushablePackagesV2(limit, offset, appName, sortType, sortItem, "pull");
     }
 
@@ -127,29 +127,28 @@ public class PullablePackageService {
         AppStore appStore = appStoreRepository.queryAppStoreById(platformId);
         if (appStore == null) {
             LOGGER.error(APPSTORE_NOT_EXIST, platformId);
-            return ResponseEntity.ok(new Page<PushablePackageDto>(Collections.emptyList(), limit, offset,
+            return ResponseEntity.ok(new Page<>(Collections.emptyList(), limit, offset,
                 Collections.emptyList().size()));
         }
         String url = appStore.getUrl() + PULLABLE_API_V2 + "?limit=" + limit + "&offset=" + offset + "&appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         String countUrl = appStore.getUrl() + PULLABLE_API;
-        List<PushablePackageDto> countPackages = filterPullablePackages(commonPackage(countUrl, appStore), userId);
+        List<PushablePackageDto> countPackages = filterPullablePackages(getPullablePkgFromExtAppStore(countUrl,
+            appStore.getAppStoreName()), userId);
         LOGGER.info(url);
-        List<PushablePackageDto> packages = commonPackage(url, appStore);
-        return ResponseEntity.ok(new Page<PushablePackageDto>(filterPullablePackages(packages, userId), limit, offset,
+        List<PushablePackageDto> packages = getPullablePkgFromExtAppStore(url, appStore.getAppStoreName());
+        return ResponseEntity.ok(new Page<>(filterPullablePackages(packages, userId), limit, offset,
             countPackages.size()));
-
     }
 
-
     /**
-     * get pull package list.
+     * get pull package list from external appstore.
      *
      * @param url appstore url.
-     * @param appStore appStore.
+     * @param appStoreName appStore name.
      * @return PushablePackageDto list.
      */
-    public List<PushablePackageDto> commonPackage(String url, AppStore appStore) {
+    public List<PushablePackageDto> getPullablePkgFromExtAppStore(String url, String appStoreName) {
         List<PushablePackageDto> packages;
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -158,21 +157,22 @@ public class PullablePackageService {
             ResponseEntity<String> response = restTemplate
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             if (response.getStatusCode() != HttpStatus.OK) {
-                LOGGER.error("getPullablePackages error, response code is {}", response.getStatusCode());
+                LOGGER.error("Failed to get pullable packages from external appstore, response code is {}",
+                    response.getStatusCode());
                 return Collections.emptyList();
             }
 
             String result = response.getBody();
             if (result == null) {
-                LOGGER.error("get pullable packages is null");
+                LOGGER.error("The pullable packages is empty.");
                 return Collections.emptyList();
             }
 
             Gson g = new Gson();
             packages = g.fromJson(result, new TypeToken<List<PushablePackageDto>>() { }.getType());
-            LOGGER.info("get pullable packages from {}, size is {}", appStore.getAppStoreName(), packages.size());
+            LOGGER.info("The size of pullable packages from {} is: {}", appStoreName, packages.size());
         } catch (RestClientException e) {
-            LOGGER.error("failed to get pullable packages from url {}", url);
+            LOGGER.error("Failed to get pullable packages from url {}, errMsg: {}", url, e.getMessage());
             return Collections.emptyList();
         }
         return  packages;
@@ -186,7 +186,7 @@ public class PullablePackageService {
      */
     public List<PushablePackageDto> queryAllPullablePackages(String appName,
         String sortType, String sortItem) {
-        LOGGER.info("pullablePackageService queryAllPullablePackages come in");
+        LOGGER.info("Begin to query all pullable packages.");
         return pushablePackageRepository.queryAllPushablePackages(appName, sortType, sortItem, "pull");
     }
 
@@ -207,7 +207,7 @@ public class PullablePackageService {
         String url = appStore.getUrl() + PULLABLE_API + "?appName="
             + appName + "&sortType=" + sortType + "&sortItem=" + sortItem;
         LOGGER.info(url);
-        List<PushablePackageDto> packages = commonPackage(url, appStore);
+        List<PushablePackageDto> packages = getPullablePkgFromExtAppStore(url, appStore.getAppStoreName());
         return filterPullablePackages(packages, userId);
     }
 
@@ -221,7 +221,7 @@ public class PullablePackageService {
      * @return dto
      */
     public Boolean pullPackage(String packageId, String sourceStoreId, User user, PushablePackageDto packagePo) {
-        LOGGER.info("pullPackage sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
+        LOGGER.info("Pull package from sourceStoreId {}, userName {}", sourceStoreId, user.getUserName());
         AppStore appStore = appStoreRepository.queryAppStoreById(sourceStoreId);
         if (appStore == null) {
             LOGGER.error(APPSTORE_NOT_EXIST, sourceStoreId);
@@ -230,29 +230,29 @@ public class PullablePackageService {
         String baseUrl = appStore.getUrl();
         String packageDownloadUrl = baseUrl + String.format(DOWNLOAD_PACKAGE_API, packageId);
         String iconDownloadUrl = baseUrl + String.format(DOWNLOAD_ICON_API, packageId);
-        LOGGER.info("pullPackage packageDownloadUrl {}, iconDownloadUrl {}", packageDownloadUrl, iconDownloadUrl);
+        LOGGER.info("The package DownloadUrl is: {}, icon DownloadUrl is: {}", packageDownloadUrl, iconDownloadUrl);
 
         try {
             String parentPath = dir + File.separator + UUID.randomUUID().toString().replace("-", "");
             String targetAppstore = context.platformName;
             File tempPackage = fileService.downloadFile(packageDownloadUrl, parentPath, targetAppstore);
             File tempIcon = fileService.downloadFile(iconDownloadUrl, parentPath, targetAppstore);
-            AFile apackage = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
+            AFile appPkg = new AFile(tempPackage.getName(), tempPackage.getCanonicalPath());
             AFile icon = new AFile(tempIcon.getName(), tempIcon.getCanonicalPath());
-            apackage.setFileSize(tempPackage.length());
-            String appClass = appUtil.getAppClass(apackage.getStorageAddress());
+            appPkg.setFileSize(tempPackage.length());
+            String appClass = appUtil.getAppClass(appPkg.getStorageAddress());
             String showType = "public";
             AppParam appParam = new AppParam(packagePo.getType(), showType, packagePo.getAffinity(),
                 packagePo.getIndustry(), false);
-            Release release = new Release(apackage, icon, null, user, appParam, appClass);
+            Release release = new Release(appPkg, icon, null, user, appParam, appClass);
             // the package pulled from third appstore need to be tested by local appstore's atp
             release.setStatus(EnumPackageStatus.Upload);
             appService.registerApp(release);
 
             addPullMessage(packagePo);
         } catch (IOException e) {
-            LOGGER.error("IOException: {}", e.getMessage());
-            throw new AppException("pull package exception.", ResponseConst.RET_PULL_PACKAGE_FAILED);
+            LOGGER.error("Failed to pull package, errorMsg: {}", e.getMessage());
+            throw new AppException("Failed to pull package.", ResponseConst.RET_PULL_PACKAGE_FAILED);
         }
         return true;
     }
@@ -262,12 +262,12 @@ public class PullablePackageService {
      *
      * @param packages packages list.
      * @param  userId userId.
-     * @return
+     * @return pullable packages list
      */
     public List<PushablePackageDto> filterPullablePackages(List<PushablePackageDto> packages, String userId) {
         List<PushablePackageDto> result = new ArrayList<>();
         for (PushablePackageDto dto : packages) {
-            AtomicBoolean bexist = new AtomicBoolean(false);
+            AtomicBoolean isExisted = new AtomicBoolean(false);
             Optional<App> existedApp = appRepository.findByAppNameAndProvider(dto.getName(), dto.getProvider());
             if (existedApp.isPresent()) {
                 List<Release> releases = existedApp.get().getReleases();
@@ -275,16 +275,16 @@ public class PullablePackageService {
                     .filter(r -> r.getStatus() == EnumPackageStatus.Published || userId.equals(r.getUser().getUserId()))
                     .forEach(r1 -> {
                         if (dto.getVersion().equals(r1.getAppBasicInfo().getVersion())) {
-                            bexist.set(true);
-                            LOGGER.info("The same app has existed. packages name {}", dto.getName());
+                            isExisted.set(true);
+                            LOGGER.info("The same app has existed. packages name is: {}", dto.getName());
                         }
                     });
             }
-            if (!bexist.get()) {
+            if (!isExisted.get()) {
                 result.add(dto);
             }
         }
-        LOGGER.info("the packages size is {} after filter", result.size());
+        LOGGER.info("The packages size after filtering is: {}", result.size());
         return result;
     }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.edgegallery.appstore.infrastructure.util.ResponseDataUtil;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.system.facade.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -121,7 +120,7 @@ public class ProjectController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/experience/container/workStatus", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = javax.ws.rs.core.MediaType.APPLICATION_JSON)
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<ResponseObject> getNodeStatus(
         @ApiParam(value = "package id") @RequestParam("packageId") String packageId,
@@ -129,6 +128,4 @@ public class ProjectController {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         return projectService.getNodeStatus(packageId, userId, token);
     }
-
-
 }
