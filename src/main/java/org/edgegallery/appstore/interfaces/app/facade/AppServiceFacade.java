@@ -127,8 +127,8 @@ public class AppServiceFacade {
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
             if (file == null) {
-                LOGGER.error("can not find any needed file");
-                throw new IllegalRequestException("can not find any needed file", ResponseConst.RET_PARAM_INVALID);
+                LOGGER.error("Can not find any needed file");
+                throw new IllegalRequestException("Can not find any needed file", ResponseConst.RET_PARAM_INVALID);
             }
             File uploadDirTmp = new File(filePathTemp);
             checkDir(uploadDirTmp);
@@ -146,7 +146,7 @@ public class AppServiceFacade {
             }
         }
 
-        return ResponseEntity.ok("upload package block success.");
+        return ResponseEntity.ok("Upload package block successfully.");
     }
 
     /**
@@ -182,6 +182,7 @@ public class AppServiceFacade {
             throw new FileOperateException("can not merge parts to file", ResponseConst.RET_COPY_FILE_FAILED);
         }
 
+        LOGGER.info("Merge file successfully.");
         return ResponseEntity.ok(randomPath);
     }
 

@@ -302,7 +302,7 @@ public class AppRegisterTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
-    public void should_success_upload_with_Chun() throws IOException {
+    public void should_success_upload_with_Chunk() throws IOException {
         File csarFile = Resources.getResourceAsFile(TEST2048_1_CSAR);
         FileInputStream fileInputStream = new FileInputStream(csarFile);
         MultipartFile multipartFile = new MockMultipartFile("file", csarFile.getName(), "multipart/form-data",
@@ -314,7 +314,7 @@ public class AppRegisterTest extends AppTest {
         chunk.setFilename("test2048_1.0.csar");
         chunk.setChunkNumber(1);
         ResponseEntity<String> uploadRes  = appServiceFacade.uploadImage(true,chunk);
-        Assert.assertEquals("upload package block success.", uploadRes.getBody().toString());
+        Assert.assertEquals("Upload package block successfully.", uploadRes.getBody().toString());
         ResponseEntity<String> res  = appServiceFacade.merge("test2048_1.0.csar","12240-test2048_1.0");
         HttpStatus ss = res.getStatusCode();
         Assert.assertEquals("200 OK", res.getStatusCode().toString());
