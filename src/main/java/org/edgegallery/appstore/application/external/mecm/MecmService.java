@@ -1,4 +1,4 @@
-/* Copyright 2021 Huawei Technologies Co., Ltd.
+/* Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +180,7 @@ public class MecmService {
             }
             JsonObject jsonBody = new JsonParser().parse(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray hostInfo = jsonBody.get("data").getAsJsonArray();
-            return new Gson().fromJson(hostInfo, List.class);
+            return new Gson().fromJson(hostInfo, new TypeToken<List<Map<String, Object>>>() { }.getType());
         } catch (RestClientException | NullPointerException e) {
             LOGGER.error("Failed to get mechosts, exception is {}", e.getMessage());
         }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021-2022 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.edgegallery.appstore.infrastructure.util;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -56,26 +57,12 @@ public class UploadFileUtil {
     private String fileSystemAddress;
 
     /**
-     *Convert a byte to hexadecimal and return it as a string.
-     * @param b bytes.
-     */
-    public static String byteToHex(byte b) {
-        String hex = Integer.toHexString(b & 0xFF);
-        if (hex.length() < 2) {
-            hex = "0" + hex;
-        }
-        return hex;
-    }
-
-
-    /**
      * upload file to file server.
      *
      * @param userId userId.
      * @param absolutionFilePath absolutionFilePath.
      */
     public String uploadFile(String userId, String absolutionFilePath) {
-        String imageId = "";
         File sourceFile = new File(absolutionFilePath);
         String tempFolder = new File(absolutionFilePath).getParent();
         long fileLength = sourceFile.length();
@@ -87,7 +74,7 @@ public class UploadFileUtil {
 
         byte[] buf = new byte[CHUNK_SIZE];
         int chunkCount = 0;
-        int currentChunkSize = -1;
+        int currentChunkSize;
         String identifier = UUID.randomUUID().toString().replace("-", "");
         try (RandomAccessFile readFile = new RandomAccessFile(sourceFile, "rw");) {
             while ((currentChunkSize = readFile.read(buf)) != -1) {
@@ -101,22 +88,23 @@ public class UploadFileUtil {
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create();
                 builder.addPart(targetFile, bin);
                 if (!sliceUploadFile(identifier, targetFile)) {
-                    LOGGER.error("upload to remote file server failed.");
+                    LOGGER.error("Upload to remote file server failed.");
                     FileUtils.deleteQuietly(new File(targetFile));
                 }
             }
         } catch (IOException e) {
-            throw new AppException("upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
+            LOGGER.error("Upload to remote file server failed, errorMsg: {}", e.getMessage());
+            throw new AppException("Upload to remote file server failed.", ResponseConst.RET_UPLOAD_FILE_FAILED);
         }
 
+        String imageId = "";
         if (chunkTotal == chunkCount) {
             String fileName = absolutionFilePath.substring(absolutionFilePath.lastIndexOf(File.separator) + 1);
-            String uploadResult = sliceMergeFile(identifier, fileName, userId);
-            Gson gson = new Gson();
-            Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
+            String uploadResult = mergeSegmentFiles(identifier, fileName, userId);
+            Map<String, String> uploadResultModel = new Gson()
+                .fromJson(uploadResult, new TypeToken<Map<String, String>>() { }.getType());
             imageId = uploadResultModel.get("imageId");
             deleteTempPartFile(tempFolder, fileName);
-
         }
         return imageId;
     }
@@ -127,12 +115,12 @@ public class UploadFileUtil {
      * @param tempPath temp file folder.
      */
     public void deleteTempPartFile(String tempPath, String fileName) {
-
         try {
             File tempFolder = new File(tempPath).getCanonicalFile();
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                LOGGER.error("temp file folder not exist.");
-                throw new FileOperateException(".emp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
+                LOGGER.error("The temp file folder does not exist.");
+                throw new FileOperateException("The temp file folder does not exist",
+                    ResponseConst.RET_MAKE_DIR_FAILED);
             }
             File[] files = tempFolder.listFiles();
             if (files != null && files.length > 0) {
@@ -143,8 +131,8 @@ public class UploadFileUtil {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("temp file folder not exist");
-            throw new AppException("temp file folder not exist", ResponseConst.RET_MAKE_DIR_FAILED);
+            LOGGER.error("Delete temp part file failed, errorMsg: {}", e.getMessage());
+            throw new AppException("Delete temp part file failed.", ResponseConst.RET_DEL_FILE_FAILED);
         }
     }
 
@@ -167,20 +155,18 @@ public class UploadFileUtil {
             = new org.springframework.http.HttpEntity<>(formData, headers);
         String url = String.format("%s/image-management/v1/images/upload", fileSystemAddress);
 
-        ResponseEntity<String> response;
         try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                LOGGER.error("Slice uploaded file failed!");
+                return false;
+            }
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("slice upload file exception {}", errorLog);
+            LOGGER.error("Slice uploaded file failed, CustomException: {}", errorLog);
             return false;
         } catch (RestClientException e) {
-            LOGGER.error("slice upload file exception {}", e.getMessage());
-            return false;
-        }
-
-        if (response == null || response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("slice upload file failed!");
+            LOGGER.error("Slice uploaded file failed, RestClientException: {}", e.getMessage());
             return false;
         }
         return true;
@@ -188,14 +174,14 @@ public class UploadFileUtil {
 
 
     /**
-     * slice merge file.
+     * merge segment files.
      *
      * @param fileName File name.
      * @param identifier File Identifier.
      * @param userId User ID.
      */
-    public String sliceMergeFile(String identifier, String fileName, String userId) {
-        LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);
+    public String mergeSegmentFiles(String identifier, String fileName, String userId) {
+        LOGGER.info("Merge segment files, identifier = {}, filename = {}", identifier, fileName);
 
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("userId", userId);
@@ -215,19 +201,19 @@ public class UploadFileUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
         } catch (CustomException e) {
             String errorLog = e.getBody();
-            LOGGER.error("slice merge file CustomException: {}", errorLog);
+            LOGGER.error("Merge segment files failed, CustomException: {}", errorLog);
             return null;
         } catch (RestClientException e) {
-            LOGGER.error("slice merge file RestClientException: {}", e.getMessage());
+            LOGGER.error("Merge segment files failed, RestClientException: {}", e.getMessage());
             return null;
         }
 
         if (response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("slice merge file failed, response = {}", response);
+            LOGGER.error("Merge segment files failed, response = {}", response);
             return null;
         }
 
-        LOGGER.info("slice merge file success, resp = {}", response);
+        LOGGER.info("Merge segment files successfully, resp = {}", response);
         return response.getBody();
     }
 
