@@ -435,16 +435,16 @@ public class PackageServiceFacade {
     }
 
     /**
-     * offShelf package.
+     * unPublish package.
      *
      * @param appId app id
      * @param packageId package id
      * @param user user info
      * @param isAdmin if admin role
      */
-    public ResponseEntity<String> offShelfPackage(String appId, String packageId, User user, boolean isAdmin) {
-        packageService.offShelfPackage(appId, packageId, user, isAdmin);
-        return ResponseEntity.ok("OffShelf Success");
+    public ResponseEntity<String> unPublishPackage(String appId, String packageId, User user, boolean isAdmin) {
+        packageService.unPublishPackage(appId, packageId, user, isAdmin);
+        return ResponseEntity.ok("UnPublish Success");
     }
 
 }
