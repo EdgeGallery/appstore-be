@@ -435,16 +435,16 @@ public class PackageServiceFacade {
     }
 
     /**
-     * unPublish package.
+     * unpublish package.
      *
      * @param appId app id
      * @param packageId package id
      * @param user user info
      * @param isAdmin if admin role
      */
-    public ResponseEntity<String> unPublishPackage(String appId, String packageId, User user, boolean isAdmin) {
-        packageService.unPublishPackage(appId, packageId, user, isAdmin);
-        return ResponseEntity.ok("UnPublish Success");
+    public ResponseEntity<String> unpublishPackage(String appId, String packageId, User user, boolean isAdmin) {
+        packageService.unpublishPackage(appId, packageId, user, isAdmin);
+        return ResponseEntity.ok("Unpublish Success");
     }
 
 }

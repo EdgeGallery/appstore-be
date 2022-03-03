@@ -87,7 +87,7 @@ public class PackageService {
     public void publishPackage(String appId, String packageId, PublishAppReqDto publishAppReq) {
         Release release = packageRepository.findReleaseById(appId, packageId);
         if (release.getStatus() != EnumPackageStatus.Test_success
-            && release.getStatus() != EnumPackageStatus.UnPublish) {
+            && release.getStatus() != EnumPackageStatus.Unpublished) {
             LOGGER.error("Package status is {}, publish failed", release.getStatus());
             throw new AppException("Test status is not success, publish failed", ResponseConst.RET_PUBLISH_NO_TESTED);
         }
@@ -314,14 +314,14 @@ public class PackageService {
     }
 
     /**
-     * unPublish a package.
+     * unpublish a package.
      *
      * @param appId app id
      * @param packageId package id
      * @param user user info
      * @param isAdmin if admin role
      */
-    public void unPublishPackage(String appId, String packageId, User user, boolean isAdmin) {
+    public void unpublishPackage(String appId, String packageId, User user, boolean isAdmin) {
         App app = appRepository.find(appId)
             .orElseThrow(() -> new EntityNotFoundException(App.class, appId, ResponseConst.RET_APP_NOT_FOUND));
         Release release = app.findByPackageId(packageId)
@@ -330,12 +330,12 @@ public class PackageService {
         release.checkPermission(user, isAdmin, ResponseConst.RET_NO_ACCESS_OFFSHELF_PACKAGE);
 
         if (release.getStatus() != EnumPackageStatus.Published) {
-            LOGGER.error("Package status is {}, unPublish failed", release.getStatus());
+            LOGGER.error("Package status is {}, unpublish failed", release.getStatus());
             throw new AppException("The application can be taken off shelf only after it is published.",
                 ResponseConst.RET_OFFSHELF_NO_PUBLISH);
         }
 
-        release.setStatus(EnumPackageStatus.UnPublish);
+        release.setStatus(EnumPackageStatus.Unpublished);
         packageRepository.updateRelease(release);
 
         if (!app.hasPublishedRelease()) {

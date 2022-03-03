@@ -33,13 +33,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-public class UnPublishPackageTest extends AppTest {
+public class UnpublishPackageTest extends AppTest {
 
     @Test
     @WithMockUser(roles = "APPSTORE_TENANT")
     public void should_success() throws Exception {
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unPublish", appId, packageId)).with(csrf())
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unpublish", appId, packageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", userId).param("userName", userName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
@@ -60,7 +60,7 @@ public class UnPublishPackageTest extends AppTest {
         String testAppId = "3993111199fe4cd8881f04ca8c4fe09e";
         String testPackageId = "3993111199fe4cd8881f04ca8c4fe09e";
         MvcResult result = mvc.perform(MockMvcRequestBuilders
-            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unPublish", testAppId, testPackageId)).with(csrf())
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unpublish", testAppId, testPackageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", userId).param("userName", userName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
@@ -69,7 +69,7 @@ public class UnPublishPackageTest extends AppTest {
         Assert.assertEquals(ResponseConst.RET_APP_NOT_FOUND, restReturn.getRetCode());
 
         result = mvc.perform(MockMvcRequestBuilders
-            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unPublish", appId, testPackageId)).with(csrf())
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unpublish", appId, testPackageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", userId).param("userName", userName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
@@ -82,7 +82,7 @@ public class UnPublishPackageTest extends AppTest {
             packageMapper.updateRelease(r);
         });
         result = mvc.perform(MockMvcRequestBuilders
-            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unPublish", appId, unPublishedPackageId)).with(csrf())
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unpublish", appId, unPublishedPackageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", userId).param("userName", userName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
@@ -92,9 +92,9 @@ public class UnPublishPackageTest extends AppTest {
         Assert.assertEquals(ResponseConst.RET_OFFSHELF_NO_PUBLISH, restReturn.getRetCode());
 
         String testUserId = "39937079-99fe-4cd8-881f-04ca8c4fe09d";
-        String testUserName = "test-username-unPublish";
+        String testUserName = "test-username-unpublish";
         result = mvc.perform(MockMvcRequestBuilders
-            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unPublish", appId, packageId)).with(csrf())
+            .post(String.format("/mec/appstore/v1/apps/%s/packages/%s/action/unpublish", appId, packageId)).with(csrf())
             .content(gson.toJson(new PublishAppReqDto()))
             .param("userId", testUserId).param("userName", testUserName)
             .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultHandlers.print()).andReturn();
