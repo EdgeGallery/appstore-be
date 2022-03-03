@@ -278,7 +278,7 @@ public class PackageController {
     }
 
     /**
-     * offShelf package by appId and packageId.
+     * unPublish package by appId and packageId.
      *
      * @param packageId  package id
      * @param appId  app id
@@ -287,15 +287,15 @@ public class PackageController {
      * @param request request info
      * @return string
      */
-    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/offShelf", produces = MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "offShelf the package.", response = String.class)
+    @PostMapping(value = "/apps/{appId}/packages/{packageId}/action/unPublish", produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "unPublish the package.", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 404, message = "microservice not found", response = String.class),
         @ApiResponse(code = 415, message = "Unprocessable MicroServiceInfo Entity ", response = String.class),
         @ApiResponse(code = 500, message = "resource grant error", response = String.class)
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN')")
-    public ResponseEntity<String> offShelfPackage(
+    public ResponseEntity<String> unPublishPackage(
         @ApiParam(value = "package Id") @PathVariable("packageId") @Pattern(
             regexp = Consts.REG_APP_ID) String packageId,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId,
@@ -307,6 +307,6 @@ public class PackageController {
         if (!StringUtils.isEmpty(authorities) && authorities.contains("ROLE_APPSTORE_ADMIN")) {
             isAdmin = true;
         }
-        return packageServiceFacade.offShelfPackage(appId, packageId, new User(userId, userName), isAdmin);
+        return packageServiceFacade.unPublishPackage(appId, packageId, new User(userId, userName), isAdmin);
     }
 }
