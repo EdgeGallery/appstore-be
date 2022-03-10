@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -39,7 +40,6 @@ import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.QueryAppReqDto;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -117,12 +117,12 @@ public class AppV2Controller {
         @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
-        @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app type", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app showType") @RequestPart(name = "showType", required = false) String showType,
-        @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app affinity", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-        @ApiParam(value = "app industry", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app industry", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)

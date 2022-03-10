@@ -27,6 +27,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +39,6 @@ import org.edgegallery.appstore.domain.shared.ResponseObject;
 import org.edgegallery.appstore.interfaces.apackage.facade.PackageServiceFacade;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PackageDto;
 import org.edgegallery.appstore.interfaces.apackage.facade.dto.PublishAppReqDto;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -187,7 +187,7 @@ public class PackageController {
     public ResponseEntity<String> getCsarFileByName(
         @ApiParam(value = "package Id", required = true) @PathVariable("packageId")
         @Pattern(regexp = Consts.REG_APP_ID) String packageId,
-        @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @FormParam("filePath") String filePath,
+        @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @FormParam("filePath") String filePath,
         @ApiParam(value = "app Id") @PathVariable("appId") @Pattern(regexp = Consts.REG_APP_ID) String appId) {
         String fileContent = packageServiceFacade.getCsarFileByName(appId, packageId, filePath);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);

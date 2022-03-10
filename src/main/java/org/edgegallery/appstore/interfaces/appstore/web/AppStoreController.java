@@ -23,12 +23,12 @@ import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.appstore.interfaces.appstore.facade.AppStoreServiceFacade;
 import org.edgegallery.appstore.interfaces.appstore.facade.dto.AppStoreDto;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,25 +83,25 @@ public class AppStoreController {
     public ResponseEntity<AppStoreDto> addAppStore(
             @ApiParam(value = "app store name") @RequestPart("appStoreName")
             @NotNull(message = "appStoreName should not be null.")
-            @Length(max = MAX_NAME_LEN, min = 1) String appStoreName,
+            @Size(max = MAX_NAME_LEN, min = 1) String appStoreName,
             @ApiParam(value = "app store version") @RequestPart("appStoreVersion")
             @NotNull(message = "appStoreVersion should not be null.")
-            @Length(max = MAX_VERSION_LEN) String appStoreVersion,
+            @Size(max = MAX_VERSION_LEN) String appStoreVersion,
             @ApiParam(value = "app store company") @RequestPart("company")
             @NotNull(message = "company should not be null.")
-            @Length(max = MAX_COMPANY_LEN) String company,
+            @Size(max = MAX_COMPANY_LEN) String company,
             @ApiParam(value = "app store url") @RequestPart("url")
             @Pattern(regexp = APPSTORE_URL)
             @NotNull(message = "url should not be null.")
-            @Length(max = MAX_URL_LEN) String url,
+            @Size(max = MAX_URL_LEN) String url,
             @ApiParam(value = "app store schema") @RequestPart(name = "schema", required = false)
             @Pattern(regexp = REG_SCHEMA) String schema,
             @ApiParam(value = "app store push interface") @RequestPart(name = "appPushIntf", required = false)
-            @Length(max = MAX_URL_LEN) String appPushIntf,
+            @Size(max = MAX_URL_LEN) String appPushIntf,
             @ApiParam(value = "appd translate id") @RequestPart("appdTransId")
             @NotNull(message = "appdTransId should not be null.") String appdTransId,
             @ApiParam(value = "app store description") @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description) {
+            @Size(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(null, appStoreName, appStoreVersion, company, url, schema,
                 appPushIntf, appdTransId, description, null, null);
         return appStoreServiceFacade.addAppStore(appStoreDto);
@@ -139,21 +139,21 @@ public class AppStoreController {
             @PathVariable("appStoreId") @Pattern(regexp = REG_UUID)
             @NotNull(message = "appStoreId should not be null.") String appStoreId,
             @ApiParam(value = "app store name") @RequestPart(value = "appStoreName", required = false)
-            @Length(max = MAX_NAME_LEN, min = 1) String appStoreName,
+            @Size(max = MAX_NAME_LEN, min = 1) String appStoreName,
             @ApiParam(value = "app store version") @RequestPart(value = "appStoreVersion", required = false)
-            @Length(max = MAX_VERSION_LEN, min = 1) String appStoreVersion,
+            @Size(max = MAX_VERSION_LEN, min = 1) String appStoreVersion,
             @ApiParam(value = "app store company") @RequestPart(value = "company", required = false)
-            @Length(max = MAX_COMPANY_LEN, min = 1) String company,
+            @Size(max = MAX_COMPANY_LEN, min = 1) String company,
             @ApiParam(value = "app store url") @RequestPart(value = "url", required = false)
-            @Length(max = MAX_URL_LEN, min = 1) String url,
+            @Size(max = MAX_URL_LEN, min = 1) String url,
             @ApiParam(value = "app store schema") @RequestPart(value = "schema", required = false)
             @Pattern(regexp = REG_SCHEMA) String schema,
             @ApiParam(value = "app push interface") @RequestPart(value = "appPushIntf", required = false)
-            @Length(max = MAX_URL_LEN, min = 1) String appPushIntf,
+            @Size(max = MAX_URL_LEN, min = 1) String appPushIntf,
             @ApiParam(value = "appd translate id")
             @RequestPart(value = "appdTransId", required = false) String appdTransId,
             @ApiParam(value = "app store description") @RequestPart(value = "description", required = false)
-            @Length(max = MAX_DESC_LEN) String description) {
+            @Size(max = MAX_DESC_LEN) String description) {
         AppStoreDto appStoreDto = new AppStoreDto(appStoreId, appStoreName, appStoreVersion,
                 company, url, schema, appPushIntf, appdTransId, description,
                 null, null);
