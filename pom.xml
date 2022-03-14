@@ -59,6 +59,10 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>servo-core</artifactId>
             <groupId>com.netflix.servo</groupId>
             <version>0.13.2</version>
