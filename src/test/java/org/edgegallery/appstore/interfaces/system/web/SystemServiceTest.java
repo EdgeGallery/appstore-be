@@ -82,7 +82,7 @@ public class SystemServiceTest {
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
-        host.setPort(30200);
+        host.setPort(32001);
         expectedEx.expectMessage( "Create host failed, userId is empty");
         Either<ResponseObject, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);

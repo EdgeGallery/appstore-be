@@ -18,9 +18,10 @@ package org.edgegallery.appstore.domain.model.system;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
@@ -29,7 +30,7 @@ public class MepHost {
     private String hostId;
 
     @NotBlank
-    @Size(min = 6, max = 50)
+    @Length(min = 6, max = 50)
     private String name;
 
     @NotBlank
@@ -48,7 +49,8 @@ public class MepHost {
 
     private String protocol;
 
-    @Size(min = 30000, max = 32000)
+    @Range(min = 30000, max = 32000)
+    @NotNull
     private int port;
 
     private String os;
