@@ -27,7 +27,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -42,6 +41,7 @@ import org.edgegallery.appstore.interfaces.app.facade.AppParam;
 import org.edgegallery.appstore.interfaces.app.facade.AppServiceFacade;
 import org.edgegallery.appstore.interfaces.app.facade.dto.AppDto;
 import org.edgegallery.appstore.interfaces.app.facade.dto.RegisterRespDto;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -117,12 +117,12 @@ public class AppController {
         @ApiParam(value = "csar package", required = true) @RequestPart("file") MultipartFile file,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
-        @ApiParam(value = "app type", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
         @ApiParam(value = "app showType") @RequestPart(name = "showType", required = false) String showType,
-        @ApiParam(value = "app affinity", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-        @ApiParam(value = "app industry", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app industry", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
@@ -150,13 +150,13 @@ public class AppController {
             message = "address should not be null.") @RequestPart("fileAddress") String fileAddress,
         @ApiParam(value = "file icon", required = true) @RequestPart("icon") MultipartFile icon,
         @ApiParam(value = "demo file") @RequestPart(name = "demoVideo", required = false) MultipartFile demoVideo,
-        @ApiParam(value = "app type", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app type", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "type should not be null.") @RequestPart("type") String type,
-        @ApiParam(value = "app showType", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app showType", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "showType should not be null.") @RequestPart("showType") String showType,
-        @ApiParam(value = "app affinity", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app affinity", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "affinity should not be null.") @RequestPart("affinity") String affinity,
-        @ApiParam(value = "app industry", required = true) @Size(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
+        @ApiParam(value = "app industry", required = true) @Length(max = Consts.MAX_DETAILS_STRING_LENGTH) @NotNull(
             message = "industry should not be null.") @RequestPart("industry") String industry,
         @ApiParam(value = "test task id") @RequestPart(name = "testTaskId", required = false) String testTaskId,
         @ApiParam(value = "app experienceAble") @RequestPart(name = "experienceAble", required = false)
@@ -176,11 +176,11 @@ public class AppController {
     })
     @PreAuthorize("hasRole('APPSTORE_TENANT') || hasRole('APPSTORE_ADMIN') || hasRole('APPSTORE_GUEST')")
     public ResponseEntity<List<AppDto>> queryAppsByCond(
-        @ApiParam(value = "app name") @Size(max = MAX_COMMON_STRING_LENGTH) @QueryParam("name") String name,
-        @ApiParam(value = "app provider") @Size(max = MAX_COMMON_STRING_LENGTH) @QueryParam("provider")
+        @ApiParam(value = "app name") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("name") String name,
+        @ApiParam(value = "app provider") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("provider")
             String provider,
-        @ApiParam(value = "app type") @Size(max = MAX_COMMON_STRING_LENGTH) @QueryParam("type") String type,
-        @ApiParam(value = "app affinity") @Size(max = MAX_COMMON_STRING_LENGTH) @QueryParam("affinity")
+        @ApiParam(value = "app type") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("type") String type,
+        @ApiParam(value = "app affinity") @Length(max = MAX_COMMON_STRING_LENGTH) @QueryParam("affinity")
             String affinity, @QueryParam("userId") @Pattern(regexp = Consts.REG_USER_ID) String userId) {
         return appServiceFacade.queryAppsByCond(name, provider, type, affinity, userId, 100, 0);
     }
