@@ -30,7 +30,7 @@ import org.hibernate.validator.constraints.Range;
 @NoArgsConstructor
 public class CommentRequest {
 
-    @Length(min = 1, max = 12)
+    @Length(min = 1, max = 1024)
     @NotNull
     private String body;
 
